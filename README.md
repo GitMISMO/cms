@@ -43,15 +43,28 @@ cannot read a private repository by itself — a browser has no credential for o
 holds the GitHub token and is what bridges the two, which is why the private repository and
 the relay arrive together rather than separately.
 
-## Connecting the relay
+## Connected: the shared sign-in and the relay (9 Oct 2026)
 
-Add one block to `index.html` above the application script:
+The page now opens only behind the MISMO Resources sign-in (People & Access, key `cms`), loads the real records from
+`cms-data` through the relay, and saves edits there. It is done by **`relay-connect.js`** in this repository, which
+gives the page the three services it asks Claude for (`user`, `db`, `downloads`), so the page's own logic runs
+unchanged:
 
-```html
-<script>window.CMS_CONFIG = { relay: "https://<the relay's address>", project: "cms" };</script>
-```
+- **Records** (`portal-data.json`, `data/<file>.json`) are only ever *read*, after sign-in, in place of the empty
+  public placeholders. The public file still carries none.
+- **Edits**: each collection the page writes (`cycleState`, `invoices`, `orgEdits`, `scores`, `activity`, ...) is
+  `data/db-<collection>.json` in `cms-data`, saved through the relay with the version it read; if someone saved in
+  between, the change is re-applied on top of theirs.
+- **Access**: Edit may save; View opens read-only and the page shows its own view-only notice.
 
-Nothing else changes. The banner changes on its own to match what the page can reach.
+**For the build (`public-bundle.py`): carry these four hooks into every new `index.html`,** or the next build
+disconnects the page:
+
+1. `<script src="/assets/session.js"></script>` just before `</head>`
+2. the application script's opening tag as `<script type="text/x-cms-app" id="cms-app">` (relay-connect.js starts
+   it once the records are in)
+3. `<span id="rs-account"></span>` in the masthead, after the `mast-exit` button
+4. `<script src="relay-connect.js"></script>` just before `</body>`
 
 ## How this is updated
 
