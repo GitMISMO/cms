@@ -7119,7 +7119,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   function storeSituation(){
 
     if(D.publicPreview) return "shell";
-    if(CMS_RELAY) return "connected";       
+    if(CMS_RELAY || (window.CMS_CONFIG && window.CMS_CONFIG.relay)) return "connected";       
     return (typeof window.claude === "undefined") ? "preview" : "browser-only";
   }
 
