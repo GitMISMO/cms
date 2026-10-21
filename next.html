@@ -12489,6 +12489,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   /* app.js was parked as plain text so that it could not run before the records
      were in place. Put the records where it looks for them, then start it. */
   function run(data){
+      /* relay-connect.js does this for the other page; this one has its own loader,
+         so the app would otherwise think no relay is configured and call itself a preview. */
+      window.CMS_CONFIG = { relay: RELAY, project: PROJECT };
+
     var slot = document.getElementById("cms-data");
     var held = document.getElementById("cms-app");
     if(!slot || !held){ stuck("This page is not put together the way it should be."); return; }
