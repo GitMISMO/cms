@@ -12465,23 +12465,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   }
 
   function read(path){
-      var isRepoFile = path.indexOf("data/") !== 0;
-      var url = isRepoFile
-        ? RELAY + "/" + PROJECT + "/file/" + path
-        : RELAY + "/" + PROJECT + "/data/" + path.slice(5).replace(/\.json$/, "");
-      return fetch(url, { headers: { "Authorization": "Bearer " + token() } }).then(function(r){
+      /* Every entry in FILES is a path to a real file in the records repository,
+         so they all go through the file route, which hands back the bytes base64. */
+      return fetch(RELAY + "/" + PROJECT + "/file/" + path, {
+        headers: { "Authorization": "Bearer " + token() }
+      }).then(function(r){
         if(r.status === 404) return null;
         if(!r.ok) throw new Error(path + " (" + r.status + ")");
         return r.json();
       }).then(function(body){
         if(!body) return null;
-        if(body.data !== null && body.data !== undefined) return body.data;
         if(typeof body.content === "string"){
           var bin = atob(body.content), bytes = new Uint8Array(bin.length);
           for(var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
           try{ return JSON.parse(new TextDecoder("utf-8").decode(bytes)); }
           catch(e){ throw new Error(path + " is not readable JSON"); }
         }
+        if(body.data !== null && body.data !== undefined) return body.data;
         return null;
       });
     }
