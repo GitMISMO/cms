@@ -12526,13 +12526,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     "data/emortgage-questionnaires.json": "instruments",
     "data/assessor-firms.json": "assessorFirms",
     "data/applicant-forms.json": "applicantForms",
-    "data/new-applications.json": "newApplications",
-    "data/program-pipelines.json": "pipelines",
     "data/summits.json": "summits",
     "data/individual-certifications.json": "individualCerts",
     "data/state-corrections.json": "stateCorrections",
-    "data/anniversary-corrections.json": "anniversaryCorrections",
-    "data/follow-ups.json": "followUps"
+    "data/anniversary-corrections.json": "anniversaryCorrections"
   };
 
   function load(){
@@ -12549,7 +12546,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if(g.file === "portal-data.json"){
           Object.keys(g.value).forEach(function(k){ base[k] = g.value[k]; });
         }else if(KEY[g.file]){
-          base[KEY[g.file]] = g.value;
+          var v = g.value;
+          /* a couple of records files wrap their list as {note, corrections}; take the list */
+          if(v && !Array.isArray(v) && Array.isArray(v.corrections)) v = v.corrections;
+          base[KEY[g.file]] = v;
         }
       });
       if(hard) throw hard;
