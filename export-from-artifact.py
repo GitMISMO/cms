@@ -226,6 +226,27 @@ def main():
         s = s[:k] + RELAY + "\n" + s[k:]
         steps.append("relay-connect.js added")
 
+
+    # The page decided it was unreachable whenever a relay WAS configured - the test was
+    # inverted, so the "Not saving right now" notice showed permanently and said the
+    # opposite of the truth. relay-connect.js happens to suppress the notice, which is why
+    # this is easy to miss; the state underneath is still wrong. Read live, so the answer
+    # does not depend on which of the start-up chains ran first.
+    old = 'if(CMS_RELAY) return "relay-unreachable";'
+    if old in s:
+        s = s.replace(old, 'if(CMS_RELAY || (window.CMS_CONFIG && window.CMS_CONFIG.relay)) return "connected";')
+        mm = re.search(r"function banner\s*\(\s*\)\s*\{", s)
+        if mm:
+            i = s.index("{", mm.end() - 1); j = i + 1; d = 1
+            while d > 0:
+                d += 1 if s[j] == "{" else (-1 if s[j] == "}" else 0)
+                j += 1
+            body = s[i:j]
+            if body.count('b.style.display = "";') == 1:
+                s = s[:i] + body.replace('b.style.display = "";',
+                                         'b.style.display = (how === "connected") ? "none" : "";') + s[j:]
+        steps.append("connected state fixed (the page called a live relay unreachable)")
+
     # 6. the source comments come out.
     #    They explain why each rule exists, and they do that by naming the company the rule
     #    came from - "Teraverde's unpaid invoice made its own card", and so on. Those belong

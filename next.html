@@ -6741,7 +6741,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var CMS_PROJECT = window.CMS_CONFIG && window.CMS_CONFIG.project || "cms";
     function storeSituation() {
         if (D.publicPreview) return "shell";
-        if (CMS_RELAY) return "relay-unreachable";
+        if (CMS_RELAY || window.CMS_CONFIG && window.CMS_CONFIG.relay) return "connected";
         return typeof window.claude === "undefined" ? "preview" : "browser-only";
     }
     function banner() {
@@ -6750,7 +6750,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         b.className = "note";
         var how = storeSituation();
         b.innerHTML = how === "shell" ? "<b>The shape of the system, with no records in it.</b> This copy is served from a " + "public address, so every certification, fee and assessment has been left out of it " + "on purpose. The programmes and the lifecycle below are real. The working board is " + "inside MISMO." : how === "preview" ? "<b>Preview — this is not the live system yet.</b> The records below are real, read " + "out of MACTS. Nothing you change here is saved anywhere: the relay that will keep it " + "has not been connected to this page yet." : how === "relay-unreachable" ? "<b>Not saving right now.</b> This page is set up to save through MISMO’s relay and " + "the relay did not answer, so anything you record stays in this browser. The records " + "below are unaffected." : "<b>Changes stay in this browser.</b> Moves and notes you record here are not being " + "shared or kept — this view could not reach the shared store. The migrated data " + "below is unaffected.";
-        b.style.display = "";
+        b.style.display = how === "connected" ? "none" : "";
     }
     $("d-close").addEventListener("click", closePanel);
     document.addEventListener("keydown", (function(e) {
