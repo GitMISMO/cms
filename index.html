@@ -6567,7 +6567,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       if(!d){ banner(); return; }
       db = d;
 
-      d.collection("cycleState").onSnapshot(function(snap){
+      d.collection("cycle-state").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6577,7 +6577,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderPipe(); renderQueueCounts();
       }, function(){ banner(); });
 
-      d.collection("certEdits").onSnapshot(function(snap){
+      d.collection("cert-edits").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6597,7 +6597,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAll();
       }, function(){  });
 
-      d.collection("formEdits").onSnapshot(function(snap){
+      d.collection("form-edits").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6607,7 +6607,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderForms();
       }, function(){  });
 
-      d.collection("scriptPrep").onSnapshot(function(snap){
+      d.collection("script-prep").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6617,7 +6617,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAll(); renderAssessorSwitch();
       }, function(){  });
 
-      d.collection("frameScores").onSnapshot(function(snap){
+      d.collection("frame-scores").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6627,7 +6627,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAssessorSwitch();
       }, function(){  });
 
-      d.collection("frameReview").onSnapshot(function(snap){
+      d.collection("frame-review").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6637,7 +6637,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAssessorSwitch();
       }, function(){  });
 
-      d.collection("frameAsk").onSnapshot(function(snap){
+      d.collection("frame-ask").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6647,7 +6647,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAssessorSwitch();
       }, function(){  });
 
-      d.collection("scenAssign").onSnapshot(function(snap){
+      d.collection("scen-assign").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6657,7 +6657,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderScenarios(); renderPanel();
       }, function(){  });
 
-      d.collection("scenarioLog").onSnapshot(function(snap){
+      d.collection("scenario-log").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6694,7 +6694,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAll();
       }, function(){  });
 
-      d.collection("orgEdits").onSnapshot(function(snap){
+      d.collection("org-edits").onSnapshot(function(snap){
         var next = {};
         (snap.docs || []).forEach(function(doc){
           var body = doc.data();
@@ -6734,7 +6734,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   function storeSituation(){
 
     if(D.publicPreview) return "shell";
-    if(CMS_RELAY) return "relay-unreachable";       
+    if(CMS_RELAY) return "connected";       
     return (typeof window.claude === "undefined") ? "preview" : "browser-only";
   }
 
@@ -6759,7 +6759,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       : "<b>Changes stay in this browser.</b> Moves and notes you record here are not being " +
         "shared or kept \u2014 this view could not reach the shared store. The migrated data " +
         "below is unaffected.";
-    b.style.display = "";
+    b.style.display = (how === "connected") ? "none" : "";
   }
 
   $("d-close").addEventListener("click", closePanel);
