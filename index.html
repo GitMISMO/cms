@@ -9532,7 +9532,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         activity.unshift(entry);
         if (db) {
             try {
-                Promise.resolve(db.doc("markLicense/" + k.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).catch(onWriteRefused);
+                Promise.resolve(db.doc("mark-license/" + k.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).catch(onWriteRefused);
                 Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
             } catch (e) {
                 onWriteRefused(e);
@@ -9577,7 +9577,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             signer: signer,
             requestedBy: body.requestedBy,
             requestedAt: now,
-            callback: "markLicense/" + body.key.replace(/[^A-Za-z0-9_.~-]/g, "_")
+            callback: "mark-license/" + body.key.replace(/[^A-Za-z0-9_.~-]/g, "_")
         };
         if (!LICENSE_FLOW) {
             licHandOver(req);
