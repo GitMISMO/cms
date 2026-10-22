@@ -2111,17 +2111,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
     <div class="box">
       <h2 class="sect-t" id="work-title">What Needs Doing</h2>
-      <p class="sect-s" id="work-sub"></p>
+      <p class="sect-s" id="work-sub">The same open cycles, grouped by the step they are at rather than by urgency, so a cycle appears wherever it actually sits. Select a phase to list what is in it.</p>
 
       <div class="segbar" role="tablist" aria-label="How to group the work">
-        <button class="seg on" type="button" role="tab" aria-selected="true" data-work="queue">By What Needs Doing</button>
-        <button class="seg" type="button" role="tab" aria-selected="false" data-work="phase">By Phase</button>
+        <button class="seg" type="button" role="tab" aria-selected="false" data-work="queue">By What Needs Doing</button>
+        <button class="seg on" type="button" role="tab" aria-selected="true" data-work="phase">By Phase</button>
       </div>
 
       <div class="lastchange" id="lastchange"></div>
       <div id="newapp"></div>
-      <div id="queue"></div>
-      <div class="cards tight" id="pipe" hidden></div>
+      <div id="queue" hidden></div>
+      <div class="cards tight" id="pipe"></div>
     </div>
 
     <!-- The Mark License list had rendering code but nowhere to render: the element it
@@ -3667,7 +3667,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return c.live;
         }))[0] || theirs[0] || null;
     }
-    var workMode = "queue";
+    var workMode = "phase";
     var WORK_SUB = {
         queue: "Every item is a step waiting on someone, and each appears once - on the card for the " + "most pressing thing about it. Select a card to list what is in it, then a row to record the next move.",
         phase: "The same open cycles, grouped by the step they are at rather than by urgency, so a " + "cycle appears wherever it actually sits. Select a phase to list what is in it."
