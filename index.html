@@ -4503,7 +4503,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var rc = rr.cert, rq = rr.quote;
             $("d-title").textContent = rc.org;
             $("d-sub").textContent = rc.program + (rc.product ? " \xb7 " + rc.product : "") + " \xb7 renewal quotation";
-            $("d-body").innerHTML = '<div class="dsect"><h4>What the Quotation Should Say</h4>' + '<div class="grid2">' + '<div class="fld"><label>Aptify Customer</label><div class="v">' + (rr.aptify ? esc(rr.aptify) : '<span class="bad">Not on the company record</span>') + "</div></div>" + '<div class="fld"><label>Amount</label><div class="v">' + (rr.expected == null ? '<span class="bad">Not settled</span>' : esc(money(rr.expected)) + (rr.surcharge ? " (includes " + esc(money(rr.surcharge)) + " surcharge)" : "")) + "</div></div>" + '<div class="fld"><label>Quote By</label><div class="v">' + esc(fmt(rr.quoteBy)) + "</div></div>" + '<div class="fld"><label>90-Day Notice Goes Out</label><div class="v">' + esc(fmt(rr.noticeOn)) + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(rc.anniversary)) + "</div></div>" + '<div class="fld"><label>Membership</label><div class="v">' + esc(rr.membership || (rr.member === null ? "Not recorded" : rr.member ? "Member" : "Not a member")) + "</div></div>" + "</div>" + (rr.why.length ? '<div class="qwatch">' + rr.why.map(esc).join("<br>") + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Once It Has Gone Out</h4>' + '<p class="pc-note">One Aptify order number, in whichever state it is. A quotation becomes an invoice when it is posted and lands on MISMO\u2019s books as a receivable \u2014 the same number either way. Recording it takes this off the list, for everyone.</p>' + '<div class="grid2">' + '<div class="fld"><label for="rn-num">Aptify Order Number</label>' + '<input class="pc-input" id="rn-num" value="' + esc(rq && rq.number || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="rn-state">Where It Stands</label>' + '<select class="pc-input" id="rn-state">' + '<option value="quotation"' + (rq && rq.orderState === "invoice" ? "" : " selected") + ">Quotation \u2014 not on the books</option>" + '<option value="invoice"' + (rq && rq.orderState === "invoice" ? " selected" : "") + ">Invoice \u2014 posted, now a receivable</option>" + "</select></div>" + "</div>" + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-rnsave="1">' + (rq ? "Update" : "Mark as Sent") + "</button>" : '<span class="na-hint">Sign in to record a quotation.</span>') + (rq && canWrite ? '<button class="lc-btn ghost" type="button" data-rnclear="1">Not Raised After All</button>' : "") + "</div></div>" + '<div class="dsect" id="rn-inv"></div>';
+            $("d-body").innerHTML = '<div class="dsect"><h4>What the Quotation Should Say</h4>' + '<div class="grid2">' + '<div class="fld"><label>Aptify Customer</label><div class="v">' + (rr.aptify ? esc(rr.aptify) : '<span class="bad">Not on the company record</span>') + "</div></div>" + '<div class="fld"><label>Amount</label><div class="v">' + (rr.expected == null ? '<span class="bad">Not settled</span>' : esc(money(rr.expected)) + (rr.surcharge ? " (includes " + esc(money(rr.surcharge)) + " surcharge)" : "")) + "</div></div>" + '<div class="fld"><label>Quote By</label><div class="v">' + esc(fmt(rr.quoteBy)) + "</div></div>" + '<div class="fld"><label>90-Day Notice Goes Out</label><div class="v">' + esc(fmt(rr.noticeOn)) + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(rc.anniversary)) + "</div></div>" + '<div class="fld"><label>Membership</label><div class="v">' + esc(rr.membership || (rr.member === null ? "Not recorded" : rr.member ? "Member" : "Not a member")) + "</div></div>" + "</div>" + (rr.why.length ? '<div class="qwatch">' + rr.why.map(esc).join("<br>") + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Once It Has Gone Out</h4>' + '<p class="pc-note">One Aptify order number, in whichever state it is. A quotation becomes an invoice when it is posted and lands on MISMO\u2019s books as a receivable \u2014 the same number either way. Recording it takes this off the list, for everyone.</p>' + '<div class="grid2">' + '<div class="fld"><label for="rn-num">Aptify Order Number</label>' + '<input class="pc-input" id="rn-num" value="' + esc(rq && rq.number || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="rn-state">Where It Stands</label>' + '<select class="pc-input" id="rn-state">' + '<option value="quotation"' + (rq && rq.orderState === "invoice" ? "" : " selected") + ">Quotation \u2014 not on the books</option>" + '<option value="invoice"' + (rq && rq.orderState === "invoice" ? " selected" : "") + ">Invoice \u2014 posted, now a receivable</option>" + "</select></div>" + "</div>" + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-rnsave="1">' + (quoteRaised(rq) ? "Update" : "Mark as Sent") + "</button>" : '<span class="na-hint">Sign in to record a quotation.</span>') + (quoteRaised(rq) && canWrite ? '<button class="lc-btn ghost" type="button" data-rnclear="1">Not Raised After All</button>' : "") + "</div></div>" + '<div class="dsect" id="rn-inv"></div>';
             renderRenewalInvoice(panel.key);
             var rsv = $("d-body").querySelector("[data-rnsave]");
             if (rsv) rsv.addEventListener("click", (function() {
@@ -6773,8 +6773,28 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        MISMO for the invoice when it is wanted, so nothing is sitting on a public server. */
     var invCache = {};
     var invBusy = {};
+    /* The relay names a collection's file after the collection, so the name has to be short and
+       plain. A renewal's key is neither - it carries the company, the programme, the product and
+       whatever punctuation those came with. So the file is named after a short digest of the key:
+       stable for the same renewal, different for every other one, and safe as a file name. */
+    function keyDigest(key) {
+        var h1 = 0x811c9dc5, h2 = 0x01000193;
+        for (var i = 0; i < key.length; i++) {
+            var c = key.charCodeAt(i);
+            h1 = (h1 ^ c) >>> 0;
+            h1 = (h1 * 16777619) >>> 0;
+            h2 = (h2 + c * (i + 7)) >>> 0;
+            h2 = (h2 ^ (h2 << 5)) >>> 0;
+        }
+        return ("0000000" + h1.toString(16)).slice(-8) + ("0000000" + h2.toString(16)).slice(-8);
+    }
     function invColl(key) {
-        return "renewal-invoice-" + key.replace(/[^A-Za-z0-9_.~-]/g, "_");
+        return "renewal-invoice-" + keyDigest(key);
+    }
+    /* A renewal carries one quotes record, and it may exist only to hold the link's token.
+       It counts as a quotation actually raised once it has an Aptify order number on it. */
+    function quoteRaised(q) {
+        return !!(q && q.number);
     }
     function renewalToken(key) {
         var q = quotes[key];
@@ -6902,7 +6922,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function renewalDue(rows) {
         return rows.filter((function(r) {
-            return !r.quote && !r.invoice && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
+            return !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
         })).sort((function(a, b) {
             return a.dueIn - b.dueIn;
         }));
@@ -6911,7 +6931,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var el = $("pip-renewals");
         if (!el) return;
         var n = renewalRows().filter((function(r) {
-            return !r.quote && !r.invoice && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
+            return !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
         })).length;
         el.textContent = String(n);
         el.classList.toggle("warn", n > 0);
@@ -7211,8 +7231,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             number: q.number || null,
             orderState: q.orderState || "quotation",
             token: makeToken(),
-            raisedAt: q.raisedAt || new Date().toISOString(),
-            raisedBy: q.raisedBy || (me && me.name) || "someone"
+            raisedAt: q.raisedAt || null,
+            raisedBy: q.raisedBy || null
         };
         quotes[key] = body;
         if (!db) return then();
