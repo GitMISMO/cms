@@ -871,6 +871,18 @@
     .erow.notice{grid-template-columns:1fr auto; row-gap:4px;}
     .erow.notice .e-co, .erow.notice .e-st{grid-column:1 / -1;}
   }
+  /* The invoice drop zone in the renewal drawer. */
+  .rn-drop{border:1px dashed var(--border-strong); border-radius:7px; padding:18px; text-align:center;
+    background:var(--surface-2); transition:border-color .12s, background .12s;}
+  .rn-drop.over{border-color:var(--navy-mid); background:var(--sky-wash);}
+  .rn-drop p{margin:0 0 10px; font-size:13px; color:var(--ink-3);}
+  .rn-have{display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    border:1px solid var(--border); border-radius:7px; padding:12px 14px; background:var(--surface-2);}
+  .rn-pdf{flex:none; width:34px; height:42px; border:1px solid var(--border-strong); border-radius:4px;
+    background:var(--surface); display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;
+    font-family:var(--mono); font-size:8.5px; font-weight:600; color:var(--ink-3); letter-spacing:.05em;}
+  .rn-meta{min-width:0; flex:1 1 150px; font-size:13.5px;}
+  .rn-acts{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;}
 
   .erow.people, .etable .ehead.people{grid-template-columns:2fr repeat(5, .7fr);}
   .erow.claim{grid-template-columns:1.2fr 1fr 2.4fr auto;}
@@ -4491,7 +4503,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var rc = rr.cert, rq = rr.quote;
             $("d-title").textContent = rc.org;
             $("d-sub").textContent = rc.program + (rc.product ? " \xb7 " + rc.product : "") + " \xb7 renewal quotation";
-            $("d-body").innerHTML = '<div class="dsect"><h4>What the Quotation Should Say</h4>' + '<div class="grid2">' + '<div class="fld"><label>Aptify Customer</label><div class="v">' + (rr.aptify ? esc(rr.aptify) : '<span class="bad">Not on the company record</span>') + "</div></div>" + '<div class="fld"><label>Amount</label><div class="v">' + (rr.expected == null ? '<span class="bad">Not settled</span>' : esc(money(rr.expected)) + (rr.surcharge ? " (includes " + esc(money(rr.surcharge)) + " surcharge)" : "")) + "</div></div>" + '<div class="fld"><label>Quote By</label><div class="v">' + esc(fmt(rr.quoteBy)) + "</div></div>" + '<div class="fld"><label>90-Day Notice Goes Out</label><div class="v">' + esc(fmt(rr.noticeOn)) + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(rc.anniversary)) + "</div></div>" + '<div class="fld"><label>Membership</label><div class="v">' + esc(rr.membership || (rr.member === null ? "Not recorded" : rr.member ? "Member" : "Not a member")) + "</div></div>" + "</div>" + (rr.why.length ? '<div class="qwatch">' + rr.why.map(esc).join("<br>") + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Once It Has Gone Out</h4>' + '<p class="pc-note">One Aptify order number, in whichever state it is. A quotation becomes an invoice when it is posted and lands on MISMO\u2019s books as a receivable \u2014 the same number either way. Recording it takes this off the list, for everyone.</p>' + '<div class="grid2">' + '<div class="fld"><label for="rn-num">Aptify Order Number</label>' + '<input class="pc-input" id="rn-num" value="' + esc(rq && rq.number || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="rn-state">Where It Stands</label>' + '<select class="pc-input" id="rn-state">' + '<option value="quotation"' + (rq && rq.orderState === "invoice" ? "" : " selected") + ">Quotation \u2014 not on the books</option>" + '<option value="invoice"' + (rq && rq.orderState === "invoice" ? " selected" : "") + ">Invoice \u2014 posted, now a receivable</option>" + "</select></div>" + "</div>" + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-rnsave="1">' + (rq ? "Update" : "Mark as Sent") + "</button>" : '<span class="na-hint">Sign in to record a quotation.</span>') + (rq && canWrite ? '<button class="lc-btn ghost" type="button" data-rnclear="1">Not Raised After All</button>' : "") + "</div></div>";
+            $("d-body").innerHTML = '<div class="dsect"><h4>What the Quotation Should Say</h4>' + '<div class="grid2">' + '<div class="fld"><label>Aptify Customer</label><div class="v">' + (rr.aptify ? esc(rr.aptify) : '<span class="bad">Not on the company record</span>') + "</div></div>" + '<div class="fld"><label>Amount</label><div class="v">' + (rr.expected == null ? '<span class="bad">Not settled</span>' : esc(money(rr.expected)) + (rr.surcharge ? " (includes " + esc(money(rr.surcharge)) + " surcharge)" : "")) + "</div></div>" + '<div class="fld"><label>Quote By</label><div class="v">' + esc(fmt(rr.quoteBy)) + "</div></div>" + '<div class="fld"><label>90-Day Notice Goes Out</label><div class="v">' + esc(fmt(rr.noticeOn)) + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(rc.anniversary)) + "</div></div>" + '<div class="fld"><label>Membership</label><div class="v">' + esc(rr.membership || (rr.member === null ? "Not recorded" : rr.member ? "Member" : "Not a member")) + "</div></div>" + "</div>" + (rr.why.length ? '<div class="qwatch">' + rr.why.map(esc).join("<br>") + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Once It Has Gone Out</h4>' + '<p class="pc-note">One Aptify order number, in whichever state it is. A quotation becomes an invoice when it is posted and lands on MISMO\u2019s books as a receivable \u2014 the same number either way. Recording it takes this off the list, for everyone.</p>' + '<div class="grid2">' + '<div class="fld"><label for="rn-num">Aptify Order Number</label>' + '<input class="pc-input" id="rn-num" value="' + esc(rq && rq.number || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="rn-state">Where It Stands</label>' + '<select class="pc-input" id="rn-state">' + '<option value="quotation"' + (rq && rq.orderState === "invoice" ? "" : " selected") + ">Quotation \u2014 not on the books</option>" + '<option value="invoice"' + (rq && rq.orderState === "invoice" ? " selected" : "") + ">Invoice \u2014 posted, now a receivable</option>" + "</select></div>" + "</div>" + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-rnsave="1">' + (rq ? "Update" : "Mark as Sent") + "</button>" : '<span class="na-hint">Sign in to record a quotation.</span>') + (rq && canWrite ? '<button class="lc-btn ghost" type="button" data-rnclear="1">Not Raised After All</button>' : "") + "</div></div>" + '<div class="dsect" id="rn-inv"></div>';
+            renderRenewalInvoice(panel.key);
             var rsv = $("d-body").querySelector("[data-rnsave]");
             if (rsv) rsv.addEventListener("click", (function() {
                 var num = ($("rn-num") || {}).value || "";
@@ -6749,6 +6762,91 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         return hits.length ? hits[hits.length - 1] : null;
     }
+    /* The renewal invoice.
+
+       One file per invoice rather than one file holding them all: a PDF is a few hundred
+       kilobytes, and fifty of them in a single record would make every save rewrite the
+       lot. The relay names a collection's file after the collection, so a collection per
+       renewal gives a file per renewal.
+
+       The provider never sees this file. The renewal page holds only a token and asks
+       MISMO for the invoice when it is wanted, so nothing is sitting on a public server. */
+    var invCache = {};
+    var invBusy = {};
+    function invColl(key) {
+        return "renewal-invoice-" + key.replace(/[^A-Za-z0-9_.~-]/g, "_");
+    }
+    function renewalToken(key) {
+        var q = quotes[key];
+        if (q && q.token) return q.token;
+        return null;
+    }
+    function makeToken() {
+        var a = new Uint8Array(16);
+        (window.crypto || window.msCrypto).getRandomValues(a);
+        return Array.prototype.map.call(a, function (b) {
+            return b.toString(16).padStart(2, "0");
+        }).join("");
+    }
+    function renewalLink(key) {
+        var t = renewalToken(key);
+        return t ? RENEWAL_PAGE + "?r=" + t : null;
+    }
+    var RENEWAL_PAGE = "https://resources.mismo.org/forms/renewal.html";
+    function loadInvoice(key, then) {
+        if (invCache[key] !== undefined) {
+            then(invCache[key]);
+            return;
+        }
+        if (!db) {
+            then(null);
+            return;
+        }
+        Promise.resolve(db.collection(invColl(key)).doc("pdf").get()).then((function (d) {
+            invCache[key] = d && d.exists ? d.data() : null;
+            then(invCache[key]);
+        }), (function () {
+            invCache[key] = null;
+            then(null);
+        }));
+    }
+    function saveInvoice(key, rec, then) {
+        if (!db || !canWrite) {
+            toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn");
+            then(false);
+            return;
+        }
+        invBusy[key] = true;
+        Promise.resolve(db.collection(invColl(key)).doc("pdf").set(rec)).then((function () {
+            invBusy[key] = false;
+            invCache[key] = rec;
+            then(true);
+        }), (function (e) {
+            invBusy[key] = false;
+            onWriteRefused(e);
+            then(false);
+        }));
+    }
+    function removeInvoice(key, then) {
+        if (!db || !canWrite) {
+            toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn");
+            then(false);
+            return;
+        }
+        invBusy[key] = true;
+        Promise.resolve(db.collection(invColl(key)).doc("pdf")["delete"]()).then((function () {
+            invBusy[key] = false;
+            invCache[key] = null;
+            then(true);
+        }), (function (e) {
+            invBusy[key] = false;
+            onWriteRefused(e);
+            then(false);
+        }));
+    }
+    function fmtBytes2(n) {
+        return n < 1024 ? n + " B" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+    }
     function renewalSize(c) {
         var e = certEdits[certKey(c).replace(/[^A-Za-z0-9_.~-]/g, "_")] || {};
         return e.size || c.size || null;
@@ -6972,6 +7070,156 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             key: key
         };
         renderPanel();
+    }
+    /* The drop zone. A PDF dragged onto it is read here, written through the relay, and
+       from then on the renewal page can hand it to the provider. The link beside it is
+       the one the notice points at - it carries a token and nothing else, so it can be
+       sent to a provider without exposing anything about anyone else. */
+    function renderRenewalInvoice(key) {
+        var host = $("rn-inv");
+        if (!host) return;
+        var r = renewalRows().filter((function (x) {
+            return x.key === key;
+        }))[0];
+        host.innerHTML = '<h4>The Invoice the Provider Downloads</h4>' + '<div class="pc-note">Drop the Aptify invoice here and it appears on the provider’s renewal page. It is never published anywhere — the page asks for it by token when they press Download.</div>' + '<div id="rn-inv-body"><div class="empty">Looking…</div></div>';
+        loadInvoice(key, (function (rec) {
+            paintInvoice(key, r, rec);
+        }));
+    }
+    function paintInvoice(key, r, rec) {
+        var body = $("rn-inv-body");
+        if (!body) return;
+        var link = renewalLink(key);
+        var linkHTML = link ? '<div class="fld" style="margin-top:14px"><label>The Provider’s Renewal Page</label>' + '<div class="v mono" style="word-break:break-all;font-size:12px">' + esc(link) + "</div>" + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-rnlink="' + esc(key) + '">Copy the Link</button></div></div>' : '<div class="pc-note" style="margin-top:14px">This renewal has no link yet. One is made the first time an invoice is attached.</div>';
+        if (!rec) {
+            body.innerHTML = '<div class="rn-drop" data-rndrop="' + esc(key) + '">' + "<p>Drag the invoice PDF here</p>" + '<button class="lc-btn ghost" type="button" data-rnpick="' + esc(key) + '">Choose a File</button>' + '<input type="file" accept="application/pdf,.pdf" hidden data-rnfile="' + esc(key) + '"></div>' + linkHTML;
+        } else {
+            body.innerHTML = '<div class="rn-have">' + '<span class="rn-pdf" aria-hidden="true">PDF</span>' + '<span class="rn-meta"><b>' + esc(rec.name || "invoice.pdf") + "</b>" + '<span class="e-sub">' + esc(fmtBytes2(rec.size || 0)) + (rec.at ? " · attached " + esc(fmt(String(rec.at).slice(0, 10))) : "") + (rec.by ? " by " + esc(rec.by) : "") + "</span></span>" + (canWrite ? '<span class="rn-acts">' + '<button class="lc-btn ghost" type="button" data-rnpick="' + esc(key) + '">Replace</button>' + '<button class="lc-btn ghost" type="button" data-rnrm="' + esc(key) + '">Remove</button>' + "</span>" : "") + "</div>" + '<input type="file" accept="application/pdf,.pdf" hidden data-rnfile="' + esc(key) + '">' + linkHTML;
+        }
+        wireInvoice(key, r);
+    }
+    function wireInvoice(key, r) {
+        var body = $("rn-inv-body");
+        if (!body) return;
+        var input = body.querySelector("[data-rnfile]");
+        var drop = body.querySelector("[data-rndrop]");
+        function take(file) {
+            if (!file) return;
+            if (!/pdf$/i.test(file.name) && file.type !== "application/pdf") {
+                toast("An invoice needs to be a PDF.", "warn");
+                return;
+            }
+            if (file.size > 8 * 1024 * 1024) {
+                toast("That file is over 8 MB, which is too big to keep here.", "warn");
+                return;
+            }
+            var fr = new FileReader();
+            fr.onload = (function () {
+                var rec = {
+                    name: file.name,
+                    size: file.size,
+                    type: "application/pdf",
+                    data: String(fr.result).split(",")[1] || "",
+                    at: new Date().toISOString(),
+                    by: me && me.name || "someone",
+                    key: key
+                };
+                ensureToken(key, (function () {
+                    saveInvoice(key, rec, (function (ok) {
+                        if (ok) {
+                            toast(r ? r.cert.org + " — invoice attached." : "Invoice attached.", "good");
+                            paintInvoice(key, r, rec);
+                        }
+                    }));
+                }));
+            });
+            fr.readAsDataURL(file);
+        }
+        if (input && !input.__w) {
+            input.__w = 1;
+            input.addEventListener("change", (function () {
+                take(input.files && input.files[0]);
+                input.value = "";
+            }));
+        }
+        Array.prototype.forEach.call(body.querySelectorAll("[data-rnpick]"), (function (b) {
+            if (b.__w) return;
+            b.__w = 1;
+            b.addEventListener("click", (function () {
+                if (input) input.click();
+            }));
+        }));
+        var rm = body.querySelector("[data-rnrm]");
+        if (rm && !rm.__w) {
+            rm.__w = 1;
+            rm.addEventListener("click", (function () {
+                removeInvoice(key, (function (ok) {
+                    if (ok) {
+                        toast("Invoice removed.", "good");
+                        paintInvoice(key, r, null);
+                    }
+                }));
+            }));
+        }
+        var cp = body.querySelector("[data-rnlink]");
+        if (cp && !cp.__w) {
+            cp.__w = 1;
+            cp.addEventListener("click", (function () {
+                var link = renewalLink(key);
+                if (!link) return;
+                if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then((function () {
+                    toast("Link copied.", "good");
+                }), (function () {
+                    toast("Select the link and copy it.", "warn");
+                })); else toast("Select the link and copy it.", "warn");
+            }));
+        }
+        if (drop && !drop.__w) {
+            drop.__w = 1;
+            [ "dragenter", "dragover" ].forEach((function (ev) {
+                drop.addEventListener(ev, (function (e) {
+                    e.preventDefault();
+                    drop.classList.add("over");
+                }));
+            }));
+            [ "dragleave", "drop" ].forEach((function (ev) {
+                drop.addEventListener(ev, (function (e) {
+                    e.preventDefault();
+                    drop.classList.remove("over");
+                }));
+            }));
+            drop.addEventListener("drop", (function (e) {
+                take(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+            }));
+        }
+    }
+    /* The token is what the provider's link is made of. It is minted the first time a
+       renewal needs one and kept with the renewal, so the same link keeps working. */
+    function ensureToken(key, then) {
+        if (renewalToken(key)) return then();
+        var r = renewalRows().filter((function (x) {
+            return x.key === key;
+        }))[0];
+        var q = quotes[key] || {};
+        var body = {
+            key: key,
+            org: q.org || (r && r.cert.org) || "",
+            program: q.program || (r && r.cert.program) || "",
+            product: q.product !== undefined ? q.product : r && r.cert.product || null,
+            anniversary: q.anniversary || (r && r.cert.anniversary) || null,
+            amount: q.amount !== undefined ? q.amount : r && r.expected,
+            number: q.number || null,
+            orderState: q.orderState || "quotation",
+            token: makeToken(),
+            raisedAt: q.raisedAt || new Date().toISOString(),
+            raisedBy: q.raisedBy || (me && me.name) || "someone"
+        };
+        quotes[key] = body;
+        if (!db) return then();
+        Promise.resolve(db.doc("renewal-quotes/" + key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).then(then, (function (e) {
+            onWriteRefused(e);
+            then();
+        }));
     }
     /* ================= RENEWAL NOTICES =================
        The ladder MACTS sends today: ten notices counted off the anniversary, each in the
