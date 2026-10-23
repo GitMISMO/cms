@@ -7009,16 +7009,31 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             f = f.replace(/^\s+|\s+$/g, "");
             if (f === "Company Name") return c.org;
             if (f === "Type") return c.program;
-            if (f === "Primary Contact Name") return noticeFirstName(org);
+            if (f === "Primary Contact Name") return noticeGreetingName(c, org);
             if (f === "Next Certification Anniversary Date") return fmt(c.anniversary);
             if (f === "Standards or Requirements") return noticeStandards(c.program);
             return m;
         }));
     }
+    /* Who a notice is addressed to. The contact book read out of MACTS comes first,
+       because the company record's own contactEmail is empty for all but a handful.
+       The first contact listed is the one addressed; the rest are copied. */
+    function companyContacts(orgName) {
+        var cc = D.companyContacts && D.companyContacts.companies;
+        var rec = cc && cc[orgName];
+        return rec && rec.contacts && rec.contacts.length ? rec.contacts : null;
+    }
     function noticeRecipients(c, org) {
-        var to = [];
-        if (org && org.contactEmail) to.push(org.contactEmail);
-        return to;
+        var book = companyContacts(c.org);
+        if (book) return book.map((function (p) {
+            return p.email;
+        }));
+        return org && org.contactEmail ? [ org.contactEmail ] : [];
+    }
+    function noticeGreetingName(c, org) {
+        var book = companyContacts(c.org);
+        if (book && book[0] && book[0].name) return String(book[0].name).split(/\s*,\s*/)[0].replace(/^\s+|\s+$/g, "");
+        return noticeFirstName(org);
     }
     /* A renewal that has already been answered does not keep being chased. MACTS stops the
        ladder by stamping a date column; here the cycle moving off RenewalNoticed is the
