@@ -860,6 +860,17 @@
     .erow.renew .e-co{grid-column:1 / -1;}
     .erow.renew .e-sc, .erow.renew .e-fee{text-align:right;}
   }
+  .ehead.notice, .erow.notice{grid-template-columns:1.6fr .9fr 2.4fr .9fr auto;}
+  .erow.notice .e-st{font-size:12px; color:var(--ink-2);}
+  .nt-subj{font-weight:600; font-size:13.5px; padding:10px 12px; background:var(--surface-2);
+    border:1px solid var(--border); border-radius:6px;}
+  .nt-body{white-space:pre-wrap; font-family:var(--sans); font-size:13px; line-height:1.55;
+    margin:0; padding:14px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:6px; color:var(--ink);}
+  @media (max-width:860px){
+    .erow.notice{grid-template-columns:1fr auto; row-gap:4px;}
+    .erow.notice .e-co, .erow.notice .e-st{grid-column:1 / -1;}
+  }
 
   .erow.people, .etable .ehead.people{grid-template-columns:2fr repeat(5, .7fr);}
   .erow.claim{grid-template-columns:1.2fr 1fr 2.4fr auto;}
@@ -2472,6 +2483,29 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
           put it back on the list.</p>
       </div></div>
       <div id="rn-done"></div>
+    </div>
+
+    <div class="panel">
+      <div class="phead"><div>
+        <h2>Notices Falling Due</h2>
+        <p class="psub">The ladder MISMO sends on every renewal: ten notices counted off the
+          anniversary, each in the wording of its programme family, plus a payment reminder.
+          <strong>Nothing is sent from this page.</strong> It works out what would go out and shows
+          the finished text, so the wording can be checked before any of it moves off MACTS.</p>
+      </div></div>
+      <div class="rn-ctl">
+        <div class="fld"><label for="nt-window">Look Ahead</label>
+          <select class="pc-input" id="nt-window">
+            <option value="0">Due today</option>
+            <option value="7">Next 7 days</option>
+            <option value="14" selected>Next 14 days</option>
+            <option value="30">Next 30 days</option>
+            <option value="60">Next 60 days</option>
+          </select></div>
+        <div class="fld rn-act"><span class="na-hint" id="nt-count"></span></div>
+      </div>
+      <div id="nt-caveat"></div>
+      <div id="nt-list"></div>
     </div>
   </section>
 
@@ -4488,6 +4522,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 renderRenewals();
                 toast(rc.org + " \u2014 back on the list.", "good");
             }));
+            return;
+        }
+        if (panel.mode === "notice") {
+            var nr = noticeRows().filter((function (x) {
+                return x.key === panel.key;
+            }))[0];
+            if (!nr) {
+                closePanel();
+                return;
+            }
+            $("d-title").textContent = nr.cert.org;
+            $("d-sub").textContent = "Notice " + nr.notice + " · " + nr.family + " wording · sends " + fmt(nr.sendOn);
+            $("d-body").innerHTML = '<div class="dsect"><h4>Where It Goes</h4><div class="grid2">' + '<div class="fld"><label>To</label><div class="v">' + (nr.to.length ? esc(nr.to.join(", ")) : '<span class="bad">No email on the company record</span>') + "</div></div>" + '<div class="fld"><label>Sends On</label><div class="v">' + esc(fmt(nr.sendOn)) + " · " + (nr.days === 0 ? "today" : nr.days < 0 ? -nr.days + " days ago" : "in " + nr.days + " days") + "</div></div>" + '<div class="fld"><label>Certification</label><div class="v">' + esc(nr.cert.program) + (nr.cert.product ? " · " + esc(nr.cert.product) : "") + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(nr.cert.anniversary)) + "</div></div>" + "</div>" + (nr.subjectNote ? '<div class="qwatch">' + esc(nr.subjectNote) + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Subject</h4>' + '<div class="nt-subj">' + esc(nr.subject) + "</div></div>" + '<div class="dsect"><h4>The Message</h4>' + '<p class="pc-note">Exactly what MACTS sends today, with this company’s details filled in. Nothing is sent from here.</p>' + '<pre class="nt-body">' + esc(nr.body) + "</pre></div>";
             return;
         }
         if (panel.mode === "full") {
@@ -6926,7 +6973,155 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         };
         renderPanel();
     }
+    /* ================= RENEWAL NOTICES =================
+       The ladder MACTS sends today: ten notices counted off the anniversary, each in the
+       wording of its programme family, plus a recurring invoice reminder. Nothing here
+       sends anything. It works out what WOULD go out, to whom, and shows the finished
+       text with the merge fields filled, so the wording can be checked against MACTS
+       before a single email moves across. */
+    var noticeWindow = 14;
+    var noticeOpen = {};
+    function noticeFamily(program) {
+        var fams = (D.notices && D.notices.families) || {
+            Consultant: [ "Consultant" ],
+            Product: [ "Product" ],
+            eMortgage: [ "RON", "eClosing", "eVault" ]
+        };
+        var hit = null;
+        Object.keys(fams).forEach((function (f) {
+            if (fams[f].indexOf(program) >= 0) hit = f;
+        }));
+        return hit;
+    }
+    /* The company record keeps every name it has ever been given, comma separated.
+       A greeting takes the first one; "Good Day Kristen Girard Jones, Ryan Fitzpatrick"
+       is not something MISMO would send. */
+    function noticeFirstName(org) {
+        var n = String((org && org.contactName) || "").split(/\s*,\s*/)[0];
+        return n.replace(/^\s+|\s+$/g, "") || "there";
+    }
+    function noticeStandards(program) {
+        return program === "RON" ? "Requirements" : "Standards";
+    }
+    function mergeNotice(text, c, org) {
+        var fam = noticeFamily(c.program);
+        return String(text || "").replace(/\{\{([^}]+)\}\}/g, (function (m, f) {
+            f = f.replace(/^\s+|\s+$/g, "");
+            if (f === "Company Name") return c.org;
+            if (f === "Type") return c.program;
+            if (f === "Primary Contact Name") return noticeFirstName(org);
+            if (f === "Next Certification Anniversary Date") return fmt(c.anniversary);
+            if (f === "Standards or Requirements") return noticeStandards(c.program);
+            return m;
+        }));
+    }
+    function noticeRecipients(c, org) {
+        var to = [];
+        if (org && org.contactEmail) to.push(org.contactEmail);
+        return to;
+    }
+    /* A renewal that has already been answered does not keep being chased. MACTS stops the
+       ladder by stamping a date column; here the cycle moving off RenewalNoticed is the
+       same signal. */
+    function noticeLadderStopped(c) {
+        var f = openCycleFor(certKey(c));
+        if (!f) return false;
+        var st = currentState(f);
+        return st !== "RenewalPrep" && st !== "RenewalNoticed" && st !== "Draft";
+    }
+    function noticeRows() {
+        if (!certs) return [];
+        var defs = ((D.notices && D.notices.notices) || []).filter((function (n) {
+            return n.offsetDays != null;
+        }));
+        if (!defs.length) return [];
+        var out = [];
+        certs.forEach((function (c) {
+            if (!c.live || !c.anniversary || orgInactive(c.org)) return;
+            var fam = noticeFamily(c.program);
+            if (!fam) return;
+            var org = orgOf(c.org) || {};
+            var stopped = noticeLadderStopped(c);
+            defs.forEach((function (n) {
+                var copy = n.byFamily && n.byFamily[fam];
+                if (!copy) return;
+                var on = addDays(c.anniversary, n.offsetDays);
+                var days = daysBetween(TODAY, parseDay(on));
+                out.push({
+                    key: certKey(c) + "|" + n.notice,
+                    cert: c,
+                    org: org,
+                    notice: n.notice,
+                    family: fam,
+                    sendOn: on,
+                    days: days,
+                    stopped: stopped,
+                    to: noticeRecipients(c, org),
+                    subject: mergeNotice(copy.subject, c, org),
+                    body: mergeNotice(copy.body, c, org),
+                    subjectNote: copy.subjectNote || null
+                });
+            }));
+        }));
+        return out.sort((function (a, b) {
+            return a.sendOn < b.sendOn ? -1 : a.sendOn > b.sendOn ? 1 : a.cert.org < b.cert.org ? -1 : 1;
+        }));
+    }
+    function noticeDue() {
+        return noticeRows().filter((function (r) {
+            return !r.stopped && r.days <= noticeWindow && r.days >= -1 && (!renewProgram || r.cert.program === renewProgram);
+        }));
+    }
+    function noticeRowHTML(r) {
+        var when = r.days <= 0 ? '<span class="tag bad">' + (r.days === 0 ? "Today" : -r.days + "d late") + "</span>" : r.days <= 7 ? '<span class="tag warn">' + r.days + "d</span>" : '<span class="tag quiet">' + r.days + "d</span>";
+        var who = r.to.length ? esc(r.to.join(", ")) : '<span class="bad">no email on the company record</span>';
+        return '<button class="erow notice" type="button" data-ntopen="' + esc(r.key) + '">' + '<span class="e-co">' + esc(r.cert.org) + (r.cert.product ? '<span class="e-pr">' + esc(r.cert.product) + "</span>" : "") + '<span class="e-sub">' + who + "</span></span>" + '<span class="e-pg">Notice ' + esc(r.notice) + '<span class="e-sub">' + esc(r.family) + "</span></span>" + '<span class="e-st">' + esc(r.subject) + "</span>" + '<span class="e-sc num">' + esc(fmt(r.sendOn)) + "</span>" + '<span class="e-go">' + when + "</span>" + "</button>";
+    }
+    function renderNotices() {
+        var box = $("nt-list");
+        if (!box) return;
+        var sel = $("nt-window");
+        if (sel && String(noticeWindow) !== sel.value) sel.value = String(noticeWindow);
+        if (!(D.notices && D.notices.notices && D.notices.notices.length)) {
+            box.innerHTML = '<div class="empty">The notice wording has not been loaded into this page yet.</div>';
+            var c0 = $("nt-count");
+            if (c0) c0.textContent = "";
+            return;
+        }
+        var due = noticeDue();
+        var cnt = $("nt-count");
+        if (cnt) cnt.textContent = due.length ? due.length + (due.length === 1 ? " notice" : " notices") : "Nothing due in this window";
+        var noMail = due.filter((function (r) {
+            return !r.to.length;
+        })).length;
+        var cav = $("nt-caveat");
+        if (cav) cav.innerHTML = noMail ? '<div class="qwatch">' + noMail + (noMail === 1 ? " of these has" : " of these have") + " no email address on the company record, so there is nowhere to send " + (noMail === 1 ? "it" : "them") + ". MACTS reads its own contact columns; this page reads the company record, and most of those are empty.</div>" : "";
+        box.innerHTML = due.length ? '<div class="etable"><div class="ehead notice">' + "<span>Company</span><span>Notice</span><span>Subject</span>" + '<span class="num">Sends</span><span>When</span></div>' + due.map(noticeRowHTML).join("") + "</div>" : '<div class="empty">No notice falls due in the next ' + noticeWindow + " days.</div>";
+        wireNotices();
+    }
+    function wireNotices() {
+        var sel = $("nt-window");
+        if (sel && !sel.__w) {
+            sel.__w = 1;
+            sel.addEventListener("change", (function () {
+                noticeWindow = Number(sel.value) || 0;
+                renderNotices();
+            }));
+        }
+        Array.prototype.forEach.call(document.querySelectorAll("[data-ntopen]"), (function (b) {
+            if (b.__w) return;
+            b.__w = 1;
+            b.addEventListener("click", (function () {
+                panel = {
+                    mode: "notice",
+                    key: b.dataset.ntopen
+                };
+                renderPanel();
+            }));
+        }));
+    }
     renderRenewals();
+    renderNotices();
     function renderAll() {
         renderInvoices();
         renderInvoicePip();
@@ -6939,6 +7134,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderPricing();
         renderScenarios();
         renderRenewals();
+        renderNotices();
         renderPanel();
     }
     document.addEventListener("keydown", (function(e) {

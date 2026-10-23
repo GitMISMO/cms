@@ -26,7 +26,7 @@
   var RS = window.ResourcesSession;
 
   /* page data key -> data/<file>.json (the base records, as Jonna's build lays them out) */
-  var FILES = { pricing: 'pricing', certScripts: 'cert-scripts', assessorFirms: 'assessor-firms', consultantScorecard: 'consultant-scorecard',
+  var FILES = { pricing: 'pricing', notices: 'renewal-notices', certScripts: 'cert-scripts', assessorFirms: 'assessor-firms', consultantScorecard: 'consultant-scorecard',
     consultantSubmissions: 'consultant-submissions', applicantForms: 'applicant-forms', individualCerts: 'individual-certifications',
     summits: 'summits', frameResults: 'frame-results', frameScenarios: 'frame-scenarios', frameScoring: 'frame-scoring', frameSources: 'frame-sources' };
   /* the page looks questionnaires up by program code; the eMortgage file names eClosing ECLOSING, the programs ECLOSE */
