@@ -6838,7 +6838,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var t = renewalToken(key);
         return t ? RENEWAL_PAGE + "?r=" + t : null;
     }
-    var RENEWAL_PAGE = "https://resources.mismo.org/forms/renewal.html";
+    /* The page sits beside the eight application forms, as a folder, the same as they do. */
+    var RENEWAL_PAGE = "https://resources.mismo.org/forms/renewal/";
     function loadInvoice(key, then) {
         if (invCache[key] !== undefined) {
             then(invCache[key]);
