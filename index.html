@@ -6796,6 +6796,32 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function quoteRaised(q) {
         return !!(q && q.number);
     }
+    /* A link that went to the wrong person is retired by giving the renewal a new token.
+       Nothing else about the renewal changes, and the invoice stays where it is. */
+    function newRenewalLink(key, then) {
+        if (!db || !canWrite) {
+            toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn");
+            then(false);
+            return;
+        }
+        var q = quotes[key];
+        if (!q) {
+            ensureToken(key, (function () {
+                then(true);
+            }));
+            return;
+        }
+        var body = {};
+        for (var k in q) body[k] = q[k];
+        body.token = makeToken();
+        quotes[key] = body;
+        Promise.resolve(db.doc("renewal-quotes/" + key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).then((function () {
+            then(true);
+        }), (function (e) {
+            onWriteRefused(e);
+            then(false);
+        }));
+    }
     function renewalToken(key) {
         var q = quotes[key];
         if (q && q.token) return q.token;
@@ -7110,7 +7136,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var body = $("rn-inv-body");
         if (!body) return;
         var link = renewalLink(key);
-        var linkHTML = link ? '<div class="fld" style="margin-top:14px"><label>The Provider’s Renewal Page</label>' + '<div class="v mono" style="word-break:break-all;font-size:12px">' + esc(link) + "</div>" + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-rnlink="' + esc(key) + '">Copy the Link</button></div></div>' : '<div class="pc-note" style="margin-top:14px">This renewal has no link yet. One is made the first time an invoice is attached.</div>';
+        var linkHTML = link ? '<div class="fld" style="margin-top:14px"><label>The Provider’s Renewal Page</label>' + '<div class="v mono" style="word-break:break-all;font-size:12px">' + esc(link) + "</div>" + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-rnlink="' + esc(key) + '">Copy the Link</button>' + (canWrite ? '<button class="lc-btn ghost" type="button" data-rnnew="' + esc(key) + '">New Link</button>' : "") + "</div>" + '<p class="pc-note" style="margin-top:6px">Anyone holding this link can open the renewal page. The invoice itself still asks for a code sent to the contact on file. If the link goes astray, New Link retires it.</p></div>' : '<div class="pc-note" style="margin-top:14px">This renewal has no link yet. One is made the first time an invoice is attached.</div>';
         if (!rec) {
             body.innerHTML = '<div class="rn-drop" data-rndrop="' + esc(key) + '">' + "<p>Drag the invoice PDF here</p>" + '<button class="lc-btn ghost" type="button" data-rnpick="' + esc(key) + '">Choose a File</button>' + '<input type="file" accept="application/pdf,.pdf" hidden data-rnfile="' + esc(key) + '"></div>' + linkHTML;
         } else {
@@ -7177,6 +7203,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (ok) {
                         toast("Invoice removed.", "good");
                         paintInvoice(key, r, null);
+                    }
+                }));
+            }));
+        }
+        var nw = body.querySelector("[data-rnnew]");
+        if (nw && !nw.__w) {
+            nw.__w = 1;
+            nw.addEventListener("click", (function () {
+                if (!window.confirm("Make a new link for this renewal?\n\nThe link already sent stops working straight away, and anyone holding it will see nothing. You will need to send the new one.")) return;
+                newRenewalLink(key, (function (ok) {
+                    if (ok) {
+                        toast("A new link is made. The old one no longer works.", "good");
+                        renderRenewalInvoice(key);
                     }
                 }));
             }));
