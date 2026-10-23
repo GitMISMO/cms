@@ -2409,8 +2409,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <p class="psub">Every renewal needs a quotation raised in Aptify and attached to the
           90&#8209;day renewal notice. The notice goes out 90 days before the anniversary, so the
           quotation has to exist two weeks before that &mdash; 104 days out. These are the ones
-          that have reached that point. Open a row to see what the quotation should say, and to
-          record its number once it has been raised.</p>
+          that have reached that point <em>and have no invoice already</em>. Open a row to see what
+          the quotation should say, and to record its number once it has been raised.</p>
       </div></div>
       <div class="rn-ctl">
         <div class="fld"><label for="rn-window">Look Ahead</label>
@@ -2444,6 +2444,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div class="na-acts"><button class="lc-btn ghost" type="button" id="rn-reset">Reset to Default</button></div>
       <div class="pc-lab" style="margin-top:18px;">What Gets Copied</div>
       <textarea class="pc-input rn-ta" id="rn-prompt" rows="16" spellcheck="false" readonly></textarea>
+    </div>
+
+    <div class="panel">
+      <div class="phead"><div>
+        <h2>Invoiced Already</h2>
+        <p class="psub">Due in the same window, but an invoice already exists for the renewal, so
+          there is nothing to raise. MACTS keeps a certification&rsquo;s invoices on the cycle rows
+          beneath it rather than on the certification itself, which is why these can look missing.</p>
+      </div></div>
+      <div id="rn-invoiced"></div>
     </div>
 
     <div class="panel">
@@ -6666,6 +6676,31 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         } catch (e) {}
         return DEFAULT_STANDING;
     }
+    /* MACTS keeps a certification's invoices on the cycle rows beneath it, not on the
+       certification row itself, so a renewal that looks uninvoiced on the record usually
+       is not. The money list carries those invoices. A renewal counts as invoiced when a
+       renewal invoice exists dated inside the twelve months running up to the anniversary
+       it buys. */
+    var MONEY_BY_CERT = null;
+    function moneyIndex() {
+        if (MONEY_BY_CERT) return MONEY_BY_CERT;
+        MONEY_BY_CERT = {};
+        (D.money || []).forEach((function(x) {
+            var k = [ x.org, x.program, x.product || "" ].join("|");
+            (MONEY_BY_CERT[k] = MONEY_BY_CERT[k] || []).push(x);
+        }));
+        return MONEY_BY_CERT;
+    }
+    function invoiceForRenewal(c) {
+        if (!c.anniversary) return null;
+        var from = addDays(c.anniversary, -365);
+        var hits = (moneyIndex()[certKey(c)] || []).filter((function(x) {
+            return x.kind === "renewal" && x.invoiceNumber && x.date && x.date >= from;
+        })).sort((function(a, b) {
+            return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+        }));
+        return hits.length ? hits[hits.length - 1] : null;
+    }
     function renewalSize(c) {
         var e = certEdits[certKey(c).replace(/[^A-Za-z0-9_.~-]/g, "_")] || {};
         return e.size || c.size || null;
@@ -6695,6 +6730,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (surchargeApplies(c.program) && isMember == null) notes.push("Membership is not recorded, so the " + money(surchargeAmount(c.program)) + " non-member surcharge may be missing.");
             var why = blockers.concat(notes);
             var q = quotes[key] || null;
+            var inv = invoiceForRenewal(c);
             return {
                 key: key,
                 cert: c,
@@ -6709,6 +6745,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 membership: m && m.current ? m.current.label || null : null,
                 size: size,
                 why: why,
+                invoice: inv,
                 blockers: blockers,
                 notes: notes,
                 quote: q
@@ -6719,7 +6756,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function renewalDue(rows) {
         return rows.filter((function(r) {
-            return !r.quote && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
+            return !r.quote && !r.invoice && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
         })).sort((function(a, b) {
             return a.dueIn - b.dueIn;
         }));
@@ -6728,7 +6765,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var el = $("pip-renewals");
         if (!el) return;
         var n = renewalRows().filter((function(r) {
-            return !r.quote && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
+            return !r.quote && !r.invoice && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
         })).length;
         el.textContent = String(n);
         el.classList.toggle("warn", n > 0);
@@ -6757,7 +6794,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var c = r.cert;
         var when = r.dueIn == null ? "—" : r.dueIn <= -8 ? '<span class="tag bad">' + -r.dueIn + " days late</span>" : r.dueIn <= 0 ? '<span class="tag warn">Due now</span>' : r.dueIn <= 14 ? '<span class="tag">' + r.dueIn + " days</span>" : '<span class="tag quiet">' + r.dueIn + " days</span>";
         var fee = r.expected == null ? '<span class="e-sub bad">not settled</span>' : money(r.expected) + (r.surcharge ? '<span class="e-sub">incl. ' + money(r.surcharge) + " surcharge</span>" : "");
-        var done = r.quote ? '<span class="e-sub">Quotation ' + esc(r.quote.number || "raised") + "</span>" : "";
+        var done = r.quote ? '<span class="e-sub">Quotation ' + esc(r.quote.number || "raised") + "</span>" : r.invoice ? '<span class="e-sub">Invoice ' + esc(r.invoice.invoiceNumber) + " \u00b7 " + esc(fmt(r.invoice.date)) + (r.invoice.paid ? " \u00b7 paid" : " \u00b7 not paid yet") + "</span>" : "";
         return '<button class="erow renew" type="button" data-rnopen="' + esc(r.key) + '">' + '<span class="e-co">' + esc(c.org) + (c.product ? '<span class="e-pr">' + esc(c.product) + "</span>" : "") + (r.blockers.length ? '<span class="e-sub bad">' + esc(r.blockers[0]) + "</span>" : "") + done + "</span>" + '<span class="e-pg">' + esc(c.program) + (c.completedRenewals ? '<span class="e-sub">renewal ' + (c.completedRenewals + 1) + "</span>" : "") + "</span>" + '<span class="e-st">' + esc(fmt(r.quoteBy)) + '<span class="e-sub">notice ' + esc(fmt(r.noticeOn)) + "</span></span>" + '<span class="e-sc num">' + esc(fmt(c.anniversary)) + "</span>" + '<span class="e-fee num">' + fee + "</span>" + '<span class="e-go">' + when + "</span>" + "</button>";
     }
     function renderRenewals() {
@@ -6790,8 +6827,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         box.innerHTML = due.length ? '<div class="etable"><div class="ehead renew">' + "<span>Company</span><span>Program</span><span>Quote By</span>" + '<span class="num">Anniversary</span><span class="num">Fee</span><span>Due</span></div>' + due.map(renewalRowHTML).join("") + "</div>" : '<div class="empty">No quotations are due in the next ' + renewWindow + " days.</div>";
         var p = $("rn-prompt");
         if (p) p.value = renewalPrompt(due);
+        var invd = rows.filter((function(r) {
+            return r.invoice && !r.quote && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
+        })).sort((function(a, b) {
+            return a.dueIn - b.dueIn;
+        }));
+        var ib = $("rn-invoiced");
+        if (ib) ib.innerHTML = invd.length ? '<div class="etable"><div class="ehead renew">' + "<span>Company</span><span>Program</span><span>Quote By</span>" + '<span class="num">Anniversary</span><span class="num">Fee</span><span>Due</span></div>' + invd.map(renewalRowHTML).join("") + "</div>" : '<div class="empty">Nothing in this window has been invoiced yet.</div>';
         var ahead = rows.filter((function(r) {
-            return r.dueIn != null && r.dueIn > renewWindow && r.dueIn <= 183 && (!renewProgram || r.cert.program === renewProgram);
+            return !r.invoice && r.dueIn != null && r.dueIn > renewWindow && r.dueIn <= 183 && (!renewProgram || r.cert.program === renewProgram);
         }));
         var ab = $("rn-ahead");
         if (ab) ab.innerHTML = ahead.length ? '<div class="etable"><div class="ehead renew">' + "<span>Company</span><span>Program</span><span>Quote By</span>" + '<span class="num">Anniversary</span><span class="num">Fee</span><span>Due</span></div>' + ahead.map(renewalRowHTML).join("") + "</div>" : '<div class="empty">Nothing else in the next six months.</div>';
