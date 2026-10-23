@@ -9495,7 +9495,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         delivered: "Opened by the signer",
         signed: "Executed",
         declined: "Declined",
-        voided: "Voided"
+        voided: "Voided",
+        needs_contact: "Needs an email"
     };
     var LIC_WHY = {
         not_sent: "Nobody has sent it. The certification stands either way — the licence " + "is only needed if the company wants to use the service mark.",
@@ -9504,7 +9505,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         delivered: "The signer has opened the envelope but not signed it yet.",
         signed: "Executed and on file. The copy below is the one DocuSign returned.",
         declined: "The signer declined. Nothing about the certification changes.",
-        voided: "The envelope was voided before it was signed."
+        voided: "The envelope was voided before it was signed.",
+        needs_contact: "The certification was approved and this is ready to go, but there is " + "no email address on the company record to send it to. Add one below and it " + "goes straight out."
     };
     function licOf(c) {
         var k = certKey(c);
@@ -9697,7 +9699,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function licActionsHTML(c, st) {
         var k = certKey(c);
         var org = orgOf(c.org) || {};
-        if (st === "not_sent" || st === "declined" || st === "voided") {
+        if (st === "not_sent" || st === "declined" || st === "voided" || st === "needs_contact") {
             return '<div class="lic-send">' + '<div class="pc-lab">Send It for Signature</div>' + '<div class="grid2">' + '<div class="fld"><label>Signer’s Name</label>' + '<input class="pc-input" type="text" data-lic="name" data-k="' + esc(k) + '" value="' + esc(org.signer || "") + '" placeholder="Who signs for ' + esc(c.org) + '"></div>' + '<div class="fld"><label>Signer’s Email</label>' + '<input class="pc-input" type="email" data-lic="email" data-k="' + esc(k) + '" value="' + esc(org.contactEmail || "") + '" placeholder="name@company.com"></div>' + '<div class="fld"><label>Their Title</label>' + '<input class="pc-input" type="text" data-lic="title" data-k="' + esc(k) + '" value=""></div>' + "</div>" + '<p class="em-n">MISMO holds business contact details only. If the name or address ' + "above is not right, correct it on the company record rather than here — that is " + "the copy everything else reads.</p>" + '<button class="lc-btn" type="button" data-licsend="' + esc(k) + '">Send for Signature</button>' + "</div>";
         }
         return '<div class="lic-send">' + '<div class="pc-lab">Record What Happened</div>' + '<div class="two-acts">' + (st !== "signed" ? '<button class="lc-btn" type="button" data-licset="' + esc(k) + '|signed">It Has Been Signed</button>' : "") + (st !== "signed" ? '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|declined">It Was Declined</button>' : "") + '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|not_sent">Start Again</button>' + "</div>" + '<div class="pc-lab" style="margin-top:14px;">The Executed Copy</div>' + '<label class="up-drop"><b>Attach the signed agreement</b>' + "<span>The PDF DocuSign returned, or the one that arrived by email</span>" + '<input type="file" accept=".pdf" data-licdoc="' + esc(k) + '"></label>' + "</div>";
