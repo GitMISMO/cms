@@ -884,6 +884,19 @@
   .rn-meta{min-width:0; flex:1 1 150px; font-size:13.5px;}
   .rn-acts{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;}
 
+/* ---- On Hold -------------------------------------------------------------------------
+   Held renewals sit under the work list, not in place of it. The mark is a rectangle, to
+   match every other tag in the system. */
+.rn-heldwrap{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.rn-heldwrap h3{margin:0 0 4px;font-size:15px;color:var(--ink)}
+.rn-heldrow{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.rn-heldrow:last-child{border-bottom:0}
+.rn-heldmark{flex:none;display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;padding:4px 9px;border-radius:4px;white-space:nowrap;
+  background:rgba(162,112,26,.14);color:var(--warn)}
+.rn-heldwho{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:2px}
+.rn-heldrow .lc-btn{flex:none;margin-left:auto;white-space:nowrap;min-width:max-content}
+
   .erow.people, .etable .ehead.people{grid-template-columns:2fr repeat(5, .7fr);}
   .erow.claim{grid-template-columns:1.2fr 1fr 2.4fr auto;}
   .erow.proj{grid-template-columns:1.6fr 1fr 1.4fr auto auto;}
@@ -2453,6 +2466,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
       <div id="rn-caveat"></div>
       <div id="rn-list"></div>
+      <!-- Held renewals are kept in sight rather than simply dropped. A hold that nobody can
+           see is how a company quietly lapses while everyone believes it is in hand. -->
+      <div id="rn-held"></div>
     </div>
 
     <div class="panel">
@@ -4503,7 +4519,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var rc = rr.cert, rq = rr.quote;
             $("d-title").textContent = rc.org;
             $("d-sub").textContent = rc.program + (rc.product ? " \xb7 " + rc.product : "") + " \xb7 renewal quotation";
-            $("d-body").innerHTML = '<div class="dsect"><h4>What the Quotation Should Say</h4>' + '<div class="grid2">' + '<div class="fld"><label>Aptify Customer</label><div class="v">' + (rr.aptify ? esc(rr.aptify) : '<span class="bad">Not on the company record</span>') + "</div></div>" + '<div class="fld"><label>Amount</label><div class="v">' + (rr.expected == null ? '<span class="bad">Not settled</span>' : esc(money(rr.expected)) + (rr.surcharge ? " (includes " + esc(money(rr.surcharge)) + " surcharge)" : "")) + "</div></div>" + '<div class="fld"><label>Quote By</label><div class="v">' + esc(fmt(rr.quoteBy)) + "</div></div>" + '<div class="fld"><label>90-Day Notice Goes Out</label><div class="v">' + esc(fmt(rr.noticeOn)) + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(rc.anniversary)) + "</div></div>" + '<div class="fld"><label>Membership</label><div class="v">' + esc(rr.membership || (rr.member === null ? "Not recorded" : rr.member ? "Member" : "Not a member")) + "</div></div>" + "</div>" + (rr.why.length ? '<div class="qwatch">' + rr.why.map(esc).join("<br>") + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Once It Has Gone Out</h4>' + '<p class="pc-note">One Aptify order number, in whichever state it is. A quotation becomes an invoice when it is posted and lands on MISMO\u2019s books as a receivable \u2014 the same number either way. Recording it takes this off the list, for everyone.</p>' + '<div class="grid2">' + '<div class="fld"><label for="rn-num">Aptify Order Number</label>' + '<input class="pc-input" id="rn-num" value="' + esc(rq && rq.number || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="rn-state">Where It Stands</label>' + '<select class="pc-input" id="rn-state">' + '<option value="quotation"' + (rq && rq.orderState === "invoice" ? "" : " selected") + ">Quotation \u2014 not on the books</option>" + '<option value="invoice"' + (rq && rq.orderState === "invoice" ? " selected" : "") + ">Invoice \u2014 posted, now a receivable</option>" + "</select></div>" + "</div>" + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-rnsave="1">' + (quoteRaised(rq) ? "Update" : "Mark as Sent") + "</button>" : '<span class="na-hint">Sign in to record a quotation.</span>') + (quoteRaised(rq) && canWrite ? '<button class="lc-btn ghost" type="button" data-rnclear="1">Not Raised After All</button>' : "") + "</div></div>" + '<div class="dsect" id="rn-inv"></div>';
+            $("d-body").innerHTML = '<div class="dsect"><h4>What the Quotation Should Say</h4>' + '<div class="grid2">' + '<div class="fld"><label>Aptify Customer</label><div class="v">' + (rr.aptify ? esc(rr.aptify) : '<span class="bad">Not on the company record</span>') + "</div></div>" + '<div class="fld"><label>Amount</label><div class="v">' + (rr.expected == null ? '<span class="bad">Not settled</span>' : esc(money(rr.expected)) + (rr.surcharge ? " (includes " + esc(money(rr.surcharge)) + " surcharge)" : "")) + "</div></div>" + '<div class="fld"><label>Quote By</label><div class="v">' + esc(fmt(rr.quoteBy)) + "</div></div>" + '<div class="fld"><label>90-Day Notice Goes Out</label><div class="v">' + esc(fmt(rr.noticeOn)) + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(rc.anniversary)) + "</div></div>" + '<div class="fld"><label>Membership</label><div class="v">' + esc(rr.membership || (rr.member === null ? "Not recorded" : rr.member ? "Member" : "Not a member")) + "</div></div>" + "</div>" + (rr.why.length ? '<div class="qwatch">' + rr.why.map(esc).join("<br>") + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Once It Has Gone Out</h4>' + '<p class="pc-note">One Aptify order number, in whichever state it is. A quotation becomes an invoice when it is posted and lands on MISMO\u2019s books as a receivable \u2014 the same number either way. Recording it takes this off the list, for everyone.</p>' + '<div class="grid2">' + '<div class="fld"><label for="rn-num">Aptify Order Number</label>' + '<input class="pc-input" id="rn-num" value="' + esc(rq && rq.number || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="rn-state">Where It Stands</label>' + '<select class="pc-input" id="rn-state">' + '<option value="quotation"' + (rq && rq.orderState === "invoice" ? "" : " selected") + ">Quotation \u2014 not on the books</option>" + '<option value="invoice"' + (rq && rq.orderState === "invoice" ? " selected" : "") + ">Invoice \u2014 posted, now a receivable</option>" + "</select></div>" + "</div>" + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-rnsave="1">' + (quoteRaised(rq) ? "Update" : "Mark as Sent") + "</button>" : '<span class="na-hint">Sign in to record a quotation.</span>') + (quoteRaised(rq) && canWrite ? '<button class="lc-btn ghost" type="button" data-rnclear="1">Not Raised After All</button>' : "") + "</div></div>" + '<div class="dsect" id="rn-inv"></div>'
+                + '<div class="dsect"><h4>If the Delay Is Ours</h4>'
+                + '<p class="pc-note">Put this certification on hold and the chasing stops \u2014 no quotation '
+                + 'to raise, no place in the overdue count, no renewal notices. It stays certified and stays '
+                + 'on the register. It will sit under On Hold until someone releases it.</p>'
+                + '<div class="fld"><label for="rn-holdwhy">Why</label>'
+                + '<input class="pc-input" id="rn-holdwhy" placeholder="What MISMO is sorting out"></div>'
+                + '<div class="na-acts">' + (canWrite
+                    ? '<button class="lc-btn ghost" type="button" data-rnhold="' + esc(panel.key) + '">Put On Hold</button>'
+                    : '<span class="na-hint">Sign in to put a certification on hold.</span>') + '</div></div>';
             renderRenewalInvoice(panel.key);
             var rsv = $("d-body").querySelector("[data-rnsave]");
             if (rsv) rsv.addEventListener("click", (function() {
@@ -6898,6 +6923,24 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var e = certEdits[certKey(c).replace(/[^A-Za-z0-9_.~-]/g, "_")] || {};
         return e.size || c.size || null;
     }
+    /* A certification can be put on hold when the delay is MISMO's to fix - the VP redesigning
+       something for a company's circumstance, say. The certification stays exactly as it is:
+       still live, still certified, still on the register. What stops is the chasing - no
+       quotation to raise, no place in the overdue count, and no renewal notices. The hold is
+       kept with the certification's other corrections, and it carries a reason, because a
+       hold nobody can explain is indistinguishable from an oversight. */
+    function certEditOf(c) {
+        return certEdits[certKey(c).replace(/[^A-Za-z0-9_.~-]/g, "_")] || certEdits[certKey(c)] || {};
+    }
+    function holdOf(c) {
+        var e = certEditOf(c);
+        return e.hold ? {
+            reason: e.holdReason || "",
+            by: e.holdBy || e.by || "someone",
+            at: e.holdAt || e.at || null
+        } : null;
+    }
+
     function renewalRows() {
         if (!certs) return [];
         return certs.filter((function(c) {
@@ -6927,6 +6970,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return {
                 key: key,
                 cert: c,
+                hold: holdOf(c),
                 org: org,
                 aptify: org.aptify || "",
                 quoteBy: quoteBy,
@@ -6949,7 +6993,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function renewalDue(rows) {
         return rows.filter((function(r) {
-            return !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
+            return !r.hold && !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= renewWindow && r.dueIn > -365 && (!renewProgram || r.cert.program === renewProgram);
         })).sort((function(a, b) {
             return a.dueIn - b.dueIn;
         }));
@@ -6958,7 +7002,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var el = $("pip-renewals");
         if (!el) return;
         var n = renewalRows().filter((function(r) {
-            return !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
+            return !r.hold && !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
         })).length;
         el.textContent = String(n);
         el.classList.toggle("warn", n > 0);
@@ -6990,6 +7034,79 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var done = quoteRaised(r.quote) ? '<span class="e-sub">' + (r.quote.orderState === "invoice" ? "Invoice" : "Quotation") + (r.quote.number ? " " + esc(r.quote.number) : "") + (r.quote.orderState === "invoice" ? " \u00b7 on the books" : "") + "</span>" : r.invoice ? '<span class="e-sub">Invoice ' + esc(r.invoice.invoiceNumber) + " \u00b7 " + esc(fmt(r.invoice.date)) + (r.invoice.paid ? " \u00b7 paid" : " \u00b7 not paid yet") + "</span>" : "";
         return '<button class="erow renew" type="button" data-rnopen="' + esc(r.key) + '">' + '<span class="e-co">' + esc(c.org) + (c.product ? '<span class="e-pr">' + esc(c.product) + "</span>" : "") + (r.blockers.length ? '<span class="e-sub bad">' + esc(r.blockers[0]) + "</span>" : "") + done + "</span>" + '<span class="e-pg">' + esc(c.program) + (c.completedRenewals ? '<span class="e-sub">renewal ' + (c.completedRenewals + 1) + "</span>" : "") + "</span>" + '<span class="e-st">' + esc(fmt(r.quoteBy)) + '<span class="e-sub">notice ' + esc(fmt(r.noticeOn)) + "</span></span>" + '<span class="e-sc num">' + esc(fmt(c.anniversary)) + "</span>" + '<span class="e-fee num">' + fee + "</span>" + '<span class="e-go">' + when + "</span>" + "</button>";
     }
+    /* The held list. Shown under the work list, never instead of it. */
+    function renderHeld() {
+        var box = $("rn-held");
+        if (!box) return;
+        var held = renewalRows().filter((function (r) {
+            return r.hold && (!renewProgram || r.cert.program === renewProgram);
+        })).sort((function (a, b) {
+            return a.cert.anniversary < b.cert.anniversary ? -1 : 1;
+        }));
+        if (!held.length) { box.innerHTML = ""; return; }
+        box.innerHTML = '<div class="rn-heldwrap">'
+            + "<h3>On Hold</h3>"
+            + '<p class="pc-note">These are still certified and still on the register. Nobody is chasing '
+            + "them, because the delay is ours. They stay here until someone releases them.</p>"
+            + held.map((function (r) {
+                return '<div class="rn-heldrow">'
+                    + '<span class="rn-heldmark">On Hold</span>'
+                    + '<span class="rn-heldwho"><b>' + esc(r.cert.org) + "</b>"
+                    + '<span class="e-sub">' + esc(r.cert.program)
+                    + (r.cert.product ? " \u00b7 " + esc(r.cert.product) : "")
+                    + " \u00b7 renews " + esc(fmt(r.cert.anniversary)) + "</span>"
+                    + '<span class="e-sub">' + esc(r.hold.reason || "No reason recorded")
+                    + " \u2014 " + esc(r.hold.by)
+                    + (r.hold.at ? " on " + esc(fmt(String(r.hold.at).slice(0, 10))) : "") + "</span></span>"
+                    + (canWrite ? '<button class="lc-btn ghost" type="button" data-rnrelease="'
+                        + esc(r.key) + '">Release</button>' : "")
+                    + "</div>";
+            })).join("")
+            + "</div>";
+        Array.prototype.forEach.call(box.querySelectorAll("[data-rnrelease]"), (function (b) {
+            if (b.__w) return;
+            b.__w = 1;
+            b.addEventListener("click", (function () {
+                var r = renewalRows().filter((function (x) { return x.key === b.getAttribute("data-rnrelease"); }))[0];
+                if (!r) return;
+                if (!window.confirm("Release " + r.cert.org + " from hold?\n\nRenewal notices and the quotation list pick them up again straight away.")) return;
+                setHold(r.cert, null);
+            }));
+        }));
+    }
+
+    /* reason null releases the hold */
+    function setHold(c, reason) {
+        if (!db || !canWrite) {
+            toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn");
+            return;
+        }
+        var key = certKey(c), id = key.replace(/[^A-Za-z0-9_.~-]/g, "_");
+        var cur = certEdits[id] || certEdits[key] || {};
+        var next = {};
+        for (var k in cur) next[k] = cur[k];
+        next.key = key;
+        if (reason) {
+            next.hold = true;
+            next.holdReason = reason;
+            next.holdBy = me && me.name || "someone";
+            next.holdAt = new Date().toISOString();
+        } else {
+            next.hold = false;
+            next.holdReason = null;
+            next.holdBy = null;
+            next.holdAt = null;
+        }
+        certEdits[id] = next;
+        certEdits[key] = next;
+        Promise.resolve(db.doc("certEdits/" + id).set(next)).then((function () {
+            toast(reason ? c.org + " \u2014 on hold." : c.org + " \u2014 released.", "good");
+            renderRenewals();
+        }), (function (e) {
+            onWriteRefused(e);
+        }));
+    }
+
     function renderRenewals() {
         var box = $("rn-list");
         if (!box) return;
@@ -7005,6 +7122,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (psel) psel.value = renewProgram;
         var st = $("rn-standing");
         if (st && !st.value) st.value = standingNow();
+        renderHeld();
         var rows = renewalRows();
         var due = renewalDue(rows);
         var cnt = $("rn-count");
@@ -7219,6 +7337,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                         renderRenewalInvoice(key);
                     }
                 }));
+            }));
+        }
+        var hb = document.querySelector("[data-rnhold]");
+        if (hb && !hb.__w) {
+            hb.__w = 1;
+            hb.addEventListener("click", (function () {
+                var why = (document.getElementById("rn-holdwhy") || {}).value || "";
+                why = why.trim();
+                if (!why) { toast("Say what MISMO is sorting out, so the hold can be explained later.", "warn"); return; }
+                var k = hb.getAttribute("data-rnhold");
+                var r = renewalRows().filter((function (x) { return x.key === k; }))[0];
+                if (!r) return;
+                setHold(r.cert, why);
+                closePanel();
             }));
         }
         var cp = body.querySelector("[data-rnlink]");
