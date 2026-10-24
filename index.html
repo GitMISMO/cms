@@ -4681,9 +4681,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (db) {
                 try {
                     if (h.before) {
-                        Promise.resolve(db.doc("orgEdits/" + h.slug).set(h.before)).catch(onWriteRefused);
+                        Promise.resolve(db.doc("org-edits/" + h.slug).set(h.before)).catch(onWriteRefused);
                     } else {
-                        Promise.resolve(db.doc("orgEdits/" + h.slug).delete()).catch(onWriteRefused);
+                        Promise.resolve(db.doc("org-edits/" + h.slug).delete()).catch(onWriteRefused);
                     }
                     Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
                 } catch (e) {
@@ -4705,9 +4705,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 var id = h.key.replace(/[^A-Za-z0-9_.~-]/g, "_");
                 try {
                     if (h.before) {
-                        Promise.resolve(db.doc("certEdits/" + id).set(h.before)).catch(onWriteRefused);
+                        Promise.resolve(db.doc("cert-edits/" + id).set(h.before)).catch(onWriteRefused);
                     } else {
-                        Promise.resolve(db.doc("certEdits/" + id).delete()).catch(onWriteRefused);
+                        Promise.resolve(db.doc("cert-edits/" + id).delete()).catch(onWriteRefused);
                     }
                     Promise.resolve(db.collection("activity").add({
                         row: null,
@@ -4765,9 +4765,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (db) {
             try {
                 if (h.before) {
-                    Promise.resolve(db.doc("cycleState/" + h.row).set(h.before)).catch(onWriteRefused);
+                    Promise.resolve(db.doc("cycle-state/" + h.row).set(h.before)).catch(onWriteRefused);
                 } else {
-                    Promise.resolve(db.doc("cycleState/" + h.row).delete()).catch(onWriteRefused);
+                    Promise.resolve(db.doc("cycle-state/" + h.row).delete()).catch(onWriteRefused);
                 }
                 Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
             } catch (e) {
@@ -4783,7 +4783,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!db) return;
         var body = moves[row];
         try {
-            Promise.resolve(db.doc("cycleState/" + row).set(body)).catch(onWriteRefused);
+            Promise.resolve(db.doc("cycle-state/" + row).set(body)).catch(onWriteRefused);
             Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
         } catch (e) {
             onWriteRefused(e);
@@ -5435,7 +5435,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         activity.unshift(entry);
         if (db) {
             try {
-                Promise.resolve(db.doc("certEdits/" + key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(next)).catch(onWriteRefused);
+                Promise.resolve(db.doc("cert-edits/" + key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(next)).catch(onWriteRefused);
                 Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
             } catch (e) {
                 onWriteRefused(e);
@@ -5567,7 +5567,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         activity.unshift(entry);
         if (db) {
             try {
-                Promise.resolve(db.doc("orgEdits/" + slug).set(next)).catch(onWriteRefused);
+                Promise.resolve(db.doc("org-edits/" + slug).set(next)).catch(onWriteRefused);
                 Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
             } catch (e) {
                 onWriteRefused(e);
@@ -6676,7 +6676,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (body) scenLog[row] = body; else delete scenLog[row];
         if (db) {
             try {
-                if (body) Promise.resolve(db.doc("scenarioLog/" + row).set(body)).catch(onWriteRefused); else Promise.resolve(db.doc("scenarioLog/" + row).delete()).catch(onWriteRefused);
+                if (body) Promise.resolve(db.doc("scenario-log/" + row).set(body)).catch(onWriteRefused); else Promise.resolve(db.doc("scenario-log/" + row).delete()).catch(onWriteRefused);
             } catch (e) {
                 onWriteRefused(e);
             }
@@ -7099,7 +7099,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         certEdits[id] = next;
         certEdits[key] = next;
-        Promise.resolve(db.doc("certEdits/" + id).set(next)).then((function () {
+        Promise.resolve(db.doc("cert-edits/" + id).set(next)).then((function () {
             toast(reason ? c.org + " \u2014 on hold." : c.org + " \u2014 released.", "good");
             renderRenewals();
         }), (function (e) {
@@ -8210,7 +8210,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         activity.unshift(entry);
         if (db) {
             try {
-                if (body) Promise.resolve(db.doc("scriptPrep/" + f.row).set(body)).catch(onWriteRefused); else Promise.resolve(db.doc("scriptPrep/" + f.row).delete()).catch(onWriteRefused);
+                if (body) Promise.resolve(db.doc("script-prep/" + f.row).set(body)).catch(onWriteRefused); else Promise.resolve(db.doc("script-prep/" + f.row).delete()).catch(onWriteRefused);
                 Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
             } catch (e) {
                 onWriteRefused(e);
@@ -10959,7 +10959,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         activity.unshift(entry);
         if (db) {
             try {
-                Promise.resolve(db.doc("formEdits/" + id).set(body)).catch(onWriteRefused);
+                Promise.resolve(db.doc("form-edits/" + id).set(body)).catch(onWriteRefused);
                 Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused);
             } catch (e) {
                 onWriteRefused(e);
@@ -10972,7 +10972,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         delete formEdits[id];
         if (db) {
             try {
-                Promise.resolve(db.doc("formEdits/" + id).delete()).catch((function() {}));
+                Promise.resolve(db.doc("form-edits/" + id).delete()).catch((function() {}));
             } catch (e) {}
         }
         renderForms();
@@ -11044,7 +11044,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             Object.keys(formEdits).forEach((function(k) {
                 if (db) {
                     try {
-                        Promise.resolve(db.doc("formEdits/" + k).delete()).catch((function() {}));
+                        Promise.resolve(db.doc("form-edits/" + k).delete()).catch((function() {}));
                     } catch (err) {}
                 }
             }));
