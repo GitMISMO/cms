@@ -7069,7 +7069,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             b.addEventListener("click", (function () {
                 var r = renewalRows().filter((function (x) { return x.key === b.getAttribute("data-rnrelease"); }))[0];
                 if (!r) return;
-                if (!window.confirm("Release " + r.cert.org + " from hold?\n\nRenewal notices and the quotation list pick them up again straight away.")) return;
+                /* Name the certification, not just the company. A company can have several on hold at
+                   once, and after a release the list closes up - so the next click lands on a
+                   different row than the one that was there a moment ago. */
+                if (!window.confirm("Release this from hold?\n\n" + r.cert.org + "\n"
+                    + r.cert.program + (r.cert.product ? " \u00b7 " + r.cert.product : "")
+                    + "\n\nRenewal notices and the quotation list pick it up again straight away.")) return;
                 setHold(r.cert, null);
             }));
         }));
