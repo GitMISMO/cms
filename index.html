@@ -897,6 +897,21 @@
 .rn-heldwho{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:2px}
 .rn-heldrow .lc-btn{flex:none;margin-left:auto;white-space:nowrap;min-width:max-content}
 
+/* ---- What has gone out ----------------------------------------------------------------
+   One line per notice sent, newest first. The date leads, because the first question is
+   always "when did we last write to them". */
+.nl-row{display:flex;gap:14px;align-items:flex-start}
+.nl-when{flex:none;width:104px;font-size:12.5px;color:var(--ink-3);padding-top:1px}
+.nl-what{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:2px}
+.nl-tag{flex:none;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  padding:4px 9px;border-radius:4px;white-space:nowrap;background:var(--chip);color:var(--ink-2)}
+.nl-copy{flex:none;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  padding:4px 9px;border-radius:4px;white-space:nowrap;cursor:pointer;user-select:none;
+  background:rgba(162,112,26,.14);color:var(--warn)}
+.nl-copy:hover{background:rgba(162,112,26,.24)}
+.nl-copy-off{visibility:hidden;pointer-events:none}
+.nl-copy:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
   .erow.people, .etable .ehead.people{grid-template-columns:2fr repeat(5, .7fr);}
   .erow.claim{grid-template-columns:1.2fr 1fr 2.4fr auto;}
   .erow.proj{grid-template-columns:1.6fr 1fr 1.4fr auto auto;}
@@ -2535,6 +2550,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="nt-caveat"></div>
       <div id="nt-list"></div>
     </div>
+
+    <div class="panel">
+      <div class="phead"><div>
+        <h2>What Has Gone Out</h2>
+        <p class="psub">Every notice the system has sent, newest first. While notices are still
+        being held back for checking, this shows who each one <em>would</em> have reached.</p>
+      </div>
+        <div class="fld rn-act"><span class="na-hint" id="nl-count"></span></div>
+      </div>
+      <div id="nl-list"></div>
+    </div>
   </section>
 
   <!-- ================= FORMS ================= -->
@@ -2826,6 +2852,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join(" ");
     }
     var certEdits = {};
+    var noticeLog = [];
     var orgEdits = {};
     var orgOpen = {};
     var orgDraft = {};
@@ -7537,6 +7564,60 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var who = r.to.length ? esc(r.to.join(", ")) : '<span class="bad">no email on the company record</span>';
         return '<button class="erow notice" type="button" data-ntopen="' + esc(r.key) + '">' + '<span class="e-co">' + esc(r.cert.org) + (r.cert.product ? '<span class="e-pr">' + esc(r.cert.product) + "</span>" : "") + '<span class="e-sub">' + who + "</span></span>" + '<span class="e-pg">Notice ' + esc(r.notice) + '<span class="e-sub">' + esc(r.family) + "</span></span>" + '<span class="e-st">' + esc(r.subject) + "</span>" + '<span class="e-sc num">' + esc(fmt(r.sendOn)) + "</span>" + '<span class="e-go">' + when + "</span>" + "</button>";
     }
+
+    /* ---- What has gone out ------------------------------------------------------------
+       The runner writes one entry per notice it sends. This only reads them. While notices
+       are held back for checking, each entry also carries who it would really have reached,
+       and that is what matters to show - the copy address tells you nothing. */
+    function renderNoticeLog() {
+        var box = $("nl-list");
+        if (!box) return;
+        var rows = (noticeLog || []).slice().sort(function (a, b) {
+            return String(b.sentAt).localeCompare(String(a.sentAt));
+        });
+        var cnt = $("nl-count");
+        if (cnt) cnt.textContent = rows.length
+            ? rows.length + (rows.length === 1 ? " notice sent" : " notices sent")
+            : "Nothing has gone out yet";
+        if (!rows.length) {
+            box.innerHTML = '<div class="empty">No notice has been sent yet. The first one to '
+                + "fall due will appear here.</div>";
+            return;
+        }
+        box.innerHTML = rows.map(function (r) {
+            var to = (r.heldBack ? (r.wouldHaveGoneTo || []) : (r.sentTo ? [r.sentTo] : []));
+            if (typeof to === "string") to = [to];
+            return '<div class="erow nl-row">'
+                + '<span class="nl-when">' + esc(fmt(String(r.sentAt).slice(0, 10))) + "</span>"
+                + '<span class="nl-what"><b>' + esc(r.org || "") + "</b>"
+                + '<span class="e-sub">' + esc(r.subject || "") + "</span>"
+                + '<span class="e-sub">'
+                + (r.heldBack ? "Would have gone to " : "Sent to ")
+                + esc(to.length ? to.join(", ") : "nobody - no contact on record")
+                + "</span></span>"
+                + '<span class="nl-tag">Notice ' + esc(r.notice || "") + "</span>"
+                + (r.heldBack && to.length
+                    ? '<span class="nl-copy" role="button" tabindex="0" data-nlcopy="'
+                      + esc(to.join(", ")) + '">Copy</span>'
+                    /* an empty slot, so the Notice chips line up down the column */
+                    : '<span class="nl-copy nl-copy-off" aria-hidden="true">Copy</span>')
+                + "</div>";
+        }).join("");
+        /* The addresses are the point of the row while notices are held back: this puts them
+           on the clipboard so they can be pasted straight into Outlook. */
+        Array.prototype.forEach.call(box.querySelectorAll("[data-nlcopy]"), (function (b) {
+            if (b.__w) return;
+            b.__w = 1;
+            function go() {
+                copy(b.getAttribute("data-nlcopy"), "The addresses are on your clipboard.");
+            }
+            b.addEventListener("click", go);
+            b.addEventListener("keydown", (function (e) {
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+            }));
+        }));
+    }
+
     function renderNotices() {
         var box = $("nt-list");
         if (!box) return;
@@ -7582,6 +7663,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     renderRenewals();
     renderNotices();
+    renderNoticeLog();
     function renderAll() {
         renderInvoices();
         renderInvoicePip();
@@ -7595,6 +7677,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderScenarios();
         renderRenewals();
         renderNotices();
+        renderNoticeLog();
         renderPanel();
     }
     document.addEventListener("keydown", (function(e) {
@@ -7640,6 +7723,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }), (function() {
                 banner();
             }));
+            /* What the notice runner has sent. Read only here - the runner owns this file. */
+            d.collection("notice-log").onSnapshot((function(snap) {
+                var next = [];
+                (snap.docs || []).forEach((function(doc) {
+                    var body = doc.data();
+                    if (body && body.sentAt) next.push(body);
+                }));
+                noticeLog = next;
+                if (typeof renderNoticeLog === "function") renderNoticeLog();
+            }), (function() {}));
             d.collection("cert-edits").onSnapshot((function(snap) {
                 var next = {};
                 (snap.docs || []).forEach((function(doc) {
