@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en" data-rs-gate><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Certification Email Playbook</title>
+<!--
+  Certification Email Playbook (resources.mismo.org/cms/playbook.html)
+
+  Every email the certification system sends as a certification moves through its stages:
+  when it goes, who it goes to, why, and what stops it. Staff with Edit access on the CMS can
+  change the wording and send themselves a test, the same way Member 360's Playbooks work.
+
+  This file is page code only, in a public repository, so it holds no records. Everything
+  is read after sign-in through MISMO's relay (project key cms) from the private cms-data:
+    data/stage-notices.json       the emails: timing, recipients, approval, original wording
+    data/db-stage-templates.json  wording saved here (written by this page)
+    data/db-stage-tests.json      Send Me a Test requests (written by this page)
+  Saving either of the last two starts the Stage notices job in cms-data, which uses the
+  saved wording for every email from then on and sends each test to the person who asked.
+  The page never sends email itself.
+-->
+<script src="/assets/session.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --navy:#0f314c; --navy-deep:#06202f; --navy-mid:#14486e;
+  --sky:#50a4db; --sky-wash:#dcedf8;
+  --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
+  --border:#d5e2ed; --border-strong:#adc4d6; --rule:#e5eef5;
+  --ink:#0f314c; --ink-2:#456179; --ink-3:#546f88;
+  --good:#0f7b5c; --bad:#b3372c; --warn:#a2701a;
+  --good-soft:#e1f2ec; --bad-soft:#fbe9e7; --warn-soft:#f7efe0;
+  --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9;
+  --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+    --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+    --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+    --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+    --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+    --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+  --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+  --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+  --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+  --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+  --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
+.logoplate svg{height:24px;width:auto;display:block}
+.mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
+.name{font-size:15.5px;font-weight:700;color:var(--sky);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:13px}
+.eyebrow{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600;white-space:nowrap}
+#rs-account{flex:0 0 auto;display:inline-flex;align-items:center}
+#rs-account .rs-who,#rs-account .rs-signin{border-radius:4px}
+.theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
+.theme:hover{border-color:var(--sky)}
+@media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
+main{max-width:980px;margin:0 auto;padding:26px 16px 60px}
+.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:18px}
+h1{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
+.vsub{color:var(--ink-2);margin-top:4px;max-width:720px}
+.back{margin-left:auto;color:var(--navy-mid);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.back:hover{text-decoration:underline}
+.banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
+.banner.bad{border-left-color:var(--bad)}
+.banner b{color:var(--ink)}
+.group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:26px 0 8px}
+details.sect{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+details.sect > summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
+details.sect > summary::-webkit-details-marker{display:none}
+details.sect > summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;flex:0 0 auto}
+details.sect[open] > summary::before{transform:rotate(45deg)}
+details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:8px}
+.cnt{margin-left:auto;font-weight:500;font-size:12.5px;color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.off{background:var(--surface-3);color:var(--ink-3)}
+.chip.edit{background:var(--accent-soft);color:var(--accent)}
+.sbody{padding:2px 16px 16px;border-top:1px solid var(--rule)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin:14px 0 16px}
+.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.fact div{font-size:13px;color:var(--ink)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.fld textarea{min-height:220px;resize:vertical;font-size:13px}
+.fld input:focus,.fld textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
+.fld input:disabled,.fld textarea:disabled{opacity:.75;cursor:not-allowed}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.5}
+.hint code,.fields code{font-family:var(--mono);font-size:11.5px;background:var(--chip);border-radius:3px;padding:0 4px;color:var(--ink-2)}
+.btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--navy-mid)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.who{font-size:12px;color:var(--ink-3)}
+.status{font-size:12px;font-weight:600}
+.status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
+.rules{display:grid;gap:10px;margin-top:12px}
+.rule{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13px}
+.rule .d{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.rule b{display:block;color:var(--ink)}
+.rule span{color:var(--ink-2)}
+@media(max-width:560px){.rule{grid-template-columns:1fr;gap:2px}}
+.prose p{font-size:13px;margin:0 0 10px;color:var(--ink)}
+.prose table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
+.prose th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:6px 12px 6px 0;border-bottom:1px solid var(--border)}
+.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.prose td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{border-left-color:var(--bad)}
+.loading{padding:40px 0;text-align:center;color:var(--ink-3)}
+.foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
+</style>
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
+0 -101 4 -132 25 -197 57 -172 168 -280 335 -323 84 -22 723 -22 808 0 222 58
+355 253 355 520 0 270 -132 459 -361 520 -74 20 -730 20 -802 0z m692 -320
+c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
+-297 0 -307 2 -346 83 -30 61 -31 198 -2 262 41 93 68 100 368 97 219 -2 243
+-4 274 -22z M0 545 l0 -515 225 0 225 0 2 296 3 296 116 -294 116 -293 197 0 198
+0 119 295 118 295 1 -297 0 -298 225 0 225 0 0 515 0 515 -337 -2 -338 -3
+-104 -264 c-80 -204 -107 -260 -113 -245 -5 10 -52 129 -106 264 l-98 245
+-337 3 -337 2 0 -515z M1892 1044 l-22 -15 0 -483 c0 -455 1 -484 18 -499 16 -15 48 -17
+246 -17 128 0 235 4 246 10 32 17 34 57 4 95 -33 44 -64 143 -64 206 l0 49
+203 0 c191 0 205 -1 222 -20 10 -11 34 -24 54 -30 49 -13 586 -13 612 0 22 12
+26 62 7 78 -8 6 -174 15 -413 21 -502 15 -549 23 -628 110 -43 48 -57 93 -57
+187 0 82 19 156 55 208 30 44 32 77 7 99 -27 25 -456 25 -490 1z M3716 1044 c-23 -22 -20 -31 19 -77 43 -49 78 -155 73 -218 l-3 -44
+-204 -3 c-194 -2 -205 -1 -218 17 -24 35 -78 41 -355 41 -255 0 -269 -1 -288
+-20 -27 -27 -26 -58 3 -70 12 -5 202 -14 422 -19 421 -12 476 -18 555 -62 92
+-51 132 -159 111 -299 -12 -77 -34 -129 -77 -179 -23 -28 -25 -36 -16 -57 l12
+-24 215 0 215 0 2 306 3 306 120 -303 120 -304 197 -3 196 -2 118 296 119 297
+3 -296 2 -297 225 0 225 0 0 515 0 515 -338 0 -337 0 -104 -265 c-58 -146
+-106 -263 -108 -261 -2 2 -50 120 -107 262 l-104 259 -340 3 c-300 2 -342 0
+-356 -14z"/></g><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-s, #50a4db)"><path d="M2485 1046 c-44 -20 -111 -94 -136 -151 -27 -60 -37 -198 -20 -263
+13 -48 68 -115 114 -138 64 -34 162 -43 562 -55 239 -6 405 -15 413 -21 19
+-16 15 -66 -7 -78 -26 -13 -563 -13 -612 0 -20 6 -44 19 -54 30 -17 19 -31 20
+-222 20 l-203 0 0 -49 c0 -81 34 -172 86 -230 78 -87 31 -81 672 -81 l568 0
+46 29 c79 50 122 121 139 231 21 140 -19 248 -111 299 -79 44 -134 50 -555 62
+-220 5 -410 14 -422 19 -29 12 -30 43 -3 70 19 19 33 20 288 20 277 0 331 -6
+355 -41 13 -18 24 -19 218 -17 l204 3 3 44 c4 60 -31 168 -70 215 -17 21 -52
+52 -77 67 l-45 29 -550 0 c-440 -1 -557 -3 -581 -14z"/></g></symbol></defs></svg>
+<header class="top">
+  <a class="logoplate" href="/" aria-label="MISMO Resources home"><svg role="img" aria-label="MISMO" viewBox="0 0 708 108"><use href="#mismo-logo"/></svg></a>
+  <span class="mastrule"></span>
+  <span class="name">Certification Email Playbook</span>
+  <span class="top-r"><span class="eyebrow">Programs &amp; Operations</span>
+    <button class="theme" id="theme" type="button">Dark Mode</button>
+    <span id="rs-account"></span></span>
+</header>
+<main>
+  <div class="vhead">
+    <div><h1>Certification Email Playbook</h1>
+    <div class="vsub">Every email that follows a certification from payment to Mark License: when it goes, who it goes to, why, and what stops it. Edit the wording here.</div></div>
+    <a class="back" href="/cms/">Open the Certification Management System</a>
+  </div>
+  <div id="note"></div>
+  <div id="plays"><div class="loading">Loading the emails&hellip;</div></div>
+
+  <div class="group">How It Works</div>
+  <details class="sect">
+    <summary>When an Email Waits, Is Held or Is Skipped</summary>
+    <div class="sbody"><div class="rules" id="rules"></div></div>
+  </details>
+  <details class="sect">
+    <summary>Merge Fields</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">Anything in double braces is filled in for each certification as the email goes out. Type them exactly as shown, braces included.</p>
+      <table id="fields"><tr><th>Field</th><th>Becomes</th></tr></table>
+    </div>
+  </details>
+  <details class="sect">
+    <summary>Editing and Testing</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">Open an email, change the Heading, Subject Line or Email Body, then press Save Wording. The change is used for every send of that email from then on, and the card shows who last edited it and when. Restore Original Wording puts back the wording the email started with.</p>
+      <p>Send Me a Test sends that email to you alone, filled in with a real certification from the board as the sample, marked [Test] in the subject. It uses whatever is in the boxes at that moment, so you can change the wording, test it, and only save when you are happy. Nobody else receives it and nothing is recorded as sent. Tests go out at any hour; the real emails wait for business hours.</p>
+      <p>A test normally arrives within two minutes. The card shows when it has gone. Who gets each email and when it sends are set in the system itself; changing those is a change to the system, not to the wording.</p>
+      <p>Saving needs Edit access to the Certification Management System. With View access the page is read only.</p>
+    </div>
+  </details>
+  <div class="foot" id="foot"></div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var RELAY = 'https://rgvdi67cg27o5kcmiytcqbqnrm0hmztx.lambda-url.us-east-1.on.aws', PROJECT = 'cms';
+  var RS = window.ResourcesSession;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- theme: follows the device, with a per-viewer override ---- */
+  var root = document.documentElement;
+  function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function showTheme() { $('theme').textContent = isDark() ? 'Light Mode' : 'Dark Mode'; }
+  try { var saved = localStorage.getItem('cms-playbook:theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  showTheme();
+  $('theme').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('cms-playbook:theme', t); } catch (e) {} showTheme(); });
+
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k]; if (v == null || v === false) return;
+      if (k === 'class') el.className = v; else if (k === 'text') el.textContent = v; else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null || c === false) continue; el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+    return el;
+  }
+  var toastT;
+  function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 6000 : 3500); }
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function when(iso) { if (!iso) return ''; var d = new Date(iso); if (isNaN(d)) return String(iso).slice(0, 10);
+    return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' at ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+
+  /* ---- the relay ---- */
+  function call(method, path, body) {
+    var headers = { 'Authorization': 'Bearer ' + (RS && RS.token ? RS.token() : '') };
+    if (body) headers['Content-Type'] = 'application/json';
+    return fetch(RELAY + '/' + PROJECT + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, json: j || {} }; }); });
+  }
+  /* A collection is data/db-<name>.json, {docs:{id:body}}, written with the version last read (as the CMS does). */
+  var COLL = {};
+  function readColl(file) {
+    return call('GET', '/data/' + file).then(function (r) {
+      if (r.status === 404) { COLL[file] = { docs: {}, sha: null }; return COLL[file]; }
+      if (r.status !== 200) throw new Error(file + ' could not be read (' + (r.json.error || r.status) + ')');
+      var d = r.json.data || {}; COLL[file] = { docs: d.docs || {}, sha: r.json.sha || null }; return COLL[file];
+    });
+  }
+  function writeDoc(file, id, body) {   /* body null deletes */
+    function attempt(tries) {
+      var c = COLL[file] || { docs: {}, sha: null }, next = JSON.parse(JSON.stringify(c.docs || {}));
+      if (body === null) delete next[id]; else next[id] = body;
+      return call('PUT', '/data/' + file, { content: { docs: next }, sha: c.sha }).then(function (r) {
+        if (r.status === 200) { COLL[file] = { docs: next, sha: r.json.sha || c.sha }; return; }
+        if (r.status === 409 && tries < 4) return readColl(file).then(function () { return attempt(tries + 1); });
+        if (r.status === 403) throw new Error('View only: not saved. Saving needs Edit access to the Certification Management System.');
+        throw new Error('Not saved (' + (r.json.error || r.status) + ').');
+      });
+    }
+    return attempt(0);
+  }
+
+  /* ---- what the page knows about the system (no records; the emails themselves come from cms-data) ---- */
+  var STATE = { AwaitingDemoSelection: 'Awaiting Demo Selection', AwaitingReviewSelection: 'Awaiting Review Selection', DemoProposed: 'Demo Proposed',
+    DemoScheduled: 'Demo Scheduled', PrelimResultsSubmitted: 'Preliminary Results Submitted', PrelimQueryOpen: 'Preliminary Query Open',
+    RemediationOpen: 'Remediation Open', RemediationEscalated: 'Remediation Escalated', RemediationSubmitted: 'Remediation Submitted',
+    RemediationQueryOpen: 'Remediation Query Open', ApprovedPendingLicense: 'Approved, Pending License', LicenseSent: 'License Sent',
+    Certified: 'Certified', AgreementSent: 'Agreement Sent' };
+  function st(s) { return STATE[s] || String(s).replace(/([a-z])([A-Z])/g, '$1 $2'); }
+  var ROLE = { company: "the company's contacts", firm: 'the assessor firm', internal: 'certifications@mismo.org',
+    vp: "MISMO's VP, Programs and Operations", president: "MISMO's President" };
+  var SHOWN = { 'Session Title': 'Demonstration', 'Session': 'demonstration' };
+  function plainTitle(s) { return String(s || '').replace(/\{\{([^}]+)\}\}/g, function (m, k) { k = k.trim(); return SHOWN[k] || k; }); }
+  var GROUPS = [
+    { name: 'Payment and Scheduling', ids: ['welcome-demo', 'welcome-interview', 'welcome-review-internal', 'welcome-followup', 'welcome-stalled-internal', 'demo-proposed', 'demo-scheduled', 'demo-reschedule'] },
+    { name: 'Preliminary Results', ids: ['prelim-ready', 'prelim-query', 'prelim-answered'] },
+    { name: 'Remediation', ids: ['remediation-open', 'remediation-followup', 'remediation-escalate', 'remediation-submitted', 'remediation-query', 'remediation-answered'] },
+    { name: 'Approval and Mark License', ids: ['approved-company', 'approved-firm', 'approved-internal', 'license-sent', 'certified-internal'] },
+    { name: 'Not in Use', ids: ['agreement-sent'] }
+  ];
+  var PURPOSE = {
+    'welcome-demo': 'Tells the company its payment is in and asks it to agree a demonstration date directly with the assessor, who is copied.',
+    'welcome-interview': 'Tells the company its payment is in and asks it to agree an interview date directly with the assessor, who is copied.',
+    'welcome-review-internal': 'Tells MISMO a certification assessed by review is paid and ready to schedule.',
+    'welcome-followup': 'A weekly nudge to agree a date with the assessor.',
+    'welcome-stalled-internal': 'Tells MISMO no date has been agreed after the last reminder, so a person should follow up.',
+    'demo-proposed': 'Tells the assessor a date has been proposed, so they can confirm it.',
+    'demo-scheduled': 'Confirms the date with the company.',
+    'demo-reschedule': 'Asks the company to agree a new date with the assessor after the agreed one falls through.',
+    'prelim-ready': "Asks MISMO's VP to review the assessor's preliminary results.",
+    'prelim-query': "Sends MISMO's questions on the preliminary results to the assessor.",
+    'prelim-answered': 'Tells the VP the assessor has answered the questions.',
+    'remediation-open': 'Tells the company which items need remediation, with the assessor copied.',
+    'remediation-followup': 'Follows up when the remediation target date passes.',
+    'remediation-escalate': 'Escalates to the VP when remediation is a month past its target date.',
+    'remediation-submitted': 'Asks the VP to review the completed remediation.',
+    'remediation-query': "Sends MISMO's questions on remediation to the assessor.",
+    'remediation-answered': 'Tells the VP the assessor has answered the questions.',
+    'approved-company': 'Tells the company it is approved and that the Mark License Agreement comes next for signature.',
+    'approved-firm': 'Tells the assessor its results are approved.',
+    'approved-internal': 'Reminds MISMO to check the Mark License Agreement went out through DocuSign.',
+    'license-sent': "Tells MISMO's President the Mark License Agreement is on its way for countersignature.",
+    'certified-internal': 'Lists the final steps once the Mark License Agreement is signed.',
+    'agreement-sent': 'Not in use. The hourly Heads Up for Brian flow already covers Application Agreements.'
+  };
+  var FIELDS = [
+    ['Company', 'The company being certified'], ['First Name', 'First name of the company contact (there, if none is on file)'],
+    ['Program', 'RON, eClosing, eVault, Product and so on'], ['Product Or Platform', 'The product certified, or "your RON platform"'],
+    ['Kind', 'initial or renewal'], ['Kind Title', 'Initial or Renewal'], ['Assessor Name', 'The assessor firm'],
+    ['Scheduling', "How the assessor firm takes bookings, from the firm's record"], ['Prep Doc', "Link to the program's preparation document"],
+    ['Session', 'demonstration or interview'], ['Session Title', 'Demonstration or Interview'], ['Demo Date', 'The agreed date and time'],
+    ['Note', 'The note recorded with the stage move in the CMS'], ['Findings Label', 'Findings or No Findings'],
+    ['Signer', 'The authorized signer on file'], ['Completion Line', 'The closing sentence for an initial or a renewal'],
+    ['Target Date', 'The remediation target date (follow-ups only)'], ['Reminders', 'How many reminders have gone (follow-ups only)']
+  ];
+
+  var CFG = null, TPL = {}, TESTS = {}, canWrite = false, me = null, pollT = null;
+
+  function sendsText(t) {
+    var w = t.when || {}, f = CFG.followUps || {};
+    if (w.followUp === 'welcome') return 'Every ' + (f.welcomeEveryDays || 7) + ' days while no date is agreed, up to ' + (f.welcomeMaxReminders || 4) + ' times';
+    if (w.followUp === 'welcomeStalled') return 'After the last weekly reminder, if there is still no date';
+    if (w.followUp === 'remediation') return (f.remediationAfterTargetDays || [1, 14]).join(' and ') + ' days after the remediation target date';
+    if (w.followUp === 'remediationEscalate') return (f.remediationEscalateAfterTargetDays || 30) + ' days after the remediation target date';
+    var s = 'When the certification moves to ' + (w.to || []).map(st).join(' or ');
+    if (w.from) s += ', from ' + w.from.map(st).join(' or ');
+    if (w.programs) s += ' (' + w.programs.join(', ') + ' only)';
+    return s;
+  }
+  function skippedText(t) {
+    var w = t.when || {}, out = ['The certification is on hold'];
+    if (w.notFrom) out.push('it came back from ' + w.notFrom.map(st).join(' or '));
+    if (t.disabled) out = ['Always: this email is switched off'];
+    return out.join('; ');
+  }
+  function goesTo(t) { var s = (t.to || []).map(function (r) { return ROLE[r] || r; }).join(', '); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function tplOf(t) { var e = TPL[t.id]; return { title: (e && e.title) || t.title || '', subject: (e && e.subject) || t.subject || '', body: (e && e.body) || t.body || '' }; }
+
+  function testStatus(id) {
+    var mine = Object.keys(TESTS).map(function (k) { return Object.assign({ id: k }, TESTS[k]); })
+      .filter(function (x) { return x.template === id && me && String(x.requestedBy || '').toLowerCase() === me.email.toLowerCase(); })
+      .sort(function (a, b) { return String(b.requestedAt).localeCompare(String(a.requestedAt)); })[0];
+    if (!mine) return null;
+    if (mine.status === 'sent') return h('span', { class: 'status good', text: 'Test sent ' + when(mine.doneAt) + (mine.sample ? ', filled in with ' + mine.sample : '') });
+    if (mine.status === 'failed') return h('span', { class: 'status bad', text: 'Test not sent: ' + (mine.why || 'unknown reason') });
+    return h('span', { class: 'status wait', text: 'Test on its way (asked ' + when(mine.requestedAt) + ')' });
+  }
+
+  function card(t) {
+    var cur = tplOf(t), e = TPL[t.id], dis = !canWrite;
+    var chips = [];
+    if (t.disabled) chips.push(h('span', { class: 'chip off', text: 'Switched Off' }));
+    else chips.push(t.approved ? h('span', { class: 'chip good', text: 'Approved' }) : h('span', { class: 'chip warn', text: 'Held for Review' }));
+    if (t.internalOnly) chips.push(h('span', { class: 'chip', text: 'MISMO Only' }));
+    if (e) chips.push(h('span', { class: 'chip edit', text: 'Wording Edited' }));
+    var d = h('details', { class: 'sect', id: 'play-' + t.id });
+    var sum = h('summary', null, plainTitle(t.title) || t.id);
+    chips.forEach(function (c) { sum.appendChild(c); });
+    sum.appendChild(h('span', { class: 'cnt', text: goesTo(t) }));
+    d.appendChild(sum);
+    var sb = h('div', { class: 'sbody' });
+    sb.appendChild(h('div', { class: 'facts' },
+      h('div', { class: 'fact' }, h('label', { text: 'Sends' }), h('div', { text: sendsText(t) })),
+      h('div', { class: 'fact' }, h('label', { text: 'Goes To' }), h('div', { text: goesTo(t) })),
+      h('div', { class: 'fact' }, h('label', { text: 'Purpose' }), h('div', { text: PURPOSE[t.id] || '' })),
+      h('div', { class: 'fact' }, h('label', { text: 'Skipped When' }), h('div', { text: skippedText(t) })),
+      t.replaces ? h('div', { class: 'fact' }, h('label', { text: 'Replaces in MACTS' }), h('div', { text: t.replaces })) : null));
+    var ti = h('input', { type: 'text', id: 'tpl-t-' + t.id, disabled: dis }); ti.value = cur.title;
+    var si = h('input', { type: 'text', id: 'tpl-s-' + t.id, disabled: dis }); si.value = cur.subject;
+    var bi = h('textarea', { id: 'tpl-b-' + t.id, rows: '12', disabled: dis }); bi.value = cur.body;
+    sb.appendChild(h('div', { class: 'fld' }, h('label', { for: ti.id, text: 'Heading (Shown at the Top of the Email)' }), ti));
+    sb.appendChild(h('div', { class: 'fld' }, h('label', { for: si.id, text: 'Subject Line' }), si));
+    sb.appendChild(h('div', { class: 'fld' }, h('label', { for: bi.id, text: 'Email Body' }), bi));
+    sb.appendChild(h('div', { class: 'hint' }, 'Merge fields in ', h('code', { text: '{{double braces}}' }), ' are filled in for each certification, such as ',
+      h('code', { text: '{{Company}}' }), ', ', h('code', { text: '{{First Name}}' }), ' and ', h('code', { text: '{{Assessor Name}}' }),
+      '. The full list is under Merge Fields at the bottom of the page. A blank line starts a new paragraph; lines starting with a dash become a bulleted list.'));
+    var save = h('button', { type: 'button', class: 'btn', disabled: dis, text: 'Save Wording' });
+    var test = h('button', { type: 'button', class: 'btn ghost', disabled: dis, text: 'Send Me a Test' });
+    var restore = e ? h('button', { type: 'button', class: 'btn ghost', disabled: dis, text: 'Restore Original Wording' }) : null;
+    var who = h('span', { class: 'who', text: e && e.updatedAt ? 'Last edited ' + when(e.updatedAt) + (e.updatedByName || e.updatedBy ? ' by ' + (e.updatedByName || e.updatedBy) : '') : 'Original wording' });
+    var stat = h('span', { id: 'test-' + t.id }); var s0 = testStatus(t.id); if (s0) stat.appendChild(s0);
+    save.addEventListener('click', function () {
+      if (!si.value.trim() || !bi.value.trim()) { toast('An email needs a subject line and a body.', true); return; }
+      save.disabled = true;
+      var body = { title: ti.value.trim(), subject: si.value.trim(), body: bi.value.replace(/\s+$/, ''), updatedAt: new Date().toISOString(), updatedBy: me.email, updatedByName: me.name };
+      writeDoc('db-stage-templates', t.id, body).then(function () { TPL[t.id] = body; toast((t.title || t.id) + ' wording saved. It is used from the next email on.'); render(t.id); })
+        .catch(function (err) { toast(err.message, true); save.disabled = false; });
+    });
+    if (restore) restore.addEventListener('click', function () {
+      if (!confirm('Put back the original wording of "' + (t.title || t.id) + '"? Your edited wording will be removed.')) return;
+      restore.disabled = true;
+      writeDoc('db-stage-templates', t.id, null).then(function () { delete TPL[t.id]; toast('Original wording restored.'); render(t.id); })
+        .catch(function (err) { toast(err.message, true); restore.disabled = false; });
+    });
+    test.addEventListener('click', function () {
+      if (!si.value.trim() || !bi.value.trim()) { toast('This email has no wording yet.', true); return; }
+      test.disabled = true;
+      var id = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+      var q = { template: t.id, title: ti.value.trim(), subject: si.value.trim(), body: bi.value, to: me.email, requestedBy: me.email, requestedByName: me.name, requestedAt: new Date().toISOString(), status: 'requested' };
+      writeDoc('db-stage-tests', id, q).then(function () {
+        TESTS[id] = q; stat.textContent = ''; stat.appendChild(testStatus(t.id));
+        toast('A test of ' + (t.title || t.id) + ' is on its way to ' + me.email + '. It normally arrives within two minutes.');
+        startPolling(); test.disabled = false;
+      }).catch(function (err) { toast(err.message, true); test.disabled = false; });
+    });
+    sb.appendChild(h('div', { class: 'btnrow' }, save, test, restore, who));
+    sb.appendChild(h('div', { class: 'btnrow' }, stat));
+    d.appendChild(sb);
+    return d;
+  }
+
+  function render(openId) {
+    var box = $('plays'); var open = {};
+    Array.prototype.forEach.call(box.querySelectorAll('details[open]'), function (d) { open[d.id] = true; });
+    if (openId) open['play-' + openId] = true;
+    box.textContent = '';
+    var byId = {}; (CFG.templates || []).forEach(function (t) { byId[t.id] = t; });
+    var placed = {};
+    GROUPS.forEach(function (g) {
+      var list = g.ids.filter(function (id) { return byId[id]; });
+      if (!list.length) return;
+      box.appendChild(h('div', { class: 'group', text: g.name }));
+      list.forEach(function (id) { placed[id] = true; var c = card(byId[id]); if (open[c.id]) c.open = true; box.appendChild(c); });
+    });
+    var rest = (CFG.templates || []).filter(function (t) { return !placed[t.id]; });
+    if (rest.length) { box.appendChild(h('div', { class: 'group', text: 'Other' })); rest.forEach(function (t) { var c = card(t); if (open[c.id]) c.open = true; box.appendChild(c); }); }
+  }
+
+  function renderStatic() {
+    var R = $('rules'); R.textContent = '';
+    [['Waits', 'Outside business hours', CFG.businessHours || 'Emails go out only on MISMO working days, 9:00-5:00 Eastern.'],
+     ['Held', 'Wording not yet approved', 'An email marked Held for Review goes only to certifications@mismo.org, saying who it would have gone to. Once approved, anything held in the last 7 days goes out for real if the certification is still at that stage.'],
+     ['Held', 'No address on file', 'If the company or assessor has no email address on record, the email goes to certifications@mismo.org instead and is sent for real once the address is added.'],
+     ['Skipped', 'On hold', 'Nothing goes out for a certification MISMO has put on hold.'],
+     ['Skipped', 'Seen for the first time', 'When the system first meets a certification it records the stage silently, so nobody gets an email about a stage reached weeks ago.'],
+     ['Always', 'Never twice', 'Every email is recorded before it counts as sent, so the same email never goes twice for the same stage move.'],
+     ['Always', 'MISMO is copied', 'certifications@mismo.org receives every email that goes outside MISMO.']
+    ].forEach(function (x) { R.appendChild(h('div', { class: 'rule' }, h('div', { class: 'd', text: x[0] }), h('div', null, h('b', { text: x[1] }), h('span', { text: x[2] })))); });
+    var F = $('fields');
+    FIELDS.forEach(function (f) { F.appendChild(h('tr', null, h('td', { text: '{{' + f[0] + '}}' }), h('td', { text: f[1] }))); });
+    $('foot').textContent = 'Emails are sent by the Stage notices job in cms-data from ' + (CFG.sendFrom || 'certifications@mismo.org') + '. Who gets each email and when it sends live in data/stage-notices.json; wording saved here is kept in data/db-stage-templates.json.';
+  }
+
+  function startPolling() {
+    if (pollT) return;
+    var tries = 0;
+    pollT = setInterval(function () {
+      tries++;
+      readColl('db-stage-tests').then(function (c) {
+        TESTS = c.docs;
+        (CFG.templates || []).forEach(function (t) { var el = $('test-' + t.id); if (!el) return; var s = testStatus(t.id); el.textContent = ''; if (s) el.appendChild(s); });
+        var waiting = Object.keys(TESTS).some(function (k) { return TESTS[k].status === 'requested' && me && TESTS[k].requestedBy === me.email; });
+        if (!waiting || tries > 30) { clearInterval(pollT); pollT = null; }
+      }).catch(function () {});
+    }, 15000);
+  }
+
+  if (!RS || !RS.requireAccess) { $('plays').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
+  RS.requireAccess(PROJECT, { toolName: 'Certification Email Playbook', eyebrow: 'Programs & Operations' }).then(function () {
+    if (RS.mount) RS.mount($('rs-account'));
+    var s = RS.current ? RS.current() : null; me = s ? { email: s.email, name: s.name || s.email } : null;
+    canWrite = !!(RS.canEdit && RS.canEdit(PROJECT));
+    return Promise.all([
+      call('GET', '/data/stage-notices').then(function (r) { if (r.status !== 200 || !r.json.data) throw new Error('data/stage-notices.json could not be read (' + (r.json.error || r.status) + ')'); return r.json.data; }),
+      readColl('db-stage-templates'), readColl('db-stage-tests')
+    ]);
+  }).then(function (res) {
+    CFG = res[0]; TPL = res[1].docs; TESTS = res[2].docs;
+    if (!canWrite) $('note').appendChild(h('div', { class: 'banner' }, h('b', { text: 'View only. ' }), 'You can read every email here. Saving wording and sending tests needs Edit access to the Certification Management System.'));
+    renderStatic(); render();
+    var target = location.hash.replace('#', ''); if (target && $('play-' + target)) { $('play-' + target).open = true; $('play-' + target).scrollIntoView(); }
+    if (Object.keys(TESTS).some(function (k) { return TESTS[k].status === 'requested'; })) startPolling();
+  }).catch(function (e) {
+    if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;
+    $('plays').innerHTML = ''; $('plays').appendChild(h('div', { class: 'banner bad' }, h('b', { text: 'The emails could not be loaded. ' }), String((e && e.message) || e), ' ', h('a', { href: '', text: 'Try again' })));
+  });
+})();
+</script>
+</body></html>
