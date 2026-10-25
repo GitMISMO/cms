@@ -333,7 +333,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (t.disabled) out = ['Always: this email is switched off'];
     return out.join('; ');
   }
-  function goesTo(t) { var s = (t.to || []).map(function (r) { return ROLE[r] || r; }).join(', '); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function goesTo(t) { var s = (t.to || []).map(function (r) { return ROLE[r] || r; }).join(', '); return /^the /.test(s) ? 'T' + s.slice(1) : s; }
   function tplOf(t) { var e = TPL[t.id]; return { title: (e && e.title) || t.title || '', subject: (e && e.subject) || t.subject || '', body: (e && e.body) || t.body || '' }; }
 
   function testStatus(id) {
