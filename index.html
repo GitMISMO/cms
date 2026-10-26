@@ -3844,6 +3844,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renewalRows().forEach((function(r) {
             if (r.hold || quoteRaised(r.quote) || r.invoice || r.dueIn == null || r.dueIn > TD_INV_AHEAD || r.dueIn <= -365) return;
             if (tdProspect(r.cert.org)) return;
+            var rf = openCycleFor(r.key);
+            if (rf && !fuClosed(rf) && (TD_PREPAY.indexOf(currentState(rf)) < 0 || rf.invoiceDate || rf.paid)) return;
             todo.invoice.push(r);
         }));
         renewalRows().forEach((function(r) {
@@ -7581,7 +7583,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (surchargeApplies(c.program) && isMember == null) notes.push("Membership is not recorded, so the " + money(surchargeAmount(c.program)) + " non-member surcharge may be missing.");
             var why = blockers.concat(notes);
             var q = quotes[key] || null;
-            var inv = invoiceForRenewal(c);
+            /* An Aptify number on an old MACTS row belongs to the cycle before (checked against the
+               export, 25 Oct 2026). This renewal counts as invoiced only once its invoice is recorded
+               here, the same test the weekly Invoices to Raise email uses. */
+            var inv = quoteRaised(q) ? invoiceForRenewal(c) : null;
             return {
                 key: key,
                 cert: c,
