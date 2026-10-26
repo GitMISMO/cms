@@ -167,8 +167,16 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
 - `assessor_todo.py`: in the assessor view, To Do also lists "In Your Queue, Waiting on Someone
   Else" (engagements the firm has already worked). Coming to You keeps only the untouched ones.
   The Assessor Portal draws the same groups.
+- `todo_queue.py`: the Action Queue opens on "Your To-Do", only what needs MISMO, grouped by
+  what to do, one button each (the renewal invoice is dropped straight onto its line).
+  - Everything else is folded under Waiting on Others; companies not going ahead are under
+    Prospects.
+  - Move to Prospects closes the company's open cycles as Application Expired and sets the
+    company to prospect in `org-edits`. Start Application makes them active again once saved.
+  - The numbers, the phase board and the script reference are folded at the foot of the page.
+  - The nav count is the to-do count.
 
-`index.html` as committed has all three applied.
+`index.html` as committed has all four applied.
 
 `relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
 Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count
