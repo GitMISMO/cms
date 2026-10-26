@@ -71,6 +71,8 @@
       Object.keys(P).forEach(function (k) { D[k] = P[k]; });
     })];
     Object.keys(FILES).forEach(function (k) { jobs.push(readData(FILES[k]).then(function (v) { D[k] = v; })); });
+    /* past Mark License Agreements filed from the MACTS attachments; optional, so a missing index never stops the page */
+    jobs.push(readData('mark-license-files').then(function (v) { D.markLicenseFiles = v; }, function () { D.markLicenseFiles = null; }));
     jobs.push(Promise.all([readData('frame-questionnaire'), readData('emortgage-questionnaires')]).then(function (r) {
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });

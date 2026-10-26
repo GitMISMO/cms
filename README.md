@@ -176,7 +176,12 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
   - The numbers, the phase board and the script reference are folded at the foot of the page.
   - The nav count is the to-do count.
 
-`index.html` as committed has all four applied.
+- `zz_mark_license_files.py`: a certification's Mark License section lists the signed copies
+  MACTS held for that company and program, opening the PDF in SharePoint
+  (Certification Applications/Mark License Agreements, filed by company). The index is
+  `data/mark-license-files.json` in cms-data, read by `relay-connect.js` as an optional file.
+
+`index.html` as committed has all five applied.
 
 `relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
 Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count

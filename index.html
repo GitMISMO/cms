@@ -408,6 +408,8 @@
   .td-more{margin-top:26px; border-top:1px solid var(--border); padding-top:6px;}
   .td-more>summary{cursor:pointer; color:var(--ink-3); font-size:12.5px; padding:8px 0;}
   .td-more[open]>summary{margin-bottom:14px;}
+  .ml-files{margin:4px 0 0; padding-left:18px; font-size:13px; line-height:1.7;}
+  .ml-files .quiet{color:var(--ink-3); font-size:11.5px;}
   .qgroup{margin-bottom:24px;} .qgroup:last-child{margin-bottom:0;}
   .qhead{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .qhead h3{font-size:13.5px;}
@@ -11426,6 +11428,27 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<span class="lic-step' + (i < at ? " done" : i === at ? " on" : "") + '"' + ' title="' + esc(LIC_SAID[s]) + '">' + esc(LIC_RUNG[s] || LIC_SAID[s]) + "</span>";
         })).join("") + "</div>";
     }
+
+    /* ---- Past Mark License Agreements (26 Oct 2026): see patches/zz_mark_license_files.py ---- */
+    var ML_SITE = "https://mortgagebankersassociation.sharepoint.com";
+    function mlFilesFor(c) {
+        var idx = D.markLicenseFiles || {}, s = slugName(c.org);
+        return (idx.files || []).filter((function(x) {
+            return x.org && slugName(x.org) === s && (!x.program || x.program === c.program);
+        })).sort((function(a, b) {
+            function n(x) { var m = /Renewal\s*(\d+)/.exec(x.cycle || ""); return /Initial/.test(x.cycle || "") ? 0 : m ? +m[1] : 99; }
+            return n(b) - n(a);
+        }));
+    }
+    function mlFilesHTML(c) {
+        var list = mlFilesFor(c);
+        if (!list.length) return "";
+        return '<div class="pc-lab" style="margin-top:14px">Signed Copies from MACTS</div>' + '<ul class="ml-files">' + list.map((function(x) {
+            var url = ML_SITE + encodeURI(x.path);
+            return '<li><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc((x.cycle ? x.program + " " + x.cycle : x.file)) + "</a>"
+                + (x.cycle ? ' <span class="quiet">' + esc(x.file) + "</span>" : "") + "</li>";
+        })).join("") + "</ul>";
+    }
     function licPanelHTML(c) {
         if (c.markLicense === "not offered") {
             return '<div class="dsect"><h4>Mark License</h4>' + '<div class="pc-note quiet">' + esc(c.program) + " has no Mark License.</div></div>";
@@ -11434,9 +11457,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var st = L.status || "not_sent";
         if (st === "not_sent" && c.markLicense === "executed") st = "signed";
         var fromMacts = st === "signed" && !L.signedAt;
-        return '<div class="dsect"><h4>Mark License</h4>' + licStepperHTML(st) + '<div class="pc-note' + (st === "declined" || st === "voided" ? " bad" : "") + '">' + esc(LIC_WHY[st] || "") + (fromMacts ? " Recorded in MACTS before this system; no copy of the signed document " + "is held here yet." : "") + "</div>" + '<div class="grid2">' + (L.signer ? '<div class="fld"><label>Signer</label><div class="v">' + esc(L.signer.name) + (L.signer.title ? " · " + esc(L.signer.title) : "") + '<br><span class="quiet">' + esc(L.signer.email) + "</span></div></div>" : "") + (L.envelopeId ? '<div class="fld"><label>DocuSign Envelope</label>' + '<div class="v mono">' + esc(L.envelopeId) + "</div></div>" : "") + (L.requestedAt ? '<div class="fld"><label>Requested</label><div class="v">' + esc(fmt(L.requestedAt.slice(0, 10))) + " by " + esc(L.requestedBy || "someone") + "</div></div>" : "") + (L.sentAt ? '<div class="fld"><label>Sent</label><div class="v">' + esc(fmt(L.sentAt)) + "</div></div>" : "") + (L.signedAt ? '<div class="fld"><label>Executed</label><div class="v">' + esc(fmt(L.signedAt)) + "</div></div>" : "") + (L.declinedAt ? '<div class="fld"><label>Declined</label><div class="v">' + esc(fmt(L.declinedAt)) + (L.declineReason ? " — " + esc(L.declineReason) : "") + "</div></div>" : "") + "</div>" + (L.document ? '<div class="lic-doc">' + '<div class="ld-name">' + esc(L.document.name) + "</div>" + '<div class="ld-meta">' + esc(fmtBytes(L.document.size)) + " · on file since " + esc(fmt(L.document.at.slice(0, 10))) + (L.document.digest ? ' · <span class="mono">' + esc(L.document.digest) + "</span>" : "") + "</div>" + (L.document.url ? '<a class="lc-btn ghost" href="' + esc(L.document.url) + '" download>Download</a>' : '<span class="ld-where">Held in MISMO’s document library. The link ' + "appears here once the flow returns it.</span>") + "</div>" : "") + (canWrite ? licActionsHTML(c, st) : "") + (L.history && L.history.length ? '<details class="wb-det"><summary>' + L.history.length + " change" + (L.history.length === 1 ? "" : "s") + " on this licence</summary>" + '<table class="wb-tab"><tbody>' + L.history.slice().reverse().map((function(h) {
+        return '<div class="dsect"><h4>Mark License</h4>' + licStepperHTML(st) + '<div class="pc-note' + (st === "declined" || st === "voided" ? " bad" : "") + '">' + esc(LIC_WHY[st] || "") + (fromMacts ? " Recorded in MACTS before this system." + (mlFilesFor(c).length ? " The signed copies MACTS held are linked below." : " No signed copy was found among the MACTS attachments.") : "") + "</div>" + '<div class="grid2">' + (L.signer ? '<div class="fld"><label>Signer</label><div class="v">' + esc(L.signer.name) + (L.signer.title ? " · " + esc(L.signer.title) : "") + '<br><span class="quiet">' + esc(L.signer.email) + "</span></div></div>" : "") + (L.envelopeId ? '<div class="fld"><label>DocuSign Envelope</label>' + '<div class="v mono">' + esc(L.envelopeId) + "</div></div>" : "") + (L.requestedAt ? '<div class="fld"><label>Requested</label><div class="v">' + esc(fmt(L.requestedAt.slice(0, 10))) + " by " + esc(L.requestedBy || "someone") + "</div></div>" : "") + (L.sentAt ? '<div class="fld"><label>Sent</label><div class="v">' + esc(fmt(L.sentAt)) + "</div></div>" : "") + (L.signedAt ? '<div class="fld"><label>Executed</label><div class="v">' + esc(fmt(L.signedAt)) + "</div></div>" : "") + (L.declinedAt ? '<div class="fld"><label>Declined</label><div class="v">' + esc(fmt(L.declinedAt)) + (L.declineReason ? " — " + esc(L.declineReason) : "") + "</div></div>" : "") + "</div>" + (L.document ? '<div class="lic-doc">' + '<div class="ld-name">' + esc(L.document.name) + "</div>" + '<div class="ld-meta">' + esc(fmtBytes(L.document.size)) + " · on file since " + esc(fmt(L.document.at.slice(0, 10))) + (L.document.digest ? ' · <span class="mono">' + esc(L.document.digest) + "</span>" : "") + "</div>" + (L.document.url ? '<a class="lc-btn ghost" href="' + esc(L.document.url) + '" download>Download</a>' : '<span class="ld-where">Held in MISMO’s document library. The link ' + "appears here once the flow returns it.</span>") + "</div>" : "") + (canWrite ? licActionsHTML(c, st) : "") + (L.history && L.history.length ? '<details class="wb-det"><summary>' + L.history.length + " change" + (L.history.length === 1 ? "" : "s") + " on this licence</summary>" + '<table class="wb-tab"><tbody>' + L.history.slice().reverse().map((function(h) {
             return "<tr><td>" + esc(fmt(h.at.slice(0, 10))) + "</td><td>" + esc(LIC_SAID[h.status] || h.status) + '</td><td class="dim">' + esc(h.note || "") + '</td><td class="dim">' + esc(h.by || "") + "</td></tr>";
-        })).join("") + "</tbody></table></details>" : "") + "</div>";
+        })).join("") + "</tbody></table></details>" : "") + mlFilesHTML(c) + "</div>";
     }
     function licActionsHTML(c, st) {
         var k = certKey(c);
