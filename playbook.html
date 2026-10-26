@@ -273,8 +273,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   function plainTitle(s) { return String(s || '').replace(/\{\{([^}]+)\}\}/g, function (m, k) { k = k.trim(); return SHOWN[k] || k; }); }
   var GROUPS = [
     { name: 'Payment and Scheduling', ids: ['welcome-demo', 'welcome-interview', 'welcome-review-internal', 'welcome-followup', 'welcome-stalled-internal', 'demo-proposed', 'demo-scheduled', 'demo-reschedule'] },
-    { name: 'Preliminary Results', ids: ['prelim-ready', 'prelim-query', 'prelim-answered'] },
-    { name: 'Remediation', ids: ['remediation-open', 'remediation-followup', 'remediation-escalate', 'remediation-submitted', 'remediation-query', 'remediation-answered'] },
+    { name: 'After the Demonstration', ids: ['demo-check', 'demo-check-stalled-internal', 'artifacts-requested', 'artifacts-followup', 'artifacts-stalled-internal', 'review-check', 'review-check-stalled-internal'] },
+    { name: 'Preliminary Results', ids: ['prelim-ready', 'prelim-query', 'prelim-answered', 'approval-waiting'] },
+    { name: 'Remediation', ids: ['remediation-open', 'remediation-followup', 'remediation-escalate', 'remediation-nudge', 'remediation-nudge-stalled-internal', 'remediation-submitted', 'remediation-query', 'remediation-answered'] },
     { name: 'Approval and Mark License', ids: ['approved-company', 'approved-firm', 'approved-internal', 'license-sent', 'certified-internal'] },
     { name: 'Not in Use', ids: ['agreement-sent'] }
   ];
@@ -287,7 +288,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     'demo-proposed': 'Tells the assessor a date has been proposed, so they can confirm it.',
     'demo-scheduled': 'Confirms the date with the company.',
     'demo-reschedule': 'Asks the company to agree a new date with the assessor after the agreed one falls through.',
-    'prelim-ready': "Asks MISMO's VP to review the assessor's preliminary results.",
+    'prelim-ready': "Asks MISMO's VP to review the assessor's preliminary results, with a link to My Approvals.",
     'prelim-query': "Sends MISMO's questions on the preliminary results to the assessor.",
     'prelim-answered': 'Tells the VP the assessor has answered the questions.',
     'remediation-open': 'Tells the company which items need remediation, with the assessor copied.',
@@ -301,7 +302,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     'approved-internal': 'Reminds MISMO to check the Mark License Agreement went out through DocuSign.',
     'license-sent': "Tells MISMO's President the Mark License Agreement is on its way for countersignature.",
     'certified-internal': 'Lists the final steps once the Mark License Agreement is signed.',
-    'agreement-sent': 'Not in use. The hourly Heads Up for Brian flow already covers Application Agreements.'
+    'agreement-sent': 'Not in use. The hourly Heads Up for Brian flow already covers Application Agreements.',
+    'demo-check': 'Asks the assessor to record in the Assessor Portal whether the booked demonstration took place, once its day has passed.',
+    'demo-check-stalled-internal': 'Tells MISMO the assessor still has not recorded the demonstration after the reminders.',
+    'artifacts-requested': 'Tells the company which artifacts the assessor asked for at the demonstration, and to send them to the assessor.',
+    'artifacts-followup': 'Reminds the company to send the artifacts the assessor asked for.',
+    'artifacts-stalled-internal': 'Tells MISMO the company still has not sent its artifacts after the reminders.',
+    'review-check': 'Reminds the assessor to submit the preliminary result in the Assessor Portal once its review has run long.',
+    'review-check-stalled-internal': 'Tells MISMO the assessor still has not submitted a preliminary result after the reminders.',
+    'approval-waiting': "Reminds MISMO's VP that a decision is waiting, with a link to My Approvals.",
+    'remediation-nudge': 'Reminds the company to send its remediation evidence when remediation is open with no target date.',
+    'remediation-nudge-stalled-internal': 'Tells MISMO remediation has stalled with no target date after the reminders.'
   };
   var FIELDS = [
     ['Company', 'The company being certified'], ['First Name', 'First name of the company contact (there, if none is on file)'],
@@ -311,7 +322,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     ['Session', 'demonstration or interview'], ['Session Title', 'Demonstration or Interview'], ['Demo Date', 'The agreed date and time'],
     ['Note', 'The note recorded with the stage move in the CMS'], ['Findings Label', 'Findings or No Findings'],
     ['Signer', 'The authorized signer on file'], ['Completion Line', 'The closing sentence for an initial or a renewal'],
-    ['Target Date', 'The remediation target date (follow-ups only)'], ['Reminders', 'How many reminders have gone (follow-ups only)']
+    ['Target Date', 'The remediation target date (follow-ups only)'], ['Reminders', 'How many reminders have gone (follow-ups only)'],
+    ['Since Date', 'The day the certification reached its current stage'], ['Stage', 'The stage it is at, in words'],
+    ['Portal Link', 'The Assessor Portal'], ['Approvals Link', "The VP's My Approvals page"], ['Booking Link', "The company's own booking page"]
   ];
 
   var CFG = null, TPL = {}, TESTS = {}, canWrite = false, me = null, pollT = null;
@@ -322,6 +335,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (w.followUp === 'welcomeStalled') return 'After the last weekly reminder, if there is still no date';
     if (w.followUp === 'remediation') return (f.remediationAfterTargetDays || [1, 14]).join(' and ') + ' days after the remediation target date';
     if (w.followUp === 'remediationEscalate') return (f.remediationEscalateAfterTargetDays || 30) + ' days after the remediation target date';
+    var NUDGE = { demoCheck: ['the booked demonstration day', 1, 2, 2], artifacts: ['the certification started waiting for artifacts', 7, 7, 3],
+      reviewCheck: ['the assessor received the artifacts', 14, 7, 2], remediationNudge: ['remediation opened, while there is no target date', 14, 14, 3],
+      approvalWaiting: ['the decision started waiting', 3, 3, 5] };
+    var nk = w.followUp && NUDGE[w.followUp.replace(/Stalled$/, '')] ? w.followUp.replace(/Stalled$/, '') : null;
+    if (nk) {
+      var a = f[nk + 'AfterDays'] || NUDGE[nk][1], e = f[nk + 'EveryDays'] || NUDGE[nk][2], mx = f[nk + 'Max'] || NUDGE[nk][3];
+      if (/Stalled$/.test(w.followUp)) return 'Once, after the last of the ' + mx + ' reminders, if nothing has moved';
+      return a + (a === 1 ? ' day' : ' days') + ' after ' + NUDGE[nk][0] + ', then every ' + e + ' days, up to ' + mx + ' times';
+    }
     var s = 'When the certification moves to ' + (w.to || []).map(st).join(' or ');
     if (w.from) s += ', from ' + w.from.map(st).join(' or ');
     if (w.programs) s += ' (' + w.programs.join(', ') + ' only)';

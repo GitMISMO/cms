@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en" data-rs-gate><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My Approvals</title>
+<!--
+  My Approvals (resources.mismo.org/cms/approvals.html)
+
+  Every certification waiting on a MISMO decision, with the assessor's result and findings beside
+  it, decided in one click. The VP is sent here by the "ready for review" emails and by the
+  reminder that goes when a decision has waited three days.
+
+  A decision is an ordinary stage move, written exactly as the Certification Management System
+  writes one (data/db-cycle-state.json, plus a line in data/db-activity.json). Everything after
+  it happens on its own in cms-data: the emails (Stage notices), the Mark License (Mark License
+  jobs) and the anniversary rolling forward (lifecycle.js).
+
+  This file is page code only, in a public repository, so it holds no records. Everything is read
+  after sign-in through MISMO's relay (project key cms) from the private cms-data:
+    portal-data.json               the certifications and their cycles
+    data/db-cycle-state.json       where each one stands now (read and written)
+    data/db-assessor-findings.json the findings each assessor recorded in the Assessor Portal
+    data/db-activity.json          the CMS activity log (one line added per decision)
+  Deciding needs Edit access to the CMS in People & Access. With View access the page is read only.
+-->
+<script src="/assets/session.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --navy:#0f314c; --navy-deep:#06202f; --navy-mid:#14486e;
+  --sky:#50a4db; --sky-wash:#dcedf8;
+  --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
+  --border:#d5e2ed; --border-strong:#adc4d6; --rule:#e5eef5;
+  --ink:#0f314c; --ink-2:#456179; --ink-3:#546f88;
+  --good:#0f7b5c; --bad:#b3372c; --warn:#a2701a;
+  --good-soft:#e1f2ec; --bad-soft:#fbe9e7; --warn-soft:#f7efe0;
+  --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9;
+  --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+    --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+    --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+    --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+    --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+    --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+  --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+  --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+  --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+  --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+  --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
+.logoplate svg{height:24px;width:auto;display:block}
+.mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
+.name{font-size:15.5px;font-weight:700;color:var(--sky);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:13px}
+.eyebrow{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600;white-space:nowrap}
+#rs-account{flex:0 0 auto;display:inline-flex;align-items:center}
+#rs-account .rs-who,#rs-account .rs-signin{border-radius:4px}
+.theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
+.theme:hover{border-color:var(--sky)}
+@media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
+main{max-width:980px;margin:0 auto;padding:26px 16px 60px}
+.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:18px}
+h1{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
+.vsub{color:var(--ink-2);margin-top:4px;max-width:720px}
+.back{margin-left:auto;color:var(--navy-mid);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.back:hover{text-decoration:underline}
+.banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
+.banner.bad{border-left-color:var(--bad)}
+.banner b{color:var(--ink)}
+.group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:26px 0 8px}
+details.sect{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+details.sect > summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
+details.sect > summary::-webkit-details-marker{display:none}
+details.sect > summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;flex:0 0 auto}
+details.sect[open] > summary::before{transform:rotate(45deg)}
+details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:8px}
+.cnt{margin-left:auto;font-weight:500;font-size:12.5px;color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.off{background:var(--surface-3);color:var(--ink-3)}
+.chip.edit{background:var(--accent-soft);color:var(--accent)}
+.sbody{padding:2px 16px 16px;border-top:1px solid var(--rule)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin:14px 0 16px}
+.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.fact div{font-size:13px;color:var(--ink)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.fld textarea{min-height:220px;resize:vertical;font-size:13px}
+.fld input:focus,.fld textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
+.fld input:disabled,.fld textarea:disabled{opacity:.75;cursor:not-allowed}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.5}
+.hint code,.fields code{font-family:var(--mono);font-size:11.5px;background:var(--chip);border-radius:3px;padding:0 4px;color:var(--ink-2)}
+.btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--navy-mid)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.who{font-size:12px;color:var(--ink-3)}
+.status{font-size:12px;font-weight:600}
+.status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
+.rules{display:grid;gap:10px;margin-top:12px}
+.rule{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13px}
+.rule .d{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.rule b{display:block;color:var(--ink)}
+.rule span{color:var(--ink-2)}
+@media(max-width:560px){.rule{grid-template-columns:1fr;gap:2px}}
+.prose p{font-size:13px;margin:0 0 10px;color:var(--ink)}
+.prose table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
+.prose th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:6px 12px 6px 0;border-bottom:1px solid var(--border)}
+.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.prose td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{border-left-color:var(--bad)}
+.loading{padding:40px 0;text-align:center;color:var(--ink-3)}
+.foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
+.item{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:14px;overflow:hidden}
+.item.done{border-color:var(--good)}
+.ihead{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 14px;padding:14px 16px 10px}
+.ihead h2{font-size:17px;margin:0;font-weight:700;line-height:1.3}
+.ihead .what{font-size:13px;color:var(--ink-2);margin-top:2px}
+.ihead .right{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ibody{padding:0 16px 14px}
+.facts{margin:4px 0 12px}
+.box{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface-2);border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:13.5px;white-space:pre-wrap}
+.box.find{border-left-color:var(--warn)}
+.box h3{margin:0 0 4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:normal}
+.flist{margin:0;padding-left:18px}
+.flist li{margin:0 0 6px}
+.flist .meta{display:block;font-size:11.5px;color:var(--ink-3)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.btn.good{background:var(--good);border-color:var(--good)}
+.btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+.decide{display:none;margin-top:12px;border-top:1px solid var(--rule);padding-top:12px}
+.decide.on{display:block}
+.decide textarea{min-height:110px}
+.decide .warnline{font-size:12.5px;color:var(--warn);font-weight:600;margin:0 0 8px}
+.decide input[type=date]{max-width:220px}
+.outcome{padding:12px 16px;border-top:1px solid var(--rule);background:var(--good-soft);color:var(--ink);font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.outcome b{color:var(--good)}
+.empty{background:var(--surface);border:1px dashed var(--border-strong);border-radius:9px;padding:28px 18px;text-align:center;color:var(--ink-2)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.count{font-size:13px;color:var(--ink-3);font-weight:500;margin-left:8px}
+@media(max-width:560px){.ihead .right{margin-left:0}.btn{flex:1 1 auto}}
+</style>
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
+0 -101 4 -132 25 -197 57 -172 168 -280 335 -323 84 -22 723 -22 808 0 222 58
+355 253 355 520 0 270 -132 459 -361 520 -74 20 -730 20 -802 0z m692 -320
+c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
+-297 0 -307 2 -346 83 -30 61 -31 198 -2 262 41 93 68 100 368 97 219 -2 243
+-4 274 -22z M0 545 l0 -515 225 0 225 0 2 296 3 296 116 -294 116 -293 197 0 198
+0 119 295 118 295 1 -297 0 -298 225 0 225 0 0 515 0 515 -337 -2 -338 -3
+-104 -264 c-80 -204 -107 -260 -113 -245 -5 10 -52 129 -106 264 l-98 245
+-337 3 -337 2 0 -515z M1892 1044 l-22 -15 0 -483 c0 -455 1 -484 18 -499 16 -15 48 -17
+246 -17 128 0 235 4 246 10 32 17 34 57 4 95 -33 44 -64 143 -64 206 l0 49
+203 0 c191 0 205 -1 222 -20 10 -11 34 -24 54 -30 49 -13 586 -13 612 0 22 12
+26 62 7 78 -8 6 -174 15 -413 21 -502 15 -549 23 -628 110 -43 48 -57 93 -57
+187 0 82 19 156 55 208 30 44 32 77 7 99 -27 25 -456 25 -490 1z M3716 1044 c-23 -22 -20 -31 19 -77 43 -49 78 -155 73 -218 l-3 -44
+-204 -3 c-194 -2 -205 -1 -218 17 -24 35 -78 41 -355 41 -255 0 -269 -1 -288
+-20 -27 -27 -26 -58 3 -70 12 -5 202 -14 422 -19 421 -12 476 -18 555 -62 92
+-51 132 -159 111 -299 -12 -77 -34 -129 -77 -179 -23 -28 -25 -36 -16 -57 l12
+-24 215 0 215 0 2 306 3 306 120 -303 120 -304 197 -3 196 -2 118 296 119 297
+3 -296 2 -297 225 0 225 0 0 515 0 515 -338 0 -337 0 -104 -265 c-58 -146
+-106 -263 -108 -261 -2 2 -50 120 -107 262 l-104 259 -340 3 c-300 2 -342 0
+-356 -14z"/></g><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-s, #50a4db)"><path d="M2485 1046 c-44 -20 -111 -94 -136 -151 -27 -60 -37 -198 -20 -263
+13 -48 68 -115 114 -138 64 -34 162 -43 562 -55 239 -6 405 -15 413 -21 19
+-16 15 -66 -7 -78 -26 -13 -563 -13 -612 0 -20 6 -44 19 -54 30 -17 19 -31 20
+-222 20 l-203 0 0 -49 c0 -81 34 -172 86 -230 78 -87 31 -81 672 -81 l568 0
+46 29 c79 50 122 121 139 231 21 140 -19 248 -111 299 -79 44 -134 50 -555 62
+-220 5 -410 14 -422 19 -29 12 -30 43 -3 70 19 19 33 20 288 20 277 0 331 -6
+355 -41 13 -18 24 -19 218 -17 l204 3 3 44 c4 60 -31 168 -70 215 -17 21 -52
+52 -77 67 l-45 29 -550 0 c-440 -1 -557 -3 -581 -14z"/></g></symbol></defs></svg>
+<header class="top">
+  <a class="logoplate" href="/" aria-label="MISMO Resources home"><svg role="img" aria-label="MISMO" viewBox="0 0 708 108"><use href="#mismo-logo"/></svg></a>
+  <span class="mastrule"></span>
+  <span class="name">My Approvals</span>
+  <span class="top-r"><span class="eyebrow">Programs &amp; Operations</span>
+    <button class="theme" id="theme" type="button">Dark Mode</button>
+    <span id="rs-account"></span></span>
+</header>
+<main>
+  <div class="vhead">
+    <div><h1>My Approvals</h1>
+    <div class="vsub">Every certification waiting on a MISMO decision. Decide it here and everything after it follows on its own: the emails to the company and the assessor, the Mark License through DocuSign, and the next anniversary.</div></div>
+    <a class="back" href="/cms/">Open the Certification Management System</a>
+  </div>
+  <div id="note"></div>
+  <div id="list"><div class="loading">Loading what is waiting&hellip;</div></div>
+  <div id="recent"></div>
+
+  <div class="group">How It Works</div>
+  <details class="sect">
+    <summary>What Each Decision Does</summary>
+    <div class="sbody"><div class="rules" id="rules"></div></div>
+  </details>
+  <div class="foot">A decision here is the same stage move the Certification Management System makes, and it shows in the CMS activity log under your name. The emails it starts wait for MISMO business hours (9:00-5:00 Eastern, working days).</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var RELAY = 'https://rgvdi67cg27o5kcmiytcqbqnrm0hmztx.lambda-url.us-east-1.on.aws', PROJECT = 'cms';
+  var RS = window.ResourcesSession;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- theme: follows the device, with a per-viewer override ---- */
+  var root = document.documentElement;
+  function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function showTheme() { $('theme').textContent = isDark() ? 'Light Mode' : 'Dark Mode'; }
+  try { var saved = localStorage.getItem('cms-approvals:theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  showTheme();
+  $('theme').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('cms-approvals:theme', t); } catch (e) {} showTheme(); });
+
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k]; if (v == null || v === false) return;
+      if (k === 'class') el.className = v; else if (k === 'text') el.textContent = v; else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null || c === false) continue; el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+    return el;
+  }
+  var toastT;
+  function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 7000 : 4500); }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function longDate(iso) { if (!iso) return ''; var p = String(iso).slice(0, 10).split('-'); return MONTHS[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
+  function daysSince(ts) { if (!ts) return null; var d = new Date(ts); if (isNaN(d)) return null; return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000)); }
+
+  /* ---- the relay ---- */
+  function call(method, path, body) {
+    var headers = { 'Authorization': 'Bearer ' + (RS && RS.token ? RS.token() : '') };
+    if (body) headers['Content-Type'] = 'application/json';
+    return fetch(RELAY + '/' + PROJECT + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, json: j || {} }; }); });
+  }
+  function fromBase64(b64) { var bin = atob(b64), bytes = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i); return new TextDecoder('utf-8').decode(bytes); }
+  var COLL = {};
+  function readColl(file) {
+    return call('GET', '/data/' + file).then(function (r) {
+      if (r.status === 404) { COLL[file] = { docs: {}, sha: null }; return COLL[file]; }
+      if (r.status !== 200) throw new Error(file + ' could not be read (' + (r.json.error || r.status) + ')');
+      var d = r.json.data || {}; COLL[file] = { docs: d.docs || {}, sha: r.json.sha || null }; return COLL[file];
+    });
+  }
+  /* change(docs) edits a copy of the collection; on a conflict it is re-read and applied again. */
+  function writeColl(file, change) {
+    function attempt(tries) {
+      var c = COLL[file] || { docs: {}, sha: null }, next = JSON.parse(JSON.stringify(c.docs || {}));
+      var verdict = change(next);
+      if (verdict === false) return Promise.resolve(false);
+      return call('PUT', '/data/' + file, { content: { docs: next }, sha: c.sha }).then(function (r) {
+        if (r.status === 200) { COLL[file] = { docs: next, sha: r.json.sha || c.sha }; return true; }
+        if (r.status === 409 && tries < 4) return readColl(file).then(function () { return attempt(tries + 1); });
+        if (r.status === 403) throw new Error('View only: not saved. Deciding needs Edit access to the Certification Management System.');
+        throw new Error('Not saved (' + (r.json.error || r.status) + ').');
+      });
+    }
+    return attempt(0);
+  }
+
+  /* ---- the decisions ---- */
+  /* Each decision is a legal move on the board (checked against the board's own list before it
+     is offered). note: 'none' | 'optional' | 'required'; toCompany: the note is sent to the company. */
+  var DECISIONS = {
+    PrelimResultsSubmitted: [
+      { to: 'ApprovedPendingLicense', label: 'Approve', kind: 'good', note: 'optional', confirm: 'Approve {org}? The company and the assessor are told, and the Mark License Agreement goes out through DocuSign.' },
+      { to: 'RemediationOpen', label: 'Send Findings for Remediation', note: 'required', toCompany: true, target: true, prefill: 'findings',
+        help: 'This text is sent to the company as the list of items to remediate, with the assessor copied. Edit the assessor’s wording as needed.' },
+      { to: 'PrelimQueryOpen', label: 'Ask the Assessor a Question', kind: 'ghost', note: 'required', help: 'Sent to the assessor, who answers in the Assessor Portal. It comes back here when they do.' },
+      { to: 'NotCertified', label: 'Not Certified', kind: 'bad', note: 'required', help: 'Why. This closes the certification as not certified.', confirm: 'Record {org} as Not Certified? This closes the certification.' }
+    ],
+    RemediationSubmitted: [
+      { to: 'ApprovedPendingLicense', label: 'Approve', kind: 'good', note: 'optional', confirm: 'Approve {org} as complete? The company and the assessor are told, and the Mark License Agreement goes out through DocuSign.' },
+      { to: 'RemediationQueryOpen', label: 'Ask the Assessor a Question', kind: 'ghost', note: 'required', help: 'Sent to the assessor, who answers in the Assessor Portal. It comes back here when they do.' },
+      { to: 'NotCertified', label: 'Not Certified', kind: 'bad', note: 'required', help: 'Why. This closes the certification as not certified.', confirm: 'Record {org} as Not Certified? This closes the certification.' }
+    ],
+    ReviewScheduled: [
+      { to: 'ApprovedPendingLicense', label: 'Approve', kind: 'good', note: 'optional', confirm: 'Approve {org}? The company is told, and the Mark License Agreement goes out if the program has one.' },
+      { to: 'AwaitingReviewSelection', label: 'Needs a New Review Date', kind: 'ghost', note: 'required', help: 'Why a new date is needed.' },
+      { to: 'NotCertified', label: 'Not Certified', kind: 'bad', note: 'required', help: 'Why. This closes the certification as not certified.', confirm: 'Record {org} as Not Certified? This closes the certification.' }
+    ],
+    ScopeReviewVp: [
+      { to: 'ScopeReviewCompany', label: 'Approve the Scope', kind: 'good', note: 'optional', confirm: 'Approve the scope for {org}?' },
+      { to: 'ScopeReviewAssessor', label: 'Send Back to the Assessor', kind: 'ghost', note: 'required', help: 'What the assessor should look at again.' },
+      { to: 'DocumentsRequested', label: 'No Scope Change Needed', kind: 'ghost', note: 'optional', help: 'The renewal goes straight on to requesting documents.' }
+    ]
+  };
+  var AFTER = {
+    ApprovedPendingLicense: 'Approved. The company and the assessor are told, the Mark License Agreement goes out through DocuSign, and the next anniversary is set.',
+    RemediationOpen: 'Sent for remediation. The company is sent the items, with the assessor copied, and reminders follow on their own.',
+    PrelimQueryOpen: 'Question sent to the assessor. It comes back here when they answer.',
+    RemediationQueryOpen: 'Question sent to the assessor. It comes back here when they answer.',
+    NotCertified: 'Recorded as Not Certified.',
+    AwaitingReviewSelection: 'Sent back for a new review date.',
+    ScopeReviewCompany: 'Scope approved and sent on to the company.',
+    ScopeReviewAssessor: 'Sent back to the assessor.',
+    DocumentsRequested: 'Moved on to requesting documents.'
+  };
+
+  var P = null, MOVES = {}, FIND = {}, LABEL = {}, LEGAL = {}, canWrite = false, me = null;
+  var decided = {};   /* row -> {to, before, at} decided in this visit, for Undo */
+
+  function stateLabel(s) { return LABEL[s] || String(s || '').replace(/([a-z])([A-Z])/g, '$1 $2'); }
+  function cyclesAll() { return [].concat(P.inFlight || [], P.pipelines || [], P.newApplications || []).filter(function (c) { return c && c.row != null; }); }
+  function current(c) { var m = MOVES[String(c.row)] || {}; return { state: m.state || c.state, move: m }; }
+  function waiting() {
+    return cyclesAll().filter(function (c) {
+      var s = current(c).state;
+      if (!DECISIONS[s]) return false;
+      if (s === 'ReviewScheduled') { var d = current(c).move.demoOn || c.demoOn; if (d && String(d).slice(0, 10) > new Date().toISOString().slice(0, 10)) return false; }
+      return true;
+    }).sort(function (a, b) { return String(current(a).move.at || '').localeCompare(String(current(b).move.at || '')); });
+  }
+
+  function fact(label, value) { return value ? h('div', { class: 'fact' }, h('label', { text: label }), h('div', { text: value })) : null; }
+
+  function card(c) {
+    var row = String(c.row), cur = current(c), m = cur.move, done = decided[row];
+    var since = m.at ? daysSince(m.at) : null;
+    var kind = String(c.kind || '').toLowerCase() === 'renewal' ? 'Renewal' + (c.renewalNumber ? ' ' + c.renewalNumber : '') : 'Initial';
+    var chips = [h('span', { class: 'chip', text: stateLabel(done ? done.from : cur.state) })];
+    if (m.findings === true) chips.push(h('span', { class: 'chip warn', text: 'Findings' }));
+    if (m.findings === false) chips.push(h('span', { class: 'chip good', text: 'No Findings' }));
+    if (since != null && since >= 3 && !done) chips.push(h('span', { class: 'chip warn', text: 'Waiting ' + since + ' Days' }));
+    var item = h('section', { class: 'item' + (done ? ' done' : ''), id: 'row-' + row });
+    item.appendChild(h('div', { class: 'ihead' },
+      h('div', null, h('h2', { text: c.org }), h('div', { class: 'what', text: c.program + (c.product ? ' · ' + c.product : '') + ' · ' + kind })),
+      h.apply(null, ['div', { class: 'right' }].concat(chips))));
+    var body = h('div', { class: 'ibody' });
+    body.appendChild(h('div', { class: 'facts' },
+      fact('Assessor', c.assessor || ''),
+      fact(done ? 'Decided On' : 'Waiting Since', m.at ? longDate(new Date(m.at).toISOString()) : 'Before the move off MACTS'),
+      fact(done ? 'Decided By' : 'Recorded By', m.by || ''),
+      fact((current(c).state === 'ReviewScheduled' ? 'Review' : 'Demonstration') + ' Date', (m.demoOn || c.demoOn) ? longDate(m.demoOn || c.demoOn) : '')));
+    if (m.note) body.appendChild(h('div', { class: 'box' }, h('h3', { text: m.assessorStep ? 'The Assessor’s Result' : 'Note With This Stage' }), m.note));
+    var f = FIND[row];
+    if (f && f.entries && f.entries.length) {
+      var ul = h('ul', { class: 'flist' });
+      f.entries.forEach(function (e) { ul.appendChild(h('li', null, (e.outcome ? e.outcome + ': ' : '') + (e.text || ''), h('span', { class: 'meta', text: (e.by ? e.by + ', ' : '') + (e.at ? longDate(e.at) : '') }))); });
+      body.appendChild(h('div', { class: 'box find' }, h('h3', { text: 'Findings Recorded in the Assessor Portal (' + f.entries.length + ')' }), ul));
+    }
+    if (!done) {
+      var acts = h('div', { class: 'acts' }), panel = h('div', { class: 'decide' });
+      (DECISIONS[cur.state] || []).filter(function (d) { return !LEGAL[cur.state] || LEGAL[cur.state].indexOf(d.to) >= 0; }).forEach(function (d) {
+        var b = h('button', { type: 'button', class: 'btn ' + (d.kind || ''), text: d.label, disabled: !canWrite });
+        b.addEventListener('click', function () { openPanel(panel, c, d, m); });
+        acts.appendChild(b);
+      });
+      body.appendChild(acts);
+      body.appendChild(panel);
+    }
+    item.appendChild(body);
+    if (done) {
+      var out = h('div', { class: 'outcome' }, h('b', { text: stateLabel(done.to) + '.' }), h('span', { text: AFTER[done.to] || '' }));
+      if (done.undo) {
+        var u = h('button', { type: 'button', class: 'btn ghost', text: 'Undo' });
+        u.addEventListener('click', function () { undo(c); });
+        out.appendChild(u);
+      }
+      item.appendChild(out);
+    }
+    return item;
+  }
+
+  function openPanel(panel, c, d, m) {
+    panel.textContent = '';
+    panel.className = 'decide on';
+    var ta = h('textarea', { id: 'n-' + c.row, rows: '5' });
+    if (d.prefill === 'findings') {
+      var f = FIND[String(c.row)], lines = [];
+      if (f && f.entries) f.entries.forEach(function (e) { if (e.text) lines.push('- ' + e.text); });
+      ta.value = lines.length ? lines.join('\n') : (m.note || '');
+    }
+    var label = d.note === 'required' ? (d.toCompany ? 'Items to Remediate' : d.to === 'NotCertified' ? 'Reason' : 'Your Question or Note') : 'Note (Optional)';
+    if (d.toCompany) panel.appendChild(h('p', { class: 'warnline', text: 'This goes to the company.' }));
+    panel.appendChild(h('div', { class: 'fld' }, h('label', { for: ta.id, text: label }), ta));
+    if (d.help) panel.appendChild(h('div', { class: 'hint', text: d.help }));
+    var tgt = null;
+    if (d.target) {
+      tgt = h('input', { type: 'date', id: 't-' + c.row });
+      panel.appendChild(h('div', { class: 'fld', style: 'margin-top:10px' }, h('label', { for: tgt.id, text: 'Remediation Target Date (Optional)' }), tgt,
+        h('div', { class: 'hint', text: 'If there is one, the follow-ups count from it. Without one, the company is reminded every two weeks.' })));
+    }
+    var go = h('button', { type: 'button', class: 'btn ' + (d.kind === 'bad' ? 'bad' : d.kind === 'good' ? 'good' : ''), text: d.label });
+    var cancel = h('button', { type: 'button', class: 'btn ghost', text: 'Cancel' });
+    cancel.addEventListener('click', function () { panel.className = 'decide'; panel.textContent = ''; });
+    go.addEventListener('click', function () {
+      var note = ta.value.replace(/\s+$/, '');
+      if (d.note === 'required' && !note.trim()) { toast('Please fill in ' + label.toLowerCase() + ' first.', true); ta.focus(); return; }
+      if (d.confirm && !window.confirm(d.confirm.replace('{org}', c.org))) return;
+      go.disabled = true; cancel.disabled = true;
+      decide(c, d, note, tgt && tgt.value ? tgt.value : null).catch(function (err) { toast(err.message, true); go.disabled = false; cancel.disabled = false; });
+    });
+    panel.appendChild(h('div', { class: 'btnrow' }, go, cancel));
+    if (d.note !== 'optional') ta.focus();
+  }
+
+  function decide(c, d, note, target) {
+    var row = String(c.row), at = new Date().toISOString(), from = null, before = null;
+    var body = {
+      state: d.to, reason: d.to === 'NotCertified' ? (note || null) : null,
+      note: note || (d.to === 'ApprovedPendingLicense' ? 'Approved by ' + me.name + ' on My Approvals.' : null),
+      by: me.name, at: at, decidedOn: 'My Approvals'
+    };
+    if (d.to === 'RemediationOpen') { body.findings = true; if (target) { body.remediationTarget = target; body.note = (body.note ? body.note + '\n\n' : '') + 'Target: ' + target; } }
+    return readColl('db-cycle-state').then(function () {
+      return writeColl('db-cycle-state', function (docs) {
+        var now = (docs[row] && docs[row].state) || c.state;
+        if (now !== current(c).state) { from = now; return false; }    /* someone else moved it meanwhile */
+        from = now; before = docs[row] ? JSON.parse(JSON.stringify(docs[row])) : null;
+        docs[row] = body;
+      });
+    }).then(function (ok) {
+      if (ok === false) {
+        MOVES = COLL['db-cycle-state'].docs; render();
+        throw new Error(c.org + ' has already moved to ' + stateLabel(from) + ', so nothing was changed. The list has been refreshed.');
+      }
+      MOVES = COLL['db-cycle-state'].docs;
+      decided[row] = { from: from, to: d.to, before: before, at: at, undo: true };
+      setTimeout(function () { if (decided[row]) { decided[row].undo = false; render(); } }, 120000);
+      logActivity({ row: c.row, org: c.org, program: c.program, from: from, to: d.to, reason: body.reason, note: body.note, at: at, by: me.name, kind: 'move' });
+      toast(c.org + ': ' + (AFTER[d.to] || stateLabel(d.to)));
+      render();
+    });
+  }
+  /* Undo for two minutes, as the CMS offers. Emails wait for business hours and the jobs take a
+     minute or two to run, so an undo straight away normally beats them; the anniversary follows
+     an undone approval back on its own. */
+  function undo(c) {
+    var row = String(c.row), dd = decided[row];
+    if (!dd) return;
+    writeColl('db-cycle-state', function (docs) {
+      if (!docs[row] || docs[row].at !== dd.at) return false;
+      if (dd.before) docs[row] = dd.before; else delete docs[row];
+    }).then(function (ok) {
+      if (ok === false) { toast('It has moved on since, so it cannot be undone here. Use the CMS.', true); return; }
+      MOVES = COLL['db-cycle-state'].docs; delete decided[row];
+      logActivity({ row: c.row, org: c.org, program: c.program, from: dd.to, to: dd.from, reason: null, note: null, at: new Date().toISOString(), by: me.name, kind: 'undo' });
+      toast('Undone: ' + c.org + ' is back at ' + stateLabel(dd.from) + '.');
+      render();
+    }).catch(function (err) { toast(err.message, true); });
+  }
+  function logActivity(entry) {
+    var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    readColl('db-activity').then(function () { return writeColl('db-activity', function (docs) { docs[id] = entry; }); }).catch(function () {});
+  }
+
+  function render() {
+    var list = $('list'); list.textContent = '';
+    var w = waiting();
+    var shown = w.slice();
+    Object.keys(decided).forEach(function (r) { if (!w.some(function (c) { return String(c.row) === r; })) { var c = cyclesAll().filter(function (x) { return String(x.row) === r; })[0]; if (c) shown.push(c); } });
+    var open = w.filter(function (c) { return !decided[String(c.row)]; }).length;
+    list.appendChild(h('div', { class: 'group' }, 'Waiting for a Decision', h('span', { class: 'count', text: open ? '(' + open + ')' : '' })));
+    if (!shown.length) list.appendChild(h('div', { class: 'empty' }, h('b', { text: 'Nothing is waiting.' }), 'When an assessor submits a result, it appears here and you are sent an email with a link to this page.'));
+    shown.forEach(function (c) { list.appendChild(card(c)); });
+  }
+  function renderRules() {
+    var R = $('rules'); R.textContent = '';
+    [['Approve', 'Approved, Pending License', 'The company and the assessor are told. The Mark License Agreement goes out through DocuSign on its own, and the certification’s next anniversary is set (renewals roll forward one term from the anniversary they were for; initial certifications count from today).'],
+     ['Remediate', 'Remediation Open', 'Your list of items goes to the company with the assessor copied. Reminders follow on their own: from the target date if you give one, otherwise every two weeks.'],
+     ['Ask', 'Question to the Assessor', 'Your question goes to the assessor, who answers in the Assessor Portal. The answer comes back here and you are emailed.'],
+     ['Close', 'Not Certified', 'Closes the certification as not certified, with your reason recorded.'],
+     ['Remind', 'Nothing decided after three days', 'You are sent one reminder every three days, up to five, with a link to this page.']
+    ].forEach(function (x) { R.appendChild(h('div', { class: 'rule' }, h('div', { class: 'd', text: x[0] }), h('div', null, h('b', { text: x[1] }), h('span', { text: x[2] })))); });
+  }
+
+  if (!RS || !RS.requireAccess) { $('list').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
+  RS.requireAccess(PROJECT, { toolName: 'My Approvals', eyebrow: 'Programs & Operations' }).then(function () {
+    if (RS.mount) RS.mount($('rs-account'));
+    var s = RS.current ? RS.current() : null; me = s ? { email: s.email, name: s.name || s.email } : { email: '', name: 'Someone' };
+    canWrite = !!(RS.canEdit && RS.canEdit(PROJECT));
+    return Promise.all([
+      call('GET', '/file/portal-data.json').then(function (r) { if (r.status !== 200 || !r.json.content) throw new Error('portal-data.json could not be read (' + (r.json.error || r.status) + ')'); return JSON.parse(fromBase64(r.json.content)); }),
+      readColl('db-cycle-state'), readColl('db-assessor-findings')
+    ]);
+  }).then(function (res) {
+    P = res[0]; MOVES = res[1].docs; FIND = res[2].docs;
+    (P.states || []).forEach(function (s) { LABEL[s.state] = s.label; LEGAL[s.state] = s.next || []; });
+    if (!canWrite) $('note').appendChild(h('div', { class: 'banner' }, h('b', { text: 'View only. ' }), 'You can see everything waiting here. Deciding needs Edit access to the Certification Management System.'));
+    renderRules(); render();
+    var target = location.hash.replace('#', ''); if (target && $(target)) $(target).scrollIntoView();
+    /* pick up anything new while the page stays open */
+    setInterval(function () { if (document.hidden || document.querySelector('.decide.on')) return; readColl('db-cycle-state').then(function (c) { MOVES = c.docs; render(); }).catch(function () {}); }, 90000);
+  }).catch(function (e) {
+    if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;
+    $('list').innerHTML = ''; $('list').appendChild(h('div', { class: 'banner bad' }, h('b', { text: 'What is waiting could not be loaded. ' }), String((e && e.message) || e), ' ', h('a', { href: '', text: 'Try again' })));
+  });
+})();
+</script>
+</body></html>
