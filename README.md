@@ -153,3 +153,16 @@ by the next build.
     the artifact cannot drop it.
   - Move it into the artifact at the next rebuild if you like, and delete `addSentEmailsTab`
     when you do.
+
+## Patches on top of the artifact
+
+`export-from-artifact.py` applies every `patches/*.py`, in name order, after the build. Each
+patch stops the build if its anchors are missing, so a rebuild cannot silently drop one.
+
+- `follow_up_card.py`: Follow Up and On Hold cards on the Action Queue, in both views.
+  - Follow Up holds cycles a person moved there (with a reason and a chase-again date), the
+    MACTS follow-up list, and anything waiting on the company for 30 days.
+  - What people decide is kept in `data/db-follow-ups.json`.
+- `no_license_panel.py`: removes the separate Mark Licenses Outstanding panel.
+
+`index.html` as committed has both applied.

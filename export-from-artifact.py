@@ -284,6 +284,19 @@ def main():
     s = re.sub(r'collection\((["\'])([A-Za-z-]+)\1', sub, s)
     steps.append("collection ids lowercased: %d" % n)
 
+    # --- MISMO's additions on top of the artifact: patches/*.py, applied in name order ---
+    # Each has apply(html) -> html and stops the build if its anchors are not found, so a
+    # rebuild can never silently drop one (Follow Up and On Hold cards, no separate Mark
+    # License panel, 26 Oct 2026).
+    import glob, importlib.util, os
+    here = os.path.dirname(os.path.abspath(__file__))
+    for path in sorted(glob.glob(os.path.join(here, "patches", "*.py"))):
+        spec = importlib.util.spec_from_file_location(os.path.basename(path)[:-3], path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        s = mod.apply(s)
+        steps.append("patch applied: " + getattr(mod, "NAME", os.path.basename(path)))
+
     # --- refuse to write anything that is not wired up ---
     for need, what in [(SESSION, "session.js"), (APP_OPEN, "the parked application"),
                        ('id="rs-account"', "the account chip"), ("relay-connect.js", "relay-connect.js")]:

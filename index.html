@@ -2201,20 +2201,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div class="cards tight" id="pipe"></div>
     </div>
 
-    <!-- The Mark License list had rendering code but nowhere to render: the element it
-         looks for was never in the page, so MISMO has had no screen for licences at all.
-         This is it. Each row opens the certification it belongs to, where the licence can
-         be sent, tracked and the executed copy downloaded. -->
-    <div class="panel">
-      <div class="phead"><div>
-        <h2>Mark Licenses Outstanding</h2>
-        <p class="psub">A company executes a Mark License Agreement only if it wants to use
-          the service mark, and its absence never blocks certification, renewal or the renewal
-          clock. It is still a loose end, and one nobody is watching is one nobody closes.
-          Select a row to send it, see where it is in DocuSign, or download the executed copy.</p>
-      </div></div>
-      <div id="licenselist"></div>
-    </div>
+    <div id="licenselist" hidden></div>
 
     <div id="as-scripts">
     <div class="panel">
@@ -3346,6 +3333,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var byWaiting = {}, heldBack = 0;
         (D.inFlight || []).forEach((function(f) {
             if (claimed[f.row]) return;
+            if (followUpOf(f) || fuHeld(f)) return;
             if (namedAbove[slugName(f.org)]) {
                 heldBack++;
                 return;
@@ -3373,6 +3361,22 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (heldBack) saidHeldBack = true;
         }));
         out.push({
+            key: "followup",
+            title: "Follow Up",
+            who: "Program Manager",
+            kind: "cycles",
+            rows: fuRows(),
+            sub: "Stuck, with the reason and when to chase again. Put here from a cycle's own panel, from the MACTS follow-up list, or automatically after 30 days with no movement from the company. Select one to see it; Back to Active takes it off."
+        });
+        out.push({
+            key: "onhold",
+            title: "On Hold",
+            who: "MISMO's delay",
+            kind: "cycles",
+            rows: holdRows(),
+            sub: "Held by MISMO: nothing chases these, and no renewal notice goes, until the hold is released."
+        });
+        if (false) out.push({
             key: "chase",
             title: "Follow-Up List",
             who: "Program Manager",
@@ -3390,7 +3394,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             payment: 2,
             script: 2.5,
             license: 5,
-            chase: 6
+            chase: 6,
+            followup: 5.5,
+            onhold: 7
         };
         function rank(g) {
             if (g.key in RANK) return RANK[g.key];
@@ -3797,6 +3803,119 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     var moves = {};
     var chaseNotes = {};
+
+    /* ---- Follow Up and On Hold (26 Oct 2026): see patches/follow_up_card.py ---- */
+    var followUpDocs = {};
+    var FU_STALE_DAYS = 30;
+    function fuToday() { return isoDay(new Date()); }
+    function fuDaysInState(f) {
+        var m = moves[f.row];
+        if (m && m.at) return Math.floor((Date.now() - new Date(m.at).getTime()) / 864e5);
+        if (f.age != null) {
+            var since = parseDay(D.asOf);
+            return f.age + (since ? Math.max(0, daysBetween(since, new Date())) : 0);
+        }
+        return null;
+    }
+    function fuStateDef(f) { return STATE[currentState(f)] || {}; }
+    function fuClosed(f) { var st = currentState(f), d = fuStateDef(f); return !!d.terminal && st !== "OnHold"; }
+    function fuHeld(f) {
+        if (fuClosed(f)) return false;
+        if (currentState(f) === "OnHold") return true;
+        var c = certFor(f);
+        return !!(c && holdOf(c));
+    }
+    function fuListEntry(f) {
+        var s = slugName(f.org);
+        var hit = (D.followUps || []).filter((function(x) { return slugName(x.org) === s; }))[0];
+        if (!hit) return null;
+        var cl = followUpDocs["org-" + s];
+        return cl && cl.active === false ? null : hit;
+    }
+    function followUpOf(f) {
+        if (fuClosed(f) || fuHeld(f)) return null;
+        var st = currentState(f);
+        var d = followUpDocs[String(f.row)];
+        if (d && d.active) return { kind: "manual", reason: d.reason || "", nextOn: d.nextOn || null, by: d.by || "", at: d.at || null };
+        if (d && d.active === false && d.clearedState === st) return null;
+        var l = fuListEntry(f);
+        if (l) return { kind: "list", reason: l.what || l.reason || "On the follow-up list", nextOn: null, severity: l.severity };
+        var w = String((fuStateDef(f).waiting) || f.waiting || "");
+        var days = fuDaysInState(f);
+        if (/company/i.test(w) && !/mismo/i.test(w) && days != null && days >= FU_STALE_DAYS)
+            return { kind: "auto", reason: "No movement from the company in " + days + " days", nextOn: null, days: days };
+        return null;
+    }
+    function fuDue(x) { return !!x && (!x.nextOn || x.nextOn <= fuToday()); }
+    function fuRows() {
+        return (D.inFlight || []).filter((function(f) { return !!followUpOf(f); })).sort((function(a, b) {
+            var x = followUpOf(a), y = followUpOf(b);
+            var dx = fuDue(x) ? 0 : 1, dy = fuDue(y) ? 0 : 1;
+            if (dx !== dy) return dx - dy;
+            return String(x.nextOn || "").localeCompare(String(y.nextOn || "")) || String(a.org).localeCompare(String(b.org));
+        }));
+    }
+    function holdRows() { return (D.inFlight || []).filter(fuHeld); }
+    function fuSet(f, body) {
+        var id = String(f.row);
+        var before = followUpDocs[id] ? clone(followUpDocs[id]) : null;
+        followUpDocs[id] = body;
+        if (db) { try { Promise.resolve(db.doc("follow-ups/" + id).set(body)).catch(onWriteRefused); } catch (e) { onWriteRefused(e); } }
+        var entry = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "follow-up",
+            note: body.active ? "Moved to Follow Up: " + (body.reason || "no reason given") + (body.nextOn ? " (chase again " + fmt(body.nextOn) + ")" : "") : "Back to active from Follow Up",
+            reason: null, at: body.at, by: body.by };
+        activity.unshift(entry);
+        if (db) { try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {} }
+        if (!body.active) {
+            var s = slugName(f.org);
+            if ((D.followUps || []).some((function(x) { return slugName(x.org) === s; }))) {
+                var org = { active: false, org: f.org, by: body.by, at: body.at };
+                followUpDocs["org-" + s] = org;
+                if (db) { try { Promise.resolve(db.doc("follow-ups/org-" + s).set(org)).catch(onWriteRefused); } catch (e) {} }
+            }
+        }
+        return before;
+    }
+    function followUpBlock(f) {
+        if (fuClosed(f)) return "";
+        var x = followUpOf(f);
+        var who = me && me.name ? me.name : "You";
+        if (fuHeld(f)) return "";
+        if (x) {
+            return '<div class="pc-lab">Follow Up</div><div class="qwatch">' + esc(x.reason || "On the follow-up list")
+                + (x.nextOn ? " &middot; chase again " + esc(fmt(x.nextOn)) : "")
+                + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the MACTS follow-up list" : (x.by ? " &middot; " + esc(x.by) : "")) + "</div>"
+                + '<div class="na-acts" style="margin:8px 0 14px">'
+                + (canWrite ? '<button class="lc-btn" type="button" data-fuclear="' + f.row + '">Back to Active</button>'
+                    + '<button class="lc-btn ghost" type="button" data-fuedit="' + f.row + '">Change the Reason or Date</button>' : "")
+                + "</div>";
+        }
+        return canWrite ? '<div class="na-acts" style="margin:0 0 14px"><button class="lc-btn ghost" type="button" data-fuedit="' + f.row + '">Move to Follow Up</button></div>' : "";
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-fuedit],[data-fuclear]") : null;
+        if (!t) return;
+        var row = +(t.getAttribute("data-fuedit") || t.getAttribute("data-fuclear"));
+        var f = (D.inFlight || []).filter((function(x) { return x.row === row; }))[0];
+        if (!f) return;
+        var now = (new Date).toISOString(), who = me && me.name ? me.name : "You";
+        if (t.hasAttribute("data-fuclear")) {
+            fuSet(f, { row: f.row, org: f.org, program: f.program, active: false, clearedState: currentState(f), by: who, at: now });
+            toast(f.org + " is back with the live work.", "good");
+        } else {
+            var cur = followUpOf(f) || {};
+            var reason = window.prompt("Why is " + f.org + " on Follow Up? (for example: Went quiet after the agreement; invoice unpaid)", cur.reason && cur.kind === "manual" ? cur.reason : "");
+            if (reason === null) return;
+            var d = new Date(); d.setDate(d.getDate() + 14);
+            var next = window.prompt("Chase again on (YYYY-MM-DD). Leave it blank for no date.", cur.nextOn || isoDay(d));
+            if (next === null) return;
+            next = String(next).trim();
+            if (next && !/^\d{4}-\d{2}-\d{2}$/.test(next)) { toast("That date needs to be YYYY-MM-DD. Nothing changed.", "warn"); return; }
+            fuSet(f, { row: f.row, org: f.org, program: f.program, active: true, reason: String(reason).trim(), nextOn: next || null, by: who, at: now });
+            toast(f.org + " moved to Follow Up.", "good");
+        }
+        renderPipe(); renderQueue(); renderQueueCounts(); if (panel) renderPanel();
+    }), true);
     function chaseKey(f) {
         return f.org + "|" + f.program;
     }
@@ -4171,11 +4290,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }
                 if (qset.kind === "cycles") {
                     var st = currentState(r);
-                    var stale = panel.group === "payment" && r.age != null && r.age > 14;
+                    var stale = panel.group === "payment" && r.age != null && r.age > 14 || panel.group === "followup" && fuDue(followUpOf(r));
                     return '<button class="drow' + (serious(r.flags) || stale ? " flag" : "") + (moves[r.row] ? " moved" : "") + '" type="button" data-open="' + r.row + '">' + '<span class="dr-co">' + esc(r.org) + "</span>" + '<span class="dr-meta">' + esc(r.program) + (r.product ? " · " + esc(r.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(r)) + " · " + esc(titleOfState(st)) + (r.age != null ? " · open " + r.age + " days" : "") + "</span>" + function() {
                         var cc = certFor(r);
                         return panel.group === "stalled" && cc && cc.days != null ? '<span class="dr-sub' + (Math.abs(cc.days) > 90 ? " bad" : "") + '">' + Math.abs(cc.days) + " days past the anniversary of " + esc(fmt(cc.anniversary)) + "</span>" : "";
-                    }() + (stale ? '<span class="dr-sub bad">Unpaid ' + r.age + " days — past a fortnight.</span>" : "") + (panel.group === "welcome" ? '<span class="dr-sub">' + (moves[r.row] && moves[r.row].paidOn ? "Paid " + esc(fmt(moves[r.row].paidOn)) + " against order " + esc(moves[r.row].order || "") + ", recorded by the daily check. " : "") + "Nothing has been sent to them yet.</span>" + '<span class="dr-act"><span class="lc-btn tiny" data-welcome="' + r.row + '">Mark the Welcome Email Sent</span></span>' : "") + "</button>";
+                    }() + (panel.group === "payment" && stale ? '<span class="dr-sub bad">Unpaid ' + r.age + " days — past a fortnight.</span>" : "") + (panel.group === "followup" ? function() { var x = followUpOf(r) || {}; return '<span class="dr-sub' + (fuDue(x) ? " bad" : "") + '">' + esc(x.reason || "") + (x.nextOn ? " \u00b7 chase again " + esc(fmt(x.nextOn)) : fuDue(x) ? " \u00b7 chase now" : "") + "</span>"; }() : "") + (panel.group === "welcome" ? '<span class="dr-sub">' + (moves[r.row] && moves[r.row].paidOn ? "Paid " + esc(fmt(moves[r.row].paidOn)) + " against order " + esc(moves[r.row].order || "") + ", recorded by the daily check. " : "") + "Nothing has been sent to them yet.</span>" + '<span class="dr-act"><span class="lc-btn tiny" data-welcome="' + r.row + '">Mark the Welcome Email Sent</span></span>' : "") + "</button>";
                 }
                 var why = r.graceExhausted ? Math.abs(r.days) + " days overdue · grace ended " + fmt(r.graceEnds) + ", " + r.daysPastGrace + " days ago" : r.condition === "PastDue" ? Math.abs(r.days) + " days overdue · grace runs to " + fmt(r.graceEnds) : panel.group === "license" ? "Certified " + fmt(r.markLicenseSince) + " with no license on file" : "No anniversary recorded";
                 var cyc = openCycleFor(certKey(r));
@@ -5423,7 +5542,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join("");
         var assessorNow = c && c.assessor || f.assessor || "";
         var anniv = c ? c.anniversary || "" : "";
-        return '<div class="pc-body">' + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
+        return '<div class="pc-body">' + followUpBlock(f) + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
         })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea>" + (c ? '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">' + "Open Full Record</button>" : "") + '<div class="pc-note">Milestone dates, the product name history and the cycle history are in ' + "the full record.</div>" + "</div>";
     }
@@ -5695,6 +5814,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }))
         };
     }
+    function fuCards() {
+        return [ [ "followup", "Follow Up", fuRows(), "Program Manager" ], [ "onhold", "On Hold", holdRows(), "MISMO's delay" ] ].map((function(c) {
+            var n = c[2].length, sel = panel && panel.mode === "queue" && panel.group === c[0];
+            var due = c[0] === "followup" ? c[2].filter((function(f) { return fuDue(followUpOf(f)); })).length : 0;
+            return '<button class="card' + (n ? "" : " quiet") + (sel ? " on" : "") + '" type="button" data-fucard="' + c[0] + '" aria-pressed="' + (sel ? "true" : "false") + '">'
+                + "<h3>" + esc(c[1]) + '<span class="arr">\u203a</span></h3>' + '<div class="cfoot"><div class="numrow">'
+                + '<div class="big">' + n + " <small>" + (n === 1 ? "cycle" : "cycles") + "</small></div>"
+                + '<div class="meta">' + (due ? '<span class="chip" style="color:var(--bad)">' + due + " to chase now</span>" : '<span class="chip">' + esc(c[3]) + "</span>") + "</div>"
+                + "</div></div></button>";
+        })).join("");
+    }
     function renderPipe() {
         renderLastChange();
         var byPhase = {};
@@ -5702,6 +5832,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             byPhase[p] = [];
         }));
         D.inFlight.forEach((function(f) {
+            if (followUpOf(f) || fuHeld(f)) return;
             var p = phaseOf(currentState(f));
             (byPhase[p] = byPhase[p] || []).push(f);
         }));
@@ -5720,8 +5851,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return '<button class="card quiet' + (selected ? " on" : "") + '" type="button" ' + 'data-phase="' + esc(ph) + '" aria-pressed="' + (selected ? "true" : "false") + '" ' + 'title="' + esc(PHASE_NOTE[ph] || ph) + '">' + "<h3>" + esc(ph) + '<span class="arr">›</span></h3>' + '<div class="cfoot"><div class="numrow">' + '<div class="big">0 <small>cycles</small></div>' + '<div class="meta"><span class="chip">' + esc(OWNER[ph] || "") + "</span></div>" + "</div></div></button>";
             }
             return '<button class="card' + (selected ? " on" : "") + '" type="button" ' + 'data-phase="' + esc(ph) + '" aria-pressed="' + (selected ? "true" : "false") + '" ' + 'title="' + esc(PHASE_NOTE[ph] || "List the " + items.length + " at this step") + '">' + "<h3>" + esc(ph) + '<span class="arr">›</span></h3>' + '<div class="cfoot">' + '<div class="numrow">' + '<div class="big">' + items.length + " <small>" + (items.length === 1 ? "cycle" : "cycles") + "</small></div>" + '<div class="meta">' + queueChips(g) + "</div>" + "</div>" + "</div></button>";
-        })).join("");
-        Array.prototype.forEach.call($("pipe").querySelectorAll(".card"), (function(b) {
+        })).join("") + fuCards();
+        Array.prototype.forEach.call($("pipe").querySelectorAll(".card[data-fucard]"), (function(b) {
+            b.addEventListener("click", (function() {
+                var k = b.getAttribute("data-fucard");
+                if (panel && panel.mode === "queue" && panel.group === k) closePanel(); else openPanelQueue(k);
+            }));
+        }));
+        Array.prototype.forEach.call($("pipe").querySelectorAll(".card[data-phase]"), (function(b) {
             b.addEventListener("click", (function() {
                 var ph = b.dataset.phase;
                 if (panel && panel.phase === ph && panel.mode === "list") closePanel(); else openPanelList(ph);
@@ -7732,6 +7869,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }));
                 noticeLog = next;
                 if (typeof renderNoticeLog === "function") renderNoticeLog();
+            }), (function() {}));
+            d.collection("follow-ups").onSnapshot((function(snap) {
+                var next = {};
+                (snap.docs || []).forEach((function(doc) { var b = doc.data(); if (b) next[doc.id] = b; }));
+                followUpDocs = next;
+                renderPipe(); renderQueue(); renderQueueCounts();
             }), (function() {}));
             d.collection("cert-edits").onSnapshot((function(snap) {
                 var next = {};
