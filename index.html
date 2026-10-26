@@ -3808,6 +3808,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var TD_JONATHAN = [ "PrelimResultsSubmitted", "RemediationSubmitted", "ReviewScheduled", "ScopeReviewVp", "AppealOpen" ];
     var TD_SYSTEM = [ "RenewalPrep", "ApprovedPendingLicense" ];
     var tdFold = { waiting: false, prospects: false };
+    var TD_PREPAY = [ "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "DocumentsRequested", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ];
+    var tdLoading = {};
+    function tdLoadLater(key) {
+        if (tdLoading[key] || !db) return;
+        tdLoading[key] = 1;
+        loadInvoice(key, (function() { setTimeout((function() { renderTodo(); renderQueueCounts(); }), 0); }));
+    }
     var tdPending = false;
     function tdOrgStatus(name) {
         var e = orgEdits[orgSlug(name)] || {};
@@ -3830,7 +3837,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return esc(f.program) + (f.product ? " · " + esc(f.product) : "") + " · " + esc(kindLabel(f).toLowerCase());
     }
     function tdModel() {
-        var todo = { invoice: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], followup: [] };
+        var todo = { invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], followup: [] };
         var wait = { company: [], assessor: [], jonathan: [], system: [], later: [], hold: [] };
         if (!certs || typeof QUOTE_LEAD !== "number" || typeof LIC_SAID !== "object") return { todo: todo, wait: wait, prospects: [] };
         var taken = {};
@@ -3838,6 +3845,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (r.hold || quoteRaised(r.quote) || r.invoice || r.dueIn == null || r.dueIn > TD_INV_AHEAD || r.dueIn <= -365) return;
             if (tdProspect(r.cert.org)) return;
             todo.invoice.push(r);
+        }));
+        renewalRows().forEach((function(r) {
+            if (r.hold || tdProspect(r.cert.org)) return;
+            var f = openCycleFor(r.key);
+            if (!f || fuClosed(f) || TD_PREPAY.indexOf(currentState(f)) < 0) return;
+            if (!(quoteRaised(r.quote) || (r.invoice && currentState(f) === "AwaitingPayment"))) return;
+            if (invCache[r.key] === undefined) { tdLoadLater(r.key); return; }
+            if (invCache[r.key]) return;
+            taken[f.row] = 1;
+            todo.attach.push(r);
         }));
         Object.keys(licenses || {}).forEach((function(k) {
             var L = licenses[k];
@@ -3885,6 +3902,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     var TD_GROUPS = [
         [ "invoice", "Raise the Invoice", "Drop the Aptify invoice PDF on the line, type the order number, and Mark as Sent. The renewal page offers it to the company from then on." ],
+        [ "attach", "Attach the Invoice PDF", "The invoice is raised in Aptify, but the company\u2019s renewal page has nothing to download. Drop the PDF on the line and it is there straight away." ],
         [ "license", "Mark License Needs an Email", "Approved and ready to go, but there is no signer email on file. Add it and the agreement goes out through DocuSign." ],
         [ "assessor", "Assign an Assessor", "Nobody is assigned, so nothing can be sent to an assessor yet." ],
         [ "welcome", "Send the Welcome Email", "They have paid and have not been told how to book the demonstration." ],
@@ -3914,6 +3932,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 + '<input class="pc-input td-num" data-tdnum="' + k + '" placeholder="Aptify order number" aria-label="Aptify order number for ' + esc(c.org) + '">'
                 + tdBtn("Mark as Sent", 'data-tdsent="' + k + '"') + "</div>" : '<span class="na-hint">Sign in to record an invoice.</span>';
             return '<div class="td-item' + (r.dueIn < 0 ? " bad" : "") + '">' + main + inv + "</div>";
+        }
+        if (key === "attach") {
+            var ar = x, ac = ar.cert, ak = esc(ar.key), num = ar.quote && ar.quote.number || ar.invoice && ar.invoice.invoiceNumber || "";
+            var af = openCycleFor(ar.key);
+            return '<div class="td-item bad"><div class="td-main"><button class="td-org" type="button" data-tdrenewal="' + ak + '">' + esc(ac.org) + "</button>"
+                + '<div class="td-meta">' + esc(ac.program) + (ac.product ? " \u00b7 " + esc(ac.product) : "") + " renewal" + (num ? " \u00b7 Aptify order " + esc(num) : "")
+                + (af ? " \u00b7 " + esc(titleOfState(currentState(af))) : "") + " \u00b7 anniversary " + esc(fmt(ac.anniversary)) + "</div></div>"
+                + (canWrite ? '<div class="td-inv"><div class="td-drop" data-tdinv="' + ak + '"><span class="td-dz">Drop the invoice PDF here</span>'
+                    + '<button class="lc-btn ghost tiny" type="button" data-tdpick="' + ak + '">Choose a File</button>'
+                    + '<input type="file" accept="application/pdf,.pdf" hidden data-tdfile="' + ak + '"></div></div>' : "") + "</div>";
         }
         if (key === "license") {
             var lc = x.c;
@@ -4028,6 +4056,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             ensureToken(key, (function() {
                 saveInvoice(key, rec, (function(ok) {
                     tdPaintDrop(key, ok ? rec : invCache[key] || null);
+                    if (ok && !tdFind("data-tdnum", key)) { toast((r ? r.cert.org + " \u2014 " : "") + "invoice attached. The renewal page offers it now.", "good"); renderTodo(); renderQueueCounts(); return; }
                     if (ok) {
                         toast((r ? r.cert.org + " — " : "") + "invoice attached. Type the Aptify order number and Mark as Sent.", "good");
                         var num = tdFind("data-tdnum", key);
