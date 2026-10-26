@@ -164,5 +164,12 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
     MACTS follow-up list, and anything waiting on the company for 30 days.
   - What people decide is kept in `data/db-follow-ups.json`.
 - `no_license_panel.py`: removes the separate Mark Licenses Outstanding panel.
+- `assessor_todo.py`: in the assessor view, To Do also lists "In Your Queue, Waiting on Someone
+  Else" (engagements the firm has already worked). Coming to You keeps only the untouched ones.
+  The Assessor Portal draws the same groups.
 
-`index.html` as committed has both applied.
+`index.html` as committed has all three applied.
+
+`relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
+Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count
+badge when the count is zero.
