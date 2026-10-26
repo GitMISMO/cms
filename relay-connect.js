@@ -202,6 +202,68 @@
     } catch (e) { if (window.console) console.error('Sent Emails tab:', e); }
   }
 
+  /* ---------- the left nav, in the order the work is done (Jonna, 26 Oct 2026) ----------
+     Daily Work holds everything that has a to-do count; Companies and Reporting the records;
+     Tracking what the system has done and sent; Setup what is configured once. The two pages
+     that live beside the CMS (My Approvals, the Email Playbook) sit in the nav with the rest.
+     A count of nothing is not shown: a badge only appears when there is something to do.
+     Done here, after the page has run, so a rebuild of index.html from the artifact keeps it. */
+  var NAV = [
+    { label: 'Daily Work', items: ['queue', 'renewals', 'invoices', 'assessors', '@approvals'] },
+    { label: 'Companies and Reporting', items: ['records', 'counts'] },
+    { label: 'Tracking', items: ['activity', 'emails'] },
+    { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', '@playbook', 'load'] }
+  ];
+  var PAGES = {
+    approvals: { href: 'approvals.html', label: 'My Approvals', title: 'Results waiting for a VP decision',
+      icon: '<path d="M12 3.2 19.5 6v5.6c0 4.5-3.1 8.1-7.5 9.2-4.4-1.1-7.5-4.7-7.5-9.2V6Z"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8"/>' },
+    playbook: { href: 'playbook.html', label: 'Email Playbook', title: 'Every certification email and its wording',
+      icon: '<path d="M4.5 4.5h6.2a2.3 2.3 0 0 1 2.3 2.3v13.7a2 2 0 0 0-2-2H4.5Z"/><path d="M19.5 4.5h-4.2A2.3 2.3 0 0 0 13 6.8v13.7a2 2 0 0 1 2-2h4.5Z"/>' }
+  };
+  function organizeNav() {
+    try {
+      var nav = document.getElementById('mismonav');
+      if (!nav || nav.getAttribute('data-organized')) return;
+      var byView = {};
+      Array.prototype.forEach.call(nav.querySelectorAll('.navlink[data-view]'), function (b) { byView[b.getAttribute('data-view')] = b; });
+      var placed = {};
+      var groups = NAV.map(function (g, gi) {
+        var div = document.createElement('div');
+        div.className = 'navgroup';
+        div.setAttribute('aria-labelledby', 'navlbl-g' + gi);
+        div.innerHTML = '<div class="navlbl" id="navlbl-g' + gi + '">' + g.label + '</div>';
+        g.items.forEach(function (k) {
+          if (k.charAt(0) === '@') {
+            var p = PAGES[k.slice(1)];
+            var a = document.createElement('a');
+            a.className = 'navlink'; a.href = p.href; a.title = p.title;
+            a.innerHTML = '<span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true">' + p.icon + '</svg></span><span class="nl">' + p.label + '</span>';
+            div.appendChild(a);
+          } else if (byView[k]) { div.appendChild(byView[k]); placed[k] = 1; }
+        });
+        return div;
+      });
+      /* Anything the page has that is not named above keeps a place, at the foot of Setup. */
+      Object.keys(byView).forEach(function (k) { if (!placed[k]) groups[groups.length - 1].appendChild(byView[k]); });
+      nav.innerHTML = '';
+      groups.forEach(function (g) { if (g.querySelector('.navlink')) nav.appendChild(g); });
+      nav.setAttribute('data-organized', '1');
+    } catch (e) { if (window.console) console.error('Nav order:', e); }
+  }
+  function hideZeroCounts() {
+    try {
+      var st = document.createElement('style');
+      st.textContent = '.navlink .pip.zero{display:none !important} a.navlink{text-decoration:none; box-sizing:border-box}';
+      document.head.appendChild(st);
+      var pips = document.querySelectorAll('.navlink .pip');
+      var paint = function (p) { var t = (p.textContent || '').trim(); p.classList.toggle('zero', t === '' || t === '0'); };
+      Array.prototype.forEach.call(pips, function (p) {
+        paint(p);
+        if (window.MutationObserver) new MutationObserver(function () { paint(p); }).observe(p, { childList: true, characterData: true, subtree: true });
+      });
+    } catch (e) { if (window.console) console.error('Nav counts:', e); }
+  }
+
   /* ---------- start: sign in, load, hand the page its services, run it ---------- */
   if (!RS || !RS.requireAccess) { fail('The MISMO Resources sign-in did not load. Reload the page.'); return; }
   RS.requireAccess(PROJECT, { toolName: TOOL, eyebrow: 'Programs & Operations' }).then(function () {
@@ -213,6 +275,8 @@
     var app = document.getElementById('cms-app'), s = document.createElement('script');
     s.textContent = app.textContent; document.body.appendChild(s);
     addSentEmailsTab();
+    organizeNav();
+    hideZeroCounts();
     cover.remove();
   }).catch(function (e) {
     if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;   /* the shared sign-in shows its own screen */
