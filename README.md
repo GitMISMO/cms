@@ -141,3 +141,15 @@ by the next build.
 - **Pages**: Settings → Pages → Deploy from a branch → `main` → `/ (root)`
 - **Custom domain**: inherited from the organization's `resources.mismo.org`. Nothing to set
   here, and no DNS change for this one.
+
+## Pages beside the CMS (hand-written, not built)
+
+- `playbook.html`: the Certification Email Playbook.
+- `approvals.html`: My Approvals, the VP's one-click decisions.
+- `sent.html`: every email the certification system has sent.
+- **The Sent Emails tab.** The **Sent Emails** tab beside Activity in the CMS is that page,
+  embedded (`sent.html?embed=1`).
+  - It is added by `relay-connect.js` (`addSentEmailsTab`), not by `index.html`, so a rebuild from
+    the artifact cannot drop it.
+  - Move it into the artifact at the next rebuild if you like, and delete `addSentEmailsTab`
+    when you do.

@@ -171,6 +171,37 @@
     save: function (o) { var a = document.createElement('a'); a.href = o.url; a.download = o.filename || 'download'; document.body.appendChild(a); a.click(); a.remove(); return Promise.resolve(true); }
   };
 
+  /* ---------- the Sent Emails tab (26 Oct 2026) ----------
+     Every email the certification system has sent, from the logs the senders keep, shown as a tab
+     beside Activity. The list itself is sent.html (in this repository), embedded here, so it needs
+     nothing from the page's own build. It is added here rather than in the artifact so that
+     rebuilding index.html from the artifact cannot drop it; it can move into the artifact at the
+     next rebuild. */
+  function addSentEmailsTab() {
+    try {
+      var act = document.querySelector('.navlink[data-view="activity"]');
+      var actView = document.getElementById('view-activity');
+      if (!act || !actView || document.getElementById('view-emails')) return;
+      var btn = document.createElement('button');
+      btn.className = 'navlink'; btn.type = 'button'; btn.setAttribute('data-view', 'emails'); btn.title = 'Sent Emails';
+      btn.innerHTML = '<span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1.6"/><path d="m3.6 7 8.4 6 8.4-6"/></svg></span><span class="nl">Sent Emails</span>';
+      act.parentNode.insertBefore(btn, act.nextSibling);
+      var sec = document.createElement('section');
+      sec.className = 'view'; sec.id = 'view-emails';
+      var frame = document.createElement('iframe');
+      frame.title = 'Sent Emails'; frame.style.cssText = 'width:100%;border:0;display:block;min-height:70vh';
+      sec.appendChild(frame);
+      actView.parentNode.insertBefore(sec, actView.nextSibling);
+      btn.addEventListener('click', function () {
+        if (!frame.src) frame.src = 'sent.html?embed=1';          /* loaded the first time it is opened */
+        if (window.__showView) window.__showView('emails');
+      });
+      window.addEventListener('message', function (e) {
+        if (e.origin === location.origin && e.data && e.data.sentEmailsHeight) frame.style.height = (e.data.sentEmailsHeight + 24) + 'px';
+      });
+    } catch (e) { if (window.console) console.error('Sent Emails tab:', e); }
+  }
+
   /* ---------- start: sign in, load, hand the page its services, run it ---------- */
   if (!RS || !RS.requireAccess) { fail('The MISMO Resources sign-in did not load. Reload the page.'); return; }
   RS.requireAccess(PROJECT, { toolName: TOOL, eyebrow: 'Programs & Operations' }).then(function () {
@@ -181,6 +212,7 @@
     window.claude = { use: function (name) { return Promise.resolve(name === 'db' ? db : name === 'user' ? user : name === 'downloads' ? downloads : null); } };
     var app = document.getElementById('cms-app'), s = document.createElement('script');
     s.textContent = app.textContent; document.body.appendChild(s);
+    addSentEmailsTab();
     cover.remove();
   }).catch(function (e) {
     if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;   /* the shared sign-in shows its own screen */

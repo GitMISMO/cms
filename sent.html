@@ -131,6 +131,10 @@ details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset
 .tile b{display:block;font-size:22px;line-height:1.2}
 .tile span{font-size:12px;color:var(--ink-3)}
 .day{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:18px 0 6px}
+html.embed .top{display:none}
+html.embed main{padding-top:6px;max-width:none}
+html.embed .back{display:none}
+html.embed body{background:transparent}
 .mail{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;margin-bottom:8px;display:grid;grid-template-columns:72px 1fr;gap:4px 14px}
 .mail .t{font-family:var(--mono);font-size:12px;color:var(--ink-3);padding-top:2px}
 .mail .s{font-weight:600;font-size:13.5px}
@@ -197,9 +201,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   var RS = window.ResourcesSession;
   var $ = function (id) { return document.getElementById(id); };
   var root = document.documentElement;
+  /* Shown as the Sent Emails tab inside the CMS (sent.html?embed=1): no masthead of its own, the
+     CMS's light or dark theme, and its height reported so the tab needs no scroll bar of its own. */
+  var EMBED = /[?&]embed=1\b/.test(location.search) && window.parent !== window;
+  if (EMBED) {
+    root.classList.add('embed');
+    var syncTheme = function () { try { var t = window.parent.document.documentElement.getAttribute('data-theme'); if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme'); } catch (e) {} };
+    syncTheme();
+    try { new MutationObserver(syncTheme).observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }); } catch (e) {}
+    var tell = function () { try { window.parent.postMessage({ sentEmailsHeight: document.documentElement.scrollHeight }, location.origin); } catch (e) {} };
+    window.addEventListener('load', tell);
+    if (window.ResizeObserver) new ResizeObserver(tell).observe(document.body);
+  }
   function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
   function showTheme() { $('theme').textContent = isDark() ? 'Light Mode' : 'Dark Mode'; }
-  try { var saved = localStorage.getItem('cms-sent:theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  try { var saved = localStorage.getItem('cms-sent:theme'); if (saved && !EMBED) root.setAttribute('data-theme', saved); } catch (e) {}
   showTheme();
   $('theme').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('cms-sent:theme', t); } catch (e) {} showTheme(); });
   function h(tag, attrs) {
