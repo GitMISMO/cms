@@ -124,6 +124,8 @@ MODULE = r'''
         renewalRows().forEach((function(r) {
             if (r.hold || quoteRaised(r.quote) || r.invoice || r.dueIn == null || r.dueIn > TD_INV_AHEAD || r.dueIn <= -365) return;
             if (tdProspect(r.cert.org)) return;
+            var rf = openCycleFor(r.key);
+            if (rf && !fuClosed(rf) && (TD_PREPAY.indexOf(currentState(rf)) < 0 || rf.invoiceDate || rf.paid)) return;
             todo.invoice.push(r);
         }));
         renewalRows().forEach((function(r) {
@@ -527,6 +529,13 @@ def apply(s):
     s = once(s, '        newApp = null;\n        toast(body.org + " added to the board.");',
                 '        newApp = null;\n        if (tdProspect(body.org)) editOrg(body.org, { status: "active", statusReason: null, statusSince: null }, "back from Prospects: application started");\n'
                 '        toast(body.org + " added to the board.");')
+    # --- a renewal is invoiced only once its invoice is recorded here (old MACTS numbers are last year's) ---
+    s = once(s, """            var q = quotes[key] || null;
+            var inv = invoiceForRenewal(c);""", """            var q = quotes[key] || null;
+            /* An Aptify number on an old MACTS row belongs to the cycle before (checked against the
+               export, 25 Oct 2026). This renewal counts as invoiced only once its invoice is recorded
+               here, the same test the weekly Invoices to Raise email uses. */
+            var inv = quoteRaised(q) ? invoiceForRenewal(c) : null;""")
     # --- the renewal panel's Mark as Sent kept losing the link's token ---
     s = once(s, '                quotes[panel.key] = body;',
                 '                if (quotes[panel.key] && quotes[panel.key].token) body.token = quotes[panel.key].token;\n                quotes[panel.key] = body;')
