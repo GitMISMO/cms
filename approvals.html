@@ -143,6 +143,9 @@ details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset
 .facts{margin:4px 0 12px}
 .box{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface-2);border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:13.5px;white-space:pre-wrap}
 .box.find{border-left-color:var(--warn)}
+.box.clean{border-left-color:var(--good)}
+.qnote{margin:2px 0 10px}
+.qnote textarea{min-height:58px}
 .box h3{margin:0 0 4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:normal}
 .flist{margin:0;padding-left:18px}
 .flist li{margin:0 0 6px}
@@ -319,6 +322,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   };
 
   var P = null, MOVES = {}, FIND = {}, LABEL = {}, LEGAL = {}, canWrite = false, me = null;
+  var QN = {};   /* notes typed in a card's Note (Optional) field, by row */
   var decided = {};   /* row -> {to, before, at} decided in this visit, for Undo */
 
   function stateLabel(s) { return LABEL[s] || String(s || '').replace(/([a-z])([A-Z])/g, '$1 $2'); }
@@ -354,17 +358,44 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       fact(done ? 'Decided By' : 'Recorded By', m.by || ''),
       fact((current(c).state === 'ReviewScheduled' ? 'Review' : 'Demonstration') + ' Date', (m.demoOn || c.demoOn) ? longDate(m.demoOn || c.demoOn) : '')));
     if (m.note) body.appendChild(h('div', { class: 'box' }, h('h3', { text: m.assessorStep ? 'The Assessor’s Result' : 'Note With This Stage' }), m.note));
-    var f = FIND[row];
-    if (f && f.entries && f.entries.length) {
+    /* Findings, always said one way or the other, so a decision never rests on a missing box
+       (Jonna, 26 Oct 2026): the list when there are findings, "No Findings" when there are none. */
+    var f = FIND[row], entries = (f && f.entries) || [];
+    if (entries.length) {
       var ul = h('ul', { class: 'flist' });
-      f.entries.forEach(function (e) { ul.appendChild(h('li', null, (e.outcome ? e.outcome + ': ' : '') + (e.text || ''), h('span', { class: 'meta', text: (e.by ? e.by + ', ' : '') + (e.at ? longDate(e.at) : '') }))); });
-      body.appendChild(h('div', { class: 'box find' }, h('h3', { text: 'Findings Recorded in the Assessor Portal (' + f.entries.length + ')' }), ul));
+      entries.forEach(function (e) { ul.appendChild(h('li', null, (e.outcome ? e.outcome + ': ' : '') + (e.text || ''), h('span', { class: 'meta', text: (e.by ? e.by + ', ' : '') + (e.at ? longDate(e.at) : '') }))); });
+      body.appendChild(h('div', { class: 'box find' }, h('h3', { text: 'Findings (' + entries.length + ')' }), ul));
+    } else if (done) {
+      /* decided here: the card now shows the decision, so the findings line has done its job */
+    } else if (m.findings === true) {
+      body.appendChild(h('div', { class: 'box find' }, h('h3', { text: 'Findings' }),
+        'The assessor reported findings but did not list them in the Assessor Portal. They are in the assessor’s result above.'));
+    } else if (m.findings === false || m.assessorStep || f) {
+      body.appendChild(h('div', { class: 'box clean' }, h('h3', { text: 'No Findings' }), 'The assessor recorded no findings.'));
+    } else {
+      body.appendChild(h('div', { class: 'box clean' }, h('h3', { text: 'No Findings Recorded' }),
+        'Nothing was recorded in the Assessor Portal. This result came in before the move off MACTS, so any findings are in the assessor’s results email.'));
     }
     if (!done) {
       var acts = h('div', { class: 'acts' }), panel = h('div', { class: 'decide' });
-      (DECISIONS[cur.state] || []).filter(function (d) { return !LEGAL[cur.state] || LEGAL[cur.state].indexOf(d.to) >= 0; }).forEach(function (d) {
+      var offered = (DECISIONS[cur.state] || []).filter(function (d) { return !LEGAL[cur.state] || LEGAL[cur.state].indexOf(d.to) >= 0; });
+      /* Approve is one click. The note is a plain field to use or leave; it is kept as typed
+         across the page's own refreshes. */
+      var qn = h('textarea', { id: 'q-' + row, rows: '2', placeholder: 'Anything to record with your decision' });
+      qn.value = QN[row] || '';
+      qn.addEventListener('input', function () { QN[row] = qn.value; });
+      if (offered.some(function (d) { return d.note === 'optional'; }))
+        body.appendChild(h('div', { class: 'fld qnote' }, h('label', { for: qn.id, text: 'Note (Optional)' }), qn));
+      var btns = [];
+      offered.forEach(function (d) {
         var b = h('button', { type: 'button', class: 'btn ' + (d.kind || ''), text: d.label, disabled: !canWrite });
-        b.addEventListener('click', function () { openPanel(panel, c, d, m); });
+        b.addEventListener('click', function () {
+          if (d.note !== 'optional') { openPanel(panel, c, d, m); return; }
+          btns.forEach(function (x) { x.disabled = true; });
+          decide(c, d, (QN[row] || '').replace(/\s+$/, ''), null).then(function () { delete QN[row]; })
+            .catch(function (err) { toast(err.message, true); btns.forEach(function (x) { x.disabled = !canWrite; }); });
+        });
+        btns.push(b);
         acts.appendChild(b);
       });
       body.appendChild(acts);
@@ -391,7 +422,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       var f = FIND[String(c.row)], lines = [];
       if (f && f.entries) f.entries.forEach(function (e) { if (e.text) lines.push('- ' + e.text); });
       ta.value = lines.length ? lines.join('\n') : (m.note || '');
-    }
+    } else if (QN[String(c.row)]) ta.value = QN[String(c.row)];
     var label = d.note === 'required' ? (d.toCompany ? 'Items to Remediate' : d.to === 'NotCertified' ? 'Reason' : 'Your Question or Note') : 'Note (Optional)';
     if (d.toCompany) panel.appendChild(h('p', { class: 'warnline', text: 'This goes to the company.' }));
     panel.appendChild(h('div', { class: 'fld' }, h('label', { for: ta.id, text: label }), ta));
@@ -502,7 +533,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     renderRules(); render();
     var target = location.hash.replace('#', ''); if (target && $(target)) $(target).scrollIntoView();
     /* pick up anything new while the page stays open */
-    setInterval(function () { if (document.hidden || document.querySelector('.decide.on')) return; readColl('db-cycle-state').then(function (c) { MOVES = c.docs; render(); }).catch(function () {}); }, 90000);
+    setInterval(function () { if (document.hidden || document.querySelector('.decide.on') || document.activeElement && /^q-/.test(document.activeElement.id || '')) return; readColl('db-cycle-state').then(function (c) { MOVES = c.docs; render(); }).catch(function () {}); }, 90000);
   }).catch(function (e) {
     if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;
     $('list').innerHTML = ''; $('list').appendChild(h('div', { class: 'banner bad' }, h('b', { text: 'What is waiting could not be loaded. ' }), String((e && e.message) || e), ' ', h('a', { href: '', text: 'Try again' })));
