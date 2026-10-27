@@ -361,6 +361,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <details class="sect" id="h-wrong">
     <summary>If Something Goes Wrong</summary>
     <div class="sbody prose">
+      <p style="margin-top:12px"><b>The system checks itself.</b> Every working morning, after the renewal notices, it looks for a job that has failed, the automatic runs having stopped, MISMO Money not sending payments, and records that do not fit together (a certification in assessment with no assessor, an approval with no Mark License record, a company with no contact email). If it finds anything it emails certifications@mismo.org once that day, with a System Health Check subject, in plain words. No email means everything was in order.</p>
+      <p><b>Nothing is lost if something is down.</b> If the email flow is down, a renewal notice goes out on the next run within a week, and stage emails are sent once it is back. If two jobs save at the same moment, the second settles it record by record instead of failing.</p>
       <ul style="margin-top:12px">
         <li><b>An email did not go.</b> Check it was inside business hours, and Sent Emails. A [Held for Review] copy in certifications@mismo.org means its wording is not approved yet, or someone it is meant for has no email on file: add the email on the Companies page and it is released.</li>
         <li><b>A company says its page does not open.</b> Ask for the link exactly as emailed. The renewal and booking pages depend on their Power Automate flows being on.</li>
