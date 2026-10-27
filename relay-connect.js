@@ -75,6 +75,7 @@
     jobs.push(readData('mark-license-files').then(function (v) { D.markLicenseFiles = v; }, function () { D.markLicenseFiles = null; }));
     /* the MACTS Comments sheet, carried over 27 Oct 2026; optional the same way */
     jobs.push(readData('macts-comments').then(function (v) { D.mactsComments = v; }, function () { D.mactsComments = null; }));
+    jobs.push(readData('macts-documents').then(function (v) { D.mactsDocuments = v; }, function () { D.mactsDocuments = null; }));
     jobs.push(Promise.all([readData('frame-questionnaire'), readData('emortgage-questionnaires')]).then(function (r) {
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });

@@ -192,6 +192,10 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
 
 - `zz_macts_comments.py`: a company's panel lists the comments from MACTS's Comments sheet
   (`data/macts-comments.json` in cms-data, an optional file read by `relay-connect.js`).
+- `zz_macts_documents.py`: a company's panel lists its documents from MACTS (applications,
+  questionnaires, invoices, agreements, recommendation reports), filed in SharePoint under
+  Certification Applications/MACTS Documents and indexed in `data/macts-documents.json`
+  (optional, read by `relay-connect.js`).
 
 `index.html` as committed has all seven applied.
 
