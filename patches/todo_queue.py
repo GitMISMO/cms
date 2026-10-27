@@ -77,6 +77,8 @@ CSS = r'''
   .td-rn{font-weight:600; font-size:13.5px;}
   .td-rm{font-size:12.5px; color:var(--ink-2);}
   .td-prow{display:flex; gap:8px 14px; align-items:center; justify-content:space-between; flex-wrap:wrap; border-top:1px solid var(--border); padding:9px 0;}
+  #td-more .box{display:none;}
+  .td-acts .lc-btn[disabled]{opacity:.45; cursor:default;}
   .td-more{margin-top:26px; border-top:1px solid var(--border); padding-top:6px;}
   .td-more>summary{cursor:pointer; color:var(--ink-3); font-size:12.5px; padding:8px 0;}
   .td-more[open]>summary{margin-bottom:14px;}
@@ -87,7 +89,66 @@ MODULE = r'''
     var TD_INV_AHEAD = 14;
     var TD_JONATHAN = [ "PrelimResultsSubmitted", "RemediationSubmitted", "ReviewScheduled", "ScopeReviewVp", "AppealOpen" ];
     var TD_SYSTEM = [ "RenewalPrep", "ApprovedPendingLicense" ];
-    var tdFold = { waiting: false, prospects: false };
+    var tdFold = { waiting: false, prospects: false, stages: false };
+    var TD_FU_ASSESSOR = [ "RemediationOpen", "RemediationEscalated", "AwaitingArtifacts", "PreAssessmentDiscussion", "DemoProposed", "DemoScheduled", "ArtifactReview", "PrelimQueryOpen", "RemediationQueryOpen" ];
+    function tdAssessorOf(f) { var c = certFor(f); return (c && c.assessor) || f.assessor || ""; }
+    function tdFuKind(f, x) {
+        var st = currentState(f), a = tdAssessorOf(f);
+        if (/invoice|unpaid|payment/i.test(x.reason || "") || st === "AwaitingPayment") return "fu-invoice";
+        if (TD_FU_ASSESSOR.indexOf(st) >= 0 && a && a !== "MISMO") return "fu-assessor";
+        if (st === "AwaitingDemoSelection") return "fu-demo";
+        return "fu-quiet";
+    }
+    /* Nudge the Assessor (Jonna, 27 Oct 2026): written to assessor-nudges, sent by the stage-notices job. */
+    var tdNudges = {}, tdNudgeSent = {}, tdSubbed = false;
+    function tdSubscribe() {
+        if (tdSubbed || !db) return;
+        tdSubbed = true;
+        try {
+            db.collection("assessor-nudges").onSnapshot((function(snap) {
+                var n = {};
+                (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); }));
+                tdNudges = n;
+                renderTodo();
+            }), (function() {}));
+            db.collection("stage-notice-log").onSnapshot((function(snap) {
+                var n = {};
+                (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "assessor-nudge") n[d.id] = v; }));
+                tdNudgeSent = n;
+                renderTodo();
+            }), (function() {}));
+        } catch (e) {}
+    }
+    function tdNudgeOf(f) {
+        var asked = null, sent = null;
+        Object.keys(tdNudges).forEach((function(k) { var v = tdNudges[k]; if (v && v.row === f.row && (!asked || v.at > asked.at)) asked = v; }));
+        Object.keys(tdNudgeSent).forEach((function(k) { var v = tdNudgeSent[k]; if (v && v.row === f.row && (!sent || v.sentAt > sent.sentAt)) sent = v; }));
+        if (sent && (!asked || sent.sentAt >= asked.at)) return { text: "Nudge sent " + fmt(String(sent.sentAt).slice(0, 10)), again: true };
+        if (asked) return { text: "Nudge asked for " + fmt(String(asked.at).slice(0, 10)) + " by " + (asked.by || "someone") + "; it goes out on the next run in business hours", again: false };
+        return null;
+    }
+    function tdNudge(row) {
+        var f = byRow(row);
+        if (!f) return;
+        if (!db || !canWrite) { toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn"); return; }
+        var firm = tdAssessorOf(f) || "the assessor", days = fuDaysInState(f), st = currentState(f);
+        if (!window.confirm("Email " + firm + " about " + f.org + "?\n\nIt says the " + f.program + " certification has been at " + titleOfState(st) + (days != null ? " for " + days + " days" : "") + " with no movement, and asks whether they have followed up with the company. certifications@mismo.org is copied. It goes out on the next run in business hours.")) return;
+        var at = (new Date).toISOString(), who = me && me.name || "someone";
+        var body = { row: f.row, org: f.org, program: f.program, product: f.product || null, firm: firm, state: st, days: days, at: at, by: who };
+        var id = f.row + "-" + at.replace(/[^0-9]/g, "").slice(0, 14);
+        tdNudges[id] = body;
+        Promise.resolve(db.doc("assessor-nudges/" + id).set(body)).catch(onWriteRefused);
+        var entry = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "nudge", note: "Assessor nudged (" + firm + ")", reason: null, at: at, by: who };
+        activity.unshift(entry);
+        try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {}
+        toast(firm + " will be emailed about " + f.org + " on the next run.", "good");
+        renderTodo();
+    }
+    function tdStageRow(f) {
+        var st = currentState(f), w = String((STATE[st] || {}).waiting || f.waiting || ""), x = followUpOf(f);
+        return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(titleOfState(st))
+            + (tdDays(f) ? " \u00b7 " + tdDays(f) : "") + (w ? " \u00b7 with " + esc(w) : "") + (fuHeld(f) ? " \u00b7 On Hold" : x ? " \u00b7 on Follow Up" : "") + "</span></button>";
+    }
     var TD_PREPAY = [ "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "DocumentsRequested", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ];
     var tdLoading = {};
     function tdLoadLater(key) {
@@ -125,7 +186,7 @@ MODULE = r'''
         return esc(f.program) + (f.product ? " · " + esc(f.product) : "") + " · " + esc(kindLabel(f).toLowerCase());
     }
     function tdModel() {
-        var todo = { invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], followup: [] };
+        var todo = { invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [] };
         var wait = { company: [], assessor: [], jonathan: [], system: [], later: [], hold: [] };
         if (!certs || typeof QUOTE_LEAD !== "number" || typeof LIC_SAID !== "object") return { todo: todo, wait: wait, prospects: [] };
         var taken = {};
@@ -164,7 +225,7 @@ MODULE = r'''
             var st = currentState(f), c = certFor(f);
             if (welcomeDue(f)) { todo.welcome.push(f); return; }
             var x = followUpOf(f);
-            if (x) { (fuDue(x) ? todo.followup : wait.later).push(f); return; }
+            if (x) { if (fuDue(x)) todo[tdFuKind(f, x)].push(f); else wait.later.push(f); return; }
             if (scriptOutstanding(f)) { todo.script.push(f); return; }
             if (!(c && c.assessor) && !f.assessor) { todo.assessor.push(f); return; }
             if (TD_JONATHAN.indexOf(st) >= 0) { wait.jonathan.push(f); return; }
@@ -199,7 +260,10 @@ MODULE = r'''
         [ "script", "Certification Script", "The script still has to be prepared before the demonstration." ],
         [ "expiry", "Expire or Keep?", "Past the anniversary with no renewal opened. Open the record to raise the renewal or let it expire." ],
         [ "record", "Record the Next Step", "The move is MISMO's. Open it and record what happens next." ],
-        [ "followup", "Follow Up Today", "Stuck, and the chase-again date has come. Note what you did and pick the next date, or move them to Prospects if they are not going ahead." ]
+        [ "fu-assessor", "Follow Up: Assessor to Chase", "The company has gone quiet at a stage the assessor runs. Nudge the Assessor emails them how long it has been and asks whether they have followed up; certifications@mismo.org is copied." ],
+        [ "fu-invoice", "Follow Up: Unpaid Invoice", "Invoiced and not paid. Chase the company, note what you did and pick the next date." ],
+        [ "fu-demo", "Follow Up: Demo Not Booked", "Paid, but no demonstration date picked after the weekly reminders." ],
+        [ "fu-quiet", "Follow Up: Gone Quiet", "Stuck before the assessment started. Chase them, or move them to Prospects if they are not going ahead." ]
     ];
     function tdItem(key, inner, acts, bad) {
         return '<div class="td-item' + (bad ? " bad" : "") + '">' + inner + (acts ? '<div class="td-acts">' + acts + "</div>" : "") + "</div>";
@@ -248,10 +312,12 @@ MODULE = r'''
         var f = x, st = currentState(f);
         var head = '<div class="td-main"><button class="td-org" type="button" data-tdopen="' + f.row + '">' + esc(f.org) + "</button>"
             + '<div class="td-meta">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "");
-        if (key === "followup") {
-            var fx = followUpOf(f) || {};
-            head += "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the MACTS follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div></div>";
-            return tdItem(key, head, canWrite ? tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"') + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
+        if (key.indexOf("fu-") === 0) {
+            var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null;
+            head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the MACTS follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
+                + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "") + "</div>";
+            return tdItem(key, head, canWrite ? (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
+                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor") + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
         }
         head += "</div></div>";
         if (key === "assessor") {
@@ -294,6 +360,7 @@ MODULE = r'''
         var ae = document.activeElement;
         if (ae && host.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) { tdPending = true; return; }
         tdPending = false;
+        tdSubscribe();
         var m = tdModel(), n = 0, html = "";
         TD_GROUPS.forEach((function(g) {
             var rows = m.todo[g[0]];
@@ -315,7 +382,19 @@ MODULE = r'''
         var proHtml = m.prospects.length ? '<details class="td-fold" data-tdfold="prospects"' + (tdFold.prospects ? " open" : "") + "><summary>Prospects (" + m.prospects.length + ')<span class="td-chip">not going through certification</span></summary>'
             + '<div class="td-fbody"><p class="td-bn">Nothing chases these. Start Application when one comes back; Move to Prospects on a Follow Up line puts a company here.</p>'
             + m.prospects.map(tdProspectRow).join("") + "</div></details>" : "";
-        host.innerHTML = head + html + waitHtml + proHtml;
+        var byPh = {}, phOrder = BOARD_PHASES.slice(), stN = 0;
+        (D.inFlight || []).forEach((function(f) {
+            if (!tdOpen(f)) return;
+            var p = phaseOf(currentState(f));
+            if (phOrder.indexOf(p) < 0) phOrder.push(p);
+            (byPh[p] = byPh[p] || []).push(f);
+            stN++;
+        }));
+        var stHtml = stN ? '<details class="td-fold" data-tdfold="stages"' + (tdFold.stages ? " open" : "") + "><summary>All Open Work by Stage (" + stN + ')<span class="td-chip">every open certification, in order</span></summary>'
+            + '<div class="td-fbody">' + phOrder.filter((function(p) { return byPh[p]; })).map((function(p) {
+                return "<h4>" + esc(p) + " (" + byPh[p].length + ")</h4>" + (OWNER[p] ? '<p class="td-bn">Usually with ' + esc(OWNER[p]) + ".</p>" : "") + byPh[p].map(tdStageRow).join("");
+            })).join("") + "</div></details>" : "";
+        host.innerHTML = head + html + waitHtml + proHtml + stHtml;
         m.todo.invoice.forEach((function(r) { loadInvoice(r.key, (function(rec) { tdPaintDrop(r.key, rec); })); }));
     }
     function tdFind(attr, key) {
@@ -426,8 +505,9 @@ MODULE = r'''
             setTimeout((function() { if (tdPending) renderTodo(); }), 150);
         }));
         host.addEventListener("click", (function(e) {
-            var t = e.target && e.target.closest ? e.target.closest("[data-tdopen],[data-tdcert],[data-tdrenewal],[data-tdpick],[data-tdsent],[data-tdprospect],[data-tdwelcome],[data-tdstart],[data-tdorg]") : null;
+            var t = e.target && e.target.closest ? e.target.closest("[data-tdopen],[data-tdcert],[data-tdrenewal],[data-tdpick],[data-tdsent],[data-tdprospect],[data-tdwelcome],[data-tdstart],[data-tdorg],[data-tdnudge]") : null;
             if (!t) return;
+            if (t.hasAttribute("data-tdnudge")) { if (!t.disabled) tdNudge(+t.getAttribute("data-tdnudge")); return; }
             if (t.hasAttribute("data-tdopen")) { openPanelRecord(+t.getAttribute("data-tdopen"), null, null); return; }
             if (t.hasAttribute("data-tdcert")) { openPanelCert(t.getAttribute("data-tdcert"), null); return; }
             if (t.hasAttribute("data-tdrenewal")) { openRenewal(t.getAttribute("data-tdrenewal")); return; }
@@ -488,7 +568,7 @@ HTML_HEAD_NEW = ('<p>What needs you, one line each, with the button that does it
                  '    </div><div class="phead-act" id="na-act"></div></div>\n\n'
                  '    <div id="newapp"></div>\n'
                  '    <div id="todo"></div>\n\n'
-                 '    <details class="td-more" id="td-more"><summary>Numbers, Phase Board and Certification Scripts</summary>')
+                 '    <details class="td-more" id="td-more"><summary>Numbers and Certification Scripts</summary>')
 
 
 def once(s, old, new):
