@@ -4150,16 +4150,29 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     tdPaintDrop(key, ok ? rec : invCache[key] || null);
                     if (ok && !tdFind("data-tdnum", key)) { toast((r ? r.cert.org + " \u2014 " : "") + "invoice attached. The renewal page offers it now.", "good"); renderTodo(); renderQueueCounts(); return; }
                     if (ok) {
-                        toast((r ? r.cert.org + " — " : "") + "invoice attached. Type the Aptify order number and Mark as Sent.", "good");
-                        var num = tdFind("data-tdnum", key);
-                        if (num && !num.value) num.focus();
+                        var u8 = b64Bytes(rec.data);
+                        (u8 ? readPdfOrder(u8) : Promise.resolve(null)).then((function(info) {
+                            var num = tdFind("data-tdnum", key);
+                            var had = quotes[key] && quotes[key].number;
+                            if (info && info.number && num && (!had || String(had) === info.number)) {
+                                if (!num.value || num.value.trim() === info.number) {
+                                    num.value = info.number;
+                                    tdMarkSent(key, "read from the invoice PDF");
+                                    return;
+                                }
+                                toast((r ? r.cert.org + " — " : "") + "the PDF shows order " + info.number + ", but " + num.value.trim() + " is typed. Check which is right, then Mark as Sent.", "warn");
+                                return;
+                            }
+                            toast((r ? r.cert.org + " — " : "") + "invoice attached. The order number could not be read from the PDF, so type it and Mark as Sent.", "good");
+                            if (num && !num.value) num.focus();
+                        }));
                     }
                 }));
             }));
         };
         fr.readAsDataURL(file);
     }
-    function tdMarkSent(key) {
+    function tdMarkSent(key, how) {
         var r = renewalRows().filter((function(x) { return x.key === key; }))[0];
         if (!r) return;
         if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
@@ -4167,17 +4180,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var num = String(inp && inp.value || "").trim();
         if (!num) { toast("Type the Aptify order number first, so the daily check can match the payment.", "warn"); if (inp) inp.focus(); return; }
         var c = r.cert, was = quotes[key] || {};
-        var body = { key: key, org: c.org, program: c.program, product: c.product || null, anniversary: c.anniversary, amount: r.expected,
+        /* everything already on the record stays (the link's token, a note, the invoice versions and
+           purchase order the system read off the PDF); only what this records is set */
+        var body = {};
+        for (var wk in was) body[wk] = was[wk];
+        var set = { key: key, org: c.org, program: c.program, product: c.product || null, anniversary: c.anniversary, amount: r.expected,
             number: num, orderState: "invoice", raisedAt: (new Date).toISOString(), raisedBy: me && me.name || "someone" };
-        if (was.token) body.token = was.token;
-        if (was.note) body.note = was.note;
+        for (var sk in set) body[sk] = set[sk];
         quotes[key] = body;
         if (inp) inp.blur();
         Promise.resolve(db.doc("renewal-quotes/" + key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).catch(onWriteRefused);
-        var entry = { row: null, org: c.org, program: c.program, from: "", to: "", kind: "renewal-invoice", note: "renewal invoice recorded as sent, Aptify order " + num, reason: null, at: body.raisedAt, by: body.raisedBy };
+        var entry = { row: null, org: c.org, program: c.program, from: "", to: "", kind: "renewal-invoice", note: "renewal invoice recorded as sent, Aptify order " + num + (how ? " (" + how + ")" : ""), reason: null, at: body.raisedAt, by: body.raisedBy };
         activity.unshift(entry);
         try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {}
-        toast(c.org + " — recorded, and off the list." + (invCache[key] ? "" : " No PDF is attached yet, so the renewal page cannot offer it until one is."), invCache[key] ? "good" : "warn");
+        toast(c.org + " — " + (how ? "order " + num + " " + how + ", recorded, and off the list." : "recorded, and off the list.") + (invCache[key] ? "" : " No PDF is attached yet, so the renewal page cannot offer it until one is."), invCache[key] ? "good" : "warn");
         renderAll();
     }
     function tdToProspects(row) {
@@ -5279,7 +5295,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     raisedAt: new Date().toISOString(),
                     raisedBy: me && me.name || "someone"
                 };
-                if (quotes[panel.key] && quotes[panel.key].token) body.token = quotes[panel.key].token;
+                var wasQ = quotes[panel.key] || {}, keep = {};
+                for (var wk in wasQ) keep[wk] = wasQ[wk];
+                for (var bk in body) keep[bk] = body[bk];
+                /* a different order number is a different invoice: its versions do not carry over */
+                if (wasQ.number && body.number && String(wasQ.number) !== String(body.number)) { delete keep.invoiceVersions; delete keep.po; }
+                body = keep;
                 quotes[panel.key] = body;
                 if (db) Promise.resolve(db.doc("renewal-quotes/" + panel.key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).catch(onWriteRefused);
                 closePanel();
@@ -7575,6 +7596,108 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function invColl(key) {
         return "renewal-invoice-" + keyDigest(key);
     }
+    /* The Aptify order number, read from the invoice PDF the moment it is dropped (27 Oct 2026),
+       so nobody has to type it. The same reading the overnight job does (invoice-pdf.js): Aptify
+       PDFs carry their text in deflated streams, and the order number is the 7-digit number
+       printed most often (Invoice Number and OrderID). Resolves null when it cannot tell, and
+       the number is then typed as before. */
+    function pdfInflate(u8) {
+        if (typeof DecompressionStream === "undefined") return Promise.resolve(null);
+        function run(fmt, data) {
+            try {
+                var ds = new DecompressionStream(fmt), w = ds.writable.getWriter(), r = ds.readable.getReader(), parts = [], n = 0;
+                w.write(data).catch(function () {}); w.close().catch(function () {});
+                function pump() {
+                    return r.read().then(function (x) {
+                        if (x.done) return;
+                        parts.push(x.value); n += x.value.length;
+                        return pump();
+                    });
+                }
+                /* some streams fail the end check with every byte of text intact: keep what came out */
+                return pump().catch(function () {}).then(function () {
+                    if (!n) return null;
+                    var out = new Uint8Array(n), o = 0;
+                    parts.forEach(function (p) { out.set(p, o); o += p.length; });
+                    return out;
+                });
+            } catch (e) { return Promise.resolve(null); }
+        }
+        return run("deflate", u8).then(function (b) { return b || (u8.length > 2 ? run("deflate-raw", u8.subarray(2)) : null); });
+    }
+    function pdfLatin1(u8) {
+        var s = "", i;
+        for (i = 0; i < u8.length; i += 8192) s += String.fromCharCode.apply(null, u8.subarray(i, i + 8192));
+        return s;
+    }
+    function readPdfOrder(u8) {
+        var s = pdfLatin1(u8);
+        if (s.slice(0, 5) !== "%PDF-") return Promise.resolve(null);
+        var streams = [], re = /stream\r?\n/g, m;
+        while ((m = re.exec(s))) {
+            var start = m.index + m[0].length, end = s.indexOf("endstream", start);
+            if (end < 0) break;
+            var dict = s.slice(Math.max(0, m.index - 300), m.index).split("obj").pop();
+            if (/\/Subtype\s*\/Image|\/Length1/.test(dict)) continue;
+            streams.push({ flate: /FlateDecode/.test(dict), raw: u8.subarray(start, end) });
+            re.lastIndex = end;
+        }
+        return Promise.all(streams.map(function (x) { return x.flate ? pdfInflate(x.raw) : Promise.resolve(x.raw); })).then(function (bodies) {
+            var texts = bodies.filter(Boolean).map(pdfLatin1), umap = {};
+            texts.forEach(function (t) {
+                if (t.indexOf("begincmap") < 0) return;
+                (t.match(/beginbfchar[\s\S]*?endbfchar/g) || []).forEach(function (b) {
+                    (b.match(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g) || []).forEach(function (x) {
+                        var y = x.match(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/), k = y[1].toUpperCase();
+                        if (!(k in umap)) umap[k] = String.fromCharCode(parseInt(y[2].slice(0, 4), 16));
+                    });
+                });
+                (t.match(/beginbfrange[\s\S]*?endbfrange/g) || []).forEach(function (b) {
+                    (b.match(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g) || []).forEach(function (x) {
+                        var y = x.match(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/), lo = parseInt(y[1], 16), hi = parseInt(y[2], 16), u = parseInt(y[3].slice(0, 4), 16);
+                        for (var g = lo; g <= hi && g - lo < 256; g++) {
+                            var k = g.toString(16).toUpperCase(); while (k.length < y[1].length) k = "0" + k;
+                            if (!(k in umap)) umap[k] = String.fromCharCode(u + g - lo);
+                        }
+                    });
+                });
+            });
+            function lit(x) {
+                return x.slice(1, -1).replace(/\\([0-7]{1,3}|[\s\S])/g, function (a, c) {
+                    return c === "n" ? "\n" : c === "r" ? "\r" : c === "t" ? "\t" : /^[0-7]+$/.test(c) ? String.fromCharCode(parseInt(c, 8)) : c;
+                });
+            }
+            function hex(x) {
+                var h = x.slice(1, -1).replace(/\s+/g, "").toUpperCase(), o = "", i;
+                if (h.length && h.length % 4 === 0 && h.match(/.{4}/g).every(function (g) { return g in umap; })) return h.match(/.{4}/g).map(function (g) { return umap[g]; }).join("");
+                for (i = 0; i < h.length; i += 2) o += String.fromCharCode(parseInt((h.substr(i, 2) + "0").slice(0, 2), 16));
+                return o;
+            }
+            var runs = [];
+            texts.forEach(function (t) {
+                if (!/BT[\s\S]*?ET/.test(t)) return;
+                var r2 = /(<[0-9A-Fa-f\s]*>|\((?:\\[\s\S]|[^\\)])*\))\s*Tj|\[((?:[^\]\\]|\\[\s\S])*)\]\s*TJ/g, q;
+                while ((q = r2.exec(t))) {
+                    var v = q[1] ? (q[1][0] === "<" ? hex(q[1]) : lit(q[1]))
+                        : (q[2].match(/<[0-9A-Fa-f\s]*>|\((?:\\[\s\S]|[^\\)])*\)/g) || []).map(function (p) { return p[0] === "<" ? hex(p) : lit(p); }).join("");
+                    v = v.replace(/\s+/g, " ").trim();
+                    if (v) runs.push(v);
+                }
+            });
+            var counts = {}, best = null;
+            runs.forEach(function (r) { if (/^\d{7}$/.test(r)) counts[r] = (counts[r] || 0) + 1; });
+            Object.keys(counts).forEach(function (k) { if (best === null || counts[k] > counts[best]) best = k; });
+            var head = runs.slice(0, 5).join(" ");
+            return best ? { number: best, kind: /quot/i.test(head) ? "quotation" : "invoice" } : null;
+        }).catch(function () { return null; });
+    }
+    function b64Bytes(b64) {
+        try {
+            var bin = atob(b64), u = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+            return u;
+        } catch (e) { return null; }
+    }
     /* A renewal carries one quotes record, and it may exist only to hold the link's token.
        It counts as a quotation actually raised once it has an Aptify order number on it. */
     function quoteRaised(q) {
@@ -8059,8 +8182,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 ensureToken(key, (function () {
                     saveInvoice(key, rec, (function (ok) {
                         if (ok) {
-                            toast(r ? r.cert.org + " — invoice attached." : "Invoice attached.", "good");
                             paintInvoice(key, r, rec);
+                            var u8 = b64Bytes(rec.data);
+                            (u8 ? readPdfOrder(u8) : Promise.resolve(null)).then((function (info) {
+                                var numIn = $("rn-num"), stIn = $("rn-state"), save = $("d-body") && $("d-body").querySelector("[data-rnsave]");
+                                var had = quotes[key] && quotes[key].number;
+                                if (info && info.number && numIn && save && !had && (!numIn.value || numIn.value.trim() === info.number)) {
+                                    numIn.value = info.number;
+                                    if (stIn) stIn.value = info.kind === "quotation" ? "quotation" : "invoice";
+                                    toast((r ? r.cert.org + " — " : "") + "order " + info.number + " read from the PDF and recorded.", "good");
+                                    save.click();
+                                    return;
+                                }
+                                toast(r ? r.cert.org + " — invoice attached." : "Invoice attached.", "good");
+                            }));
                         }
                     }));
                 }));
