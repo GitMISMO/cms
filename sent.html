@@ -7,7 +7,8 @@
 
   Every email the certification system has sent, newest first, in one list: the renewal notices
   (data/db-notice-log.json), the stage emails and reminders (data/db-stage-notice-log.json) and
-  the Mark License Agreements sent through DocuSign (data/db-mark-license.json). Each job records
+  the Mark License Agreements sent through DocuSign (data/db-mark-license.json), and the CMSP and AMSP
+  emails (data/db-ind-log.json). Each job records
   an email there before it counts as sent, so this list is the record of what went out, to whom
   and when. Read through MISMO's relay (project key cms) after sign-in; this page holds no records.
 -->
@@ -188,7 +189,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <div class="sum" id="sum"></div>
   <div class="tools">
     <div class="fld"><label for="q">Company or Subject</label><input id="q" type="search" placeholder="Search"></div>
-    <div class="fld"><label for="k">Kind</label><select id="k"><option value="">All Emails</option><option value="renewal">Renewal Notices</option><option value="stage">Stage Emails and Reminders</option><option value="license">Mark License (DocuSign)</option><option value="held">Held for Review</option></select></div>
+    <div class="fld"><label for="k">Kind</label><select id="k"><option value="">All Emails</option><option value="renewal">Renewal Notices</option><option value="stage">Stage Emails and Reminders</option><option value="license">Mark License (DocuSign)</option><option value="individual">CMSP and AMSP</option><option value="held">Held for Review</option></select></div>
     <div class="fld"><label for="w">When</label><select id="w"><option value="7">Last 7 Days</option><option value="30" selected>Last 30 Days</option><option value="90">Last 90 Days</option><option value="">Everything</option></select></div>
   </div>
   <div id="list"><div class="loading">Loading what has been sent&hellip;</div></div>
@@ -251,6 +252,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var S = $('sum'); S.textContent = '';
     [['All Emails', rows.length], ['Renewal Notices', rows.filter(function (m) { return m.kind === 'renewal'; }).length],
      ['Stage Emails', rows.filter(function (m) { return m.kind === 'stage'; }).length], ['Mark Licenses', rows.filter(function (m) { return m.kind === 'license'; }).length],
+     ['CMSP and AMSP', rows.filter(function (m) { return m.kind === 'individual'; }).length],
      ['Held for Review', rows.filter(function (m) { return m.held; }).length]].forEach(function (x) { S.appendChild(h('div', { class: 'tile' }, h('b', { text: String(x[1]) }), h('span', { text: x[0] }))); });
     var L = $('list'); L.textContent = '';
     if (!rows.length) { L.appendChild(h('div', { class: 'banner' }, h('b', { text: 'Nothing sent in this window yet. ' }), 'Emails appear here as soon as they go out.')); return; }
@@ -269,7 +271,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     });
   }
   function load(res) {
-    var rn = res[0].docs || {}, st = res[1].docs || {}, ml = res[2].docs || {};
+    var rn = res[0].docs || {}, st = res[1].docs || {}, ml = res[2].docs || {}, ind = (res[3] || {}).docs || {};
+    /* CMSP and AMSP (27 Oct 2026): .github/scripts/individual.js keeps its own log */
+    Object.keys(ind).forEach(function (id) { var d = ind[id]; if (!d || !d.sentAt) return; var to = addresses(d.sentTo);
+      ALL.push({ kind: 'individual', at: new Date(d.sentAt), org: d.name || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
+        held: !!d.held, copied: to.some(function (a) { return /certifications@mismo\.org/i.test(a); }), label: d.program || 'CMSP / AMSP',
+        extra: (d.attachments || []).length ? 'certificate attached' : null }); });
     Object.keys(rn).forEach(function (id) { var d = rn[id]; if (!d || !d.sentAt) return; var to = addresses(d.sentTo);
       ALL.push({ kind: 'renewal', at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
         held: !!d.heldBack, copied: to.some(function (a) { return /certifications@mismo\.org/i.test(a); }), label: NAMES[d.notice] || ('Notice ' + d.notice), extra: d.dueOn ? 'due ' + d.dueOn : null }); });
@@ -288,7 +295,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   if (!RS || !RS.requireAccess) { $('list').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
   RS.requireAccess(PROJECT, { toolName: 'Sent Emails', eyebrow: 'Programs & Operations' }).then(function () {
     if (RS.mount) RS.mount($('rs-account'));
-    return Promise.all([read('db-notice-log'), read('db-stage-notice-log'), read('db-mark-license')]);
+    return Promise.all([read('db-notice-log'), read('db-stage-notice-log'), read('db-mark-license'), read('db-ind-log')]);
   }).then(load).catch(function (e) {
     if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;
     $('list').innerHTML = ''; $('list').appendChild(h('div', { class: 'banner bad' }, h('b', { text: 'The sent emails could not be loaded. ' }), String((e && e.message) || e)));

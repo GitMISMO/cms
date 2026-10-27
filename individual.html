@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en" data-rs-gate><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CMSP &amp; AMSP</title>
+<!--
+  CMSP & AMSP (resources.mismo.org/cms/individual.html), shown inside the CMS as a view of its own.
+
+  MISMO's individual certifications, moved off the CMSP Master and AMSP Master Smartsheets on
+  27 Oct 2026, following Perry Williams's build guides. Staff verify applications and renewals,
+  record payments and record CMSP exam passes here. Everything that follows - the Certification
+  Date, the certificate, every email, the renewal reminders, lapsing, the public lists - is done
+  by the Individual certifications job in cms-data (.github/scripts/individual.js), which runs on
+  each save.
+
+  This file is page code only, in a public repository, so it holds no records. Everything is read
+  after sign-in through MISMO's relay (project key cms) from the private cms-data:
+    data/ind-config.json         program rules, Champion allotments and email wording (read)
+    data/ind-members.json        member companies and levels, for Champion comps (read)
+    data/db-ind-people.json      one record per person (read and written)
+    data/db-ind-cycles.json      one record per application or renewal (read and written)
+    data/db-ind-templates.json   email wording approved or edited here (read and written)
+    data/db-ind-log.json         emails sent and form submissions taken in (read)
+  Making changes needs Edit access to the CMS in People & Access. With View access the page is read only.
+-->
+<script src="/assets/session.js"></script>
+<script src="embed.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --navy:#0f314c; --navy-deep:#06202f; --navy-mid:#14486e;
+  --sky:#50a4db; --sky-wash:#dcedf8;
+  --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
+  --border:#d5e2ed; --border-strong:#adc4d6; --rule:#e5eef5;
+  --ink:#0f314c; --ink-2:#456179; --ink-3:#546f88;
+  --good:#0f7b5c; --bad:#b3372c; --warn:#a2701a;
+  --good-soft:#e1f2ec; --bad-soft:#fbe9e7; --warn-soft:#f7efe0;
+  --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9;
+  --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+    --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+    --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+    --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+    --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+    --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+  --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+  --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+  --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+  --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+  --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
+.logoplate svg{height:24px;width:auto;display:block}
+.mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
+.name{font-size:15.5px;font-weight:700;color:var(--sky);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:13px}
+.eyebrow{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600;white-space:nowrap}
+#rs-account{flex:0 0 auto;display:inline-flex;align-items:center}
+#rs-account .rs-who,#rs-account .rs-signin{border-radius:4px}
+.theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
+.theme:hover{border-color:var(--sky)}
+@media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
+main{max-width:980px;margin:0 auto;padding:26px 16px 60px}
+.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:18px}
+h1{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
+.vsub{color:var(--ink-2);margin-top:4px;max-width:720px}
+.back{margin-left:auto;color:var(--navy-mid);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.back:hover{text-decoration:underline}
+.banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
+.banner.bad{border-left-color:var(--bad)}
+.banner b{color:var(--ink)}
+.group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:26px 0 8px}
+details.sect{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+details.sect > summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
+details.sect > summary::-webkit-details-marker{display:none}
+details.sect > summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;flex:0 0 auto}
+details.sect[open] > summary::before{transform:rotate(45deg)}
+details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:8px}
+.cnt{margin-left:auto;font-weight:500;font-size:12.5px;color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.off{background:var(--surface-3);color:var(--ink-3)}
+.chip.edit{background:var(--accent-soft);color:var(--accent)}
+.sbody{padding:2px 16px 16px;border-top:1px solid var(--rule)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin:14px 0 16px}
+.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.fact div{font-size:13px;color:var(--ink)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.fld textarea{min-height:220px;resize:vertical;font-size:13px}
+.fld input:focus,.fld textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
+.fld input:disabled,.fld textarea:disabled{opacity:.75;cursor:not-allowed}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.5}
+.hint code,.fields code{font-family:var(--mono);font-size:11.5px;background:var(--chip);border-radius:3px;padding:0 4px;color:var(--ink-2)}
+.btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--navy-mid)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.who{font-size:12px;color:var(--ink-3)}
+.status{font-size:12px;font-weight:600}
+.status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
+.rules{display:grid;gap:10px;margin-top:12px}
+.rule{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13px}
+.rule .d{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.rule b{display:block;color:var(--ink)}
+.rule span{color:var(--ink-2)}
+@media(max-width:560px){.rule{grid-template-columns:1fr;gap:2px}}
+.prose p{font-size:13px;margin:0 0 10px;color:var(--ink)}
+.prose table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
+.prose th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:6px 12px 6px 0;border-bottom:1px solid var(--border)}
+.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.prose td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{border-left-color:var(--bad)}
+.loading{padding:40px 0;text-align:center;color:var(--ink-3)}
+.foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
+.item{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:14px;overflow:hidden}
+.item.done{border-color:var(--good)}
+.ihead{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 14px;padding:14px 16px 10px}
+.ihead h2{font-size:17px;margin:0;font-weight:700;line-height:1.3}
+.ihead .what{font-size:13px;color:var(--ink-2);margin-top:2px}
+.ihead .right{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ibody{padding:0 16px 14px}
+.facts{margin:4px 0 12px}
+.box{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface-2);border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:13.5px;white-space:pre-wrap}
+.box.find{border-left-color:var(--warn)}
+.box.clean{border-left-color:var(--good)}
+.qnote{margin:2px 0 10px}
+.qnote textarea{min-height:58px}
+.box h3{margin:0 0 4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:normal}
+.flist{margin:0;padding-left:18px}
+.flist li{margin:0 0 6px}
+.flist .meta{display:block;font-size:11.5px;color:var(--ink-3)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.btn.good{background:var(--good);border-color:var(--good)}
+.btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+.decide{display:none;margin-top:12px;border-top:1px solid var(--rule);padding-top:12px}
+.decide.on{display:block}
+.decide textarea{min-height:110px}
+.decide .warnline{font-size:12.5px;color:var(--warn);font-weight:600;margin:0 0 8px}
+.decide input[type=date]{max-width:220px}
+.outcome{padding:12px 16px;border-top:1px solid var(--rule);background:var(--good-soft);color:var(--ink);font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.outcome b{color:var(--good)}
+.empty{background:var(--surface);border:1px dashed var(--border-strong);border-radius:9px;padding:28px 18px;text-align:center;color:var(--ink-2)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.count{font-size:13px;color:var(--ink-3);font-weight:500;margin-left:8px}
+@media(max-width:560px){.ihead .right{margin-left:0}.btn{flex:1 1 auto}}
+html.embed .top{display:none}
+html.embed main{padding-top:6px;max-width:none}
+html.embed .back{display:none}
+html.embed body{background:transparent}
+/* ---- CMSP & AMSP (individual.html) ---- */
+main{max-width:1100px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 18px;border-bottom:1px solid var(--border)}
+.tab{font:600 13px var(--display);background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-2);padding:8px 10px 9px;cursor:pointer;margin-bottom:-1px}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);border-bottom-color:var(--sky)}
+.tab .n{display:inline-block;min-width:18px;margin-left:5px;padding:0 5px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:11px;line-height:18px;text-align:center}
+.tab .n.warn{background:var(--warn-soft);color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.stat b{display:block;font-size:22px;line-height:1.2;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--ink-3)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:12px}
+.card.flagged{border-left:3px solid var(--warn)}
+.chead{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 12px;padding:13px 16px 9px}
+.chead h3{font-size:16px;margin:0;line-height:1.3}
+.chead .what{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.chead .right{margin-left:auto;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.cbody{padding:0 16px 14px}
+.flags{margin:6px 0 10px;padding:0;list-style:none}
+.flags li{font-size:12.5px;color:var(--warn);padding:3px 0 3px 18px;position:relative}
+.flags li::before{content:"!";position:absolute;left:3px;top:3px;font-weight:700}
+table.pts{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 4px}
+table.pts th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;padding:5px 8px 5px 0;border-bottom:1px solid var(--border)}
+table.pts td{padding:5px 8px 5px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+table.pts td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pts tr.out td{color:var(--ink-3);text-decoration:line-through}
+table.pts tr.out td.keep{text-decoration:none}
+table.pts input[type=number]{width:62px;font:12.5px var(--display);padding:3px 5px;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);color:var(--ink)}
+.tally{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;margin:6px 0 2px;color:var(--ink-2)}
+.tally b{color:var(--ink)}
+.ok{color:var(--good);font-weight:600}.short{color:var(--warn);font-weight:600}
+.fees{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:8px 0}
+.fee{border:1px solid var(--border);border-radius:7px;padding:8px 10px;background:var(--surface-2)}
+.fee .t{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.fee .v{font-size:13px;margin:2px 0 6px}
+.mini{font:600 12px var(--display);border-radius:5px;padding:4px 9px;cursor:pointer;border:1px solid var(--navy-mid);background:transparent;color:var(--navy-mid)}
+.mini:hover{background:var(--accent-soft)}
+.mini:disabled{opacity:.5;cursor:not-allowed}
+.btn.good{background:var(--good);border-color:var(--good)}
+.btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+.ask{border:1px solid var(--border);border-radius:8px;background:var(--surface-2);padding:12px;margin-top:10px}
+.ask .fld textarea{min-height:70px}
+.ask .row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.ask select,.ask input[type=date],.ask input[type=text],.ask input[type=email]{width:100%;font:13px var(--display);padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--ink)}
+.search{width:100%;max-width:420px;font:14px var(--display);padding:8px 11px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--ink);margin-bottom:12px}
+table.list{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+table.list th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+table.list td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.list tr.click{cursor:pointer}
+table.list tr.click:hover td{background:var(--surface-2)}
+.panel{position:fixed;inset:0 0 0 auto;width:min(720px,100vw);background:var(--ground);border-left:1px solid var(--border);box-shadow:-12px 0 30px rgba(6,32,47,.18);z-index:40;overflow:auto;padding:18px 18px 60px;transform:translateX(100%);transition:transform .18s}
+.panel.on{transform:none}
+.panel .x{float:right;font:600 13px var(--display);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--ink-2)}
+.hist{font-size:12px;color:var(--ink-2);margin:6px 0 0;padding-left:16px}
+.hist li{margin:2px 0}
+.small{font-size:12px;color:var(--ink-3)}
+.empty{background:var(--surface);border:1px dashed var(--border-strong);border-radius:8px;padding:16px;color:var(--ink-2);font-size:13px}
+.empty b{display:block;color:var(--ink);margin-bottom:2px}
+.preview{border:1px solid var(--border);border-radius:7px;background:var(--surface);padding:12px 14px;font-size:13px;white-space:pre-wrap;margin:8px 0}
+.pill{display:inline-block;border-radius:10px;padding:0 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2);margin-right:4px}
+.pill.Active{background:var(--good-soft);color:var(--good)}
+.pill.Lapsed,.pill.Expired{background:var(--warn-soft);color:var(--warn)}
+.pill.InReview,.pill.Verified{background:var(--accent-soft);color:var(--accent)}
+@media(max-width:640px){.chead .right{margin-left:0}table.list .hide-s{display:none}}
+/* inside the CMS the page is as tall as its content, so the person opens in place of the list */
+html.embed .panel{position:static;transform:none;width:auto;box-shadow:none;border:0;padding:0 0 30px;display:none;background:transparent}
+html.embed .panel.on{display:block}
+html.embed body.person-open main{display:none}
+</style>
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
+0 -101 4 -132 25 -197 57 -172 168 -280 335 -323 84 -22 723 -22 808 0 222 58
+355 253 355 520 0 270 -132 459 -361 520 -74 20 -730 20 -802 0z m692 -320
+c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
+-297 0 -307 2 -346 83 -30 61 -31 198 -2 262 41 93 68 100 368 97 219 -2 243
+-4 274 -22z M0 545 l0 -515 225 0 225 0 2 296 3 296 116 -294 116 -293 197 0 198
+0 119 295 118 295 1 -297 0 -298 225 0 225 0 0 515 0 515 -337 -2 -338 -3
+-104 -264 c-80 -204 -107 -260 -113 -245 -5 10 -52 129 -106 264 l-98 245
+-337 3 -337 2 0 -515z M1892 1044 l-22 -15 0 -483 c0 -455 1 -484 18 -499 16 -15 48 -17
+246 -17 128 0 235 4 246 10 32 17 34 57 4 95 -33 44 -64 143 -64 206 l0 49
+203 0 c191 0 205 -1 222 -20 10 -11 34 -24 54 -30 49 -13 586 -13 612 0 22 12
+26 62 7 78 -8 6 -174 15 -413 21 -502 15 -549 23 -628 110 -43 48 -57 93 -57
+187 0 82 19 156 55 208 30 44 32 77 7 99 -27 25 -456 25 -490 1z M3716 1044 c-23 -22 -20 -31 19 -77 43 -49 78 -155 73 -218 l-3 -44
+-204 -3 c-194 -2 -205 -1 -218 17 -24 35 -78 41 -355 41 -255 0 -269 -1 -288
+-20 -27 -27 -26 -58 3 -70 12 -5 202 -14 422 -19 421 -12 476 -18 555 -62 92
+-51 132 -159 111 -299 -12 -77 -34 -129 -77 -179 -23 -28 -25 -36 -16 -57 l12
+-24 215 0 215 0 2 306 3 306 120 -303 120 -304 197 -3 196 -2 118 296 119 297
+3 -296 2 -297 225 0 225 0 0 515 0 515 -338 0 -337 0 -104 -265 c-58 -146
+-106 -263 -108 -261 -2 2 -50 120 -107 262 l-104 259 -340 3 c-300 2 -342 0
+-356 -14z"/></g><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-s, #50a4db)"><path d="M2485 1046 c-44 -20 -111 -94 -136 -151 -27 -60 -37 -198 -20 -263
+13 -48 68 -115 114 -138 64 -34 162 -43 562 -55 239 -6 405 -15 413 -21 19
+-16 15 -66 -7 -78 -26 -13 -563 -13 -612 0 -20 6 -44 19 -54 30 -17 19 -31 20
+-222 20 l-203 0 0 -49 c0 -81 34 -172 86 -230 78 -87 31 -81 672 -81 l568 0
+46 29 c79 50 122 121 139 231 21 140 -19 248 -111 299 -79 44 -134 50 -555 62
+-220 5 -410 14 -422 19 -29 12 -30 43 -3 70 19 19 33 20 288 20 277 0 331 -6
+355 -41 13 -18 24 -19 218 -17 l204 3 3 44 c4 60 -31 168 -70 215 -17 21 -52
+52 -77 67 l-45 29 -550 0 c-440 -1 -557 -3 -581 -14z"/></g></symbol></defs></svg>
+<header class="top">
+  <a class="logoplate" href="/" aria-label="MISMO Resources home"><svg role="img" aria-label="MISMO" viewBox="0 0 708 108"><use href="#mismo-logo"/></svg></a>
+  <span class="mastrule"></span>
+  <span class="name">CMSP &amp; AMSP</span>
+  <span class="top-r"><span class="eyebrow">Programs &amp; Operations</span>
+    <button class="theme" id="theme" type="button">Dark Mode</button>
+    <span id="rs-account"></span></span>
+</header>
+<main>
+  <div class="vhead">
+    <div><h1>CMSP &amp; AMSP</h1>
+    <div class="vsub">MISMO's individual certifications. You verify, record payments and record exam passes here; the system sets the dates, makes the certificates, sends every email and runs the renewal reminders.</div></div>
+    <a class="back" href="/cms/">Open the Certification Management System</a>
+  </div>
+  <div id="note"></div>
+  <div class="stats" id="stats"></div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div id="view"><div class="loading">Loading the CMSP and AMSP records&hellip;</div></div>
+  <div class="foot">Records: data/db-ind-people.json and data/db-ind-cycles.json in cms-data, moved from the CMSP Master and AMSP Master Smartsheets on 27 Oct 2026. Rules and email wording: data/ind-config.json. Emails wait for MISMO business hours (9:00-5:00 Eastern, working days).</div>
+</main>
+<aside class="panel" id="panel" aria-label="Person"></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  'use strict';
+  var RELAY = 'https://rgvdi67cg27o5kcmiytcqbqnrm0hmztx.lambda-url.us-east-1.on.aws', PROJECT = 'cms';
+  var RS = window.ResourcesSession;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- theme ---- */
+  var root = document.documentElement;
+  function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function showTheme() { $('theme').textContent = isDark() ? 'Light Mode' : 'Dark Mode'; }
+  try { var saved = localStorage.getItem('cms-individual:theme'); if (saved && !root.classList.contains('embed')) root.setAttribute('data-theme', saved); } catch (e) {}
+  showTheme();
+  $('theme').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('cms-individual:theme', t); } catch (e) {} showTheme(); });
+
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k]; if (v == null || v === false) return;
+      if (k === 'class') el.className = v; else if (k === 'text') el.textContent = v; else if (k === 'html') el.innerHTML = v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'value') el.value = v; else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null || c === false) continue; if (Array.isArray(c)) c.forEach(function (x) { if (x != null && x !== false) el.appendChild(typeof x === 'string' ? document.createTextNode(x) : x); }); else el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+    return el;
+  }
+  var toastT;
+  function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 8000 : 4500); }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function longDate(iso) { if (!iso) return ''; var p = String(iso).slice(0, 10).split('-'); return MONTHS[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
+  function today() { return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+  function addDays(iso, n) { var d = new Date(String(iso).slice(0, 10) + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function daysApart(a, b) { return Math.round((Date.parse(String(b).slice(0, 10) + 'T00:00:00Z') - Date.parse(String(a).slice(0, 10) + 'T00:00:00Z')) / 864e5); }
+  function easternDate(ts) { return new Date(ts).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+  function norm(s) { return String(s || '').trim().toLowerCase(); }
+  function money(n) { return '$' + Number(n).toLocaleString('en-US'); }
+
+  /* ---- the relay (as My Approvals) ---- */
+  function call(method, path, body) {
+    var headers = { 'Authorization': 'Bearer ' + (RS && RS.token ? RS.token() : '') };
+    if (body) headers['Content-Type'] = 'application/json';
+    return fetch(RELAY + '/' + PROJECT + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, json: j || {} }; }); });
+  }
+  var COLL = {};
+  function readColl(file) {
+    return call('GET', '/data/' + file).then(function (r) {
+      if (r.status === 404) { COLL[file] = { raw: {}, docs: {}, sha: null }; return COLL[file]; }
+      if (r.status !== 200) throw new Error(file + ' could not be read (' + (r.json.error || r.status) + ')');
+      var d = r.json.data || {}; COLL[file] = { raw: d, docs: d.docs || {}, sha: r.json.sha || null }; return COLL[file];
+    });
+  }
+  function readFile(file) { return call('GET', '/data/' + file).then(function (r) { if (r.status === 404) return null; if (r.status !== 200) throw new Error(file + ' could not be read (' + (r.json.error || r.status) + ')'); return r.json.data; }); }
+  /* change(docs) edits a copy of the collection; on a conflict it is re-read and applied again */
+  function writeColl(file, change) {
+    function attempt(tries) {
+      var c = COLL[file] || { raw: {}, docs: {}, sha: null }, next = JSON.parse(JSON.stringify(c.docs || {}));
+      var verdict = change(next);
+      if (verdict === false) return Promise.resolve(false);
+      var content = Object.assign({}, c.raw || {}, { docs: next });
+      return call('PUT', '/data/' + file, { content: content, sha: c.sha }).then(function (r) {
+        if (r.status === 200) { COLL[file] = { raw: content, docs: next, sha: r.json.sha || c.sha }; return true; }
+        if (r.status === 409 && tries < 4) return readColl(file).then(function () { return attempt(tries + 1); });
+        if (r.status === 403) throw new Error('View only: not saved. Saving needs Edit access to the Certification Management System.');
+        throw new Error('Not saved (' + (r.json.error || r.status) + ').');
+      });
+    }
+    return attempt(0);
+  }
+
+  var CFG = null, MEMBERS = [], LOG = { docs: {}, inbox: {} }, me = null, canWrite = false;
+  function people() { return (COLL['db-ind-people'] || {}).docs || {}; }
+  function cycles() { return (COLL['db-ind-cycles'] || {}).docs || {}; }
+  function fullName(p) { return [p.first, p.last].filter(Boolean).join(' ').trim(); }
+  function personOf(c) { return people()[c.person] || {}; }
+  function cyclesOf(pid, program) { var all = cycles(); return Object.keys(all).filter(function (k) { return all[k].person === pid && (!program || all[k].program === program); }).map(function (k) { return Object.assign({ id: k }, all[k]); }); }
+  function prog(c) { return CFG.programs[c.program] || {}; }
+  function history(c, what) { (c.history = c.history || []).push({ at: new Date().toISOString(), by: me.name, what: what }); }
+  var STATUS = { InReview: 'Waiting for Review', Verified: 'Verified', Active: 'Active', Expired: 'Expired, Renewal in Progress', Lapsed: 'Lapsed', Closed: 'Renewed', Withdrawn: 'Withdrawn' };
+
+  /* ---- points: a copy of score() in cms-data .github/scripts/ind-score.js; keep the two the same ---- */
+  function addMonths(iso, n) { var d = new Date(String(iso).slice(0, 10) + 'T00:00:00Z'); d.setUTCMonth(d.getUTCMonth() + n); return d.toISOString().slice(0, 10); }
+  function score(cycle, cfg, asOf) {
+    var pr = (cfg.programs || {})[cycle.program] || {};
+    var rule = cycle.kind === 'renewal' ? (pr.renewal || {}) : (pr.new || {});
+    var acts = {}; (cfg.activities || []).forEach(function (a) { acts[a.code] = a; });
+    var windowFrom = rule.windowMonths ? addMonths(asOf || cycle.submittedAt || new Date().toISOString(), -rule.windowMonths) : null;
+    var lifted = !!(cycle.windowOverride && cycle.windowOverride.reason);
+    var participation = 0, education = 0, outside = 0;
+    var entries = (cycle.activities || []).map(function (e) {
+      var a = acts[e.code];
+      var units = e.units === '' || e.units == null ? 1 : Math.max(0, +e.units || 0);
+      var kind = a ? a.kind : null;
+      if (kind === 'by program') kind = pr.webinarAttendance || 'participation';
+      if (a && a.programs && a.programs.indexOf(cycle.program) < 0) kind = null;
+      if (kind === 'education' && rule.participationOnly) kind = null;
+      var old = !!(windowFrom && e.when && String(e.when).slice(0, 10) < windowFrom);
+      var counts = !!(a && kind && (!old || lifted) && !e.excluded);
+      var points = a ? a.points * units : 0;
+      if (counts) { if (kind === 'education') education += points; else participation += points; }
+      if (old && !lifted) outside++;
+      return { code: e.code, label: a ? a.label : (e.category || e.code || 'Unknown activity'), units: units, points: points, kind: kind, counts: counts, old: old, excluded: !!e.excluded };
+    });
+    var cap = rule.educationCap != null ? rule.educationCap : null;
+    var educationCounted = cap != null ? Math.min(education, cap) : education;
+    var total = participation + (rule.participationOnly ? 0 : educationCounted);
+    var short = [];
+    if (rule.total != null && total < rule.total) short.push((rule.total - total) + ' more point' + (rule.total - total === 1 ? '' : 's') + ' (needs ' + rule.total + ')');
+    if (rule.participation != null && participation < rule.participation) short.push((rule.participation - participation) + ' more participation point' + (rule.participation - participation === 1 ? '' : 's') + ' (needs ' + rule.participation + ')');
+    var pointsApply = rule.total != null || rule.participation != null;
+    return { participation: participation, education: education, educationCounted: educationCounted, educationCap: cap, total: total, ok: !pointsApply || !short.length, short: short, pointsApply: pointsApply, window: windowFrom ? { from: windowFrom, outside: outside, lifted: lifted } : null, entries: entries };
+  }
+
+  /* ---- Champion comps ---- */
+  var FREE = { 'gmail.com': 1, 'yahoo.com': 1, 'hotmail.com': 1, 'outlook.com': 1, 'aol.com': 1, 'icloud.com': 1, 'me.com': 1, 'msn.com': 1, 'live.com': 1, 'comcast.net': 1, 'att.net': 1, 'verizon.net': 1, 'protonmail.com': 1 };
+  function cleanCo(s) { return norm(s).replace(/[.,]/g, '').replace(/\b(inc|llc|corp|corporation|co|company|ltd|lp|the)\b/g, '').replace(/\s+/g, ' ').trim(); }
+  function memberFor(p) {
+    var dom = norm(p.email).split('@')[1] || '';
+    var byDom = dom && !FREE[dom] ? MEMBERS.filter(function (m) { return (m.domains || []).indexOf(dom) >= 0; }) : [];
+    if (byDom.length === 1) return Object.assign({ how: 'email domain' }, byDom[0]);
+    var co = cleanCo(p.company);
+    var byName = co ? MEMBERS.filter(function (m) { return cleanCo(m.name) === co; }) : [];
+    if (byName.length === 1) return Object.assign({ how: 'company name' }, byName[0]);
+    if (byDom.length > 1) return Object.assign({ how: 'email domain (several companies share it)' }, byDom[0]);
+    return null;
+  }
+  function allotment(level) { return ((CFG.champions || {}).allotment || {})[level] || 0; }
+  function compsUsed(aptifyId, year, exceptCycle) {
+    var all = cycles(), n = 0;
+    Object.keys(all).forEach(function (k) { var c = all[k]; if (k !== exceptCycle && c.comp && String(c.comp.aptifyId) === String(aptifyId) && String(c.comp.year) === String(year)) n++; });
+    var seed = ((CFG.champions || {}).seedUsed || {})[String(aptifyId)];
+    if (seed && String(year) === String(new Date().getFullYear())) n += +seed || 0;
+    return n;
+  }
+  function feeKeys(c) { return c.kind === 'renewal' ? ['renewal'] : (c.program === 'CMSP' ? ['enrollment', 'exam'] : ['enrollment']); }
+  function feesSettled(c) { var f = c.fees || {}; return feeKeys(c).every(function (k) { return f[k] && (f[k].status === 'paid' || f[k].status === 'comped'); }); }
+  /* applies a comp when the company is a member with comps left this calendar year; returns what it did */
+  function applyComp(c, on) {
+    if (c.comp) return null;
+    var f = c.fees || {};
+    if (feeKeys(c).every(function (k) { return f[k] && f[k].status === 'paid'; })) return null;
+    var m = memberFor(personOf(c));
+    if (!m) return null;
+    c.memberMatch = { name: m.name, aptifyId: m.aptifyId, level: m.level, how: m.how };
+    var year = String(on).slice(0, 4), allow = allotment(m.level);
+    if (!allow) return null;
+    var used = compsUsed(m.aptifyId, year, null);
+    if (used >= allow) { c.compNote = m.name + ' has used all ' + allow + ' of its ' + year + ' comps.'; return null; }
+    c.comp = { company: m.name, aptifyId: m.aptifyId, level: m.level, year: year, on: on, by: 'automatic', matchedBy: m.how };
+    feeKeys(c).forEach(function (k) { if (!f[k] || f[k].status !== 'paid') f[k] = { status: 'comped', on: on }; });
+    c.fees = f;
+    return m.name + ' (' + m.level + ', ' + (used + 1) + ' of ' + allow + ' for ' + year + ')';
+  }
+
+  /* ---- dates: when everything is in, the certification is issued ---- */
+  function lastCertified(c) {
+    return cyclesOf(c.person, c.program).filter(function (x) { return x.id !== c._id && x.certDate; }).sort(function (a, b) { return String(a.certDate).localeCompare(String(b.certDate)); }).pop();
+  }
+  function ready(c) {
+    if (c.certDate || !c.verified || c.status === 'Withdrawn') return false;
+    if (!feesSettled(c)) return false;
+    if (c.program === 'CMSP' && c.kind === 'new') return !!(c.exam && c.exam.passedOn);
+    return true;
+  }
+  /* the Certification Date: CMSP new = exam pass date; AMSP new = the day both checks were done;
+     renewal = current expiry + 1 day if completed on time, otherwise the day it was completed */
+  function issueDate(c, on) {
+    if (c.program === 'CMSP' && c.kind === 'new') return c.exam.passedOn;
+    if (c.kind === 'renewal') { var prev = lastCertified(c); if (prev && prev.expiry && on <= prev.expiry) return addDays(prev.expiry, 1); }
+    return on;
+  }
+  function issue(c, on) {
+    c.certDate = issueDate(c, on);
+    c.expiry = addDays(c.certDate, prog(c).termDays || 730);
+    c.status = 'Active';
+    c.issued = { at: new Date().toISOString(), by: me.name, on: on };
+    history(c, 'Certified on ' + longDate(c.certDate) + ', valid through ' + longDate(c.expiry) + '. The certificate and the ' + (c.kind === 'renewal' ? 'renewal successful' : 'congratulations') + ' email follow.');
+  }
+  function maybeIssue(c, on) { if (ready(c)) { issue(c, on); return true; } return false; }
+
+  /* ---- saving one cycle (or person) ---- */
+  function saveCycle(id, edit, done) {
+    return writeColl('db-ind-cycles', function (docs) {
+      var c = docs[id]; if (!c) return false;
+      c._id = id;
+      var v = edit(c);
+      delete c._id;
+      return v;
+    }).then(function (ok) { if (ok === false) toast('Nothing changed.', true); else if (done) toast(done); render(); return ok; })
+      .catch(function (e) { toast(e.message, true); });
+  }
+  function savePerson(id, edit, done) {
+    return writeColl('db-ind-people', function (docs) { var p = docs[id]; if (!p) return false; return edit(p, docs); })
+      .then(function (ok) { if (ok !== false && done) toast(done); render(); return ok; }).catch(function (e) { toast(e.message, true); });
+  }
+
+  /* ---- an inline form under a card ---- */
+  function ask(host, opts) {
+    var box = host.querySelector('.ask'); if (box) box.remove();
+    box = h('div', { class: 'ask' });
+    if (opts.intro) box.appendChild(h('div', { class: 'hint', text: opts.intro }));
+    var fields = {};
+    var row = h('div', { class: 'row2' });
+    (opts.fields || []).forEach(function (f) {
+      var inp;
+      if (f.type === 'select') { inp = h('select'); (f.options || []).forEach(function (o) { inp.appendChild(h('option', { value: o[0], text: o[1] })); }); if (f.value) inp.value = f.value; }
+      else if (f.type === 'textarea') inp = h('textarea', { value: f.value || '' });
+      else inp = h('input', { type: f.type || 'text', value: f.value || '' });
+      fields[f.key] = inp;
+      var wrap = h('div', { class: 'fld' }, h('label', { text: f.label + (f.required ? '' : ' (Optional)') }), inp, f.hint ? h('div', { class: 'hint', text: f.hint }) : null);
+      if (f.type === 'textarea') box.appendChild(wrap); else row.appendChild(wrap);
+    });
+    if (row.childNodes.length) box.insertBefore(row, box.querySelector('.fld textarea') ? box.querySelector('.fld textarea').parentNode : null);
+    var go = h('button', { class: 'btn ' + (opts.kind || ''), type: 'button', text: opts.button || 'Save', disabled: !canWrite });
+    var cancel = h('button', { class: 'btn ghost', type: 'button', text: 'Cancel', onclick: function () { box.remove(); } });
+    go.addEventListener('click', function () {
+      var vals = {}; var missing = [];
+      (opts.fields || []).forEach(function (f) { vals[f.key] = (fields[f.key].value || '').trim(); if (f.required && !vals[f.key]) missing.push(f.label); });
+      if (missing.length) { toast('Needed: ' + missing.join(', ') + '.', true); return; }
+      go.disabled = true;
+      Promise.resolve(opts.onsave(vals)).then(function () { box.remove(); }).catch(function (e) { toast(e.message || String(e), true); go.disabled = false; });
+    });
+    box.appendChild(h('div', { class: 'btnrow' }, go, cancel));
+    host.appendChild(box);
+    var first = box.querySelector('input,select,textarea'); if (first) first.focus();
+  }
+
+  /* ---- what a card shows ---- */
+  function chips(c) {
+    var out = [h('span', { class: 'chip', text: c.program + (c.kind === 'renewal' ? ' Renewal' : '') }), h('span', { class: 'pill ' + c.status, text: STATUS[c.status] || c.status })];
+    if (c.comp) out.push(h('span', { class: 'chip good', text: 'Champion Comp' }));
+    return out;
+  }
+  function pointsBlock(c, id, editable) {
+    var s = score(c, CFG, easternDate(c.submittedAt || new Date().toISOString()));
+    var wrap = h('div');
+    if (!s.pointsApply && !(c.activities || []).length) return wrap;
+    var tb = h('tbody');
+    s.entries.forEach(function (e, i) {
+      var a = c.activities[i];
+      var units = editable ? h('input', { type: 'number', min: '0', step: '1', value: a.units == null ? '' : a.units, title: 'How many', onchange: function (ev) { var v = ev.target.value; saveCycle(id, function (x) { x.activities[i].units = v === '' ? null : +v; refreshPoints(x); history(x, 'Changed ' + e.label + ' to ' + (v || 1) + '.'); }, 'Saved.'); } }) : String(e.units);
+      var keep = editable ? h('button', { class: 'mini', type: 'button', text: e.excluded ? 'Count It' : 'Leave Out', onclick: function () { saveCycle(id, function (x) { x.activities[i].excluded = !e.excluded; refreshPoints(x); history(x, (e.excluded ? 'Counted again: ' : 'Left out: ') + e.label + '.'); }, 'Saved.'); } }) : null;
+      tb.appendChild(h('tr', { class: e.counts ? '' : 'out' },
+        h('td', null, e.label, a.what ? h('div', { class: 'small', text: a.what }) : null),
+        h('td', { class: 'num', text: a.when ? longDate(a.when) : '' }),
+        h('td', { class: 'num keep' }, units),
+        h('td', { class: 'num', text: e.counts ? String(e.points) : (e.excluded ? 'left out' : (e.old ? 'too old' : '0')) }),
+        editable ? h('td', { class: 'keep' }, keep) : null));
+    });
+    if (s.entries.length) wrap.appendChild(h('table', { class: 'pts' }, h('thead', null, h('tr', null, h('th', { text: 'Activity' }), h('th', { text: 'Date' }), h('th', { text: 'How Many' }), h('th', { text: 'Points' }), editable ? h('th', null) : null)), tb));
+    if (s.pointsApply) {
+      var t = h('div', { class: 'tally' });
+      t.appendChild(h('span', null, 'Participation ', h('b', { text: String(s.participation) })));
+      if (c.program === 'CMSP') t.appendChild(h('span', null, 'Education ', h('b', { text: String(s.education) + (s.educationCap != null && s.education > s.educationCap ? ' (' + s.educationCap + ' count)' : '') })));
+      t.appendChild(h('span', null, 'Counted ', h('b', { text: String(s.total) })));
+      t.appendChild(s.ok ? h('span', { class: 'ok', text: 'Meets the threshold' }) : h('span', { class: 'short', text: 'Short: ' + s.short.join('; ') }));
+      if (s.window && s.window.outside) t.appendChild(h('span', { class: 'short', text: s.window.outside + ' older than 24 months' }));
+      if (s.window && s.window.lifted) t.appendChild(h('span', { class: 'ok', text: '24-month window lifted: ' + c.windowOverride.reason }));
+      wrap.appendChild(t);
+    }
+    return wrap;
+  }
+  function refreshPoints(c) { var s = score(c, CFG, easternDate(c.submittedAt || new Date().toISOString())); c.points = { participation: s.participation, education: s.education, counted: s.total, ok: s.ok, short: s.short, outsideWindow: s.window ? s.window.outside : 0 }; }
+  function facts(c) {
+    var p = personOf(c), f = [];
+    var fact = function (l, v) { if (v) f.push(h('div', { class: 'fact' }, h('label', { text: l }), h('div', null, v))); };
+    fact('Email', p.email || c.contact && c.contact.email);
+    fact('Company', p.company);
+    fact('Submitted', c.submittedAt ? longDate(easternDate(c.submittedAt)) : '');
+    if (c.member != null) fact('MISMO Member (Their Answer)', c.member ? 'Yes' : 'No');
+    if (c.memberMatch) fact('Member Company on Record', c.memberMatch.name + ' (' + c.memberMatch.level + ')');
+    if (c.reference) fact('Reference', c.reference.received ? 'Received from ' + c.reference.received.by + (c.reference.received.at ? ', ' + longDate(easternDate(c.reference.received.at)) : '') : (c.reference.name ? c.reference.name + (c.reference.position ? ', ' + c.reference.position : '') + ': not yet received' : (c.reference.note || 'None named')));
+    if (c.bootCamp) fact('Boot Camp Exam', (c.bootCamp.passedOn ? 'Passed ' + longDate(c.bootCamp.passedOn) + '. ' : '') + (c.bootCamp.proof ? c.bootCamp.proof + ' proof file(s): open them in SharePoint before verifying.' : (c.bootCamp.passed ? 'Checked in Smartsheet.' : 'No proof attached.')));
+    if (c.source && c.source.folder) fact('Files', 'SharePoint: Certification Applications/' + c.source.folder);
+    if (c.certDate) fact('Certified', longDate(c.certDate) + (c.expiry ? ', valid through ' + longDate(c.expiry) : ''));
+    return h('div', { class: 'facts' }, f);
+  }
+
+  /* ---- the to-do ---- */
+  function openCycles() { var all = cycles(); return Object.keys(all).map(function (k) { return Object.assign({ id: k }, all[k]); }).filter(function (c) { return ['InReview', 'Verified'].indexOf(c.status) >= 0 && !c.certDate; }); }
+  function unmatchedRefs() {
+    var joined = {}; var all = cycles();
+    Object.keys(all).forEach(function (k) { var r = all[k].reference; if (r && r.received && r.received.inbox) joined[r.received.inbox] = true; });
+    return Object.keys(LOG.inbox || {}).filter(function (id) { var r = LOG.inbox[id]; return r.reference && !r.cycle && !joined[id]; }).map(function (id) { return Object.assign({ id: id }, LOG.inbox[id]); });
+  }
+  function possibleDupes() { var ps = people(); return Object.keys(ps).filter(function (k) { return (ps[k].possibleSame || []).some(function (o) { return ps[o] && !(ps[k].notSame || []).includes(o); }); }); }
+
+  function reviewCard(c) {
+    var p = personOf(c), card = h('div', { class: 'card' + ((c.flags || []).length ? ' flagged' : '') });
+    card.appendChild(h('div', { class: 'chead' }, h('div', null, h('h3', { text: fullName(p) || fullName(c.contact) }), h('div', { class: 'what', text: (p.title ? p.title + ', ' : '') + (p.company || '') })), h('div', { class: 'right' }, chips(c))));
+    var body = h('div', { class: 'cbody' });
+    if ((c.flags || []).length) body.appendChild(h('ul', { class: 'flags' }, c.flags.map(function (f) { return h('li', { text: f }); })));
+    body.appendChild(facts(c));
+    body.appendChild(pointsBlock(c, c.id, canWrite));
+    var row = h('div', { class: 'btnrow' });
+    var verifyText = c.program === 'AMSP' && c.kind === 'new' ? 'Verify the Boot Camp Pass' : 'Verify';
+    row.appendChild(h('button', { class: 'btn good', type: 'button', text: verifyText, disabled: !canWrite, onclick: function () { verify(c, body); } }));
+    var s = score(c, CFG, easternDate(c.submittedAt || new Date().toISOString()));
+    if (s.window && (s.window.outside || s.window.lifted)) row.appendChild(h('button', { class: 'btn ghost', type: 'button', text: s.window.lifted ? 'Restore the 24-Month Window' : 'Lift the 24-Month Window', disabled: !canWrite, onclick: function () {
+      if (s.window.lifted) return saveCycle(c.id, function (x) { delete x.windowOverride; refreshPoints(x); history(x, 'The 24-month window applies again.'); }, 'The 24-month window applies again.');
+      ask(body, { intro: 'Counts this renewal\'s older activity, for extenuating circumstances. The reason is kept on the record.', fields: [{ key: 'reason', label: 'Reason', type: 'textarea', required: true }], button: 'Lift the Window',
+        onsave: function (v) { return saveCycle(c.id, function (x) { x.windowOverride = { by: me.name, at: new Date().toISOString(), reason: v.reason }; refreshPoints(x); history(x, '24-month window lifted: ' + v.reason); }, 'Window lifted.'); } });
+    } }));
+    row.appendChild(h('button', { class: 'btn ghost', type: 'button', text: 'Open the Person', onclick: function () { openPerson(c.person); } }));
+    row.appendChild(h('button', { class: 'btn bad', type: 'button', text: 'Withdraw', disabled: !canWrite, onclick: function () { withdraw(c, body); } }));
+    body.appendChild(row);
+    card.appendChild(body);
+    return card;
+  }
+  function verify(c, body) {
+    var s = score(c, CFG, easternDate(c.submittedAt || new Date().toISOString()));
+    var warn = [];
+    if (s.pointsApply && !s.ok) warn.push('It is short of the threshold: ' + s.short.join('; ') + '.');
+    if (c.reference && !c.reference.received) warn.push('No reference has been received.');
+    if (c.bootCamp && !c.bootCamp.proof && !c.bootCamp.passed) warn.push('No Boot Camp proof is attached.');
+    var fields = [{ key: 'on', label: 'Verified On', type: 'date', value: today(), required: true }];
+    if (warn.length) fields.push({ key: 'reason', label: 'Why It Is Verified Anyway', type: 'textarea', required: true });
+    else fields.push({ key: 'note', label: 'Note', type: 'textarea' });
+    var what = c.kind === 'renewal' ? 'the renewal-verified email with the renewal fee link' : (c.program === 'CMSP' ? 'the verified email with the enrollment and exam links' : 'the certificate as soon as the enrollment fee is recorded');
+    ask(body, { intro: (warn.length ? warn.join(' ') + ' ' : '') + 'Verifying sends ' + what + '. A Champion comp is applied on its own if the company has one left this year.', fields: fields, button: 'Verify', kind: 'good',
+      onsave: function (v) {
+        var compMsg = null, issued = false;
+        return saveCycle(c.id, function (x) {
+          x.verified = { on: v.on, at: new Date().toISOString(), by: me.name, note: v.note || v.reason || '' , override: v.reason || undefined };
+          x.status = 'Verified';
+          history(x, 'Verified' + (v.reason ? ' despite: ' + warn.join(' ') + ' Reason: ' + v.reason : (v.note ? ': ' + v.note : '.')));
+          compMsg = applyComp(x, v.on);
+          if (compMsg) history(x, 'Champion comp applied: ' + compMsg + '.');
+          if (x.program === 'AMSP' && x.kind === 'new' && x.bootCamp) x.bootCamp.passed = true;
+          issued = maybeIssue(x, v.on);
+        }, null).then(function (ok) { if (ok !== false) toast('Verified' + (compMsg ? '. Champion comp: ' + compMsg : '') + (issued ? '. Certified: the certificate and email follow.' : '.')); });
+      } });
+  }
+  function withdraw(c, body) {
+    ask(body, { intro: 'Takes it off the to-do with no email sent. It stays on the person\'s record.', fields: [{ key: 'reason', label: 'Reason', type: 'textarea', required: true }], button: 'Withdraw', kind: 'bad',
+      onsave: function (v) { return saveCycle(c.id, function (x) { x.status = 'Withdrawn'; x.withdrawn = { at: new Date().toISOString(), by: me.name, reason: v.reason }; history(x, 'Withdrawn: ' + v.reason); }, 'Withdrawn.'); } });
+  }
+  function feeLabel(k, c) { return k === 'renewal' ? 'Renewal Fee' : (k === 'exam' ? 'Exam Fee' : 'Enrollment Fee'); }
+  function feeAmount(k, c) {
+    var fees = prog(c).fees || {}, m = c.member === true || (c.member == null && !!c.memberMatch);
+    var t = fees[k]; if (!t) return '';
+    return money(m ? t.member : t.nonMember) + (m ? ' member' : ' non-member');
+  }
+  function waitingCard(c) {
+    var p = personOf(c), card = h('div', { class: 'card' });
+    card.appendChild(h('div', { class: 'chead' }, h('div', null, h('h3', { text: fullName(p) }), h('div', { class: 'what', text: (p.company || '') + (c.verified && (c.verified.on || c.verified.at) ? ' · verified ' + longDate(c.verified.on || (c.verified.at || '').slice(0, 10)) : (c.verified ? ' · verified in Smartsheet' : '')) })), h('div', { class: 'right' }, chips(c))));
+    var body = h('div', { class: 'cbody' });
+    var fees = h('div', { class: 'fees' });
+    feeKeys(c).forEach(function (k) {
+      var f = (c.fees || {})[k] || { status: 'due' };
+      var v = f.status === 'paid' ? 'Paid' + (f.on ? ' ' + longDate(f.on) : '') : f.status === 'comped' ? 'Champion comp' + (c.comp ? ': ' + c.comp.company : '') : f.status === 'claimed' ? 'Applicant says paid: check Aptify' : 'Due (' + feeAmount(k, c) + ')';
+      var box = h('div', { class: 'fee' }, h('div', { class: 't', text: feeLabel(k, c) }), h('div', { class: 'v', text: v }));
+      if (f.status !== 'paid' && f.status !== 'comped') box.appendChild(h('button', { class: 'mini', type: 'button', text: 'Record Paid', disabled: !canWrite, onclick: function () {
+        ask(body, { intro: 'Check the payment in Aptify first.', fields: [{ key: 'on', label: 'Paid On', type: 'date', value: today(), required: true }, { key: 'order', label: 'Aptify Order Number', type: 'text' }], button: 'Record Paid', kind: 'good',
+          onsave: function (vv) { var issued = false; return saveCycle(c.id, function (x) { x.fees = x.fees || {}; x.fees[k] = { status: 'paid', on: vv.on, order: vv.order || undefined, by: me.name }; history(x, feeLabel(k, x) + ' paid ' + longDate(vv.on) + (vv.order ? ' (order ' + vv.order + ')' : '') + '.'); issued = maybeIssue(x, vv.on); }, null).then(function (ok) { if (ok !== false) toast(issued ? 'Recorded. Certified: the certificate and email follow.' : 'Payment recorded.'); }); } });
+      } }));
+      else if (f.status === 'comped') box.appendChild(h('button', { class: 'mini', type: 'button', text: 'Remove the Comp', disabled: !canWrite, onclick: function () {
+        saveCycle(c.id, function (x) { feeKeys(x).forEach(function (kk) { if (x.fees[kk] && x.fees[kk].status === 'comped') x.fees[kk] = { status: 'due' }; }); history(x, 'Champion comp removed (' + (x.comp ? x.comp.company : '') + ').'); delete x.comp; }, 'Comp removed: the fee is due.');
+      } }));
+      fees.appendChild(box);
+    });
+    if (!c.comp && !feesSettled(c)) {
+      var m = memberFor(p);
+      var b = h('div', { class: 'fee' }, h('div', { class: 't', text: 'Champion Comp' }), h('div', { class: 'v', text: m ? m.name + ' (' + m.level + '): ' + Math.max(0, allotment(m.level) - compsUsed(m.aptifyId, today().slice(0, 4))) + ' left this year' : 'No member company matched' }));
+      b.appendChild(h('button', { class: 'mini', type: 'button', text: 'Apply a Comp', disabled: !canWrite, onclick: function () { compByHand(c, body); } }));
+      fees.appendChild(b);
+    }
+    if (c.program === 'CMSP' && c.kind === 'new') {
+      var e = c.exam || {};
+      var ex = h('div', { class: 'fee' }, h('div', { class: 't', text: 'CMSP Exam' }), h('div', { class: 'v', text: e.passedOn ? 'Passed ' + longDate(e.passedOn) : (e.accessFrom ? 'Access opened ' + longDate(e.accessFrom) + ', through ' + longDate(addDays(e.accessFrom, (prog(c).exam || {}).accessDays || 365)) : 'Not taken') }));
+      if (!e.accessFrom && !e.passedOn) ex.appendChild(h('button', { class: 'mini', type: 'button', text: 'Exam Access Opened', disabled: !canWrite, onclick: function () {
+        ask(body, { intro: 'When the exam purchase is processed in Aptify and TopClass access opens. Sends the exam-access email (access lasts a year from this date).', fields: [{ key: 'on', label: 'Access Opened On', type: 'date', value: today(), required: true }], button: 'Send Exam Access',
+          onsave: function (vv) { return saveCycle(c.id, function (x) { x.exam = Object.assign({}, x.exam || {}, { accessFrom: vv.on, accessAt: new Date().toISOString(), accessBy: me.name }); history(x, 'Exam access opened ' + longDate(vv.on) + '.'); }, 'Saved: the exam-access email follows.'); } });
+      } }));
+      if (!e.passedOn) ex.appendChild(h('button', { class: 'mini', type: 'button', text: 'Record Exam Passed', disabled: !canWrite, style: 'margin-left:6px', onclick: function () {
+        var warn = feesSettled(c) ? '' : 'The fees are not all recorded as paid; record them too, or the certification waits for them. ';
+        ask(body, { intro: warn + 'The Certification Date is the exam pass date.', fields: [{ key: 'on', label: 'Passed On', type: 'date', value: today(), required: true }], button: 'Record the Pass', kind: 'good',
+          onsave: function (vv) { var issued = false; return saveCycle(c.id, function (x) { x.exam = Object.assign({}, x.exam || {}, { passed: true, passedOn: vv.on, by: me.name }); history(x, 'Exam passed ' + longDate(vv.on) + '.'); issued = maybeIssue(x, today()); }, null).then(function (ok) { if (ok !== false) toast(issued ? 'Certified: the certificate and the congratulations email follow.' : 'Exam pass recorded.'); }); } });
+      } }));
+      fees.appendChild(ex);
+    }
+    body.appendChild(fees);
+    if (ready(c)) body.appendChild(h('div', { class: 'btnrow' }, h('button', { class: 'btn good', type: 'button', text: 'Certify Now', disabled: !canWrite, onclick: function () {
+      ask(body, { intro: c.kind === 'renewal' ? 'Everything is in. The new Certification Date follows the renewal rule: the day after the current expiry if completed on time, otherwise the completion date.' : 'Everything is in.', fields: [{ key: 'on', label: 'Completed On', type: 'date', value: today(), required: true }], button: 'Certify', kind: 'good',
+        onsave: function (vv) { return saveCycle(c.id, function (x) { x._id = c.id; issue(x, vv.on); }, 'Certified: the certificate and email follow.'); } });
+    } })));
+    body.appendChild(h('div', { class: 'btnrow' }, h('button', { class: 'btn ghost', type: 'button', text: 'Open the Person', onclick: function () { openPerson(c.person); } }), h('button', { class: 'btn bad', type: 'button', text: 'Withdraw', disabled: !canWrite, onclick: function () { withdraw(c, body); } })));
+    card.appendChild(body);
+    return card;
+  }
+  function compByHand(c, body) {
+    var opts = [['', 'Choose the company']].concat(MEMBERS.filter(function (m) { return allotment(m.level); }).sort(function (a, b) { return a.name.localeCompare(b.name); })
+      .map(function (m) { return [m.aptifyId, m.name + ' (' + m.level + ', ' + Math.max(0, allotment(m.level) - compsUsed(m.aptifyId, today().slice(0, 4))) + ' left)']; }));
+    ask(body, { intro: 'For when the person\'s company was not matched on its own. Uses one of the company\'s comps for this calendar year.', fields: [{ key: 'id', label: 'Company', type: 'select', options: opts, required: true }], button: 'Apply the Comp', kind: 'good',
+      onsave: function (v) {
+        var m = MEMBERS.filter(function (x) { return String(x.aptifyId) === v.id; })[0]; if (!m) throw new Error('Choose a company.');
+        var year = today().slice(0, 4), left = allotment(m.level) - compsUsed(m.aptifyId, year);
+        if (left <= 0) throw new Error(m.name + ' has no comps left for ' + year + '.');
+        var issued = false;
+        return saveCycle(c.id, function (x) {
+          x.comp = { company: m.name, aptifyId: m.aptifyId, level: m.level, year: year, on: today(), by: me.name, matchedBy: 'chosen by hand' };
+          x.memberMatch = { name: m.name, aptifyId: m.aptifyId, level: m.level, how: 'chosen by hand' };
+          x.fees = x.fees || {}; feeKeys(x).forEach(function (k) { if (!x.fees[k] || x.fees[k].status !== 'paid') x.fees[k] = { status: 'comped', on: today() }; });
+          history(x, 'Champion comp applied by hand: ' + m.name + '.');
+          issued = maybeIssue(x, today());
+        }, null).then(function (ok) { if (ok !== false) toast('Comp applied' + (issued ? '. Certified: the certificate and email follow.' : '.')); });
+      } });
+  }
+  function refCard(r) {
+    var card = h('div', { class: 'card flagged' });
+    card.appendChild(h('div', { class: 'chead' }, h('div', null, h('h3', { text: 'Reference for ' + (r.candidate.first + ' ' + r.candidate.last).trim() }), h('div', { class: 'what', text: 'From ' + r.by + (r.title ? ', ' + r.title : '') + (r.company ? ' (' + r.company + ')' : '') + ' · ' + longDate(easternDate(r.submittedAt)) }))));
+    var body = h('div', { class: 'cbody' });
+    body.appendChild(h('div', { class: 'hint', text: 'No open CMSP application matched it (candidate email ' + (r.candidate.email || 'not given') + '). Join it to the right one:' }));
+    var opts = [['', 'Choose the application']].concat(openCycles().filter(function (c) { return c.program === 'CMSP' && c.kind === 'new'; }).map(function (c) { return [c.id, fullName(personOf(c)) + ' (' + (personOf(c).company || '') + ')']; }));
+    body.appendChild(h('div', { class: 'btnrow' }, h('button', { class: 'btn', type: 'button', text: 'Join to an Application', disabled: !canWrite, onclick: function () {
+      ask(body, { fields: [{ key: 'id', label: 'Application', type: 'select', options: opts, required: true }], button: 'Join',
+        onsave: function (v) { return saveCycle(v.id, function (x) { x.reference = Object.assign({}, x.reference || {}, { received: { at: r.submittedAt, by: r.by, title: r.title, company: r.company, inbox: r.id, folder: r.folder } }); history(x, 'Reference from ' + r.by + ' joined by hand.'); }, 'Reference joined.'); } });
+    } })));
+    card.appendChild(body);
+    return card;
+  }
+  function dupeCard(pid) {
+    var ps = people(), p = ps[pid];
+    var card = h('div', { class: 'card' });
+    card.appendChild(h('div', { class: 'chead' }, h('div', null, h('h3', { text: 'Same Person? ' + fullName(p) }), h('div', { class: 'what', text: 'Two records share this name. Smartsheet kept them apart; confirm whether they are one person.' }))));
+    var body = h('div', { class: 'cbody' });
+    (p.possibleSame || []).filter(function (o) { return ps[o] && !(p.notSame || []).includes(o); }).forEach(function (o) {
+      var q = ps[o];
+      var line = function (x, id) { return h('div', { class: 'small' }, h('b', { text: fullName(x) }), ' · ' + (x.email || 'no email') + ' · ' + (x.company || '') + ' · ' + cyclesOf(id).map(function (c) { return c.program + ' ' + (STATUS[c.status] || c.status) + (c.certDate ? ' ' + c.certDate.slice(0, 4) : ''); }).join(', ')); };
+      body.appendChild(line(p, pid)); body.appendChild(line(q, o));
+      body.appendChild(h('div', { class: 'btnrow' },
+        h('button', { class: 'btn', type: 'button', text: 'Same Person: Combine', disabled: !canWrite, onclick: function () { merge(pid, o); } }),
+        h('button', { class: 'btn ghost', type: 'button', text: 'Different People', disabled: !canWrite, onclick: function () {
+          savePerson(pid, function (x, docs) { (x.notSame = x.notSame || []).push(o); if (docs[o]) (docs[o].notSame = docs[o].notSame || []).push(pid); }, 'Kept apart.');
+        } })));
+    });
+    card.appendChild(body);
+    return card;
+  }
+  /* the newer record's details win; every cycle moves to the person kept */
+  function merge(a, b) {
+    var ps = people(), pa = ps[a], pb = ps[b];
+    var la = cyclesOf(a).map(function (c) { return c.submittedAt || ''; }).sort().pop() || '', lb = cyclesOf(b).map(function (c) { return c.submittedAt || ''; }).sort().pop() || '';
+    var keep = la >= lb ? a : b, gone = keep === a ? b : a;
+    writeColl('db-ind-cycles', function (docs) { Object.keys(docs).forEach(function (k) { if (docs[k].person === gone) { docs[k].person = keep; (docs[k].history = docs[k].history || []).push({ at: new Date().toISOString(), by: me.name, what: 'Moved onto the combined person record.' }); } }); })
+      .then(function () { return writeColl('db-ind-people', function (docs) {
+        var k = docs[keep], g = docs[gone]; if (!k || !g) return false;
+        k.formerEmails = (k.formerEmails || []).concat(g.email ? [g.email] : [], g.formerEmails || []).filter(function (e, i, arr) { return e && e !== k.email && arr.indexOf(e) === i; });
+        k.programs = (k.programs || []).concat(g.programs || []).filter(function (x, i, arr) { return arr.indexOf(x) === i; });
+        k.possibleSame = (k.possibleSame || []).filter(function (x) { return x !== gone; });
+        k.mergedFrom = (k.mergedFrom || []).concat([{ id: gone, at: new Date().toISOString(), by: me.name, name: fullName(g), email: g.email }]);
+        delete docs[gone];
+        Object.keys(docs).forEach(function (o) { if (docs[o].possibleSame) docs[o].possibleSame = docs[o].possibleSame.map(function (x) { return x === gone ? keep : x; }).filter(function (x) { return x !== o; }); });
+      }); }).then(function () { toast('Combined into one person.'); render(); }).catch(function (e) { toast(e.message, true); });
+  }
+
+  /* ---- the person panel ---- */
+  var openPid = null;
+  var EMBED = root.classList.contains('embed');
+  function toTop() { try { if (EMBED && window.frameElement) window.frameElement.scrollIntoView({ block: 'start' }); else if (EMBED) window.scrollTo(0, 0); } catch (e) {} }
+  function openPerson(pid) { openPid = pid; paintPanel(); $('panel').className = 'panel on'; document.body.classList.add('person-open'); if (EMBED) toTop(); else $('panel').scrollTop = 0; }
+  function closePanel() { openPid = null; $('panel').className = 'panel'; document.body.classList.remove('person-open'); if (EMBED) toTop(); }
+  function paintPanel() {
+    var P = $('panel'); P.textContent = '';
+    if (!openPid) return;
+    var p = people()[openPid]; if (!p) { closePanel(); return; }
+    P.appendChild(h('button', { class: 'x', type: 'button', text: EMBED ? 'Back to the List' : 'Close', onclick: closePanel }));
+    P.appendChild(h('h1', { text: fullName(p) }));
+    P.appendChild(h('div', { class: 'vsub', text: [p.title, p.company, p.email].filter(Boolean).join(' · ') }));
+    var top = h('div');
+    top.appendChild(h('div', { class: 'btnrow' }, h('button', { class: 'btn ghost', type: 'button', text: 'Edit Details', disabled: !canWrite, onclick: function () {
+      ask(top, { fields: [{ key: 'first', label: 'First Name', value: p.first, required: true }, { key: 'last', label: 'Last Name', value: p.last, required: true }, { key: 'title', label: 'Title', value: p.title }, { key: 'company', label: 'Company', value: p.company }, { key: 'email', label: 'Email', type: 'email', value: p.email },
+        { key: 'hide', label: 'Public List', type: 'select', options: [['show', 'Listed when active'], ['hide', 'Not listed']], value: p.hidePublic ? 'hide' : 'show' }], button: 'Save',
+        onsave: function (v) { return savePerson(openPid, function (x) { if (v.email && norm(v.email) !== norm(x.email) && x.email) (x.formerEmails = x.formerEmails || []).push(norm(x.email)); x.first = v.first; x.last = v.last; x.title = v.title; x.company = v.company; x.email = norm(v.email); if (v.hide === 'hide') x.hidePublic = true; else delete x.hidePublic; (x.changes = x.changes || []).push({ at: new Date().toISOString(), by: me.name }); }, 'Saved.'); } });
+    } }), h('button', { class: 'btn ghost', type: 'button', text: 'Add an Application or Renewal by Hand', disabled: !canWrite, onclick: function () { addByHand(top); } })));
+    P.appendChild(top);
+    var cs = cyclesOf(openPid).sort(function (a, b) { return String(b.certDate || b.submittedAt || '').localeCompare(String(a.certDate || a.submittedAt || '')); });
+    cs.forEach(function (c) {
+      var card = h('div', { class: 'card' });
+      card.appendChild(h('div', { class: 'chead' }, h('div', null, h('h3', { text: c.program + (c.kind === 'renewal' ? ' Renewal' : '') + (c.certDate ? ', ' + longDate(c.certDate) : '') }), h('div', { class: 'what', text: c.source && c.source.type === 'smartsheet' ? 'From ' + c.source.sheet + ' row ' + c.source.row : 'Online form' })), h('div', { class: 'right' }, chips(c))));
+      var body = h('div', { class: 'cbody' });
+      body.appendChild(facts(c));
+      if (c.fees) body.appendChild(h('div', { class: 'small', text: 'Fees: ' + Object.keys(c.fees).map(function (k) { var f = c.fees[k]; return feeLabel(k, c) + ' ' + (f.status === 'comped' ? 'comped' : f.status) + (f.on ? ' ' + longDate(f.on) : ''); }).join('; ') + (c.comp ? '. Champion comp: ' + c.comp.company + ' (' + c.comp.year + ').' : '') }));
+      body.appendChild(pointsBlock(c, c.id, false));
+      if ((c.attachments || []).length) body.appendChild(h('div', { class: 'small', style: 'margin-top:8px' }, h('b', { text: 'Files: ' }), c.attachments.map(function (a) { return a.name + (a.date ? ' (' + a.date + ')' : ''); }).join('; '), h('div', { text: 'Smartsheet files stay in the archived ' + (c.program === 'CMSP' ? 'CMSP' : 'AMSP') + ' Master sheet; form files are in SharePoint.' })));
+      var row = h('div', { class: 'btnrow' });
+      if (c.certificate && c.certificate.path) row.appendChild(h('button', { class: 'btn', type: 'button', text: 'Download Certificate', onclick: function () { download(c); } }));
+      if (c.certDate && !c.certificate && ['Active', 'Expired'].indexOf(c.status) >= 0) row.appendChild(h('button', { class: 'btn ghost', type: 'button', text: c.certificateRequested ? 'Certificate Requested' : 'Make the Certificate', disabled: !canWrite || !!c.certificateRequested, onclick: function () {
+        saveCycle(c.id, function (x) { x.certificateRequested = { at: new Date().toISOString(), by: me.name }; history(x, 'Certificate requested.'); }, 'Requested: it appears here within a few minutes. No email is sent.');
+      } }));
+      if (c.certDate) row.appendChild(h('button', { class: 'btn ghost', type: 'button', text: 'Correct the Dates', disabled: !canWrite, onclick: function () {
+        ask(body, { intro: 'For correcting a record. No email is sent; a new certificate is made if there was one.', fields: [{ key: 'cert', label: 'Certification Date', type: 'date', value: c.certDate, required: true }, { key: 'exp', label: 'Valid Through', type: 'date', value: c.expiry, required: true }, { key: 'reason', label: 'Reason', type: 'textarea', required: true }], button: 'Save',
+          onsave: function (v) { return saveCycle(c.id, function (x) { history(x, 'Dates corrected from ' + x.certDate + ' / ' + x.expiry + ' to ' + v.cert + ' / ' + v.exp + ': ' + v.reason); x.certDate = v.cert; x.expiry = v.exp; if (x.certificate) x.certificateRequested = { at: new Date().toISOString(), by: me.name }; }, 'Dates corrected.'); } });
+      } }));
+      body.appendChild(row);
+      if ((c.history || []).length) body.appendChild(h('details', null, h('summary', { class: 'small', text: 'History (' + c.history.length + ')' }), h('ul', { class: 'hist' }, c.history.slice().reverse().map(function (x) { return h('li', { text: longDate(easternDate(x.at)) + ' · ' + x.by + ': ' + x.what }); }))));
+      card.appendChild(body);
+      P.appendChild(card);
+    });
+    var sent = Object.keys(LOG.docs || {}).map(function (k) { return LOG.docs[k]; }).filter(function (d) { return cs.some(function (c) { return c.id === d.cycle; }); }).sort(function (a, b) { return String(b.sentAt).localeCompare(String(a.sentAt)); });
+    if (sent.length) P.appendChild(h('details', { class: 'sect' }, h('summary', null, 'Emails Sent', h('span', { class: 'cnt', text: String(sent.length) })), h('div', { class: 'sbody' }, h('ul', { class: 'hist' }, sent.map(function (d) { return h('li', { text: longDate(easternDate(d.sentAt)) + ' · ' + d.subject + ' → ' + d.sentTo }); })))));
+  }
+  function addByHand(host) {
+    ask(host, { intro: 'For an application or renewal that came in some other way (by email, for instance). It goes on the to-do for review like any other.', fields: [
+      { key: 'program', label: 'Program', type: 'select', options: [['CMSP', 'CMSP'], ['AMSP', 'AMSP']], required: true },
+      { key: 'kind', label: 'Kind', type: 'select', options: [['renewal', 'Renewal'], ['new', 'New application']], required: true },
+      { key: 'on', label: 'Received On', type: 'date', value: today(), required: true },
+      { key: 'member', label: 'MISMO Member', type: 'select', options: [['', 'Not known'], ['yes', 'Yes'], ['no', 'No']] },
+      { key: 'note', label: 'Note', type: 'textarea' }], button: 'Add',
+      onsave: function (v) {
+        var id = 'c-hand-' + Date.now().toString(36);
+        var p = people()[openPid];
+        return writeColl('db-ind-cycles', function (docs) {
+          docs[id] = { person: openPid, program: v.program, kind: v.kind, seq: cyclesOf(openPid, v.program).length + 1, submittedAt: v.on + 'T12:00:00Z', source: { type: 'hand', by: me.name }, status: 'InReview',
+            contact: { first: p.first, last: p.last, title: p.title, company: p.company, email: p.email }, member: v.member === 'yes' ? true : (v.member === 'no' ? false : null), activities: [],
+            fees: v.kind === 'renewal' ? { renewal: { status: 'due' } } : (v.program === 'CMSP' ? { enrollment: { status: 'due' }, exam: { status: 'due' } } : { enrollment: { status: 'due' } }),
+            reference: v.program === 'CMSP' && v.kind === 'new' ? { received: null } : undefined, bootCamp: v.program === 'AMSP' && v.kind === 'new' ? { proof: 0 } : undefined,
+            flags: v.kind === 'renewal' ? ['Added by hand: enter the activity in the record before verifying, or verify on the evidence you have.'] : [],
+            history: [{ at: new Date().toISOString(), by: me.name, what: 'Added by hand.' + (v.note ? ' ' + v.note : '') }] };
+        }).then(function () { toast('Added. It is on the to-do.'); render(); });
+      } });
+  }
+  function download(c) {
+    toast('Getting the certificate…');
+    call('GET', '/file/' + c.certificate.path).then(function (r) {
+      if (r.status !== 200 || !r.json.content) throw new Error('The certificate could not be fetched (' + (r.json.error || r.status) + '). If it was made in the last few minutes, try again shortly.');
+      var bin = atob(String(r.json.content).replace(/\s/g, '')), bytes = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      var a = document.createElement('a'); a.href = url; a.download = c.certificate.name || 'Certificate.pdf'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+    }).catch(function (e) { toast(e.message, true); });
+  }
+
+  /* ---- views ---- */
+  var TAB = 'todo', QUERY = '';
+  try { TAB = sessionStorage.getItem('cms-individual:tab') || 'todo'; } catch (e) {}
+  function expiringSoon() { var t = today(); var all = cycles(); return Object.keys(all).map(function (k) { return Object.assign({ id: k }, all[k]); }).filter(function (c) { return c.status === 'Active' && c.expiry && daysApart(t, c.expiry) <= 90; }).sort(function (a, b) { return a.expiry.localeCompare(b.expiry); }); }
+  function renderStats() {
+    var all = cycles(), n = { CMSP: 0, AMSP: 0 }, lapsed = 0;
+    Object.keys(all).forEach(function (k) { var c = all[k]; if (c.status === 'Active') n[c.program]++; if (c.status === 'Lapsed') lapsed++; });
+    var S = $('stats'); S.textContent = '';
+    [[n.CMSP, 'Active CMSPs'], [n.AMSP, 'Active AMSPs'], [openCycles().filter(function (c) { return c.status === 'InReview'; }).length, 'Waiting for Review'], [openCycles().filter(function (c) { return c.status === 'Verified'; }).length, 'Waiting on Payment or Exam'], [expiringSoon().length, 'Expiring in 90 Days']]
+      .forEach(function (x) { S.appendChild(h('div', { class: 'stat' }, h('b', { text: String(x[0]) }), h('span', { text: x[1] }))); });
+  }
+  function renderTabs() {
+    var T = $('tabs'); T.textContent = '';
+    var todo = openCycles().length + unmatchedRefs().length + dupeLeads().length;
+    [['todo', 'To Do', todo, true], ['people', 'People'], ['expiring', 'Expiring and Lapsed', expiringSoon().length], ['comps', 'Champion Comps'], ['emails', 'Emails']].forEach(function (t) {
+      T.appendChild(h('button', { class: 'tab' + (TAB === t[0] ? ' on' : ''), type: 'button', role: 'tab', onclick: function () { TAB = t[0]; try { sessionStorage.setItem('cms-individual:tab', TAB); } catch (e) {} render(); } }, t[1], t[2] ? h('span', { class: 'n' + (t[3] ? ' warn' : ''), text: String(t[2]) }) : null));
+    });
+  }
+  /* one card per pair of possibly-same people */
+  function dupeLeads() { var arr = possibleDupes(), ps = people(); return arr.filter(function (k) { return !(ps[k].possibleSame || []).some(function (o) { return arr.indexOf(o) >= 0 && o < k; }); }); }
+  function group(title, n) { return h('div', { class: 'group' }, title + (n != null ? ' (' + n + ')' : '')); }
+  function viewTodo(V) {
+    var open = openCycles().sort(function (a, b) { return String(a.submittedAt || '').localeCompare(String(b.submittedAt || '')); });
+    var review = open.filter(function (c) { return c.status === 'InReview'; }), waiting = open.filter(function (c) { return c.status === 'Verified'; });
+    var refs = unmatchedRefs(), dupes = dupeLeads();
+    if (!open.length && !refs.length && !dupes.length) { V.appendChild(h('div', { class: 'empty' }, h('b', { text: 'Nothing to do.' }), 'New applications, renewals and references appear here as they arrive, and the program owner is emailed.')); return; }
+    if (review.length) { V.appendChild(group('Waiting for Review', review.length)); review.forEach(function (c) { V.appendChild(reviewCard(c)); }); }
+    if (waiting.length) { V.appendChild(group('Verified, Waiting on Payment or Exam', waiting.length)); waiting.forEach(function (c) { V.appendChild(waitingCard(c)); }); }
+    if (refs.length) { V.appendChild(group('References With No Application Matched', refs.length)); refs.forEach(function (r) { V.appendChild(refCard(r)); }); }
+    if (dupes.length) { V.appendChild(group('Possibly the Same Person', dupes.length)); dupes.forEach(function (k) { V.appendChild(dupeCard(k)); }); }
+  }
+  function viewPeople(V) {
+    var q = h('input', { class: 'search', type: 'search', placeholder: 'Search by name, company or email', value: QUERY });
+    V.appendChild(q);
+    var host = h('div'); V.appendChild(host);
+    function paint() {
+      host.textContent = '';
+      var ps = people(), Q = norm(QUERY);
+      var ids = Object.keys(ps).filter(function (k) { var p = ps[k]; return !Q || norm(fullName(p) + ' ' + p.company + ' ' + p.email + ' ' + (p.formerEmails || []).join(' ')).indexOf(Q) >= 0; })
+        .sort(function (a, b) { return (ps[a].last || '').localeCompare(ps[b].last || '') || (ps[a].first || '').localeCompare(ps[b].first || ''); });
+      var tb = h('tbody');
+      ids.slice(0, 400).forEach(function (k) {
+        var p = ps[k], cs = cyclesOf(k);
+        var cur = ['CMSP', 'AMSP'].map(function (pr) { var x = cs.filter(function (c) { return c.program === pr && c.status !== 'Withdrawn'; }).sort(function (a, b) { return String(a.certDate || a.submittedAt || '').localeCompare(String(b.certDate || b.submittedAt || '')); }); return x.pop(); }).filter(Boolean);
+        tb.appendChild(h('tr', { class: 'click', onclick: function () { openPerson(k); } },
+          h('td', null, h('b', { text: fullName(p) }), h('div', { class: 'small', text: p.email || 'no email on record' })),
+          h('td', { class: 'hide-s', text: p.company || '' }),
+          h('td', null, cur.map(function (c) { return h('div', null, h('span', { class: 'pill ' + c.status, text: c.program + ' ' + (STATUS[c.status] || c.status) }), c.expiry && ['Active', 'Expired', 'Lapsed'].indexOf(c.status) >= 0 ? h('span', { class: 'small', text: (c.status === 'Active' ? 'through ' : 'expired ') + longDate(c.expiry) }) : null); }))));
+      });
+      host.appendChild(h('table', { class: 'list' }, h('thead', null, h('tr', null, h('th', { text: 'Person' }), h('th', { class: 'hide-s', text: 'Company' }), h('th', { text: 'Certifications' }))), tb));
+      host.appendChild(h('div', { class: 'small', style: 'margin-top:8px', text: ids.length + ' of ' + Object.keys(ps).length + ' people' + (ids.length > 400 ? ' (the first 400 shown; search to narrow)' : '') + '.' }));
+    }
+    q.addEventListener('input', function () { QUERY = q.value; paint(); });
+    paint();
+  }
+  function viewExpiring(V) {
+    var soon = expiringSoon();
+    V.appendChild(group('Expiring in the Next 90 Days', soon.length));
+    if (!soon.length) V.appendChild(h('div', { class: 'empty', text: 'None.' }));
+    else {
+      var tb = h('tbody');
+      soon.forEach(function (c) {
+        var p = personOf(c), sent = (CFG.reminders.daysBefore || []).filter(function (n) { return LOG.docs['rem|' + c.id + '|' + n]; });
+        var renewing = cyclesOf(c.person, c.program).some(function (x) { return x.id !== c.id && x.kind === 'renewal' && ['InReview', 'Verified'].indexOf(x.status) >= 0; });
+        tb.appendChild(h('tr', { class: 'click', onclick: function () { openPerson(c.person); } }, h('td', null, h('b', { text: fullName(p) }), h('div', { class: 'small', text: p.company || '' })), h('td', { text: c.program }), h('td', { text: longDate(c.expiry) }),
+          h('td', { text: renewing ? 'Renewal submitted' : (sent.length ? sent.map(function (n) { return n ? n + '-day' : 'day-of'; }).join(', ') + ' sent' : (CFG.live && CFG.live.reminders ? 'None yet' : 'Reminders not switched on yet')) })));
+      });
+      V.appendChild(h('table', { class: 'list' }, h('thead', null, h('tr', null, h('th', { text: 'Person' }), h('th', { text: 'Program' }), h('th', { text: 'Expires' }), h('th', { text: 'Reminders' }))), tb));
+    }
+    var all = cycles(), lapsed = Object.keys(all).map(function (k) { return Object.assign({ id: k }, all[k]); }).filter(function (c) { return c.status === 'Lapsed' || c.status === 'Expired'; }).sort(function (a, b) { return String(b.expiry).localeCompare(String(a.expiry)); });
+    V.appendChild(group('Lapsed or Expired', lapsed.length));
+    var tb2 = h('tbody');
+    lapsed.forEach(function (c) { var p = personOf(c); tb2.appendChild(h('tr', { class: 'click', onclick: function () { openPerson(c.person); } }, h('td', null, h('b', { text: fullName(p) }), h('div', { class: 'small', text: p.company || '' })), h('td', { text: c.program }), h('td', { text: longDate(c.expiry) }), h('td', { text: STATUS[c.status] }))); });
+    V.appendChild(h('table', { class: 'list' }, h('thead', null, h('tr', null, h('th', { text: 'Person' }), h('th', { text: 'Program' }), h('th', { text: 'Expired' }), h('th', { text: 'Status' }))), tb2));
+    V.appendChild(h('div', { class: 'small', style: 'margin-top:8px', text: 'A lapsed CMSP or AMSP renews through the normal renewal form; there is no grace period or retake (Perry Williams, 27 Oct 2026).' }));
+  }
+  function viewComps(V) {
+    var year = today().slice(0, 4), all = cycles(), byCo = {};
+    Object.keys(all).forEach(function (k) { var c = all[k]; if (c.comp && String(c.comp.year) === year) (byCo[c.comp.aptifyId] = byCo[c.comp.aptifyId] || []).push(Object.assign({ id: k }, c)); });
+    V.appendChild(h('div', { class: 'banner' }, h('b', { text: 'How comps work. ' }), (CFG.champions || {}).covers + ' Allotments per calendar year: ' + Object.keys((CFG.champions || {}).allotment || {}).map(function (l) { return l + ' ' + CFG.champions.allotment[l]; }).join(', ') + '. Applied on their own at Verify when the person\'s company is matched by email domain or name. Membership levels as of ' + longDate((window.__membersAsOf || '')) + ' (Member 360).'));
+    var tb = h('tbody');
+    MEMBERS.filter(function (m) { return allotment(m.level) > 1 || byCo[m.aptifyId]; }).sort(function (a, b) { return (allotment(b.level) - allotment(a.level)) || a.name.localeCompare(b.name); }).forEach(function (m) {
+      var used = compsUsed(m.aptifyId, year), who = (byCo[m.aptifyId] || []).map(function (c) { return fullName(personOf(c)) + ' (' + c.program + (c.kind === 'renewal' ? ' renewal' : '') + ')'; });
+      tb.appendChild(h('tr', null, h('td', null, h('b', { text: m.name }), h('div', { class: 'small', text: 'Aptify ' + m.aptifyId })), h('td', { text: m.level }), h('td', { class: 'num', text: used + ' of ' + allotment(m.level) }), h('td', { class: 'small', text: who.join('; ') })));
+    });
+    V.appendChild(group('Champion Companies, ' + year));
+    V.appendChild(h('table', { class: 'list' }, h('thead', null, h('tr', null, h('th', { text: 'Company' }), h('th', { text: 'Level' }), h('th', { text: 'Used' }), h('th', { text: 'Who' }))), tb));
+    V.appendChild(h('div', { class: 'small', style: 'margin-top:8px', text: 'Corporate members (1 a year each) are not listed unless they have used theirs. Comps used before the move off Smartsheet are added from data/ind-config.json (champions.seedUsed).' }));
+  }
+  function viewEmails(V) {
+    var live = CFG.live || {};
+    V.appendChild(h('div', { class: 'banner' + (live.emails ? '' : ' bad') }, h('b', { text: live.emails ? 'Emails are on' + (live.emailsFrom ? ' (from ' + longDate(live.emailsFrom) + ')' : '') + '. ' : 'Emails are not switched on yet. ' }),
+      live.reminders ? 'Renewal reminders are on' + (live.remindersFrom ? ' (from ' + longDate(live.remindersFrom) + ')' : '') + '.' : 'Renewal reminders are still sent by Smartsheet until the switch-over.'));
+    V.appendChild(h('div', { class: 'hint', style: 'margin-bottom:12px', text: 'Wording that is not approved goes to certifications@mismo.org marked Held for Review instead of to the person. Placeholders in {{double braces}} are filled in for each person.' }));
+    var edits = (COLL['db-ind-templates'] || {}).docs || {};
+    (CFG.templates || []).forEach(function (t) {
+      var e = edits[t.id] || {}, approved = e.approved != null ? e.approved : t.approved;
+      var d = h('details', { class: 'sect' }, h('summary', null, h('span', { text: (t.title || t.id).replace(/\{\{[^}]+\}\}/g, function (m) { return m.replace(/[{}]/g, ''); }) }), t.internalOnly ? h('span', { class: 'chip off', text: 'To MISMO' }) : null, h('span', { class: 'chip ' + (approved ? 'good' : 'warn'), text: approved ? 'Approved' : 'Not Yet Approved' }), h('span', { class: 'cnt', text: t.replaces || '' })));
+      var b = h('div', { class: 'sbody' });
+      b.appendChild(h('div', { class: 'small', style: 'margin-top:10px', text: 'Subject' })); b.appendChild(h('div', { class: 'preview', text: e.subject || t.subject }));
+      b.appendChild(h('div', { class: 'small', text: 'Message' })); b.appendChild(h('div', { class: 'preview', text: e.body || t.body }));
+      if (!t.internalOnly) b.appendChild(h('div', { class: 'btnrow' }, h('button', { class: 'btn ' + (approved ? 'ghost' : 'good'), type: 'button', text: approved ? 'Withdraw Approval' : 'Approve This Wording', disabled: !canWrite, onclick: function () {
+        writeColl('db-ind-templates', function (docs) { docs[t.id] = Object.assign({}, docs[t.id] || {}, { approved: !approved, by: me.name, at: new Date().toISOString() }); }).then(function () { toast(approved ? 'Approval withdrawn.' : 'Approved.'); render(); }).catch(function (x) { toast(x.message, true); });
+      } }), h('button', { class: 'btn ghost', type: 'button', text: 'Edit the Wording', disabled: !canWrite, onclick: function () {
+        ask(b, { fields: [{ key: 'subject', label: 'Subject', value: e.subject || t.subject, required: true }, { key: 'body', label: 'Message', type: 'textarea', value: e.body || t.body, required: true }], button: 'Save the Wording',
+          onsave: function (v) { return writeColl('db-ind-templates', function (docs) { docs[t.id] = Object.assign({}, docs[t.id] || {}, { subject: v.subject, body: v.body, editedBy: me.name, editedAt: new Date().toISOString() }); }).then(function () { toast('Saved.'); render(); }); } });
+      } })));
+      d.appendChild(b);
+      V.appendChild(d);
+    });
+  }
+  function render() {
+    renderStats(); renderTabs();
+    var V = $('view'); V.textContent = '';
+    ({ todo: viewTodo, people: viewPeople, expiring: viewExpiring, comps: viewComps, emails: viewEmails }[TAB] || viewTodo)(V);
+    if (openPid) paintPanel();
+  }
+
+  /* ---- start ---- */
+  if (!RS || !RS.requireAccess) { $('view').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
+  RS.requireAccess(PROJECT, { toolName: 'CMSP & AMSP', eyebrow: 'Programs & Operations' }).then(function () {
+    if (RS.mount) RS.mount($('rs-account'));
+    var s = RS.current ? RS.current() : null; me = s ? { email: s.email, name: s.name || s.email } : { email: '', name: 'Someone' };
+    canWrite = !!(RS.canEdit && RS.canEdit(PROJECT));
+    return Promise.all([readFile('ind-config'), readFile('ind-members'), readColl('db-ind-people'), readColl('db-ind-cycles'), readColl('db-ind-templates'), readFile('db-ind-log').catch(function () { return null; })]);
+  }).then(function (res) {
+    CFG = res[0]; if (!CFG) throw new Error('data/ind-config.json is missing in cms-data.');
+    MEMBERS = (res[1] && res[1].members) || []; window.__membersAsOf = res[1] && res[1].asOf;
+    LOG = res[5] || { docs: {}, inbox: {} }; LOG.docs = LOG.docs || {}; LOG.inbox = LOG.inbox || {};
+    if (!canWrite) $('note').appendChild(h('div', { class: 'banner' }, h('b', { text: 'View only. ' }), 'Making changes needs Edit access to the Certification Management System.'));
+    render();
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && openPid) closePanel(); });
+    setInterval(function () {
+      if (document.hidden || document.querySelector('.ask')) return;
+      Promise.all([readColl('db-ind-cycles'), readColl('db-ind-people'), readFile('db-ind-log').catch(function () { return null; })]).then(function (r) { if (r[2]) LOG = r[2]; render(); }).catch(function () {});
+    }, 120000);
+  }).catch(function (e) {
+    if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;
+    $('view').innerHTML = ''; $('view').appendChild(h('div', { class: 'banner bad' }, h('b', { text: 'The records could not be loaded. ' }), String((e && e.message) || e), ' ', h('a', { href: '', text: 'Try again' })));
+  });
+})();
+</script>
+</body></html>

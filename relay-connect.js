@@ -217,7 +217,8 @@
     /* Renewals and Invoices are records now: everything to act on is on the Action Queue's to-do list (Jonna, 27 Oct 2026). */
     /* My Approvals, the Email Playbook and Help open inside the CMS, so the nav is always there
        (Jonna, 27 Oct 2026). Migration is gone from the nav: MACTS is fully moved over. */
-    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals'] },
+    /* CMSP & AMSP (27 Oct 2026): MISMO's individual certifications, off the CMSP and AMSP Master Smartsheets. */
+    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual'] },
     { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'counts'] },
     { label: 'Tracking', items: ['activity', 'emails'] },
     { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', 'playbook'] },
@@ -229,6 +230,8 @@
       icon: '<path d="M12 3.2 19.5 6v5.6c0 4.5-3.1 8.1-7.5 9.2-4.4-1.1-7.5-4.7-7.5-9.2V6Z"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8"/>' },
     playbook: { src: 'playbook.html?embed=1', label: 'Email Playbook', title: 'Every certification email and its wording',
       icon: '<path d="M4.5 4.5h6.2a2.3 2.3 0 0 1 2.3 2.3v13.7a2 2 0 0 0-2-2H4.5Z"/><path d="M19.5 4.5h-4.2A2.3 2.3 0 0 0 13 6.8v13.7a2 2 0 0 1 2-2h4.5Z"/>' },
+    individual: { src: 'individual.html?embed=1', label: 'CMSP & AMSP', title: 'Individual certifications: applications, renewals, certificates and reminders',
+      icon: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20.2c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/><path d="m15.6 3.6 1.2 1.2 2.4-2.4"/>' },
     help: { src: 'help.html?embed=1', label: 'Help', title: 'How the system and the certification process work',
       icon: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7"/><path d="M12 17h.01"/>' }
   };
