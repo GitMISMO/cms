@@ -2519,7 +2519,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <div class="fld"><label for="rn-prog">Program</label>
           <select class="pc-input" id="rn-prog"></select></div>
         <div class="fld rn-act">
-          <button class="lc-btn" type="button" id="rn-copy">Copy the Prompt</button>
+          <button class="lc-btn" type="button" id="rn-copy">Copy the Instructions</button>
           <span class="na-hint" id="rn-count"></span></div>
       </div>
       <div id="rn-caveat"></div>
@@ -2531,9 +2531,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
     <div class="panel">
       <div class="phead"><div>
-        <h2>The Prompt for Claude in Chrome</h2>
-        <p class="psub">One instruction covering every quotation above. Copy it, open Claude in
-          Chrome on Aptify, and paste. The standing part is yours to edit &mdash; change it once
+        <h2>Quotation Instructions</h2>
+        <p class="psub">One set of instructions covering every quotation above, ready to copy and
+          paste. The standing part is yours to edit &mdash; change it once
           and this browser remembers it.</p>
       </div></div>
       <div class="pc-lab">Standing Instructions</div>
@@ -7566,7 +7566,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        The notice goes out at the anniversary less 90 days; the quotation has to exist two
        weeks before that, so the date this page works to is the anniversary less 104 days.
        Nothing here writes to Aptify - it works out what each quotation should be and hands
-       the whole list to Claude in Chrome as one instruction. */
+       the whole list over as one set of instructions. */
     var QUOTE_LEAD = 104;
     var quotes = {};
     var renewWindow = 14;
@@ -8140,14 +8140,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     p.select();
                     try {
                         document.execCommand("copy");
-                        toast("Prompt copied. Paste it into Claude in Chrome.", "good");
+                        toast("Instructions copied.", "good");
                     } catch (e) {
-                        toast("Select the prompt and copy it.", "warn");
+                        toast("Select the instructions and copy them.", "warn");
                     }
                     p.setAttribute("readonly", "");
                 }
                 if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(p.value).then((function() {
-                    toast("Prompt copied. Paste it into Claude in Chrome.", "good");
+                    toast("Instructions copied.", "good");
                 }), fallback); else fallback();
             }));
         }
