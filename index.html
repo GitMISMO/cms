@@ -3820,7 +3820,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return "fu-quiet";
     }
     /* Nudge the Assessor (Jonna, 27 Oct 2026): written to assessor-nudges, sent by the stage-notices job. */
-    var tdNudges = {}, tdNudgeSent = {}, tdSubbed = false;
+    var tdNudges = {}, tdNudgeSent = {}, tdSubbed = false, tdNotes = {};
+    /* An assessor's progress note from the Assessor Portal (27 Oct 2026): the latest one for a cycle */
+    function assessorNoteOf(f) {
+        var best = null;
+        Object.keys(tdNotes).forEach((function(k) { var v = tdNotes[k]; if (v && String(v.row) === String(f.row) && (!best || String(v.at) > String(best.at))) best = v; }));
+        return best;
+    }
     function tdSubscribe() {
         if (tdSubbed || !db) return;
         tdSubbed = true;
@@ -3829,6 +3835,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 var n = {};
                 (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); }));
                 tdNudges = n;
+                renderTodo();
+            }), (function() {}));
+            db.collection("assessor-notes").onSnapshot((function(snap) {
+                var n = {};
+                (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); }));
+                tdNotes = n;
                 renderTodo();
             }), (function() {}));
             db.collection("stage-notice-log").onSnapshot((function(snap) {
@@ -4039,6 +4051,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null;
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the MACTS follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
                 + (fuPaymentLine(f, fx.reason) ? '<div class="td-meta">' + esc(fuPaymentLine(f, fx.reason)) + "</div>" : "")
+                + (assessorNoteOf(f) ? '<div class="td-meta"><b>Assessor\u2019s note ' + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
+                    + (assessorNoteOf(f).nextOn ? " \u00b7 next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") + "</div>" : "")
                 + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "") + "</div>";
             return tdItem(key, head, canWrite ? (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor") + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
@@ -4426,6 +4440,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (l) return { kind: "list", reason: l.what || l.reason || "On the follow-up list", nextOn: null, severity: l.severity };
         var w = String((fuStateDef(f).waiting) || f.waiting || "");
         var days = fuDaysInState(f);
+        var an = assessorNoteOf(f);
+        if (an && an.nextOn && an.nextOn >= fuToday()) return null;
+        if (an && an.at) { var nd0 = Math.floor((Date.now() - new Date(an.at).getTime()) / 864e5); if (days == null || nd0 < days) days = nd0; }
         if (/company/i.test(w) && !/mismo/i.test(w) && days != null && days >= FU_STALE_DAYS)
             return { kind: "auto", reason: "No movement from the company in " + days + " days", nextOn: null, days: days };
         return null;
@@ -4469,7 +4486,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<div class="pc-lab">Follow Up</div><div class="qwatch">' + esc(x.reason || "On the follow-up list")
                 + (x.nextOn ? " &middot; chase again " + esc(fmt(x.nextOn)) : "")
                 + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the MACTS follow-up list" : (x.by ? " &middot; " + esc(x.by) : ""))
-                + (fuPaymentLine(f, x.reason) ? "<br>" + esc(fuPaymentLine(f, x.reason)) : "") + "</div>"
+                + (fuPaymentLine(f, x.reason) ? "<br>" + esc(fuPaymentLine(f, x.reason)) : "")
+                + (assessorNoteOf(f) ? "<br><b>Assessor\u2019s note " + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
+                    + (assessorNoteOf(f).nextOn ? " &middot; next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") : "") + "</div>"
                 + '<div class="na-acts" style="margin:8px 0 14px">'
                 + (canWrite ? '<button class="lc-btn" type="button" data-fuclear="' + f.row + '">Back to Active</button>'
                     + '<button class="lc-btn ghost" type="button" data-fuedit="' + f.row + '">Change the Reason or Date</button>' + '<button class="lc-btn ghost" type="button" data-tdprospect="' + f.row + '">Move to Prospects</button>' : "")
