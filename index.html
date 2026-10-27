@@ -4248,7 +4248,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 if (!f || !v) return;
                 t.blur();
                 if (c) editCert(c, { assessor: v }, null);
-                else { f.assessor = v; toast(f.org + " — assessor set to " + v + ".", "good"); }
+                else {
+                    f.assessor = v;
+                    moves[f.row] = Object.assign({ state: currentState(f) }, moves[f.row], { assessor: v });
+                    var aen = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "edit",
+                        note: "Assessor set to " + v, reason: null, at: (new Date).toISOString(), by: me && me.name ? me.name : "You" };
+                    activity.unshift(aen);
+                    persist(f.row, aen);
+                    toast(f.org + " — assessor set to " + v + ".", "good");
+                }
                 tdPending = false;
                 renderAll();
             }
@@ -8446,6 +8454,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body) next[+doc.id] = body;
                 }));
                 moves = next;
+                Object.keys(moves).forEach((function(r) {
+                    var m = moves[r], cf = m && m.assessor ? byRow(+r) : null;
+                    if (cf) cf.assessor = m.assessor;
+                }));
                 renderPipe();
                 renderQueueCounts();
             }), (function() {
@@ -13307,5 +13319,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-10-27c"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-10-27d"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>

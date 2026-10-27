@@ -311,7 +311,7 @@
       call('GET', '/data/mismo-money-approvals').then(function (r) {
         var d = r.json && r.json.data || {};
         var n = d.approvals ? Object.keys(d.approvals).length : 0;
-        paint('ms-out', 'Sent', d.writtenAt || null, n ? n + ' approvals' : '', 30);
+        paint('ms-out', 'Sent', d.writtenAt || null, n ? n + ' approvals' : '', Infinity); // the date approvals last changed: never "older than expected" (27 Oct 2026)
       }, function () { paint('ms-out', 'Sent', null, '', 30); });
     } catch (e) { if (window.console) console.error('MISMO Money sync:', e); }
   }
