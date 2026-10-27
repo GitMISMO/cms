@@ -3893,12 +3893,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function tdProspect(name) { return tdOrgStatus(name) === "prospect"; }
     function tdOpen(f) { return !fuClosed(f) && !tdProspect(f.org); }
+    /* A company as the Companies list should show it: the saved corrections (Aptify ID, contact,
+       status and every other company field) over the base record. */
     function tdEffOrg(o) {
         var e = orgEdits[orgSlug(o.name)] || {};
-        if (!e.status || e.status === o.status) return o;
+        if (!Object.keys(e).length) return o;
         var out = {};
         for (var k in o) out[k] = o[k];
-        out.status = e.status;
+        ORG_FIELDS.forEach((function(f) { if (e[f.k] !== undefined) out[f.k] = e[f.k]; }));
+        if (e.status) out.status = e.status;
         return out;
     }
     function tdDays(f) { var d = fuDaysInState(f); return d == null ? "" : d <= 0 ? "moved today" : d === 1 ? "1 day" : d + " days"; }
@@ -8361,6 +8364,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderRenewals();
         renderNotices();
         renderNoticeLog();
+        if (typeof orgFilters !== "undefined" && orgFilters && $("orglist")) renderOrgs();
         renderPanel();
     }
     document.addEventListener("keydown", (function(e) {
