@@ -5,7 +5,8 @@ findings, remediation target, payment details and anything else recorded earlier
 the next move. Now a move keeps them, and changes only the stage, reason, note, who and when.
 
 The one exception is the demonstration date: moving back to choosing a date (a reschedule)
-clears it, so an old date is never shown as booked. My Approvals (approvals.html) does the
+clears it, so an old date is never shown as booked, and opening a new round of remediation
+clears the old remediation target (the company gives a new one on its remediation page). My Approvals (approvals.html) does the
 same. Applied by export-from-artifact.py; every anchor must be found exactly once.
 """
 
@@ -23,6 +24,7 @@ OLD = '''        moves[f.row] = {
 NEW = '''        var kept = {};
         if (moves[f.row]) for (var kk in moves[f.row]) if ([ "state", "reason", "note", "by", "at", "decidedOn" ].indexOf(kk) < 0) kept[kk] = moves[f.row][kk];
         if ([ "AwaitingDemoSelection", "PreAssessmentDiscussion", "DemoProposed" ].indexOf(toState) >= 0) delete kept.demoOn;
+        if (toState === "RemediationOpen") { delete kept.remediationTarget; delete kept.remediationTargetBy; }
         kept.state = toState;
         kept.reason = reason || null;
         kept.note = note || null;
