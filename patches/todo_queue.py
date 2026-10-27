@@ -173,12 +173,15 @@ MODULE = r'''
     }
     function tdProspect(name) { return tdOrgStatus(name) === "prospect"; }
     function tdOpen(f) { return !fuClosed(f) && !tdProspect(f.org); }
+    /* A company as the Companies list should show it: the saved corrections (Aptify ID, contact,
+       status and every other company field) over the base record. */
     function tdEffOrg(o) {
         var e = orgEdits[orgSlug(o.name)] || {};
-        if (!e.status || e.status === o.status) return o;
+        if (!Object.keys(e).length) return o;
         var out = {};
         for (var k in o) out[k] = o[k];
-        out.status = e.status;
+        ORG_FIELDS.forEach((function(f) { if (e[f.k] !== undefined) out[f.k] = e[f.k]; }));
+        if (e.status) out.status = e.status;
         return out;
     }
     function tdDays(f) { var d = fuDaysInState(f); return d == null ? "" : d <= 0 ? "moved today" : d === 1 ? "1 day" : d + " days"; }
@@ -613,6 +616,13 @@ def apply(s):
     # --- a company's status reads the edit as well as the base record ---
     s = once(s, 'var list = D.organizations.filter((function(o) {', 'var list = D.organizations.map(tdEffOrg).filter((function(o) {')
     s = once(s, '        out.inactive = e.status === "inactive";', '        if (e.status) out.status = e.status;\n        out.inactive = e.status === "inactive";')
+    # --- the Companies list redraws whenever company edits change (it used to draw once, at load) ---
+    s = once(s, """        renderNoticeLog();
+        renderPanel();
+    }""", """        renderNoticeLog();
+        if (typeof orgFilters !== "undefined" && orgFilters && $("orglist")) renderOrgs();
+        renderPanel();
+    }""")
     # --- an application started for a prospect makes them active again ---
     s = once(s, '        newApp = null;\n        toast(body.org + " added to the board.");',
                 '        newApp = null;\n        if (tdProspect(body.org)) editOrg(body.org, { status: "active", statusReason: null, statusSince: null }, "back from Prospects: application started");\n'
