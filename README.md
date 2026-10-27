@@ -181,7 +181,11 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
   (Certification Applications/Mark License Agreements, filed by company). The index is
   `data/mark-license-files.json` in cms-data, read by `relay-connect.js` as an optional file.
 
-`index.html` as committed has all five applied.
+- `zz_keep_cycle_details.py`: a stage move keeps the cycle's earlier details (demo date,
+  findings, remediation target, payment) instead of replacing the whole record. Moving back to
+  choosing a demo date clears the old date. My Approvals does the same.
+
+`index.html` as committed has all six applied.
 
 `relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
 Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count

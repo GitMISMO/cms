@@ -460,7 +460,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var now = (docs[row] && docs[row].state) || c.state;
         if (now !== current(c).state) { from = now; return false; }    /* someone else moved it meanwhile */
         from = now; before = docs[row] ? JSON.parse(JSON.stringify(docs[row])) : null;
-        docs[row] = body;
+        /* keep what was already recorded on the cycle (demo date, findings, target...), change only the stage */
+        var keep = docs[row] ? JSON.parse(JSON.stringify(docs[row])) : {};
+        ['state', 'reason', 'note', 'by', 'at', 'decidedOn'].forEach(function (k) { delete keep[k]; });
+        for (var k in body) keep[k] = body[k];
+        docs[row] = keep;
       });
     }).then(function (ok) {
       if (ok === false) {

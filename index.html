@@ -5239,13 +5239,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             from: from,
             to: toState
         });
-        moves[f.row] = {
-            state: toState,
-            reason: reason || null,
-            note: note || null,
-            by: entry.by,
-            at: entry.at
-        };
+        var kept = {};
+        if (moves[f.row]) for (var kk in moves[f.row]) if ([ "state", "reason", "note", "by", "at", "decidedOn" ].indexOf(kk) < 0) kept[kk] = moves[f.row][kk];
+        if ([ "AwaitingDemoSelection", "PreAssessmentDiscussion", "DemoProposed" ].indexOf(toState) >= 0) delete kept.demoOn;
+        kept.state = toState;
+        kept.reason = reason || null;
+        kept.note = note || null;
+        kept.by = entry.by;
+        kept.at = entry.at;
+        moves[f.row] = kept;
         lastChange = entry;
         activity.unshift(entry);
         persist(f.row, entry);
