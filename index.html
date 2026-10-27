@@ -3816,6 +3816,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         loadInvoice(key, (function() { setTimeout((function() { renderTodo(); renderQueueCounts(); }), 0); }));
     }
     var tdPending = false;
+    /* A renewal whose cycle has already got past payment (demo booked, results in, and so on), or
+       carries its own invoice, was invoiced and paid - in MACTS if not here. */
+    function tdCyclePaid(c) {
+        var f = openCycleFor(certKey(c));
+        if (!f || fuClosed(f)) return false;
+        var pre = [ "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "DocumentsRequested", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ];
+        return pre.indexOf(currentState(f)) < 0 || !!f.invoiceDate || !!f.paid;
+    }
     function tdOrgStatus(name) {
         var e = orgEdits[orgSlug(name)] || {};
         if (e.status) return e.status;
@@ -7586,7 +7594,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             /* An Aptify number on an old MACTS row belongs to the cycle before (checked against the
                export, 25 Oct 2026). This renewal counts as invoiced only once its invoice is recorded
                here, the same test the weekly Invoices to Raise email uses. */
-            var inv = quoteRaised(q) ? invoiceForRenewal(c) : null;
+            var inv = quoteRaised(q) || tdCyclePaid(c) ? invoiceForRenewal(c) : null;
             return {
                 key: key,
                 cert: c,
