@@ -4038,6 +4038,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (key.indexOf("fu-") === 0) {
             var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null;
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the MACTS follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
+                + (fuPaymentLine(f, fx.reason) ? '<div class="td-meta">' + esc(fuPaymentLine(f, fx.reason)) + "</div>" : "")
                 + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "") + "</div>";
             return tdItem(key, head, canWrite ? (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor") + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
@@ -4396,13 +4397,32 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var cl = followUpDocs["org-" + s];
         return cl && cl.active === false ? null : hit;
     }
+    /* A follow-up about an unpaid invoice ends itself once the daily check finds the money
+       (27 Oct 2026: one sat on the queue as unpaid three weeks after it was paid by card). Until
+       then it says what the daily check last found, so nobody has to check Aptify by hand. */
+    function fuIsPayment(reason) { return /unpaid|not paid|payment|awaiting pay|invoice outstanding|chase .*pay/i.test(String(reason || "")); }
+    function fuPayment(f) {
+        var inv = invoices[f.row] || invoices[String(f.row)] || {};
+        var num = inv.orderId || f.invoiceNumber || null;
+        var fp = fsPaid(num);
+        var paid = !!(inv.paid || f.paid || fp);
+        return { number: num, paid: paid, paidOn: inv.paidOn || (fp && fp.paidOn) || f.paidOn || null, checkedAt: finance && finance.at || null };
+    }
+    function fuPaymentLine(f, reason) {
+        if (!fuIsPayment(reason)) return "";
+        var pm = fuPayment(f);
+        if (pm.paid) return "Paid" + (pm.paidOn ? " " + fmt(pm.paidOn) : "") + (pm.number ? ", order " + pm.number : "");
+        if (!pm.number) return "No Aptify order number on record, so the daily payment check cannot look for it. Add the order number to the invoice.";
+        return "Daily payment check" + (pm.checkedAt ? " " + fmt(pm.checkedAt) : "") + ": no payment yet against order " + pm.number + ".";
+    }
     function followUpOf(f) {
         if (fuClosed(f) || fuHeld(f)) return null;
         var st = currentState(f);
         var d = followUpDocs[String(f.row)];
-        if (d && d.active) return { kind: "manual", reason: d.reason || "", nextOn: d.nextOn || null, by: d.by || "", at: d.at || null };
+        if (d && d.active && !(fuIsPayment(d.reason) && fuPayment(f).paid)) return { kind: "manual", reason: d.reason || "", nextOn: d.nextOn || null, by: d.by || "", at: d.at || null };
         if (d && d.active === false && d.clearedState === st) return null;
         var l = fuListEntry(f);
+        if (l && fuIsPayment(l.what || l.reason) && fuPayment(f).paid) l = null;
         if (l) return { kind: "list", reason: l.what || l.reason || "On the follow-up list", nextOn: null, severity: l.severity };
         var w = String((fuStateDef(f).waiting) || f.waiting || "");
         var days = fuDaysInState(f);
@@ -4448,7 +4468,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (x) {
             return '<div class="pc-lab">Follow Up</div><div class="qwatch">' + esc(x.reason || "On the follow-up list")
                 + (x.nextOn ? " &middot; chase again " + esc(fmt(x.nextOn)) : "")
-                + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the MACTS follow-up list" : (x.by ? " &middot; " + esc(x.by) : "")) + "</div>"
+                + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the MACTS follow-up list" : (x.by ? " &middot; " + esc(x.by) : ""))
+                + (fuPaymentLine(f, x.reason) ? "<br>" + esc(fuPaymentLine(f, x.reason)) : "") + "</div>"
                 + '<div class="na-acts" style="margin:8px 0 14px">'
                 + (canWrite ? '<button class="lc-btn" type="button" data-fuclear="' + f.row + '">Back to Active</button>'
                     + '<button class="lc-btn ghost" type="button" data-fuedit="' + f.row + '">Change the Reason or Date</button>' + '<button class="lc-btn ghost" type="button" data-tdprospect="' + f.row + '">Move to Prospects</button>' : "")
