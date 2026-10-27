@@ -175,6 +175,11 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
     company to prospect in `org-edits`. Start Application makes them active again once saved.
   - The numbers, the phase board and the script reference are folded at the foot of the page.
   - The nav count is the to-do count.
+  - Follow Up is split: Assessor to Chase (with Nudge the Assessor, sent by the stage-notices job
+    from `data/db-assessor-nudges.json`), Unpaid Invoice, Demo Not Booked, Gone Quiet.
+  - All Open Work by Stage is a folded list at the foot of the to-do; the old phase cards are gone.
+  - Renewals and Invoices sit under Records and Reporting in the nav, with no counts: what to act
+    on from them is on the to-do.
 
 - `zz_mark_license_files.py`: a certification's Mark License section lists the signed copies
   MACTS held for that company and program, opening the PDF in SharePoint

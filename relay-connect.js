@@ -211,8 +211,9 @@
      A count of nothing is not shown: a badge only appears when there is something to do.
      Done here, after the page has run, so a rebuild of index.html from the artifact keeps it. */
   var NAV = [
-    { label: 'Daily Work', items: ['queue', 'renewals', 'invoices', 'assessors', '@approvals'] },
-    { label: 'Companies and Reporting', items: ['records', 'counts'] },
+    /* Renewals and Invoices are records now: everything to act on is on the Action Queue's to-do list (Jonna, 27 Oct 2026). */
+    { label: 'Daily Work', items: ['queue', 'assessors', '@approvals'] },
+    { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'counts'] },
     { label: 'Tracking', items: ['activity', 'emails'] },
     { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', '@playbook', 'load'] }
   ];
@@ -255,7 +256,7 @@
   function hideZeroCounts() {
     try {
       var st = document.createElement('style');
-      st.textContent = '.navlink .pip.zero{display:none !important} a.navlink{text-decoration:none; box-sizing:border-box}';
+      st.textContent = '.navlink .pip.zero{display:none !important} a.navlink{text-decoration:none; box-sizing:border-box} .navlink[data-view="renewals"] .pip, .navlink[data-view="invoices"] .pip{display:none !important}';
       document.head.appendChild(st);
       var pips = document.querySelectorAll('.navlink .pip');
       var paint = function (p) { var t = (p.textContent || '').trim(); p.classList.toggle('zero', t === '' || t === '0'); };

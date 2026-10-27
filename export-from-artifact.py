@@ -41,7 +41,7 @@ KEEP = {
 
 APP_OPEN = '<script type="text/x-cms-app" id="cms-app">'
 SESSION = '<script src="/assets/session.js"></script>'
-RELAY = ('<script src="relay-connect.js?v=2026-10-26b"></script>'
+RELAY = ('<script src="relay-connect.js?v=2026-10-27a"></script>'
          '  <!-- resources.mismo.org: sign-in, records and saving through the relay -->')
 ACCOUNT = '<span id="rs-account"></span>'
 
