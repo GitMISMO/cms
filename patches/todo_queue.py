@@ -96,6 +96,14 @@ MODULE = r'''
         loadInvoice(key, (function() { setTimeout((function() { renderTodo(); renderQueueCounts(); }), 0); }));
     }
     var tdPending = false;
+    /* A renewal whose cycle has already got past payment (demo booked, results in, and so on), or
+       carries its own invoice, was invoiced and paid - in MACTS if not here. */
+    function tdCyclePaid(c) {
+        var f = openCycleFor(certKey(c));
+        if (!f || fuClosed(f)) return false;
+        var pre = [ "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "DocumentsRequested", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ];
+        return pre.indexOf(currentState(f)) < 0 || !!f.invoiceDate || !!f.paid;
+    }
     function tdOrgStatus(name) {
         var e = orgEdits[orgSlug(name)] || {};
         if (e.status) return e.status;
@@ -535,7 +543,7 @@ def apply(s):
             /* An Aptify number on an old MACTS row belongs to the cycle before (checked against the
                export, 25 Oct 2026). This renewal counts as invoiced only once its invoice is recorded
                here, the same test the weekly Invoices to Raise email uses. */
-            var inv = quoteRaised(q) ? invoiceForRenewal(c) : null;""")
+            var inv = quoteRaised(q) || tdCyclePaid(c) ? invoiceForRenewal(c) : null;""")
     # --- the renewal panel's Mark as Sent kept losing the link's token ---
     s = once(s, '                quotes[panel.key] = body;',
                 '                if (quotes[panel.key] && quotes[panel.key].token) body.token = quotes[panel.key].token;\n                quotes[panel.key] = body;')
