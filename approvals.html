@@ -463,6 +463,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* keep what was already recorded on the cycle (demo date, findings, target...), change only the stage */
         var keep = docs[row] ? JSON.parse(JSON.stringify(docs[row])) : {};
         ['state', 'reason', 'note', 'by', 'at', 'decidedOn'].forEach(function (k) { delete keep[k]; });
+        if (d.to === 'RemediationOpen') { delete keep.remediationTarget; delete keep.remediationTargetBy; }   /* a new round starts with no target */
         for (var k in body) keep[k] = body[k];
         docs[row] = keep;
       });
