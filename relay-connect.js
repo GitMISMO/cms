@@ -73,6 +73,8 @@
     Object.keys(FILES).forEach(function (k) { jobs.push(readData(FILES[k]).then(function (v) { D[k] = v; })); });
     /* past Mark License Agreements filed from the MACTS attachments; optional, so a missing index never stops the page */
     jobs.push(readData('mark-license-files').then(function (v) { D.markLicenseFiles = v; }, function () { D.markLicenseFiles = null; }));
+    /* the MACTS Comments sheet, carried over 27 Oct 2026; optional the same way */
+    jobs.push(readData('macts-comments').then(function (v) { D.mactsComments = v; }, function () { D.mactsComments = null; }));
     jobs.push(Promise.all([readData('frame-questionnaire'), readData('emortgage-questionnaires')]).then(function (r) {
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });
@@ -212,11 +214,106 @@
      Done here, after the page has run, so a rebuild of index.html from the artifact keeps it. */
   var NAV = [
     /* Renewals and Invoices are records now: everything to act on is on the Action Queue's to-do list (Jonna, 27 Oct 2026). */
-    { label: 'Daily Work', items: ['queue', 'assessors', '@approvals'] },
+    /* My Approvals, the Email Playbook and Help open inside the CMS, so the nav is always there
+       (Jonna, 27 Oct 2026). Migration is gone from the nav: MACTS is fully moved over. */
+    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals'] },
     { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'counts'] },
     { label: 'Tracking', items: ['activity', 'emails'] },
-    { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', '@playbook', 'load'] }
+    { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', 'playbook'] },
+    { label: 'Help', items: ['help'] }
   ];
+  var HIDDEN = ['load'];
+  var EMBEDS = {
+    approvals: { src: 'approvals.html?embed=1', label: 'My Approvals', title: 'Results waiting for a VP decision',
+      icon: '<path d="M12 3.2 19.5 6v5.6c0 4.5-3.1 8.1-7.5 9.2-4.4-1.1-7.5-4.7-7.5-9.2V6Z"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8"/>' },
+    playbook: { src: 'playbook.html?embed=1', label: 'Email Playbook', title: 'Every certification email and its wording',
+      icon: '<path d="M4.5 4.5h6.2a2.3 2.3 0 0 1 2.3 2.3v13.7a2 2 0 0 0-2-2H4.5Z"/><path d="M19.5 4.5h-4.2A2.3 2.3 0 0 0 13 6.8v13.7a2 2 0 0 1 2-2h4.5Z"/>' },
+    help: { src: 'help.html?embed=1', label: 'Help', title: 'How the system and the certification process work',
+      icon: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7"/><path d="M12 17h.01"/>' }
+  };
+  /* A page that lives beside the CMS, shown as a view inside it (the same way as Sent Emails). */
+  function addEmbedViews() {
+    try {
+      var nav = document.getElementById('mismonav');
+      var anchor = document.getElementById('view-activity');
+      if (!nav || !anchor) return;
+      Object.keys(EMBEDS).forEach(function (k) {
+        if (document.getElementById('view-' + k)) return;
+        var e = EMBEDS[k];
+        var btn = document.createElement('button');
+        btn.className = 'navlink'; btn.type = 'button'; btn.setAttribute('data-view', k); btn.title = e.title;
+        btn.innerHTML = '<span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true">' + e.icon + '</svg></span><span class="nl">' + e.label + '</span>';
+        nav.appendChild(btn);
+        var sec = document.createElement('section');
+        sec.className = 'view'; sec.id = 'view-' + k;
+        var frame = document.createElement('iframe');
+        frame.title = e.label; frame.setAttribute('data-embed', k);
+        frame.style.cssText = 'width:100%;border:0;display:block;min-height:80vh';
+        sec.appendChild(frame);
+        anchor.parentNode.insertBefore(sec, anchor.nextSibling);
+        btn.addEventListener('click', function () {
+          if (!frame.src) frame.src = e.src;
+          if (window.__showView) window.__showView(k);
+          try { history.replaceState(null, '', '#' + k); } catch (x) {}
+        });
+      });
+      window.addEventListener('message', function (ev) {
+        if (ev.origin !== location.origin || !ev.data || !ev.data.embedHeight) return;
+        var f = document.querySelector('iframe[data-embed="' + ev.data.page + '"]');
+        if (f) f.style.height = (ev.data.embedHeight + 24) + 'px';
+      });
+    } catch (e) { if (window.console) console.error('Embedded pages:', e); }
+  }
+  /* A link to /cms/#help (or any view) opens that view. */
+  function openFromHash() {
+    try {
+      var k = (location.hash || '').replace(/^#/, '');
+      if (!k) return;
+      var b = document.querySelector('.navlink[data-view="' + k.replace(/[^a-z-]/gi, '') + '"]');
+      if (b) b.click();
+    } catch (e) {}
+  }
+  /* The foot of the nav: when the CMS last heard from MISMO Money, and when it last gave
+     MISMO Money its approvals (Jonna, 27 Oct 2026). */
+  function moneySync() {
+    try {
+      var foot = document.querySelector('.side-foot');
+      if (!foot || document.getElementById('money-sync')) return;
+      var st = document.createElement('style');
+      st.textContent = '#money-sync{padding:6px 10px 10px;font-size:11px;line-height:1.45;color:var(--side-dim, rgba(255,255,255,.62))}'
+        + '#money-sync b{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:2px;color:var(--side-ink, #fff);opacity:.8}'
+        + '#money-sync .ms-row{display:flex;gap:6px;align-items:flex-start}#money-sync .ms-dot{flex:0 0 7px;height:7px;border-radius:50%;margin-top:4px;background:#4fc79b}'
+        + '#money-sync .ms-dot.old{background:#e0a83c}#money-sync .ms-dot.none{background:#8aa3b6}'
+        + 'body.nav-collapsed #money-sync .ms-t, body.nav-collapsed #money-sync b{display:none}body.nav-collapsed #money-sync{padding:6px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}';
+      document.head.appendChild(st);
+      var box = document.createElement('div');
+      box.id = 'money-sync';
+      box.innerHTML = '<b>MISMO Money</b><div class="ms-row" id="ms-in"><span class="ms-dot none"></span><span class="ms-t">Received: checking&hellip;</span></div>'
+        + '<div class="ms-row" id="ms-out"><span class="ms-dot none"></span><span class="ms-t">Sent: checking&hellip;</span></div>';
+      foot.insertBefore(box, foot.firstChild);
+      var when = function (iso) {
+        var d = new Date(iso); if (isNaN(d)) return null;
+        return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + ' ET';
+      };
+      var paint = function (id, label, iso, extra, staleDays) {
+        var row = document.getElementById(id); if (!row) return;
+        var t = iso ? when(iso) : null;
+        var age = iso ? (Date.now() - new Date(iso).getTime()) / 864e5 : null;
+        row.querySelector('.ms-dot').className = 'ms-dot' + (!t ? ' none' : age > staleDays ? ' old' : '');
+        row.querySelector('.ms-t').textContent = label + ': ' + (t || 'nothing yet') + (extra ? ' (' + extra + ')' : '');
+        row.title = label + ' ' + (t || 'nothing yet') + (extra ? ', ' + extra : '') + (age > staleDays ? '. Older than expected.' : '');
+      };
+      call('GET', '/data/mismo-money-paid').then(function (r) {
+        var d = r.json && r.json.data || {};
+        paint('ms-in', 'Received', d.writtenAt || null, d.paymentsThrough ? 'payments through ' + d.paymentsThrough : '', 3);
+      }, function () { paint('ms-in', 'Received', null, '', 3); });
+      call('GET', '/data/mismo-money-approvals').then(function (r) {
+        var d = r.json && r.json.data || {};
+        var n = d.approvals ? Object.keys(d.approvals).length : 0;
+        paint('ms-out', 'Sent', d.writtenAt || null, n ? n + ' approvals' : '', 30);
+      }, function () { paint('ms-out', 'Sent', null, '', 30); });
+    } catch (e) { if (window.console) console.error('MISMO Money sync:', e); }
+  }
   var PAGES = {
     approvals: { href: 'approvals.html', label: 'My Approvals', title: 'Results waiting for a VP decision',
       icon: '<path d="M12 3.2 19.5 6v5.6c0 4.5-3.1 8.1-7.5 9.2-4.4-1.1-7.5-4.7-7.5-9.2V6Z"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8"/>' },
@@ -246,8 +343,9 @@
         });
         return div;
       });
-      /* Anything the page has that is not named above keeps a place, at the foot of Setup. */
-      Object.keys(byView).forEach(function (k) { if (!placed[k]) groups[groups.length - 1].appendChild(byView[k]); });
+      /* Anything the page has that is not named above keeps a place, at the foot of Setup; HIDDEN
+         stays out of the nav (the view itself is kept). */
+      Object.keys(byView).forEach(function (k) { if (!placed[k] && HIDDEN.indexOf(k) < 0) groups[groups.length - 2].appendChild(byView[k]); });
       nav.innerHTML = '';
       groups.forEach(function (g) { if (g.querySelector('.navlink')) nav.appendChild(g); });
       nav.setAttribute('data-organized', '1');
@@ -278,8 +376,11 @@
     var app = document.getElementById('cms-app'), s = document.createElement('script');
     s.textContent = app.textContent; document.body.appendChild(s);
     addSentEmailsTab();
+    addEmbedViews();
     organizeNav();
     hideZeroCounts();
+    moneySync();
+    openFromHash();
     cover.remove();
   }).catch(function (e) {
     if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;   /* the shared sign-in shows its own screen */

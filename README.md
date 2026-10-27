@@ -190,7 +190,16 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
   findings, remediation target, payment) instead of replacing the whole record. Moving back to
   choosing a demo date clears the old date. My Approvals does the same.
 
-`index.html` as committed has all six applied.
+- `zz_macts_comments.py`: a company's panel lists the comments from MACTS's Comments sheet
+  (`data/macts-comments.json` in cms-data, an optional file read by `relay-connect.js`).
+
+`index.html` as committed has all seven applied.
+
+My Approvals, the Email Playbook and Help (`help.html`) open inside the CMS as views
+(`page.html?embed=1`, with `embed.js`), so the nav is always there; each still works on its own.
+The foot of the nav shows when the CMS last received payments from MISMO Money
+(`data/mismo-money-paid.json`) and last gave it approvals (`data/mismo-money-approvals.json`).
+Migration is no longer in the nav.
 
 `relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
 Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count

@@ -19,6 +19,7 @@
   The page never sends email itself.
 -->
 <script src="/assets/session.js"></script>
+<script src="embed.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -129,6 +130,10 @@ details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset
 .toast.bad{border-left-color:var(--bad)}
 .loading{padding:40px 0;text-align:center;color:var(--ink-3)}
 .foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
+html.embed .top{display:none}
+html.embed main{padding-top:6px;max-width:none}
+html.embed .back{display:none}
+html.embed body{background:transparent}
 </style>
 </head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
@@ -211,7 +216,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   var root = document.documentElement;
   function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
   function showTheme() { $('theme').textContent = isDark() ? 'Light Mode' : 'Dark Mode'; }
-  try { var saved = localStorage.getItem('cms-playbook:theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  try { var saved = localStorage.getItem('cms-playbook:theme'); if (saved && !root.classList.contains('embed')) root.setAttribute('data-theme', saved); } catch (e) {}
   showTheme();
   $('theme').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('cms-playbook:theme', t); } catch (e) {} showTheme(); });
 

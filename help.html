@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en" data-rs-gate><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Certification Help</title>
+<!--
+  Certification Help (resources.mismo.org/cms/help.html, also shown as Help inside the CMS).
+  How the Certification Management System works and how a certification moves through it.
+  The prose is written here; the tables of assessors, prices and emails are read live after
+  sign-in through MISMO's relay (project key cms), so they never go stale.
+-->
+<script src="/assets/session.js"></script>
+<script src="embed.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --navy:#0f314c; --navy-deep:#06202f; --navy-mid:#14486e;
+  --sky:#50a4db; --sky-wash:#dcedf8;
+  --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
+  --border:#d5e2ed; --border-strong:#adc4d6; --rule:#e5eef5;
+  --ink:#0f314c; --ink-2:#456179; --ink-3:#546f88;
+  --good:#0f7b5c; --bad:#b3372c; --warn:#a2701a;
+  --good-soft:#e1f2ec; --bad-soft:#fbe9e7; --warn-soft:#f7efe0;
+  --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9;
+  --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+    --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+    --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+    --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+    --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+    --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#061722; --surface:#0d2837; --surface-2:#123143; --surface-3:#173c52;
+  --border:#1f4a63; --border-strong:#2f6688; --rule:#173547;
+  --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
+  --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
+  --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
+  --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
+.logoplate svg{height:24px;width:auto;display:block}
+.mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
+.name{font-size:15.5px;font-weight:700;color:var(--sky);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:13px}
+.eyebrow{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600;white-space:nowrap}
+#rs-account{flex:0 0 auto;display:inline-flex;align-items:center}
+#rs-account .rs-who,#rs-account .rs-signin{border-radius:4px}
+.theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
+.theme:hover{border-color:var(--sky)}
+@media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
+main{max-width:980px;margin:0 auto;padding:26px 16px 60px}
+.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:18px}
+h1{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
+.vsub{color:var(--ink-2);margin-top:4px;max-width:720px}
+.back{margin-left:auto;color:var(--navy-mid);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.back:hover{text-decoration:underline}
+.banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
+.banner.bad{border-left-color:var(--bad)}
+.banner b{color:var(--ink)}
+.group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:26px 0 8px}
+details.sect{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+details.sect > summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
+details.sect > summary::-webkit-details-marker{display:none}
+details.sect > summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;flex:0 0 auto}
+details.sect[open] > summary::before{transform:rotate(45deg)}
+details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:8px}
+.cnt{margin-left:auto;font-weight:500;font-size:12.5px;color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.off{background:var(--surface-3);color:var(--ink-3)}
+.chip.edit{background:var(--accent-soft);color:var(--accent)}
+.sbody{padding:2px 16px 16px;border-top:1px solid var(--rule)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin:14px 0 16px}
+.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.fact div{font-size:13px;color:var(--ink)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.fld textarea{min-height:220px;resize:vertical;font-size:13px}
+.fld input:focus,.fld textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
+.fld input:disabled,.fld textarea:disabled{opacity:.75;cursor:not-allowed}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.5}
+.hint code,.fields code{font-family:var(--mono);font-size:11.5px;background:var(--chip);border-radius:3px;padding:0 4px;color:var(--ink-2)}
+.btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--navy-mid)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.who{font-size:12px;color:var(--ink-3)}
+.status{font-size:12px;font-weight:600}
+.status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
+.rules{display:grid;gap:10px;margin-top:12px}
+.rule{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13px}
+.rule .d{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.rule b{display:block;color:var(--ink)}
+.rule span{color:var(--ink-2)}
+@media(max-width:560px){.rule{grid-template-columns:1fr;gap:2px}}
+.prose p{font-size:13px;margin:0 0 10px;color:var(--ink)}
+.prose table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
+.prose th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:6px 12px 6px 0;border-bottom:1px solid var(--border)}
+.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.prose td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{border-left-color:var(--bad)}
+.loading{padding:40px 0;text-align:center;color:var(--ink-3)}
+.foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
+html.embed .top{display:none}
+html.embed main{padding-top:6px;max-width:none}
+html.embed .back{display:none}
+html.embed body{background:transparent}
+.prose h3{font-size:14px;margin:16px 0 6px}
+.prose ul,.prose ol{font-size:13px;margin:0 0 10px;padding-left:20px}
+.prose li{margin:0 0 5px;line-height:1.5}
+.prose td:first-child.plain,.prose td.plain{font-family:inherit;font-size:13px;white-space:normal}
+.prose code{font-family:var(--mono);font-size:12px;background:var(--surface-3);padding:1px 4px;border-radius:3px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px}
+.toc a{font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:20px;color:var(--ink-2);text-decoration:none;background:var(--surface)}
+.toc a:hover{border-color:var(--sky);color:var(--ink)}
+.live-note{font-size:11.5px;color:var(--ink-3);margin:0 0 8px}
+</style>
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
+0 -101 4 -132 25 -197 57 -172 168 -280 335 -323 84 -22 723 -22 808 0 222 58
+355 253 355 520 0 270 -132 459 -361 520 -74 20 -730 20 -802 0z m692 -320
+c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
+-297 0 -307 2 -346 83 -30 61 -31 198 -2 262 41 93 68 100 368 97 219 -2 243
+-4 274 -22z M0 545 l0 -515 225 0 225 0 2 296 3 296 116 -294 116 -293 197 0 198
+0 119 295 118 295 1 -297 0 -298 225 0 225 0 0 515 0 515 -337 -2 -338 -3
+-104 -264 c-80 -204 -107 -260 -113 -245 -5 10 -52 129 -106 264 l-98 245
+-337 3 -337 2 0 -515z M1892 1044 l-22 -15 0 -483 c0 -455 1 -484 18 -499 16 -15 48 -17
+246 -17 128 0 235 4 246 10 32 17 34 57 4 95 -33 44 -64 143 -64 206 l0 49
+203 0 c191 0 205 -1 222 -20 10 -11 34 -24 54 -30 49 -13 586 -13 612 0 22 12
+26 62 7 78 -8 6 -174 15 -413 21 -502 15 -549 23 -628 110 -43 48 -57 93 -57
+187 0 82 19 156 55 208 30 44 32 77 7 99 -27 25 -456 25 -490 1z M3716 1044 c-23 -22 -20 -31 19 -77 43 -49 78 -155 73 -218 l-3 -44
+-204 -3 c-194 -2 -205 -1 -218 17 -24 35 -78 41 -355 41 -255 0 -269 -1 -288
+-20 -27 -27 -26 -58 3 -70 12 -5 202 -14 422 -19 421 -12 476 -18 555 -62 92
+-51 132 -159 111 -299 -12 -77 -34 -129 -77 -179 -23 -28 -25 -36 -16 -57 l12
+-24 215 0 215 0 2 306 3 306 120 -303 120 -304 197 -3 196 -2 118 296 119 297
+3 -296 2 -297 225 0 225 0 0 515 0 515 -338 0 -337 0 -104 -265 c-58 -146
+-106 -263 -108 -261 -2 2 -50 120 -107 262 l-104 259 -340 3 c-300 2 -342 0
+-356 -14z"/></g><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-s, #50a4db)"><path d="M2485 1046 c-44 -20 -111 -94 -136 -151 -27 -60 -37 -198 -20 -263
+13 -48 68 -115 114 -138 64 -34 162 -43 562 -55 239 -6 405 -15 413 -21 19
+-16 15 -66 -7 -78 -26 -13 -563 -13 -612 0 -20 6 -44 19 -54 30 -17 19 -31 20
+-222 20 l-203 0 0 -49 c0 -81 34 -172 86 -230 78 -87 31 -81 672 -81 l568 0
+46 29 c79 50 122 121 139 231 21 140 -19 248 -111 299 -79 44 -134 50 -555 62
+-220 5 -410 14 -422 19 -29 12 -30 43 -3 70 19 19 33 20 288 20 277 0 331 -6
+355 -41 13 -18 24 -19 218 -17 l204 3 3 44 c4 60 -31 168 -70 215 -17 21 -52
+52 -77 67 l-45 29 -550 0 c-440 -1 -557 -3 -581 -14z"/></g></symbol></defs></svg>
+<header class="top">
+  <a class="logoplate" href="/" aria-label="MISMO Resources home"><svg role="img" aria-label="MISMO" viewBox="0 0 708 108"><use href="#mismo-logo"/></svg></a>
+  <span class="mastrule"></span>
+  <span class="name">Certification Help</span>
+  <span class="top-r"><span class="eyebrow">Programs &amp; Operations</span>
+    <button class="theme" id="theme" type="button">Dark Mode</button>
+    <span id="rs-account"></span></span>
+</header>
+<main>
+  <div class="vhead">
+    <div><h1>Certification Help</h1>
+    <div class="vsub">How the certification system works, how a certification moves from application to Mark License, who does what, and what happens on its own. Everything MACTS did now happens here.</div></div>
+    <a class="back" href="/cms/">Open the Certification Management System</a>
+  </div>
+  <div id="note"></div>
+  <nav class="toc" aria-label="Sections">
+    <a href="#h-start">Start Here</a><a href="#h-day">Your Day</a><a href="#h-initial">Initial Certification</a><a href="#h-renewal">Renewals</a>
+    <a href="#h-demo">Demos and Remediation</a><a href="#h-approve">Approvals and Mark License</a><a href="#h-assessors">Assessors</a>
+    <a href="#h-emails">Emails</a><a href="#h-prices">Programs and Prices</a><a href="#h-money">MISMO Money</a><a href="#h-where">Where Things Live</a>
+    <a href="#h-schedule">What Runs When</a><a href="#h-macts">From MACTS</a><a href="#h-wrong">If Something Goes Wrong</a>
+  </nav>
+
+  <div class="group">The Basics</div>
+  <details class="sect" id="h-start" open>
+    <summary>Start Here</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">The Certification Management System (CMS) is where every MISMO certification lives: the companies, their certifications, every open application and renewal, the invoices, and what happens next. It replaced the MACTS Smartsheet on October 25, 2026. Every MACTS automation is switched off and nothing is entered in MACTS any more.</p>
+      <p>Most of the work moves on its own. A stage recorded by an assessor, a payment seen by MISMO Money, a booking or date a company enters on its own page: each moves the certification on and sends the right email. What is left for a person is on the <b>Action Queue</b>.</p>
+      <ul>
+        <li><b>MISMO staff</b> work in the CMS: the Action Queue, raising invoices in Aptify, chasing follow-ups.</li>
+        <li><b>Assessors</b> (Falcon, Actualize, Viant Eye, and MISMO's own team) work in the Assessor Portal: demos, findings, preliminary results, remediation.</li>
+        <li><b>MISMO's VP</b> decides results on <b>My Approvals</b>, one click per decision.</li>
+        <li><b>MISMO's President</b> countersigns Mark License Agreements in DocuSign.</li>
+        <li><b>Companies</b> never log in. Each gets private links in its emails: the renewal page, the demo booking page, the remediation date page, and the application forms.</li>
+      </ul>
+      <p>Every email to a company says to write to <b>certifications@mismo.org</b>; it never names a person. That mailbox is copied on everything that goes out.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-day">
+    <summary>Your Day: the Action Queue</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">The Action Queue opens on <b>Your To-Do</b>: only what needs MISMO, one line each, with the button that does it. The number beside Action Queue in the menu is the same count. When the list is empty, nothing needs you.</p>
+      <table><tr><th>Group</th><th>What to Do</th></tr>
+        <tr><td class="plain"><b>Raise the Invoice</b></td><td>The renewal invoice is due (14 days before the first renewal notice). Raise it in Aptify, drop the PDF on the line, type the Aptify order number, press Mark as Sent. The company's renewal page offers it from then on. The weekly "Invoices to Raise" email lists the same ones.</td></tr>
+        <tr><td class="plain"><b>Attach the Invoice PDF</b></td><td>Raised, but the renewal page has no PDF to offer. Drop it on the line.</td></tr>
+        <tr><td class="plain"><b>Mark License Needs an Email</b></td><td>Approved, but no signer email on file. Type the signer's email and Send for Signature; DocuSign does the rest.</td></tr>
+        <tr><td class="plain"><b>Assign an Assessor</b></td><td>Choose the firm from the list.</td></tr>
+        <tr><td class="plain"><b>Send the Welcome Email / Certification Script</b></td><td>Rare now: both normally happen on their own.</td></tr>
+        <tr><td class="plain"><b>Expire or Keep?</b></td><td>Past its anniversary with no renewal opened. Open the record and decide.</td></tr>
+        <tr><td class="plain"><b>Record the Next Step</b></td><td>The move is MISMO's and nothing above covers it. Open it and record what happened.</td></tr>
+        <tr><td class="plain"><b>Follow Up</b> (four groups)</td><td><b>Assessor to Chase</b>: the company has gone quiet at a stage the assessor runs; Nudge the Assessor emails them how long it has been. <b>Unpaid Invoice</b>, <b>Demo Not Booked</b>, <b>Gone Quiet</b>: chase the company. On each: Note and Next Date (it comes back on that date), Back to Active (it is moving again), Move to Prospects (not going ahead).</td></tr>
+      </table>
+      <p>Below the to-do, folded away: <b>Waiting on Others</b> (with the company, the assessor, the VP, the system, follow up later, on hold), <b>Prospects</b> (companies not going through certification; Start Application brings one back), and <b>All Open Work by Stage</b> (every open certification, one line each). The numbers, the old phase board and the certification script reference are at the very foot.</p>
+      <p><b>Renewals</b> and <b>Invoices</b> (under Records and Reporting) are the full lists behind the to-do: use them to look something up, not to find work. <b>Companies</b> holds every company and certification, including inactive and archived ones; edit a company's Aptify ID, contact or status there. <b>Activity</b> and <b>Sent Emails</b> show everything the system and people have done.</p>
+    </div>
+  </details>
+
+  <div class="group">The Process</div>
+  <details class="sect" id="h-initial">
+    <summary>An Initial Certification, Step by Step</summary>
+    <div class="sbody prose">
+      <ol style="margin-top:12px">
+        <li><b>Application.</b> The company fills in the program's application form on resources.mismo.org. It lands on the board as a new application (or staff add one with + New Application). The Application Agreement goes out through DocuSign; the company and MISMO's President sign it.</li>
+        <li><b>Invoice and payment.</b> MISMO raises the invoice in Aptify and records the order number. MISMO Money reports the payment each morning; a payment that matches is recorded on its own and the certification moves on. Anything that does not match waits under "Paid, and Held for You" on the Invoices page.</li>
+        <li><b>Welcome and demo booking.</b> Once paid, the company is sent its private booking page with the assessor's open times. It picks a time and names who attends; the demo is booked straight away and everyone is told. Weekly reminders follow until it books (four, then MISMO is told).</li>
+        <li><b>Demonstration or interview.</b> RON, eClosing and eVault have a demonstration against the certification script; Product, Consultant, FRAME and AI Governance have an interview. If the assessor does not record the outcome, they are reminded.</li>
+        <li><b>Artifacts.</b> The assessor asks for what is missing; the company is reminded weekly.</li>
+        <li><b>Preliminary results.</b> The assessor submits them in the Assessor Portal, with or without findings. They go to the VP on My Approvals.</li>
+        <li><b>Decision.</b> The VP approves (one click), sends the findings for remediation, asks the assessor a question, or records Not Certified.</li>
+        <li><b>Remediation</b> (only with findings). The company is sent the items and a link to give the date it expects to finish. If the date passes it is followed up, and 30 days after it the VP and assessor are told. When the company is done, the assessor submits it and it comes back to the VP.</li>
+        <li><b>Approved.</b> The company and assessor are told, the anniversary is set, and the Mark License Agreement goes out through DocuSign on its own (the licensee signs first, then MISMO's President).</li>
+        <li><b>Certified.</b> Once the license is signed. The license never holds up the certification itself.</li>
+      </ol>
+      <p>Each stage has an owner shown on the board: the company, the assessor, MISMO, the VP, or the company and President (signatures). An application that goes quiet is flagged for follow-up after 30 days. A company that is not going ahead is moved to Prospects.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-renewal">
+    <summary>Renewals</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">A certification renews every year on the same day, whether the renewal finishes early or late. The program agreements allow a grace period after the anniversary (60 days for RON, eClosing and eVault).</p>
+      <ol>
+        <li><b>Invoice.</b> The weekly Invoices to Raise email (the first working day of each week, to certifications@mismo.org) and the Action Queue list each renewal invoice when it is due: 14 days before the first notice, so it is on the renewal page before the company is told. Raise it in Aptify, drop the PDF on the line, record the order number.</li>
+        <li><b>Notices.</b> The renewal notices go on their own, counted off the anniversary (table below), plus a weekly invoice reminder while payment is outstanding. They stop once the renewal moves on.</li>
+        <li><b>The renewal page.</b> Each notice carries the company's private renewal page link. There it confirms its details, answers the certification script questions (prefilled from last year), signs the attestation(s), downloads the invoice, and can open what it sent last year. Downloads ask for a code emailed to the contact on file.</li>
+        <li><b>Payment.</b> Seen by MISMO Money and recorded on its own.</li>
+        <li><b>The rest</b> follows the same steps as an initial: certification script prepared on its own for RON, eClosing and eVault, demo booked by the company, results, VP decision, Mark License.</li>
+      </ol>
+      <h3>Renewal Notices</h3>
+      <p class="live-note">Read live from the system.</p>
+      <table id="t-notices"><tr><td class="plain">Loading&hellip;</td></tr></table>
+      <p>Put a certification on hold (from its record) when the delay is MISMO's: nothing chases it and no notices go until the hold is released. It stays certified.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-demo">
+    <summary>Demos and Remediation: the Company's Own Pages</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px"><b>Demo booking</b> (resources.mismo.org/forms/schedule/). Each certification waiting to schedule has a private page listing its assessor's open times: at least two working days ahead, within six weeks, never on a MISMO holiday, never double-booked. Falcon's times come from its weekly windows; Actualize publishes a look-only calendar, so the company offers up to three times and Actualize confirms one. Once booked the certification moves to Demo Scheduled and everyone is emailed.</p>
+      <p><b>Remediation target date</b> (resources.mismo.org/forms/remediation/). Each certification in remediation has a private page where the company gives the date it expects to finish, and can change it. The date drives the follow-ups. A new round of remediation starts with no date.</p>
+      <p>Both pages are served by the same Power Automate flow ("MISMO Demo Booking - Serve"). Nothing on them moves until the system checks it, usually within two minutes.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-approve">
+    <summary>Approvals and the Mark License</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px"><b>My Approvals</b> is the VP's page: every result, remediation and scope decision waiting on MISMO, each with the assessor's findings (or No Findings). Approve is one click with an optional note. Sending for remediation, asking the assessor a question or Not Certified each need a note, which goes to the right people. The VP is reminded every three days while something waits.</p>
+      <p><b>Mark License Agreement.</b> Goes out through DocuSign on its own after approval, to the signer named on the company record, then to MISMO's President. A certification's Mark License section shows where it stands (Queued, Sent, Opened, Executed) and the signed copies MACTS held, which are filed by company in SharePoint under Certification Applications &gt; Mark License Agreements. If there is no signer email, it shows on the Action Queue as Needs an Email.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-assessors">
+    <summary>Assessors</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">Each firm works in the Assessor Portal (resources.mismo.org/assessors/): its engagements, the certification scripts to download, its availability, and every step it records (demo done, findings, preliminary results, remediation). Each step moves the certification and emails the company. MISMO can see each firm's view from the Assessor Portal page in the CMS.</p>
+      <p class="live-note">Read live from the system.</p>
+      <table id="t-assessors"><tr><td class="plain">Loading&hellip;</td></tr></table>
+      <p>Assessors are reminded on their own when a demo date has passed with no outcome, and when artifacts have been with them two weeks with no result. Nudge the Assessor on the Action Queue sends a one-off email asking whether they have followed up with a company that has gone quiet.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-emails">
+    <summary>Emails</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">Every email uses the MISMO email shell and goes from the certifications mailbox, with certifications@mismo.org copied. Nothing goes outside business hours (9:00 to 5:00 Eastern on MISMO working days); anything due waits for the next working morning. An email whose wording has not been approved goes to certifications@mismo.org marked [Held for Review] instead. The <a href="/cms/#playbook">Email Playbook</a> shows each one, lets you change the wording and send yourself a test. <a href="/cms/#emails">Sent Emails</a> shows everything that went.</p>
+      <p class="live-note">Every certification stage email, read live from the system.</p>
+      <table id="t-emails"><tr><td class="plain">Loading&hellip;</td></tr></table>
+    </div>
+  </details>
+
+  <details class="sect" id="h-prices">
+    <summary>Programs and Prices</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">Company certifications: RON, eClosing, eVault, Product, AI Governance, SMART Doc. Professional: Certified Consultant, FRAME Advisory Partner, AMSP, CMSP. The price list below is what invoices are raised from (Total Cost), what the assessor is paid (Expense), and what MISMO keeps. RON non-members pay a $5,000 surcharge. Change prices on the Pricing page.</p>
+      <p class="live-note">Read live from the system.</p>
+      <table id="t-prices"><tr><td class="plain">Loading&hellip;</td></tr></table>
+    </div>
+  </details>
+
+  <div class="group">Behind the Scenes</div>
+  <details class="sect" id="h-money">
+    <summary>MISMO Money</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px"><b>From MISMO Money:</b> each morning it sends the Aptify payments it has loaded. A payment that matches one invoice exactly is recorded and the certification moves on; anything else waits on the Invoices page for a person to Record It.</p>
+      <p><b>To MISMO Money:</b> the date each certification was approved, which is when MISMO Money recognizes the revenue and the assessor's fee. Written the first time the approval is seen and never changed.</p>
+      <p>The foot of the CMS menu shows when each last happened. A green dot is current; amber means older than expected (more than three days for payments, thirty for approvals).</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-where">
+    <summary>Where Things Live</summary>
+    <div class="sbody prose">
+      <table style="margin-top:12px"><tr><th>What</th><th>Where</th></tr>
+        <tr><td class="plain">The CMS, My Approvals, Email Playbook, Help</td><td>resources.mismo.org/cms/ (sign in with MISMO Resources)</td></tr>
+        <tr><td class="plain">Assessor Portal</td><td>resources.mismo.org/assessors/</td></tr>
+        <tr><td class="plain">Company pages</td><td>resources.mismo.org/forms/ : the application forms, renewal/, schedule/, remediation/</td></tr>
+        <tr><td class="plain">The records</td><td>GitHub, GitMISMO/cms-data (private). Every change is kept with who made it and when.</td></tr>
+        <tr><td class="plain">Documents</td><td>SharePoint, MISMO Certifications site, Certification Applications: application documents, MACTS Attachments (the full export of MACTS's attachments), Mark License Agreements (by company)</td></tr>
+        <tr><td class="plain">Email sending and the company pages' link to the records</td><td>Power Automate flows: the certification email flow, MISMO Renewal Page - Serve, MISMO Demo Booking - Serve (the booking and remediation pages), MISMO Mark License - Send, and MISMO Certification Scheduler (the clock that starts the timed jobs).</td></tr>
+        <tr><td class="plain">Signatures</td><td>DocuSign, for the Application Agreement and the Mark License Agreement only</td></tr>
+        <tr><td class="plain">Invoices and payments</td><td>Aptify (raised there), seen through MISMO Money</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details class="sect" id="h-schedule">
+    <summary>What Runs When</summary>
+    <div class="sbody prose">
+      <table style="margin-top:12px"><tr><th>When (Eastern)</th><th>What</th></tr>
+        <tr><td class="plain">Within minutes of any change</td><td>A stage moved, a booking, a date given, a nudge, a payment: the stage emails and pages update straight away (inside business hours).</td></tr>
+        <tr><td class="plain">Every half hour, 9:00 to 6:30, weekdays</td><td>Stage emails and reminders, booking and remediation pages, anything a change missed.</td></tr>
+        <tr><td class="plain">7:30 daily</td><td>Each assessor firm's engagement list and certification scripts are rebuilt.</td></tr>
+        <tr><td class="plain">9:00 and 10:00 daily</td><td>Renewal notices, and the weekly Invoices to Raise email on the first working day of the week.</td></tr>
+        <tr><td class="plain">10:30, 2:30 and 4:30, weekdays</td><td>Mark License Agreements queued for DocuSign go out, and signatures are checked.</td></tr>
+        <tr><td class="plain">Each morning</td><td>MISMO Money sends the new Aptify payments.</td></tr>
+      </table>
+      <p>MISMO's working calendar (federal holidays, the day after Thanksgiving, and any closed dates set in the system) is respected by everything above.</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-macts">
+    <summary>From MACTS</summary>
+    <div class="sbody prose">
+      <ul style="margin-top:12px">
+        <li>All 101 MACTS automations were switched off on October 25, 2026, each confirmed by screenshot. The sheet still holds its data; nothing was deleted.</li>
+        <li>Every MACTS row with a company on it (365 rows, including the Archive section) is accounted for in the CMS: as a certification, a renewal or application cycle, or a company record. Archived and inactive providers are kept, marked inactive, with their lapsed and superseded certifications.</li>
+        <li>The questionnaire answers from MACTS prefill each company's renewal page.</li>
+        <li>The comments from MACTS's Comments sheet (27, from 2023 to 2025) show on each company's record under Comments from MACTS.</li>
+        <li>MACTS's attachments (1,091 files) are in SharePoint, Certification Applications &gt; MACTS Attachments, as one zip. The 185 Mark License Agreements among them are filed by company and linked on each certification.</li>
+        <li>The MACTS notices, invoice worklist, demo scheduling, stage emails, Mark License and payment checks are all replaced by the steps on this page.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sect" id="h-wrong">
+    <summary>If Something Goes Wrong</summary>
+    <div class="sbody prose">
+      <ul style="margin-top:12px">
+        <li><b>An email did not go.</b> Check it was inside business hours, and Sent Emails. A [Held for Review] copy in certifications@mismo.org means its wording is not approved yet, or someone it is meant for has no email on file: add the email on the Companies page and it is released.</li>
+        <li><b>A company says its page does not open.</b> Ask for the link exactly as emailed. The renewal and booking pages depend on their Power Automate flows being on.</li>
+        <li><b>A payment was not picked up.</b> Look under Paid, and Held for You on the Invoices page; the reason is written there. Check the MISMO Money dot at the foot of the menu.</li>
+        <li><b>A record is wrong.</b> Most fields are corrected in place on the certification or company record; every change keeps who made it. A stage move can be undone straight after (Ctrl+Z).</li>
+      </ul>
+    </div>
+  </details>
+  <div class="foot" id="foot"></div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var RELAY = 'https://rgvdi67cg27o5kcmiytcqbqnrm0hmztx.lambda-url.us-east-1.on.aws', PROJECT = 'cms';
+  var RS = window.ResourcesSession;
+  var $ = function (id) { return document.getElementById(id); };
+  var root = document.documentElement;
+  function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function showTheme() { $('theme').textContent = isDark() ? 'Light Mode' : 'Dark Mode'; }
+  try { var saved = localStorage.getItem('cms-help:theme'); if (saved && !root.classList.contains('embed')) root.setAttribute('data-theme', saved); } catch (e) {}
+  showTheme();
+  $('theme').addEventListener('click', function () { var t = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', t); try { localStorage.setItem('cms-help:theme', t); } catch (e) {} showTheme(); });
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function money(n) { return n == null ? '' : '$' + Number(n).toLocaleString('en-US'); }
+  function call(path) {
+    return fetch(RELAY + '/' + PROJECT + path, { headers: { 'Authorization': 'Bearer ' + (RS && RS.token ? RS.token() : '') } })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (r.status !== 200 || !j.data) throw new Error(path + ' (' + (j.error || r.status) + ')'); return j.data; }); });
+  }
+  function table(id, head, rows) {
+    $(id).innerHTML = '<tr>' + head.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '</tr>'
+      + rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td class="plain">' + c + '</td>'; }).join('') + '</tr>'; }).join('');
+  }
+  function words(s) { return String(s || '').replace(/([a-z])([A-Z])/g, '$1 $2'); }
+  var ROLE = { company: 'the company', firm: 'the assessor', internal: 'certifications@', vp: 'the VP', president: 'the President', booker: 'whoever booked' };
+  var FU = { welcome: 'Weekly while no demo is booked', welcomeStalled: 'After the last booking reminder', remediation: 'After the remediation target date', remediationEscalate: '30 days after the target date',
+    demoCheck: 'Demo date passed, nothing recorded', demoCheckStalled: 'Demo still not recorded after reminders', artifacts: 'Weekly while artifacts are outstanding', artifactsStalled: 'Artifacts still outstanding after reminders',
+    reviewCheck: 'Two weeks with the assessor, no result', reviewCheckStalled: 'Still no result after reminders', remediationNudge: 'Remediation open, no target date', remediationNudgeStalled: 'Still no target date after reminders',
+    approvalWaiting: 'Every three days while the VP has a decision waiting', assessorNudge: 'When Nudge the Assessor is pressed' };
+  function done() { try { window.parent.postMessage({ embedHeight: document.documentElement.scrollHeight, page: 'help' }, location.origin); } catch (e) {} }
+
+  if (!RS || !RS.requireAccess) { $('note').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
+  RS.requireAccess(PROJECT, { toolName: 'Certification Help', eyebrow: 'Programs & Operations' }).then(function () {
+    if (RS.mount) RS.mount($('rs-account'));
+    call('/data/assessor-firms').then(function (af) {
+      return call('/data/stage-notices').then(function (sn) {
+        var fc = sn.firmContacts || {};
+        table('t-assessors', ['Firm', 'Assesses', 'How Demos Are Scheduled', 'Emails Go To'], (af.firms || []).map(function (f) {
+          var sc = f.scheduling || {};
+          var how = sc.mode === 'fixed-windows' ? 'Weekly windows: ' + (sc.windows || []).map(function (w) { return w.day + ' ' + w.from + '–' + w.to; }).join('; ') + ' (Eastern). Companies book a slot.'
+            : sc.mode === 'calendar-link' ? 'Look-only calendar; companies offer times and the firm confirms.'
+            : sc.mode === 'email' ? 'Arranged by email.' : f.inHouse ? 'In house.' : '';
+          var emails = (fc[f.name] && fc[f.name].emails || []).join(', ');
+          return ['<b>' + esc((f.brand && f.brand.legalName) || f.name) + '</b>', esc(f.note || ''), esc(how), esc(emails || (f.inHouse ? 'certifications@mismo.org' : ''))];
+        }));
+        table('t-emails', ['Email', 'When', 'To'], (sn.templates || []).filter(function (t) { return !t.disabled; }).map(function (t) {
+          var w = t.when || {};
+          var when = w.followUp ? (FU[w.followUp] || words(w.followUp)) : 'On reaching ' + (w.to || []).map(words).join(' or ') + (w.from ? ' from ' + w.from.map(words).join(' or ') : '') + (w.programs ? ' (' + w.programs.join(', ') + ')' : '');
+          return ['<b>' + esc(t.title || t.id) + '</b>' + (t.approved ? '' : ' <span style="color:var(--warn)">(held for review)</span>'), esc(when), esc((t.to || []).map(function (r) { return ROLE[r] || r; }).join(', '))];
+        }));
+        done();
+      });
+    }).catch(function (e) { $('t-assessors').innerHTML = '<tr><td class="plain">Could not load: ' + esc(e.message) + '</td></tr>'; });
+    call('/data/renewal-notices').then(function (rn) {
+      table('t-notices', ['Notice', 'When', 'Subject (eMortgage wording)'], (rn.notices || []).map(function (n) {
+        var d = n.offsetDays; var bf = n.byFamily || {}; var w = bf.eMortgage || bf[Object.keys(bf)[0]] || {};
+        var when = d == null ? 'Weekly while the invoice is unpaid' : d < 0 ? (-d) + ' days before the anniversary' : d === 0 ? 'On the anniversary' : d + ' days after the anniversary';
+        return [esc(n.notice), esc(when), esc(String(w.subject || '').replace(/\{\{Type\}\}/g, 'RON').replace(/\{\{Company Name\}\}/g, 'Company'))];
+      }));
+      done();
+    }).catch(function (e) { $('t-notices').innerHTML = '<tr><td class="plain">Could not load: ' + esc(e.message) + '</td></tr>'; });
+    call('/data/pricing').then(function (pr) {
+      table('t-prices', ['Program', 'Kind', 'Size or Tier', 'Total Cost', 'Expense', 'MISMO Keeps'], (pr.prices || []).map(function (p) {
+        return ['<b>' + esc(p.program) + '</b>', esc(p.kind || ''), esc(p.tier === 'standard' ? '' : (p.tierLabel || p.tier || '')), esc(money(p.amount)), esc(money(p.expense)), esc(p.amount != null && p.expense != null ? money(p.amount - p.expense) : '')];
+      }));
+      done();
+    }).catch(function (e) { $('t-prices').innerHTML = '<tr><td class="plain">Could not load: ' + esc(e.message) + '</td></tr>'; });
+    var target = location.hash.replace('#', ''); if (target && $(target) && $(target).tagName === 'DETAILS') { $(target).open = true; $(target).scrollIntoView(); }
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('.toc a') : null; if (!a) return;
+      var d = $(a.getAttribute('href').slice(1)); if (d) { e.preventDefault(); d.open = true; d.scrollIntoView({ behavior: 'smooth' }); setTimeout(done, 300); }
+    });
+    document.addEventListener('toggle', function () { setTimeout(done, 50); }, true);
+  }).catch(function (e) {
+    if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;
+    $('note').innerHTML = '<div class="banner bad">' + esc((e && e.message) || e) + '</div>';
+  });
+})();
+</script>
+</body></html>

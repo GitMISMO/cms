@@ -4801,6 +4801,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             b.classList.toggle("sel", b.dataset.stat === stat);
         }));
     }
+
+    /* ---- Comments from MACTS (27 Oct 2026): see patches/zz_macts_comments.py ---- */
+    function mactsCommentsHTML(org) {
+        var all = (D.mactsComments && D.mactsComments.comments) || [], s = slugName(org.name);
+        var mine = all.filter((function(c) { return c.org && slugName(c.org) === s; })).sort((function(a, b) { return String(b.at).localeCompare(String(a.at)); }));
+        if (!mine.length) return "";
+        return '<details class="pfoot" open><summary>Comments from MACTS (' + mine.length + ")</summary>" + '<div class="pfoot-b">'
+            + mine.map((function(c) {
+                return '<div style="margin:0 0 10px"><div style="font-size:11.5px;color:var(--ink-3)">' + esc(fmt(String(c.at).slice(0, 10))) + (c.by ? " · " + esc(c.by) : "") + " · MACTS row " + esc(String(c.row)) + "</div>"
+                    + '<div style="font-size:13px;line-height:1.5">' + esc(c.text) + "</div></div>";
+            })).join("") + "</div></details>";
+    }
     function renderPanel() {
         markSelectedRow();
         var drawer = $("drawer");
@@ -5056,7 +5068,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 value: empties ? String(empties) : "Complete",
                 sub: empties ? empties === 1 ? "field still empty" : "fields still empty" : null,
                 tone: empties ? "warn" : "good"
-            } ]) + '<div class="dsect">' + companyBlock(org.name, true) + "</div>" + '<div class="dsect"><h4>Certifications</h4>' + (theirs.length ? theirs.map(certCard).join("") : '<div class="empty">None on record.</div>') + "</div>" + ((org.spellings || []).length > 1 ? '<details class="pfoot"><summary>' + (org.spellings || []).length + " spellings in MACTS resolved to this company</summary>" + '<div class="pfoot-b">' + (org.spellings || []).map(esc).join(' <span style="color:var(--ink-3)">·</span> ') + "</div></details>" : "");
+            } ]) + '<div class="dsect">' + companyBlock(org.name, true) + "</div>" + '<div class="dsect"><h4>Certifications</h4>' + (theirs.length ? theirs.map(certCard).join("") : '<div class="empty">None on record.</div>') + "</div>" + ((org.spellings || []).length > 1 ? '<details class="pfoot"><summary>' + (org.spellings || []).length + " spellings in MACTS resolved to this company</summary>" + '<div class="pfoot-b">' + (org.spellings || []).map(esc).join(' <span style="color:var(--ink-3)">·</span> ') + "</div></details>" : "") + mactsCommentsHTML(org);
             wireCompany($("d-body"));
             Array.prototype.forEach.call($("d-body").querySelectorAll("[data-key]"), (function(b) {
                 b.addEventListener("click", (function() {
@@ -13267,5 +13279,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-10-27a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-10-27b"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>
