@@ -763,6 +763,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         { key: 'hide', label: 'Public List', type: 'select', options: [['show', 'Listed when active'], ['hide', 'Not listed']], value: p.hidePublic ? 'hide' : 'show' }], button: 'Save',
         onsave: function (v) { return savePerson(openPid, function (x) { if (v.email && norm(v.email) !== norm(x.email) && x.email) (x.formerEmails = x.formerEmails || []).push(norm(x.email)); x.first = v.first; x.last = v.last; x.title = v.title; x.company = v.company; x.email = norm(v.email); if (v.hide === 'hide') x.hidePublic = true; else delete x.hidePublic; (x.changes = x.changes || []).push({ at: new Date().toISOString(), by: me.name }); }, 'Saved.'); } });
     } }), h('button', { class: 'btn ghost', type: 'button', text: 'Add an Application or Renewal by Hand', disabled: !canWrite, onclick: function () { addByHand(top); } })));
+    /* their own progress page (27 Oct 2026): the same link every email to them carries */
+    if (p.progressToken) {
+      var link = 'https://resources.mismo.org/certified/progress/?p=' + p.progressToken;
+      top.appendChild(h('div', { class: 'btnrow' }, h('a', { class: 'btn ghost', href: link, target: '_blank', rel: 'noopener', text: 'Open Their Progress Page' }),
+        h('button', { class: 'btn ghost', type: 'button', text: 'Copy the Link', onclick: function () {
+          var b = this; function done() { b.textContent = 'Link Copied'; setTimeout(function () { b.textContent = 'Copy the Link'; }, 2000); }
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, function () { window.prompt('Copy this link:', link); });
+          else window.prompt('Copy this link:', link);
+        } })));
+    }
     P.appendChild(top);
     var cs = cyclesOf(openPid).sort(function (a, b) { return String(b.certDate || b.submittedAt || '').localeCompare(String(a.certDate || a.submittedAt || '')); });
     cs.forEach(function (c) {
