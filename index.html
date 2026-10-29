@@ -8191,9 +8191,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         } else {
             body.innerHTML = '<div class="rn-have">' + '<span class="rn-pdf" aria-hidden="true">PDF</span>' + '<span class="rn-meta"><b>' + esc(rec.name || "invoice.pdf") + "</b>" + '<span class="e-sub">' + esc(fmtBytes2(rec.size || 0)) + (rec.at ? " · attached " + esc(fmt(String(rec.at).slice(0, 10))) : "") + (rec.by ? " by " + esc(rec.by) : "") + "</span></span>" + (canWrite ? '<span class="rn-acts">' + '<button class="lc-btn ghost" type="button" data-rnpick="' + esc(key) + '">Replace</button>' + '<button class="lc-btn ghost" type="button" data-rnrm="' + esc(key) + '">Remove</button>' + "</span>" : "") + "</div>" + '<input type="file" accept="application/pdf,.pdf" hidden data-rnfile="' + esc(key) + '">' + linkHTML;
         }
-        wireInvoice(key, r);
+        wireRenewalInvoice(key, r);
     }
-    function wireInvoice(key, r) {
+    /* Was also called wireInvoice, which silently replaced the certification panel's own wireInvoice(scope),
+       so the panel's Paid box and Save the Invoice did nothing (found 29 Oct 2026, Gateless). */
+    function wireRenewalInvoice(key, r) {
         var body = $("rn-inv-body");
         if (!body) return;
         var input = body.querySelector("[data-rnfile]");
