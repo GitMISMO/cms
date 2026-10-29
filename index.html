@@ -2915,19 +2915,40 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         type: "url"
     }, {
         k: "contactName",
-        lab: "Primary Contact"
+        lab: "Primary Contact",
+        hint: "Gets every certification email. Separate two people with a comma"
     }, {
         k: "contactEmail",
-        lab: "Contact Email",
-        type: "email"
+        lab: "Primary Contact Email",
+        type: "email",
+        hint: "Blank uses the address on file for the name"
     }, {
         k: "contactPhone",
-        lab: "Contact Phone",
+        lab: "Primary Contact Phone",
         type: "tel"
+    }, {
+        k: "invoiceName",
+        lab: "Invoice Contact",
+        hint: "Who invoices are made out to. Blank uses the primary contact",
+        optional: true
+    }, {
+        k: "invoiceEmail",
+        lab: "Invoice Contact Email",
+        type: "email",
+        hint: "Gets invoices and payment reminders",
+        optional: true
     }, {
         k: "signer",
         lab: "Authorized Signer",
         hint: "Who executes the agreements"
+    }, {
+        k: "signerTitle",
+        lab: "Signer Title"
+    }, {
+        k: "signerEmail",
+        lab: "Signer Email",
+        type: "email",
+        hint: "Gets the Mark License, the approval and the renewal notices"
     }, {
         k: "aptify",
         lab: "Aptify Customer ID"
@@ -2943,8 +2964,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         title: "The Company",
         keys: [ "legalName", "address", "website" ]
     }, {
-        title: "Who to Write To",
-        keys: [ "contactName", "contactEmail", "contactPhone", "signer" ]
+        title: "Primary Contact",
+        keys: [ "contactName", "contactEmail", "contactPhone" ]
+    }, {
+        title: "Invoice Contact",
+        keys: [ "invoiceName", "invoiceEmail" ]
+    }, {
+        title: "Authorized Signer",
+        keys: [ "signer", "signerTitle", "signerEmail" ]
     }, {
         title: "MISMO's Own Record",
         keys: [ "aptify", "membership", "champion" ]
@@ -5141,7 +5168,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }))[0] || "";
             var o2 = orgOf(org.name);
             var empties = ORG_FIELDS.filter((function(f) {
-                return !o2[f.k];
+                return !f.optional && !o2[f.k];
             })).length;
             $("d-body").innerHTML = paneSummary([ {
                 label: "Status",
@@ -6296,7 +6323,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!name) return "";
         var o = orgOf(name);
         var missing = ORG_FIELDS.filter((function(f) {
-            return !o[f.k];
+            return !f.optional && !o[f.k];
         })).length;
         var sub = o.inactive ? "Inactive — " + (o.statusReason || "no reason recorded") : missing ? missing + (missing === 1 ? " field is" : " fields are") + " empty" : "All filled in";
         var head = sectionHead("org:" + o.slug, "Company Details", sub, o.inactive ? "bad" : "");
@@ -6312,7 +6339,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }));
             if (!fields.length) return "";
             var blank = fields.filter((function(f) {
-                return !val(f.k);
+                return !f.optional && !val(f.k);
             })).length;
             return '<div class="fgroup">' + '<div class="fgroup-t">' + esc(g.title) + (blank ? "<em>" + blank + " still empty</em>" : "") + "</div>" + '<div class="inv-grid">' + fields.map((function(f) {
                 return field("of-" + o.slug + "-" + f.k, f, val(f.k), o.slug);
