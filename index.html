@@ -4161,7 +4161,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var z = tdFind("data-tdinv", key);
             if (z && z.querySelector(".td-dz")) z.querySelector(".td-dz").textContent = "Saving…";
             ensureToken(key, (function() {
-                saveInvoice(key, rec, (function(ok) {
+                saveRenewalInvoice(key, rec, (function(ok) {
                     tdPaintDrop(key, ok ? rec : invCache[key] || null);
                     if (ok && !tdFind("data-tdnum", key)) { toast((r ? r.cert.org + " \u2014 " : "") + "invoice attached. The renewal page offers it now.", "good"); renderTodo(); renderQueueCounts(); return; }
                     if (ok) {
@@ -7804,7 +7804,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             then(null);
         }));
     }
-    function saveInvoice(key, rec, then) {
+    /* Was also called saveInvoice, which replaced the certification panel's saveInvoice(row): the panel's
+       Save the Invoice threw and saved nothing (29 Oct 2026). */
+    function saveRenewalInvoice(key, rec, then) {
         if (!db || !canWrite) {
             toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn");
             then(false);
@@ -8222,7 +8224,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     key: key
                 };
                 ensureToken(key, (function () {
-                    saveInvoice(key, rec, (function (ok) {
+                    saveRenewalInvoice(key, rec, (function (ok) {
                         if (ok) {
                             paintInvoice(key, r, rec);
                             var u8 = b64Bytes(rec.data);
