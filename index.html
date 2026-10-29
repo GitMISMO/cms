@@ -6132,7 +6132,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 onWriteRefused(e);
             }
         }
-        toast(what.charAt(0).toUpperCase() + what.slice(1) + ".");
+        /* Ticking Paid does what the daily payment check does (Jonna, 29 Oct 2026): a cycle sitting at
+           Awaiting Payment in a program with a demo moves on to Awaiting Demo Selection. Programs without
+           a demo have more than one next step, so they are left for a person, as the daily check leaves them. */
+        var movedOn = false;
+        if (body.paid && !(was && was.paid) && f.org && currentState(f) === "AwaitingPayment") {
+            var prog = (D.programs || []).filter((function(x) {
+                return x.name === f.program || x.code === f.program || x.mactsType === f.program || x.code === f.programCode;
+            }))[0];
+            if (prog && prog.demo === true && STATE.AwaitingDemoSelection) {
+                recordMove(f, "AwaitingDemoSelection", null, "Paid" + (body.orderId ? ", Aptify order " + body.orderId : "") + ", so it moved on to picking the demo date");
+                movedOn = true;
+            }
+        }
+        toast(what.charAt(0).toUpperCase() + what.slice(1) + (movedOn ? ", and " + f.org + " moved on to Awaiting Demo Selection." : "."));
         renderAll();
     }
     function feeLine(f) {
