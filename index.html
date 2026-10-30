@@ -13,7 +13,7 @@
     /* The rail's labels and every figure are set in IBM Plex Mono, the same as the financial
        system. It was spelled out inline in one place and nowhere else, which is why the rail's
        section headings came out in the sans face and did not match the other pages. */
-    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --mono:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; /* no monospace anywhere (Jonna): figures use tabular-nums */
     --navy:#0d314c; --navy-deep:#06202f; --navy-mid:#14486e;
     --sky:#74bfeb; --sky-soft:#94c8e9; --sky-wash:#dcedf8;
     --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
@@ -185,7 +185,7 @@
      either theme, capped at 99+, and - when the rail is narrowed - pinned to the icon's top
      corner rather than hidden along with the label. Gold is waiting on somebody; red is late. */
   .navlink .pip{margin-left:auto; flex:0 0 auto; box-sizing:border-box;
-    min-width:19px; height:19px; padding:0 6px; border-radius:10px;
+    min-width:19px; height:19px; padding:0 6px; border-radius:4px;
     background:#eda100; color:#06202f;
     font-family:var(--mono);
     font-size:10.5px; font-weight:700; line-height:19px; text-align:center; letter-spacing:.02em;
@@ -368,7 +368,7 @@
   .td-group{border:1px solid var(--border); border-radius:9px; background:var(--surface); margin-bottom:14px; overflow:hidden;}
   .td-ghead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:11px 16px; background:var(--surface-2); border-bottom:1px solid var(--border);}
   .td-ghead h3{font-size:14px; margin:0;}
-  .td-ghead .td-c{font-size:11px; background:var(--chip); color:var(--ink-2); border-radius:20px; padding:1px 8px; font-weight:600;}
+  .td-ghead .td-c{font-size:11px; background:var(--chip); color:var(--ink-2); border-radius:4px; padding:1px 8px; font-weight:600;}
   .td-ghead .td-help{font-size:12px; color:var(--ink-3); flex:1 1 260px;}
   .td-item{display:flex; gap:10px 16px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:12px 16px; border-top:1px solid var(--border);}
   .td-group .td-item:first-of-type{border-top:none;}
@@ -396,7 +396,7 @@
   .td-fold>summary::-webkit-details-marker{display:none;}
   .td-fold>summary:before{content:"\25B8"; color:var(--ink-3); display:inline-block; transition:transform .15s;}
   .td-fold[open]>summary:before{transform:rotate(90deg);}
-  .td-chip{font-size:11.5px; font-weight:500; color:var(--ink-2); background:var(--chip); border-radius:20px; padding:2px 9px;}
+  .td-chip{font-size:11.5px; font-weight:500; color:var(--ink-2); background:var(--chip); border-radius:4px; padding:2px 9px;}
   .td-fbody{padding:0 16px 12px;}
   .td-fbody h4{font-size:11.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); margin:14px 0 2px;}
   .td-fbody .td-bn{font-size:12px; color:var(--ink-3); margin:0 0 4px;}
@@ -417,7 +417,7 @@
   .qhead h3{font-size:13.5px;}
   .qhead .who{font-size:11.5px; color:var(--ink-3);}
   .qhead .cnt{font-size:11px; background:var(--chip); color:var(--ink-2);
-    border-radius:999px; padding:1px 9px;}
+    border-radius:4px; padding:1px 9px;}
   .qcard{border:1px solid var(--border); border-left:3px solid var(--c1); border-radius:7px;
     padding:12px 15px; margin-bottom:9px; background:var(--surface-2);}
   .qcard.warn{border-left-color:var(--warn);} .qcard.bad{border-left-color:var(--bad);}
@@ -442,8 +442,8 @@
 
   /* ---------- tags and pills ---------- */
   .tag{display:inline-block; font-size:10px; text-transform:uppercase;
-    letter-spacing:.05em; padding:2px 8px; border-radius:999px; background:var(--chip); color:var(--ink-2); white-space:nowrap;}
-  .st{display:inline-block; font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; white-space:nowrap;}
+    letter-spacing:.05em; padding:2px 8px; border-radius:4px; background:var(--chip); color:var(--ink-2); white-space:nowrap;}
+  .st{display:inline-block; font-size:11px; font-weight:600; padding:2px 9px; border-radius:4px; white-space:nowrap;}
   .st.active{background:rgba(15,123,92,.15); color:var(--good);}
   .st.notactive{background:rgba(122,157,180,.2); color:var(--ink-3);}
   .st.superseded{background:rgba(36,119,184,.14); color:var(--c1);}
@@ -664,7 +664,7 @@
     border-left:2px solid var(--warn); padding-left:10px;}
   .prog-live b{color:var(--ink);}
   .prog-facts{display:flex; gap:8px; flex-wrap:wrap; margin-top:11px;}
-  .fact{font-size:11.5px; color:var(--ink-2); background:var(--chip); border-radius:999px; padding:3px 10px;}
+  .fact{font-size:11.5px; color:var(--ink-2); background:var(--chip); border-radius:4px; padding:3px 10px;}
   .prog-docs{margin-top:12px;}
   .prog-docs .pc-lab{margin-top:0; margin-bottom:7px;}
   .doc{display:inline-block; font-size:12px; color:var(--ink-2); background:var(--surface);
@@ -691,7 +691,7 @@
   .prc-amt:focus{outline:2px solid var(--sky); outline-offset:1px; border-color:var(--sky);}
   .prc-amt.edited{border-color:var(--c4); background:color-mix(in srgb, var(--c4) 8%, var(--surface));}
   .prc-was{font-size:11px; color:var(--warn); white-space:nowrap;}
-  .prc-tier{font-size:11px; color:var(--ink-2); background:var(--chip); border-radius:999px; padding:2px 9px;}
+  .prc-tier{font-size:11px; color:var(--ink-2); background:var(--chip); border-radius:4px; padding:2px 9px;}
   .prc-check{font-size:11.5px; color:var(--warn); margin-top:4px; display:block; line-height:1.45;}
   .prc-rule{border:1px solid var(--border); border-left:3px solid var(--c4); border-radius:8px;
     background:var(--surface-2); padding:14px 16px; margin-bottom:10px;}
@@ -732,7 +732,7 @@
   .fy-d.up{color:var(--good);} .fy-d.down{color:var(--warn);}
 
   .fy-years{display:flex; gap:6px; flex-wrap:wrap; margin:-6px 0 14px;}
-  .fy-year{background:var(--surface-2); border:1px solid var(--border); border-radius:999px;
+  .fy-year{background:var(--surface-2); border:1px solid var(--border); border-radius:4px;
     padding:4px 12px; font-family:inherit; font-size:11.5px; color:var(--ink-2); cursor:pointer;}
   .fy-year:hover{border-color:var(--border-strong); color:var(--ink);}
   .fy-year.on{background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600;}
@@ -813,7 +813,7 @@
   .asw-b:hover{border-color:var(--border-strong); color:var(--ink);}
   .asw-b.on{background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600;}
   .asw-n{font-variant-numeric:tabular-nums; font-size:11px; background:var(--chip);
-    color:var(--ink-2); border-radius:999px; padding:1px 8px;}
+    color:var(--ink-2); border-radius:4px; padding:1px 8px;}
   .asw-b.on .asw-n{background:rgba(255,255,255,.2); color:#fff;}
   .fact.no{color:var(--ink-3); border:1px dashed var(--border-strong); background:transparent;
     text-decoration:line-through; text-decoration-color:var(--bad);}
@@ -1215,7 +1215,7 @@
     letter-spacing:.06em; color:var(--ink-3); white-space:nowrap;}
   @media (max-width:560px){ .fq-d, .fq-t{margin-left:0;} }
   .fq-s{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0 30px;}
-  .fq-p{font-size:11.5px; color:var(--ink-2); background:var(--chip); border-radius:999px;
+  .fq-p{font-size:11.5px; color:var(--ink-2); background:var(--chip); border-radius:4px;
     padding:3px 10px;}
   @media (max-width:560px){
     .fq-a, .fq-s{margin-left:0;}
@@ -1232,7 +1232,7 @@
   .pl-val{display:block; font-size:19px; font-weight:600; margin-top:3px;}
   .prelim.clean .pl-val{color:var(--good);}
   .prelim.findings .pl-val{color:var(--bad);}
-  .pl-prog{flex:1 1 180px; height:7px; border-radius:999px; background:var(--track); overflow:hidden;
+  .pl-prog{flex:1 1 180px; height:7px; border-radius:3px; background:var(--track); overflow:hidden;
     min-width:120px;}
   .pl-prog span{display:block; height:100%; background:var(--sky);}
   .pl-n{font-size:12.5px; color:var(--ink-3); font-variant-numeric:tabular-nums;}
@@ -1439,7 +1439,7 @@
      copied or read aloud, not as "12cycles". */
   .card .big small{font-size:13px; font-weight:500; color:var(--ink-2);}
   .card .meta{display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end;}
-  .card .meta .chip{font-size:11px; padding:2px 8px; border-radius:11px;
+  .card .meta .chip{font-size:11px; padding:2px 8px; border-radius:4px;
     background:var(--chip,#eef4f9); color:var(--ink-2); white-space:nowrap;}
   .card .meta .chip.bad{background:transparent; color:var(--bad); box-shadow:inset 0 0 0 1px var(--bad);}
   .card .meta .chip.warn{background:transparent; color:var(--warn); box-shadow:inset 0 0 0 1px var(--warn);}
@@ -1477,7 +1477,7 @@
      section heading is not the place to shout. */
   .fq-count.guide{font-style:italic;}
   .fq-int{font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--warn);
-          border:1px solid var(--warn); border-radius:999px; padding:2px 8px; flex:none;}
+          border:1px solid var(--warn); border-radius:4px; padding:2px 8px; flex:none;}
   .fq-body{display:none; border-top:1px solid var(--rule);}
   .fq-sec.open .fq-body{display:block;}
   .fq-intro{font-size:12.5px; color:var(--ink-2); padding:12px 15px 0;}
@@ -1490,7 +1490,7 @@
   .fq-n{font-variant-numeric:tabular-nums; font-size:11.5px; color:var(--ink-3);
         min-width:30px; flex:none;}
   .fq-t{flex:1; font-size:13px; line-height:1.45;}
-  .fq-type{font-size:11px; color:var(--ink-2); background:var(--chip); border-radius:999px;
+  .fq-type{font-size:11px; color:var(--ink-2); background:var(--chip); border-radius:4px;
            padding:2px 9px; flex:none; white-space:nowrap;}
   .fq-q.flag .fq-type{background:transparent; color:var(--warn); border:1px solid var(--warn);}
   .fq-det{display:none; padding:2px 15px 15px 56px;}
@@ -1692,7 +1692,7 @@
   .fq-bar .fq-meta{margin:0; flex:1 1 auto;}
   .fq-acts{display:flex; gap:8px; flex:0 0 auto;}
   .fq-chg{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#fff;
-    background:var(--c2); border-radius:999px; padding:2px 8px; flex:none;}
+    background:var(--c2); border-radius:4px; padding:2px 8px; flex:none;}
   .fq-sec.edited{border-color:var(--c2);}
   .fq-q.edited{background:color-mix(in srgb, var(--c2) 5%, transparent);}
   .fq-q.gone .fq-t{text-decoration:line-through; color:var(--ink-3);}
@@ -1726,7 +1726,7 @@
     padding-bottom:9px; margin-bottom:12px; border-bottom:1px solid var(--rule);}
   .nc-mhead h3{font-size:15px;}
   .nc-mhead .cnt{font-size:11px; background:var(--chip);
-    color:var(--ink-2); border-radius:999px; padding:1px 9px;}
+    color:var(--ink-2); border-radius:4px; padding:1px 9px;}
   .nc-mhead .sp{margin-left:auto;}
   .nc-copy{background:none; border:1px solid var(--border-strong); border-radius:5px;
     color:var(--ink-2); font-family:inherit; font-size:11.5px; padding:4px 10px; cursor:pointer;}
@@ -2107,6 +2107,7 @@
   :root[data-theme="dark"] .card .meta .chip.warn{background:rgba(224,168,60,.16);}
   /* The legend dot beside a bar segment is a dot, and the segbar is already squared. */
   .card .legend i{border-radius:2px;}
+  [style*="var(--mono)"], .num{font-variant-numeric:tabular-nums;}
 </style>
 <script src="/assets/session.js"></script>
 </head>
