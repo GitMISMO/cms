@@ -8106,7 +8106,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return r.blockers.length;
         })).length;
         var cav = $("rn-caveat");
-        if (cav) cav.innerHTML = due.length && (nm || bl) ? '<div class="qwatch">' + (bl ? bl + (bl === 1 ? " quotation cannot be worked out yet" : " quotations cannot be worked out yet") + " \u2014 the reason is on the row and in the prompt. " : "") + (nm ? nm + (nm === 1 ? " company has" : " companies have") + " no membership recorded, so the " + money(surchargeAmount("RON")) + " non-member surcharge may be missing from the figure. The prompt says so against each one." : "") + "</div>" : "";
+        if (cav) cav.innerHTML = due.length && (nm || bl) ? '<div class="qwatch">' + (bl ? bl + (bl === 1 ? " quotation cannot be worked out yet" : " quotations cannot be worked out yet") + " \u2014 the reason is on the row and in the instructions. " : "") + (nm ? nm + (nm === 1 ? " company has" : " companies have") + " no membership recorded, so the " + money(surchargeAmount("RON")) + " non-member surcharge may be missing from the figure. The prompt says so against each one." : "") + "</div>" : "";
         box.innerHTML = due.length ? '<div class="etable"><div class="ehead renew">' + "<span>Company</span><span>Program</span><span>Quote By</span>" + '<span class="num">Anniversary</span><span class="num">Fee</span><span>Due</span></div>' + due.map(renewalRowHTML).join("") + "</div>" : '<div class="empty">No quotations are due in the next ' + renewWindow + " days.</div>";
         var p = $("rn-prompt");
         if (p) p.value = renewalPrompt(due);

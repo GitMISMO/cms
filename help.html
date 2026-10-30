@@ -180,7 +180,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <nav class="toc" aria-label="Sections">
     <a href="#h-start">Start Here</a><a href="#h-day">Your Day</a><a href="#h-initial">Initial Certification</a><a href="#h-renewal">Renewals</a>
     <a href="#h-demo">Demos and Remediation</a><a href="#h-approve">Approvals and Mark License</a><a href="#h-assessors">Assessors</a>
-    <a href="#h-emails">Emails</a><a href="#h-prices">Programs and Prices</a><a href="#h-money">MISMO Money</a><a href="#h-where">Where Things Live</a>
+    <a href="#h-emails">Emails</a><a href="#h-prices">Programs and Prices</a><a href="#h-money">MISMO Money</a><a href="#h-connect">Connections</a><a href="#h-where">Where Things Live</a>
     <a href="#h-schedule">What Runs When</a><a href="#h-macts">From MACTS</a><a href="#h-wrong">If Something Goes Wrong</a>
   </nav>
 
@@ -208,7 +208,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <table><tr><th>Group</th><th>What to Do</th></tr>
         <tr><td class="plain"><b>Raise the Invoice</b></td><td>The renewal invoice is due (14 days before the first renewal notice). Raise it in Aptify, drop the PDF on the line, type the Aptify order number, press Mark as Sent. The company's renewal page offers it from then on. The weekly "Invoices to Raise" email lists the same ones.</td></tr>
         <tr><td class="plain"><b>Attach the Invoice PDF</b></td><td>Raised, but the renewal page has no PDF to offer. Drop it on the line.</td></tr>
-        <tr><td class="plain"><b>Mark License Needs an Email</b></td><td>Approved, but no signer email on file. Type the signer's email and Send for Signature; DocuSign does the rest.</td></tr>
+        <tr><td class="plain"><b>Mark License Needs an Email</b></td><td>Approved, but neither the authorized signer nor the primary contact has an email on file. Type the signer's email and Send for Signature; DocuSign does the rest.</td></tr>
         <tr><td class="plain"><b>Assign an Assessor</b></td><td>Choose the firm from the list.</td></tr>
         <tr><td class="plain"><b>Send the Welcome Email / Certification Script</b></td><td>Rare now: both normally happen on their own.</td></tr>
         <tr><td class="plain"><b>Expire or Keep?</b></td><td>Past its anniversary with no renewal opened. Open the record and decide.</td></tr>
@@ -310,6 +310,29 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <p style="margin-top:12px"><b>From MISMO Money:</b> each morning it sends the Aptify payments it has loaded. A payment that matches one invoice exactly is recorded and the certification moves on; anything else waits on the Invoices page for a person to Record It.</p>
       <p><b>To MISMO Money:</b> the date each certification was approved, which is when MISMO Money recognizes the revenue and the assessor's fee. Written the first time the approval is seen and never changed.</p>
       <p>The foot of the CMS menu shows when each last happened. A green dot is current; amber means older than expected (more than three days for payments, thirty for approvals).</p>
+    </div>
+  </details>
+
+  <details class="sect" id="h-connect">
+    <summary>Connections</summary>
+    <div class="sbody prose">
+      <p style="margin-top:12px">Everything the CMS connects to, what passes between them, and what to check if one stops. No connection needs anyone to copy anything across by hand.</p>
+      <table><tr><th>Connection</th><th>What passes, and which way</th><th>If it stops</th></tr>
+        <tr><td class="plain">MISMO Resources sign-in and the save service</td><td>Staff and assessors sign in with their MISMO Resources account. Every change made in the CMS or the Assessor Portal is saved through MISMO's save service into the records, with who made it and when.</td><td>Pages open but say nothing is being saved. Perry looks after the save service.</td></tr>
+        <tr><td class="plain">The records (GitHub, GitMISMO/cms-data, private)</td><td>Holds every company, certification, invoice, email log and setting. The scheduled jobs run there: stage emails, renewal notices, CMSP and AMSP, Mark License, payments, approvals, renewal and booking pages, assessor engagement lists, the morning health check.</td><td>The morning System Health Check email names the job that failed.</td></tr>
+        <tr><td class="plain">Email (Power Automate, certifications mailbox)</td><td>The jobs hand each email to the certification email flow (MISMO Renewal Notice - Send), which sends it from certifications@mismo.org with that mailbox copied. Every email is built on the shared MISMO email template (resources.mismo.org/assets/email-shell.html); if the template cannot be fetched, nothing is sent and the job fails loudly rather than sending an unbranded email.</td><td>Emails wait and go on the next run once the flow is back on. Sent Emails shows what went.</td></tr>
+        <tr><td class="plain">Company pages (Power Automate)</td><td>The renewal page is answered through MISMO Renewal Page - Serve; the demo booking and remediation date pages through MISMO Demo Booking - Serve. Both read and write the records using the GitHub key kept in SharePoint (Certification Applications &gt; System), so a flow update never loses it.</td><td>The company's page will not open or save. Check the flow is on in Power Automate.</td></tr>
+        <tr><td class="plain">The clock (Power Automate)</td><td>MISMO Certification Scheduler starts the timed jobs on MISMO's working hours (see What Runs When).</td><td>Timed emails stop; the health check reports that stage emails have not run.</td></tr>
+        <tr><td class="plain">Application forms (Power Automate)</td><td>MISMO Application Forms - Submission takes each application form from resources.mismo.org/forms/, emails the full record to certifications@mismo.org, confirms receipt to the applicant, files the form and its attachments in SharePoint, and puts the application on the CMS board. The Application Agreement then goes out through DocuSign, and MISMO Certification Agreement - Heads Up for Brian tells the President a signature is on its way.</td><td>New applications stop arriving in certifications@mismo.org.</td></tr>
+        <tr><td class="plain">DocuSign</td><td>Two agreements only: the Application Agreement and the Mark License Agreement (from MISMO Mark License - Send, to the company's authorized signer, then countersigned by the President). Signed agreements are filed in SharePoint and the certification moves to Certified.</td><td>Approved certifications wait at Mark License; the Action Queue shows them.</td></tr>
+        <tr><td class="plain">SharePoint (MISMO Certifications site)</td><td>The agreement templates, signed agreements, application documents, the MACTS documents by company, and the GitHub key the flows use.</td><td>Document links on a record will not open.</td></tr>
+        <tr><td class="plain">Aptify and MISMO Money</td><td>Invoices are raised in Aptify. The order number is read from the invoice PDF when it is dropped on a renewal. MISMO Money sends the Aptify payments each morning and receives each certification's approval date for revenue (see MISMO Money above).</td><td>The dot at the foot of the CMS menu turns amber; payments can still be recorded by hand with the Paid box.</td></tr>
+        <tr><td class="plain">Assessor Portal</td><td>Each firm sees its own engagements and certification scripts, rebuilt every morning, and records each step (demo done, findings, results, remediation, progress notes). Each step reaches the CMS within minutes and sends the right email.</td><td>Assessors can still email certifications@mismo.org; record the step in the CMS.</td></tr>
+        <tr><td class="plain">Public lists on resources.mismo.org</td><td>The certified-provider and certified-professional lists, and each CMSP and AMSP applicant's private progress page, are published from the records automatically. Publishing uses a GitHub key saved in the records' settings that expires October 28, 2027.</td><td>The public lists stop updating; the job that publishes them fails and the health check says so.</td></tr>
+        <tr><td class="plain">Member 360</td><td>A snapshot of member companies and levels, used for CMSP and AMSP member pricing and Champion complimentary places. Refreshed each January.</td><td>Member pricing reflects the last snapshot.</td></tr>
+      </table>
+      <p><b>Who at a company gets which email.</b> Each company record holds a Primary Contact, an Invoice Contact and an Authorized Signer (Companies, then Company Details). Certification emails go to the primary contact; invoices and payment reminders to the invoice contact; the Mark License Agreement, the approval and the renewal notices also to the authorized signer. If the invoice contact or signer is missing, that email goes to the primary contact. Until a company's primary contact is saved in the CMS, the people MACTS wrote to keep receiving emails too.</p>
+      <p><b>Assessors</b> are emailed only when they are asked to do something: confirm a time, send the invitation, receive artifacts or remediation evidence, answer a question, or record a result.</p>
     </div>
   </details>
 
