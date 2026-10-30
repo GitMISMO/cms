@@ -407,9 +407,64 @@
   .td-prow{display:flex; gap:8px 14px; align-items:center; justify-content:space-between; flex-wrap:wrap; border-top:1px solid var(--border); padding:9px 0;}
   #td-more .box{display:none;}
   .td-acts .lc-btn[disabled]{opacity:.45; cursor:default;}
-  .td-more{margin-top:26px; border-top:1px solid var(--border); padding-top:6px;}
-  .td-more>summary{cursor:pointer; color:var(--ink-3); font-size:12.5px; padding:8px 0;}
-  .td-more[open]>summary{margin-bottom:14px;}
+  /* The Action Queue (30 Oct 2026): figure boxes on the navy band choose the list below. */
+  .tq-band{margin-bottom:16px;}
+  .tq-tile{position:relative;}
+  .tq-tile.on{background:rgba(116,191,235,.22); border-color:var(--sky); box-shadow:0 0 0 1px var(--sky) inset;}
+  .tq-tile.on:after{content:""; position:absolute; left:14px; right:14px; bottom:-1px; height:3px; background:var(--sky);}
+  .tq-panel{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px 20px 8px; margin-bottom:20px;}
+  .tq-phead h2{font-size:18px; margin:0; display:flex; align-items:center; gap:10px;}
+  .tq-phead .tq-n{font-size:12px; font-weight:600; background:var(--chip); color:var(--ink-2); border-radius:4px; padding:2px 8px;}
+  .tq-phead p{margin:4px 0 0; color:var(--ink-2); font-size:13px; line-height:1.5;}
+  .tq-tools{display:flex; gap:10px 14px; align-items:center; flex-wrap:wrap; margin:14px 0 10px;}
+  .tq-search{width:280px !important; max-width:100%; padding:8px 11px !important;}
+  .tq-sort{margin:0 !important;}
+  .tq-kinds{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px;}
+  .tq-k{appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--ink-2); border-radius:4px; padding:6px 10px; font:inherit; font-size:12.5px; cursor:pointer; display:inline-flex; gap:7px; align-items:center; border-left-width:3px;}
+  .tq-k b{font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .tq-k:hover{border-color:var(--border-strong);}
+  .tq-k.on{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .tq-k.on b{color:#fff;}
+  .tq-k.t-money{border-left-color:var(--warn);} .tq-k.t-assess{border-left-color:var(--sky);} .tq-k.t-co{border-left-color:var(--navy-mid);} .tq-k.t-late{border-left-color:var(--bad);} .tq-k.t-sign{border-left-color:var(--good);}
+  .tq-k.on{border-left-color:var(--sky);}
+  .tq-kind{display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:3px; margin-bottom:5px; background:var(--chip); color:var(--ink-2); border-left:3px solid var(--ink-3);}
+  .tq-kind.t-money{border-left-color:var(--warn);} .tq-kind.t-assess{border-left-color:var(--sky);} .tq-kind.t-co{border-left-color:var(--navy-mid);} .tq-kind.t-late{border-left-color:var(--bad);} .tq-kind.t-sign{border-left-color:var(--good);}
+  .tq-kind + .td-org{display:block;}
+  .tq-list{border-top:1px solid var(--border);}
+  .tq-list.mine .td-item{padding:14px 4px 14px 14px; border-top:none; border-bottom:1px solid var(--border);}
+  .tq-list.mine .td-item.bad{box-shadow:inset 3px 0 0 var(--bad);}
+  .tq-list.mine{border-top:none;}
+  .tq-sect{margin-bottom:18px;}
+  .tq-shead{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:9px 12px; background:var(--surface-2); border:1px solid var(--border); border-left:4px solid var(--ink-3); border-radius:4px;}
+  .tq-shead b{font-size:14px;}
+  .tq-shead span{font-size:12px; font-weight:700; color:var(--ink-2); font-variant-numeric:tabular-nums;}
+  .tq-shead small{font-size:12.5px; color:var(--ink-3); flex:1 1 300px;}
+  .tq-shead.t-money{border-left-color:var(--warn);} .tq-shead.t-assess{border-left-color:var(--sky);} .tq-shead.t-co{border-left-color:var(--navy-mid);} .tq-shead.t-late{border-left-color:var(--bad);} .tq-shead.t-sign{border-left-color:var(--good);}
+  .tq-list .td-clear{margin:14px 0;}
+  .tq-colhead, .tq-row{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 150px; gap:16px; align-items:center;}
+  .tq-colhead{font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); padding:10px 4px 8px; border-bottom:1px solid var(--border);}
+  .tq-row{width:100%; text-align:left; background:none; border:none; border-bottom:1px solid var(--border); padding:12px 4px; font:inherit; color:var(--ink); cursor:pointer;}
+  .tq-row:hover{background:var(--surface-2);}
+  .tq-row:hover .tq-co b{text-decoration:underline;}
+  .tq-row:focus-visible{outline:2px solid var(--sky); outline-offset:-2px;}
+  .tq-co b, .tq-next b{display:block; font-size:14px; font-weight:600;}
+  .tq-next b{font-weight:500;}
+  .tq-co small, .tq-next small{display:block; font-size:12.5px; color:var(--ink-2); margin-top:2px;}
+  .tq-age b{display:block; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .tq-age i{display:block; height:6px; background:var(--track); border-radius:2px; margin-top:5px; overflow:hidden;}
+  .tq-age i em{display:block; height:100%; background:var(--sky);}
+  .tq-age.late b{color:var(--bad);}
+  .tq-age.late i em{background:var(--bad);}
+  .tq-prow .td-prow{border-top:none; border-bottom:1px solid var(--border); padding:12px 4px;}
+  .tq-none{padding:16px 4px; color:var(--ink-2); font-size:13px;}
+  @media(max-width:760px){
+    .tq-colhead{display:none;}
+    .tq-row{grid-template-columns:1fr; gap:6px;}
+    .tq-age{display:flex; align-items:center; gap:10px;} .tq-age i{flex:1; margin-top:0;}
+    .tq-search{width:100% !important;}
+    .hl-tiles.tq-tiles{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+    .tq-tile{padding:10px 12px;}
+  }
   .ml-files{margin:4px 0 0; padding-left:18px; font-size:13px; line-height:1.7;}
   .ml-files .quiet{color:var(--ink-3); font-size:11.5px;}
   .qgroup{margin-bottom:24px;} .qgroup:last-child{margin-bottom:0;}
@@ -1047,6 +1102,11 @@
   @media (max-width:560px){ .phead-act{width:100%; padding-bottom:16px;}
     .phead-act .lc-btn{width:100%;} }
   .na-hint{font-size:12px; color:var(--ink-3); line-height:1.5;}
+  /* Email the Invoice (30 Oct 2026): on a record, and the drop zone on New Application */
+  .ai-box{display:flex; flex-direction:column; gap:10px; border:1px solid var(--border); border-radius:6px; padding:12px 14px; background:var(--surface-2);}
+  .ai-box .td-drop{background:var(--surface);}
+  .ai-box .na-acts{margin-top:0;}
+  .na-drop{margin:0 0 12px;}
   .na{border:1px solid var(--border); border-left:3px solid var(--sky); border-radius:8px;
     background:var(--surface-2); padding:18px 20px; margin-bottom:22px;}
   .na-head{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
@@ -2228,58 +2288,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <section class="view on" id="view-queue">
     <div class="vhead"><div class="grow">
       <h1>Action Queue</h1>
-      <p>What needs you, one line each, with the button that does it. Everything waiting on somebody else is folded away below it.</p>
+      <p>Every open certification, sorted by whose move it is. Select a box to see its list; select a company to open its record.</p>
     </div><div class="phead-act" id="na-act"></div></div>
 
     <div id="newapp"></div>
     <div id="todo"></div>
 
-    <details class="td-more" id="td-more"><summary>Numbers and Certification Scripts</summary>
-
-    <div class="headline" id="headline">
-      <div class="hl-top">
-        <div class="hl-date" id="hl-date"></div>
-      </div>
-      <div class="hl-body" id="hl-body"></div>
-    </div>
-
-    <div class="box">
-      <h2 class="sect-t" id="work-title">What Needs Doing</h2>
-      <p class="sect-s" id="work-sub">The same open cycles, grouped by the step they are at rather than by urgency, so a cycle appears wherever it actually sits. Select a phase to list what is in it.</p>
-
-      <div class="segbar" role="tablist" aria-label="How to group the work">
-        <button class="seg" type="button" role="tab" aria-selected="false" data-work="queue">By What Needs Doing</button>
-        <button class="seg on" type="button" role="tab" aria-selected="true" data-work="phase">By Phase</button>
-      </div>
-
-      <div class="lastchange" id="lastchange"></div>
-      <div id="queue" hidden></div>
-      <div class="cards tight" id="pipe"></div>
-    </div>
-
-    <div id="licenselist" hidden></div>
-
-    <div id="as-scripts">
-    <div class="panel">
-      <div class="phead"><div>
-        <h2>Certification Scripts</h2>
-        <p class="psub">The assessment itself. Each row is one audit question with the criterion
-          MISMO applies, the evidence required, and where the script names one, the exact
-          screenshot to capture. Read out of the assessor workbooks by script and checked back
-          against them, so what is here cannot have drifted from the files Falcon works to.
-          Scripts exist for <b>RON, eClosing and eVault renewals</b>. MISMO completes one and
-          sends it to the assessor <b>before the renewal demo is booked</b> &mdash; a renewal
-          with a demo already proposed or scheduled and no script on file is on the queue
-          above, not waiting quietly.</p>
-      </div></div>
-      <div class="fq-meta" id="cs-meta"></div>
-      <div id="cs-pick"></div>
-      <div id="cs-body"></div>
-    </div>
-  
-    </div>
-
-    </details>
   </section>
 
   <!-- ================= INVOICES ================= -->
@@ -2386,6 +2400,29 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
   <!-- ================= CERTIFIED COUNTS ================= -->
   <section class="view" id="view-counts">
+    <!-- The program at a glance and the phase board (moved off the foot of the Action Queue, Jonna 30 Oct 2026) -->
+
+    <div class="headline" id="headline">
+      <div class="hl-top">
+        <div class="hl-date" id="hl-date"></div>
+      </div>
+      <div class="hl-body" id="hl-body"></div>
+    </div>
+
+    <div class="box">
+      <h2 class="sect-t" id="work-title">Open Work by Phase</h2>
+      <p class="sect-s" id="work-sub">Every open certification, counted by the phase it is at. Select a phase to list what is in it.</p>
+
+
+      <div class="lastchange" id="lastchange"></div>
+      <div id="queue" hidden></div>
+      <div class="cards tight" id="pipe"></div>
+    </div>
+
+    <div id="licenselist" hidden></div>
+
+
+    <div style="height:20px"></div>
     <div class="panel" id="counts-panel">
       <div class="phead">
         <div>
@@ -2619,6 +2656,28 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div></div>
       <div id="fq-live"></div>
     </div>
+
+    <!-- Certification Scripts (moved here from the Action Queue, Jonna 30 Oct 2026) -->
+    <div id="as-scripts">
+    <div class="panel" style="margin-top:20px;">
+      <div class="phead"><div>
+        <h2>Certification Scripts</h2>
+        <p class="psub">The assessment itself. Each row is one audit question with the criterion
+          MISMO applies, the evidence required, and where the script names one, the exact
+          screenshot to capture. Read out of the assessor workbooks by script and checked back
+          against them, so what is here cannot have drifted from the files Falcon works to.
+          Scripts exist for <b>RON, eClosing and eVault renewals</b>. MISMO completes one and
+          sends it to the assessor <b>before the renewal demo is booked</b> &mdash; a renewal
+          with a demo already proposed or scheduled and no script on file is on the Action
+          Queue, not waiting quietly.</p>
+      </div></div>
+      <div class="fq-meta" id="cs-meta"></div>
+      <div id="cs-pick"></div>
+      <div id="cs-body"></div>
+    </div>
+  
+    </div>
+
 
     <!-- The questions are reached FROM the table above, the way every other form is -
          not splayed open underneath it. Giving this panel a heading was not enough: it
@@ -3569,12 +3628,36 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<option value="' + st + '"' + (a.state === st ? " selected" : "") + ">" + esc(titleOfState(st)) + "</option>";
         })).join("") + "</select></div>" + '<div class="fld"><label for="na-recd">Received</label>' + '<input class="pc-input" type="date" id="na-recd" data-na-f="receivedOn" ' + 'value="' + esc(a.receivedOn || "") + '"></div>' + (a.program === "Product" ? '<div class="fld"><label for="na-size">Size Band</label>' + '<select class="pc-input" id="na-size" data-na-f="size">' + '<option value="">Not set</option>' + [ "small", "medium", "large" ].map((function(z) {
             return '<option value="' + z + '"' + (a.size === z ? " selected" : "") + ">" + esc(SIZE_LABEL[z]) + "</option>";
-        })).join("") + "</select></div>" : "") + '<div class="fld na-wide"><label for="na-notes">Notes</label>' + '<input class="pc-input" id="na-notes" data-na-f="notes" ' + 'value="' + esc(a.notes || "") + '" placeholder="Anything worth knowing"></div>' + "</div>" + '<div class="pc-lab" style="margin-top:18px;">Aptify Invoice</div>' + '<p class="na-hint" style="margin:0 0 10px;">Invoices are raised in Aptify. Record the ' + "Order ID here and it can be chased from Invoices.</p>" + '<div class="na-grid">' + '<div class="fld"><label for="na-ord">Order ID</label>' + '<input class="pc-input" id="na-ord" data-na-f="orderId" ' + 'value="' + esc(a.orderId || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="na-invon">Invoiced</label>' + '<input class="pc-input" type="date" id="na-invon" data-na-f="invoicedOn" ' + 'value="' + esc(a.invoicedOn || "") + '"></div>' + '<div class="fld"><label for="na-amt">Amount</label>' + '<input class="pc-input" id="na-amt" data-na-f="amount" inputmode="decimal" ' + 'value="' + esc(a.amount || "") + '" placeholder="' + (exp != null ? String(exp) : "") + '"></div>' + "</div>" + (exp != null && typed != null && typed !== exp ? '<div class="qwatch">The price list says ' + money(exp) + " for this. Not a problem " + "— a discount is a decision — but worth being deliberate about.</div>" : exp != null ? '<div class="pc-note">The price list says ' + money(exp) + " for this.</div>" : "") + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-na="save"' + (a.org && a.program ? "" : " disabled") + ">Add to the Board</button>" + '<button class="lc-btn ghost" type="button" data-na="cancel">Cancel</button>' + (a.org && a.program ? "" : '<span class="na-hint">A company and a program are the least it needs.</span>') + "</div>" + '<datalist id="na-orgs">' + (D.organizations || []).map((function(o) {
+        })).join("") + "</select></div>" : "") + '<div class="fld na-wide"><label for="na-notes">Notes</label>' + '<input class="pc-input" id="na-notes" data-na-f="notes" ' + 'value="' + esc(a.notes || "") + '" placeholder="Anything worth knowing"></div>' + "</div>"
+            + '<div class="pc-lab" style="margin-top:18px;">Applicant Contact</div>' + '<p class="na-hint" style="margin:0 0 10px;">Who the invoice and the emails that follow go to. Leave it blank for a company already on file and its invoice or primary contact is used.</p>'
+            + '<div class="na-grid"><div class="fld"><label for="na-cname">Name</label><input class="pc-input" id="na-cname" data-na-f="contactName" value="' + esc(a.contactName || "") + '" placeholder="First and last name"></div>'
+            + '<div class="fld"><label for="na-cemail">Email</label><input class="pc-input" id="na-cemail" data-na-f="contactEmail" value="' + esc(a.contactEmail || "") + '" placeholder="name@company.com"></div></div>'
+            + '<div class="pc-lab" style="margin-top:18px;">Aptify Invoice</div>' + '<p class="na-hint" style="margin:0 0 10px;">Raise the invoice in Aptify, then drop the PDF here: the order number and total are read off it. Add and Send the Invoice emails it to the applicant.</p>'
+            + '<div class="td-drop na-drop' + (a.pdf ? " have" : "") + '" data-nadrop><span class="td-dz">' + (a.pdf ? "<b>\u2713</b> " + esc(a.pdf.name) : "Drop the invoice PDF here") + '</span><button class="lc-btn ghost tiny" type="button" data-na="pick">' + (a.pdf ? "Replace" : "Choose a File") + '</button><input type="file" accept="application/pdf,.pdf" hidden data-nafile></div>'
+            + '<div class="na-grid">' + '<div class="fld"><label for="na-ord">Order ID</label>' + '<input class="pc-input" id="na-ord" data-na-f="orderId" ' + 'value="' + esc(a.orderId || "") + '" placeholder="From Aptify"></div>' + '<div class="fld"><label for="na-invon">Invoiced</label>' + '<input class="pc-input" type="date" id="na-invon" data-na-f="invoicedOn" ' + 'value="' + esc(a.invoicedOn || "") + '"></div>' + '<div class="fld"><label for="na-amt">Amount</label>' + '<input class="pc-input" id="na-amt" data-na-f="amount" inputmode="decimal" ' + 'value="' + esc(a.amount || "") + '" placeholder="' + (exp != null ? String(exp) : "") + '"></div>' + "</div>" + (exp != null && typed != null && typed !== exp ? '<div class="qwatch">The price list says ' + money(exp) + " for this. Not a problem " + "— a discount is a decision — but worth being deliberate about.</div>" : exp != null ? '<div class="pc-note">The price list says ' + money(exp) + " for this.</div>" : "") + '<div class="na-acts">' + (a.pdf ? '<button class="lc-btn" type="button" data-na="savesend"' + (a.org && a.program ? "" : " disabled") + ">Add and Send the Invoice</button>" : "") + '<button class="lc-btn' + (a.pdf ? " ghost" : "") + '" type="button" data-na="save"' + (a.org && a.program ? "" : " disabled") + ">Add to the Board" + (a.pdf ? " Only" : "") + "</button>" + '<button class="lc-btn ghost" type="button" data-na="cancel">Cancel</button>' + (a.org && a.program ? "" : '<span class="na-hint">A company and a program are the least it needs.</span>') + "</div>" + '<datalist id="na-orgs">' + (D.organizations || []).map((function(o) {
             return '<option value="' + esc(typeof o === "string" ? o : o.name || "") + '"></option>';
         })).join("") + "</datalist>" + "</div>";
         wireNewApp(el);
     }
     function wireNewApp(el) {
+        var nd = el.querySelector("[data-nadrop]"), nfile = el.querySelector("[data-nafile]");
+        var takeNa = function(file) {
+            aiReadFile(file, (function(rec, info) {
+                if (!newApp) return;
+                newApp.pdf = rec;
+                if (info.number && !newApp.orderId) newApp.orderId = info.number;
+                if (info.total != null && !newApp.amount) newApp.amount = String(info.total);
+                if (info.number && !newApp.invoicedOn) newApp.invoicedOn = isoDay(new Date);
+                renderNewApp();
+                toast(info.number ? "Order " + info.number + (info.total != null ? " for " + money(info.total) : "") + " read off the invoice." : "Invoice kept. The order number could not be read from it, so type it in Order ID.", info.number ? "good" : "warn");
+            }));
+        };
+        if (nd) {
+            [ "dragenter", "dragover" ].forEach((function(ev) { nd.addEventListener(ev, (function(e) { e.preventDefault(); nd.classList.add("over"); })); }));
+            nd.addEventListener("dragleave", (function(e) { if (!nd.contains(e.relatedTarget)) nd.classList.remove("over"); }));
+            nd.addEventListener("drop", (function(e) { e.preventDefault(); nd.classList.remove("over"); takeNa(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]); }));
+        }
+        if (nfile) nfile.addEventListener("change", (function() { takeNa(nfile.files && nfile.files[0]); nfile.value = ""; }));
         Array.prototype.forEach.call(el.querySelectorAll("[data-na-f]"), (function(i) {
             var ev = i.tagName === "SELECT" ? "change" : "input";
             i.addEventListener(ev, (function() {
@@ -3621,14 +3704,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     newApp = null;
                     renderNewApp();
                 } else if (k === "save") {
-                    saveNewApp();
+                    saveNewApp(false);
+                } else if (k === "savesend") {
+                    saveNewApp(true);
+                } else if (k === "pick") {
+                    var nf = el.querySelector("[data-nafile]");
+                    if (nf) nf.click();
                 }
             }));
         }));
     }
-    function saveNewApp() {
+    function saveNewApp(sendInvoice) {
         var a = newApp;
         if (!a || !a.org || !a.program) return;
+        if (sendInvoice && !String(a.orderId || "").trim()) { toast("Type the Aptify order number first, so the payment can be matched to it.", "warn"); var oi = $("na-ord"); if (oi) oi.focus(); return; }
+        if (sendInvoice && a.contactEmail && !aiEmails(a.contactEmail).length) { toast("That email address does not look right.", "warn"); return; }
         var row = APP_SEQ--;
         while (apps[row]) row = APP_SEQ--;
         var amt = a.amount ? Number(String(a.amount).replace(/[^0-9.]/g, "")) : null;
@@ -3644,6 +3734,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             size: a.size || null,
             cost: amt,
             notes: (a.notes || "").trim() || null,
+            contacts: aiEmails(a.contactEmail || "").length ? [ { name: String(a.contactName || "").trim() || null, email: aiEmails(a.contactEmail)[0] } ] : null,
             source: "Entered on the board",
             enteredBy: me && me.name ? me.name : "You",
             enteredAt: (new Date).toISOString()
@@ -3688,10 +3779,174 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         newApp = null;
         if (tdProspect(body.org)) editOrg(body.org, { status: "active", statusReason: null, statusSince: null }, "back from Prospects: application started");
-        toast(body.org + " added to the board.");
+        /* The invoice PDF dropped on the form, and Add and Send the Invoice (30 Oct 2026). */
+        if (a.pdf) {
+            var prec = Object.assign({}, a.pdf, { row: row });
+            appInv[row] = prec;
+            if (db) Promise.resolve(db.collection(appInvColl(row)).doc("pdf").set(prec)).catch(onWriteRefused);
+        }
+        var sentMsg = "";
+        if (a.pdf && sendInvoice) {
+            var f0 = byRow(row) || { row: row, org: body.org, program: body.program, product: body.product, kind: body.kind, state: body.state };
+            var to0 = aiEmails(a.contactEmail || "");
+            if (!to0.length) { var d0 = aiDefaultTo(f0); to0 = aiEmails(d0.email); }
+            if (to0.length && aiRequest(f0, to0, String(a.contactName || "").trim(), inv)) sentMsg = " The invoice goes to " + to0.join(", ") + " on the next run in business hours.";
+            else sentMsg = " The invoice was kept, but there is no email address to send it to: add one on the record and press Send the Invoice.";
+        }
+        toast(body.org + " added to the board." + sentMsg, sentMsg && sentMsg.indexOf("no email") >= 0 ? "warn" : "good");
         renderAll();
         renderNewApp();
         renderAssessorSwitch();
+    }
+    /* ---- An application's invoice, emailed to the applicant (Jonna, 30 Oct 2026: "for the manual new
+       application need the ability to add the invoice in and send it to the new applicant").
+       The PDF is kept in its own collection (app-invoice-<row>, doc "pdf") and its order number and
+       total are read off it. Send the Invoice writes a request to invoice-sends; the Stage notices job
+       sends it on its next run in business hours, from certifications@mismo.org with the PDF attached
+       and certifications@ copied, and logs it in stage-notice-log as application-invoice. ---- */
+    var appInv = {}, aiSends = {}, aiSent = {}, aiSubbed = false, aiTo = {};
+    function appInvColl(row) { return "app-invoice-" + String(row).replace(/[^A-Za-z0-9]/g, "m"); }
+    function aiEmails(s) { return String(s || "").split(/[;,\s]+/).map(function(x) { return x.trim(); }).filter(function(x) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x); }); }
+    function aiSubscribe() {
+        if (aiSubbed || !db) return;
+        aiSubbed = true;
+        try {
+            db.collection("invoice-sends").onSnapshot((function(snap) { var n = {}; (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); })); aiSends = n; aiRepaint(); }), (function() {}));
+            db.collection("stage-notice-log").onSnapshot((function(snap) { var n = {}; (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "application-invoice") n[d.id] = v; })); aiSent = n; aiRepaint(); }), (function() {}));
+        } catch (e) {}
+    }
+    function aiStatus(row) {
+        var asked = null, sent = null;
+        Object.keys(aiSends).forEach((function(k) { var v = aiSends[k]; if (v && String(v.row) === String(row) && (!asked || v.at > asked.at)) asked = v; }));
+        Object.keys(aiSent).forEach((function(k) { var v = aiSent[k]; if (v && String(v.row) === String(row) && (!sent || v.sentAt > sent.sentAt)) sent = v; }));
+        if (sent && (!asked || sent.sentAt >= asked.at)) return { text: (sent.held ? "Held for review and sent to certifications@ " : "Sent to " + String(sent.sentTo || "").split(";").filter((function(e) { return !/certifications@mismo\.org/i.test(e); })).join(", ") + " ") + fmt(String(sent.sentAt).slice(0, 10)) + ".", done: true };
+        if (asked) return { text: "Asked for " + fmt(String(asked.at).slice(0, 10)) + " by " + (asked.by || "someone") + ", to " + (asked.to || []).join(", ") + ". It goes out on the next run in business hours.", done: false };
+        return { text: "", done: false };
+    }
+    function aiDefaultTo(f) {
+        var base = ORG_BY_SLUG[orgSlug(f.org)], o = base ? tdEffOrg(base) : (orgEdits[orgSlug(f.org)] || {});
+        if (o.invoiceEmail) return { name: o.invoiceName || "", email: o.invoiceEmail };
+        if (o.contactEmail) return { name: o.contactName || "", email: o.contactEmail };
+        var ac = ((apps[f.row] || {}).contacts || []).filter((function(p) { return p && p.email; }))[0];
+        if (ac) return { name: ac.name || "", email: ac.email };
+        var b = companyContacts(f.org) || [], p = b.filter((function(x) { return x.notify && x.email; }))[0] || b.filter((function(x) { return x.email; }))[0];
+        return p ? { name: p.name || "", email: p.email } : { name: "", email: "" };
+    }
+    function aiBlock(f) {
+        if (!f || f.kind === "renewal") return "";
+        aiSubscribe();
+        var d = aiDefaultTo(f), to = aiTo[f.row] != null ? aiTo[f.row] : d.email, st = aiStatus(f.row);
+        return '<div class="pc-lab" style="margin-top:16px;">Email the Invoice</div>'
+            + '<div class="ai-box"><div class="td-drop" data-aidrop="' + f.row + '"><span class="td-dz">Drop the invoice PDF here</span>'
+            + (canWrite ? '<button class="lc-btn ghost tiny" type="button" data-aipick="' + f.row + '">Choose a File</button><input type="file" accept="application/pdf,.pdf" hidden data-aifile="' + f.row + '">' : "") + "</div>"
+            + '<div class="fld"><label>Send To</label><input class="pc-input" data-aito="' + f.row + '" value="' + esc(to) + '" placeholder="name@company.com"></div>'
+            + '<div class="na-acts">' + (canWrite ? '<button class="lc-btn" type="button" data-aisend="' + f.row + '">' + (st.done ? "Send It Again" : "Send the Invoice") + "</button>" : "")
+            + '<span class="na-hint" data-aistat="' + f.row + '">' + esc(st.text) + "</span></div>"
+            + '<p class="na-hint" style="margin:6px 0 0;">It goes from certifications@mismo.org with the PDF attached and certifications@ copied. '
+            + (d.email ? "Filled in from the contact on file" + (d.name ? " (" + esc(d.name) + ")" : "") + "." : "No contact is on file for " + esc(f.org) + ", so type the applicant’s address.") + " Separate several addresses with commas.</p></div>";
+    }
+    function aiPaint(row) {
+        var rec = appInv[row];
+        Array.prototype.forEach.call(document.querySelectorAll('[data-aidrop="' + row + '"]'), (function(d) {
+            var z = d.querySelector(".td-dz"), pick = d.querySelector("[data-aipick]");
+            d.classList.toggle("have", !!rec);
+            if (z) z.innerHTML = rec ? "<b>✓</b> " + esc(rec.name || "invoice.pdf") : "Drop the invoice PDF here";
+            if (pick) pick.textContent = rec ? "Replace" : "Choose a File";
+        }));
+    }
+    function aiRepaint() {
+        Array.prototype.forEach.call(document.querySelectorAll("[data-aistat]"), (function(s) {
+            var row = s.getAttribute("data-aistat"), st = aiStatus(row);
+            s.textContent = st.text;
+            var b = document.querySelector('[data-aisend="' + row + '"]');
+            if (b) b.textContent = st.done ? "Send It Again" : "Send the Invoice";
+        }));
+    }
+    function aiLoad(row) {
+        if (appInv[row] !== undefined) { aiPaint(row); return; }
+        if (!db) return;
+        Promise.resolve(db.collection(appInvColl(row)).doc("pdf").get()).then((function(d) { appInv[row] = d && d.exists ? d.data() : null; aiPaint(row); }), (function() { appInv[row] = null; }));
+    }
+    function aiReadFile(file, then) {
+        if (!file) return;
+        if (!/pdf$/i.test(file.name) && file.type !== "application/pdf") { toast("An invoice needs to be a PDF.", "warn"); return; }
+        if (file.size > 8 * 1024 * 1024) { toast("That file is over 8 MB, which is too big to keep here.", "warn"); return; }
+        var fr = new FileReader();
+        fr.onload = function() {
+            var rec = { name: file.name, size: file.size, type: "application/pdf", data: String(fr.result).split(",")[1] || "", at: (new Date).toISOString(), by: me && me.name || "someone" };
+            var u8 = b64Bytes(rec.data);
+            (u8 ? readPdfOrder(u8) : Promise.resolve(null)).then((function(info) { then(rec, info || {}); }));
+        };
+        fr.readAsDataURL(file);
+    }
+    function aiTake(row, file) {
+        var f = byRow(row);
+        if (!f) return;
+        if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
+        aiReadFile(file, (function(rec, info) {
+            rec.row = row;
+            Promise.resolve(db.collection(appInvColl(row)).doc("pdf").set(rec)).then((function() {
+                appInv[row] = rec;
+                aiPaint(row);
+                var dr = Object.assign({}, invoiceDraft(f)), ch = [];
+                if (info.number && !dr.orderId) { dr.orderId = info.number; ch.push("order " + info.number); }
+                if (info.total != null && !dr.amount) { dr.amount = String(info.total); ch.push(money(info.total)); }
+                if ((info.number || ch.length) && !dr.invoicedOn) dr.invoicedOn = isoDay(new Date);
+                if (ch.length) { invEdit[row] = dr; saveInvoice(row); }
+                toast(f.org + " — invoice PDF kept" + (ch.length ? "; " + ch.join(" and ") + " read off it and recorded." : info.number ? "." : ". The order number could not be read from it, so type it in Order ID.") + " Press Send the Invoice to email it.", "good");
+            }), onWriteRefused);
+        }));
+    }
+    /* writes the request; true when it was written */
+    function aiRequest(f, to, toName, inv) {
+        if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return false; }
+        var i = inv || invoiceOf(f) || {}, rec = appInv[f.row];
+        var at = (new Date).toISOString(), who = me && me.name || "someone";
+        var body = { row: f.row, org: f.org, program: f.program, product: f.product || null, kind: f.kind || "initial", state: currentState(f) || f.state || null,
+            orderId: i.orderId || null, amount: i.amount != null ? i.amount : null, to: to, toName: toName || null,
+            pdfCollection: appInvColl(f.row), pdfName: rec && rec.name || "invoice.pdf", at: at, by: who };
+        var id = String(f.row).replace(/[^0-9A-Za-z]/g, "m") + "-" + at.replace(/[^0-9]/g, "").slice(0, 14);
+        aiSends[id] = body;
+        Promise.resolve(db.doc("invoice-sends/" + id).set(body)).catch(onWriteRefused);
+        var entry = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "invoice", note: "invoice to be emailed to " + to.join(", ") + (body.orderId ? ", Aptify order " + body.orderId : ""), reason: null, at: at, by: who };
+        activity.unshift(entry);
+        try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {}
+        aiRepaint();
+        return true;
+    }
+    function aiSend(row) {
+        var f = byRow(row);
+        if (!f) return;
+        if (!appInv[row]) { toast("Drop the invoice PDF first, so it can go with the email.", "warn"); return; }
+        var inp = document.querySelector('[data-aito="' + row + '"]'), to = aiEmails(inp ? inp.value : "");
+        if (!to.length) { toast("Type the address to send it to.", "warn"); if (inp) inp.focus(); return; }
+        var i = invoiceOf(f) || {};
+        if (!i.orderId) { toast("Record the Aptify order number first (Order ID, then Save the Invoice), so the payment can be matched.", "warn"); return; }
+        if (!window.confirm("Email the invoice for " + f.org + " (" + f.program + ") to " + to.join(", ") + "?\n\nAptify order " + i.orderId + (i.amount != null ? ", " + money(i.amount) : "") + ". It goes from certifications@mismo.org with the PDF attached and certifications@ copied, on the next run in business hours.")) return;
+        var d = aiDefaultTo(f), name = to[0] && d.email && to[0].toLowerCase() === String(d.email).toLowerCase() ? d.name : "";
+        if (aiRequest(f, to, name, i)) toast(f.org + " — the invoice goes to " + to.join(", ") + " on the next run in business hours.", "good");
+    }
+    function aiWire(scope) {
+        Array.prototype.forEach.call(scope.querySelectorAll("[data-aidrop]"), (function(d) {
+            var row = +d.getAttribute("data-aidrop");
+            aiLoad(row);
+            if (d.__aiw) return;
+            d.__aiw = true;
+            [ "dragenter", "dragover" ].forEach((function(ev) { d.addEventListener(ev, (function(e) { e.preventDefault(); d.classList.add("over"); })); }));
+            d.addEventListener("dragleave", (function(e) { if (!d.contains(e.relatedTarget)) d.classList.remove("over"); }));
+            d.addEventListener("drop", (function(e) { e.preventDefault(); d.classList.remove("over"); aiTake(row, e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]); }));
+            var pick = d.querySelector("[data-aipick]"), file = d.querySelector("[data-aifile]");
+            if (pick && file) {
+                pick.addEventListener("click", (function() { file.click(); }));
+                file.addEventListener("change", (function() { aiTake(row, file.files && file.files[0]); file.value = ""; }));
+            }
+        }));
+        Array.prototype.forEach.call(scope.querySelectorAll("[data-aito]"), (function(i) {
+            i.addEventListener("input", (function() { aiTo[+i.getAttribute("data-aito")] = i.value; }));
+        }));
+        Array.prototype.forEach.call(scope.querySelectorAll("[data-aisend]"), (function(b) {
+            b.addEventListener("click", (function() { aiSend(+b.getAttribute("data-aisend")); }));
+        }));
     }
     var HOLD_COLOUR = {
         MISMO: "var(--c1)",
@@ -4120,6 +4375,94 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="td-meta">' + (last ? esc(last.program) + (last.product ? " · " + esc(last.product) : "") + " · " : "") + esc(why) + "</div></div>"
             + (canWrite ? '<div class="td-acts">' + tdBtn("Start Application", 'data-tdstart="' + esc(name) + '"', true) + "</div>" : "") + "</div>";
     }
+    /* ---- The Action Queue (redesigned 30 Oct 2026, Jonna: "a nice easy organized queue, dynamic").
+       Figure boxes on a navy band, one per whose-move-it-is; selecting a box lists it below, with a
+       search, a sort and (for Needs You) a filter by kind of task. Nothing is folded away: each box
+       is its own list. "Waiting on Others" is gone - each party has its own box and each line says,
+       in plain words, what that party is doing next. ---- */
+    var TQ_VIEWS = [
+        [ "you", "Needs You", "MISMO has the next move. Each line has the button that does it." ],
+        [ "company", "With the Company", "Nothing for you to do yet. The company has the next move, written on each line. If they go quiet, the line comes back to Needs You as a follow-up." ],
+        [ "assessor", "With the Assessor", "Nothing for you to do yet. The assessor has the next move and records it in the Assessor Portal." ],
+        [ "jonathan", "With Jonathan", "Results and scope decisions waiting for Jonathan on My Approvals." ],
+        [ "system", "Runs Itself", "Nothing for anyone to do. Renewal notices, reminders and Mark License Agreements go out on their own schedule." ],
+        [ "later", "Chase Later", "Already chased. Each comes back to Needs You on its chase-again date." ],
+        [ "hold", "On Hold", "Paused by MISMO. Nothing chases these until the hold is released on the record." ],
+        [ "prospects", "Prospects", "Not going through certification, so nothing chases them. Start Application brings one back." ]
+    ];
+    var TQ_NEXT = {
+        RenewalPrep: "Renewal notice goes out", RenewalNoticed: "Answer the renewal notice", ScopeReviewAssessor: "Review the scope",
+        ScopeReviewVp: "Decide the scope", ScopeReviewCompany: "Agree the scope", AgreementSent: "Sign the agreement",
+        DocumentsRequested: "Send the application documents", UpdatesUnderReview: "Review the updates", AttestationSent: "Sign the attestation",
+        AwaitingPayment: "Pay the invoice", AwaitingReviewSelection: "Pick a review date", ReviewScheduled: "Hold the review",
+        AwaitingDemoSelection: "Book the demo", PreAssessmentDiscussion: "Hold the pre-assessment call", DemoProposed: "Confirm the demo date",
+        DemoScheduled: "Run the demo", AwaitingArtifacts: "Send the evidence", ArtifactReview: "Review the evidence",
+        PrelimResultsSubmitted: "Decide on the results", PrelimQueryOpen: "Answer the question on the results", RemediationOpen: "Fix what did not pass",
+        RemediationEscalated: "Follow up on the fixes", RemediationSubmitted: "Decide on the fixes", RemediationQueryOpen: "Answer the question on the fixes",
+        ApprovedPendingLicense: "Mark License Agreement goes out by DocuSign", LicenseSent: "Sign the Mark License Agreement", AppealOpen: "Decide the appeal",
+        OnHold: "Nothing until the hold is released"
+    };
+    var TQ_KIND_TONE = { invoice: "money", attach: "money", "fu-invoice": "money", license: "sign", expiry: "late", assessor: "assess", "fu-assessor": "assess", script: "assess",
+        welcome: "co", "fu-demo": "co", "fu-quiet": "co", record: "sign" };
+    var tq = { view: "you", kind: "all", q: "", sort: {} };
+    try { var tqSaved = JSON.parse(localStorage.getItem("cms-tq") || "null"); if (tqSaved) { tq.view = tqSaved.view || "you"; tq.sort = tqSaved.sort || {}; } } catch (e) {}
+    function tqKeep() { try { localStorage.setItem("cms-tq", JSON.stringify({ view: tq.view, sort: tq.sort })); } catch (e) {} }
+    function tqSortOf(v) { return tq.sort[v] || (v === "you" ? "task" : "az"); }
+    function tqDaysTxt(d) { return d == null ? "" : d <= 0 ? "today" : d === 1 ? "1 day" : d + " days"; }
+    /* every Needs You line as {kind, label, org, prog, days, late, html} */
+    function tqMine(m) {
+        var out = [];
+        TD_GROUPS.forEach((function(g) {
+            (m.todo[g[0]] || []).forEach((function(x) {
+                var org = "", prog = "", days = null, late = false;
+                if (g[0] === "invoice" || g[0] === "attach") { org = x.cert.org; prog = x.cert.program; days = x.dueIn != null ? -x.dueIn : null; late = g[0] === "attach" || x.dueIn < 0; }
+                else if (g[0] === "license") { org = x.c.org; prog = x.c.program; days = x.f ? fuDaysInState(x.f) : null; }
+                else if (g[0] === "expiry") { org = x.org; prog = x.program; days = Math.abs(x.days || 0); late = true; }
+                else { org = x.org; prog = x.program; days = fuDaysInState(x); var fx = g[0].indexOf("fu-") === 0 ? followUpOf(x) || {} : {}; late = g[0] === "welcome" || fx.severity === "high"; }
+                var html = tdRowLine(g[0], x).replace('<div class="td-main">', '<div class="td-main"><span class="tq-kind t-' + (TQ_KIND_TONE[g[0]] || "sign") + '">' + esc(g[1]) + "</span>");
+                out.push({ kind: g[0], label: g[1], org: org || "", prog: prog || "", days: days, late: late, html: html });
+            }));
+        }));
+        return out;
+    }
+    function tqWaitItem(view, f) {
+        var st = currentState(f), next = TQ_NEXT[st] || titleOfState(st), extra = "";
+        if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; }
+        if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
+        if (view === "hold") { var hc = certFor(f), h = hc ? holdOf(hc) : null; next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : ""); extra = h && h.reason ? h.reason : ""; }
+        if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; }
+        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: titleOfState(st) };
+    }
+    var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "Jonathan", system: "Automatic", later: "Chase later", hold: "On hold" };
+    function tqLists(m) {
+        var L = { you: tqMine(m), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
+        [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
+        return L;
+    }
+    function tqSorted(list, how) {
+        var a = list.slice();
+        a.sort((function(x, y) {
+            if (how === "long" || how === "late") {
+                if (how === "late" && !!y.late !== !!x.late) return y.late ? 1 : -1;
+                var dx = x.days == null ? -1 : x.days, dy = y.days == null ? -1 : y.days;
+                if (dy !== dx) return dy - dx;
+            }
+            return String(x.org).localeCompare(String(y.org)) || String(x.prog).localeCompare(String(y.prog));
+        }));
+        return a;
+    }
+    function tqHay(x) { return esc(String(x.org + " " + x.prog + " " + (x.label || "") + " " + (x.next || "")).toLowerCase()); }
+    function tqWaitRow(x) {
+        var f = x.f, d = x.days, late = d != null && d > PIP_LATE_DAYS, w = d == null ? 0 : Math.max(4, Math.min(100, Math.round(d / 90 * 100)));
+        return '<button class="tq-row" type="button" data-tdopen="' + f.row + '" data-tqhay="' + tqHay(x) + '">'
+            + '<span class="tq-co"><b>' + esc(f.org) + "</b><small>" + tdWhat(f) + "</small></span>"
+            + '<span class="tq-next"><b>' + esc(x.next) + "</b><small>" + esc(x.extra ? x.extra : x.stage) + "</small></span>"
+            + '<span class="tq-age' + (late ? " late" : "") + '"><b>' + esc(tqDaysTxt(d) || "—") + '</b><i><em style="width:' + w + '%"></em></i></span>'
+            + "</button>";
+    }
+    function tqProspectRow(x) {
+        return '<div class="tq-prow" data-tqhay="' + esc(String(x.org).toLowerCase()) + '">' + tdProspectRow(x.org) + "</div>";
+    }
     function renderTodo() {
         var host = $("todo");
         if (!host) return;
@@ -4127,42 +4470,87 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (ae && host.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) { tdPending = true; return; }
         tdPending = false;
         tdSubscribe();
-        var m = tdModel(), n = 0, html = "";
-        TD_GROUPS.forEach((function(g) {
-            var rows = m.todo[g[0]];
-            if (!rows.length) return;
-            n += rows.length;
-            html += '<div class="td-group" data-tdgroup="' + g[0] + '"><div class="td-ghead"><h3>' + esc(g[1]) + '</h3><span class="td-c">' + rows.length + '</span><span class="td-help">' + esc(g[2]) + "</span></div>"
-                + rows.map((function(x) { return tdRowLine(g[0], x); })).join("") + "</div>";
-        }));
-        var wn = 0;
-        TD_WAIT.forEach((function(b) { wn += m.wait[b[0]].length; }));
-        var head = '<div class="td-head"><span class="td-n">' + n + '</span><span class="td-say">' + (n === 1 ? "thing needs you." : "things need you.")
-            + (wn ? " " + wn + " more " + (wn === 1 ? "is" : "are") + " waiting on somebody else." : "") + "</span></div>";
-        if (!n) html = '<div class="td-clear">Nothing needs you right now.</div>';
-        var waitHtml = wn ? '<details class="td-fold" data-tdfold="waiting"' + (tdFold.waiting ? " open" : "") + "><summary>Waiting on Others (" + wn + ")"
-            + TD_WAIT.filter((function(b) { return m.wait[b[0]].length; })).map((function(b) { return '<span class="td-chip">' + esc(b[1]) + " " + m.wait[b[0]].length + "</span>"; })).join("") + "</summary>"
-            + '<div class="td-fbody">' + TD_WAIT.filter((function(b) { return m.wait[b[0]].length; })).map((function(b) {
-                return "<h4>" + esc(b[1]) + '</h4><p class="td-bn">' + esc(b[2]) + "</p>" + m.wait[b[0]].map((function(f) { return tdWaitRow(b[0], f); })).join("");
-            })).join("") + "</div></details>" : "";
-        var proHtml = m.prospects.length ? '<details class="td-fold" data-tdfold="prospects"' + (tdFold.prospects ? " open" : "") + "><summary>Prospects (" + m.prospects.length + ')<span class="td-chip">not going through certification</span></summary>'
-            + '<div class="td-fbody"><p class="td-bn">Nothing chases these. Start Application when one comes back; Move to Prospects on a Follow Up line puts a company here.</p>'
-            + m.prospects.map(tdProspectRow).join("") + "</div></details>" : "";
-        var byPh = {}, phOrder = BOARD_PHASES.slice(), stN = 0;
-        (D.inFlight || []).forEach((function(f) {
-            if (!tdOpen(f)) return;
-            var p = phaseOf(currentState(f));
-            if (phOrder.indexOf(p) < 0) phOrder.push(p);
-            (byPh[p] = byPh[p] || []).push(f);
-            stN++;
-        }));
-        var stHtml = stN ? '<details class="td-fold" data-tdfold="stages"' + (tdFold.stages ? " open" : "") + "><summary>All Open Work by Stage (" + stN + ')<span class="td-chip">every open certification, in order</span></summary>'
-            + '<div class="td-fbody">' + phOrder.filter((function(p) { return byPh[p]; })).map((function(p) {
-                return "<h4>" + esc(p) + " (" + byPh[p].length + ")</h4>" + (OWNER[p] ? '<p class="td-bn">Usually with ' + esc(OWNER[p]) + ".</p>" : "") + byPh[p].map(tdStageRow).join("");
-            })).join("") + "</div></details>" : "";
-        host.innerHTML = head + html + waitHtml + proHtml + stHtml;
+        var m = tdModel(), L = tqLists(m);
+        if (!L[tq.view]) tq.view = "you";
+        var mineN = L.you.length, lateN = L.you.filter((function(x) { return x.late; })).length;
+        var waitN = 0;
+        [ "company", "assessor", "jonathan", "system" ].forEach((function(v) { waitN += L[v].length; }));
+        function longest(v) { var d = 0; L[v].forEach((function(x) { if (x.days != null && x.days > d) d = x.days; })); return d; }
+        var sub = {
+            you: lateN ? lateN + " overdue" : mineN ? "none overdue" : "all clear",
+            company: L.company.length ? "longest " + tqDaysTxt(longest("company")) : "none",
+            assessor: L.assessor.length ? "longest " + tqDaysTxt(longest("assessor")) : "none",
+            jonathan: L.jonathan.length ? "on My Approvals" : "none",
+            system: "automatic",
+            later: L.later.length ? "chase dates set" : "none",
+            hold: L.hold.length ? "paused" : "none",
+            prospects: "not certifying"
+        };
+        var band = '<div class="headline tq-band"><div class="hl-top"><div class="hl-date">As of ' + esc(fmt(isoDay(new Date))) + "</div></div>"
+            + '<div class="hl-say">' + (mineN ? "<em" + (lateN ? ' class="hl-late"' : "") + ">" + mineN + "</em> " + (mineN === 1 ? "thing needs" : "things need") + " you." : "Nothing needs you right now.")
+            + " " + (waitN ? "<em>" + waitN + "</em> " + (waitN === 1 ? "is" : "are") + " with the company, an assessor, Jonathan or the system, and need nothing from you yet." : "") + "</div>"
+            + '<div class="hl-tiles tq-tiles">' + TQ_VIEWS.map((function(v) {
+                var n = L[v[0]].length, on = tq.view === v[0];
+                return '<button class="hl-tile tq-tile' + (on ? " on" : "") + (v[0] === "you" && lateN ? " warn" : "") + '" type="button" data-tqview="' + v[0] + '" aria-pressed="' + on + '">'
+                    + "<b>" + n + "</b><span>" + esc(v[1]) + "</span><small>" + esc(sub[v[0]]) + "</small></button>";
+            })).join("") + "</div></div>";
+        var V = TQ_VIEWS.filter((function(v) { return v[0] === tq.view; }))[0], list = L[tq.view], how = tqSortOf(tq.view);
+        var sorts = tq.view === "you" ? [ [ "task", "By Task" ], [ "az", "Company A–Z" ], [ "late", "Most Overdue" ] ] : tq.view === "prospects" ? [] : [ [ "az", "Company A–Z" ], [ "long", "Longest Waiting" ] ];
+        var tools = '<div class="tq-tools"><input type="search" class="pc-input tq-search" data-tqsearch placeholder="Find a company" aria-label="Find a company" value="' + esc(tq.q) + '">'
+            + (sorts.length ? '<div class="segbar tq-sort" role="group" aria-label="Sort">' + sorts.map((function(s) { return '<button class="seg' + (how === s[0] ? " on" : "") + '" type="button" data-tqsort="' + s[0] + '">' + esc(s[1]) + "</button>"; })).join("") + "</div>" : "") + "</div>";
+        var kinds = "", help = "";
+        if (tq.view === "you") {
+            var byK = {};
+            list.forEach((function(x) { byK[x.kind] = (byK[x.kind] || 0) + 1; }));
+            if (tq.kind !== "all" && !byK[tq.kind]) tq.kind = "all";
+            kinds = '<div class="tq-kinds"><button type="button" class="tq-k' + (tq.kind === "all" ? " on" : "") + '" data-tqkind="all">All <b>' + list.length + "</b></button>"
+                + TD_GROUPS.filter((function(g) { return byK[g[0]]; })).map((function(g) {
+                    return '<button type="button" class="tq-k t-' + (TQ_KIND_TONE[g[0]] || "sign") + (tq.kind === g[0] ? " on" : "") + '" data-tqkind="' + g[0] + '">' + esc(g[1]) + " <b>" + byK[g[0]] + "</b></button>";
+                })).join("") + "</div>";
+            var G = TD_GROUPS.filter((function(g) { return g[0] === tq.kind; }))[0];
+            help = G ? G[2] : V[2];
+            if (tq.kind !== "all") list = list.filter((function(x) { return x.kind === tq.kind; }));
+        } else help = V[2];
+        list = tq.view === "prospects" || how === "task" ? tqSorted(list, "az") : tqSorted(list, how);
+        var rows;
+        if (!list.length) rows = '<div class="td-clear">' + (tq.view === "you" ? "Nothing needs you right now." : "Nobody is here right now.") + "</div>";
+        else if (tq.view === "you") {
+            var line = function(x) { var h = how === "task" ? x.html.replace(/<span class="tq-kind[^"]*">[\s\S]*?<\/span>/, "") : x.html; return h.replace('<div class="td-item', '<div data-tqhay="' + tqHay(x) + '" class="td-item'); };
+            rows = '<div class="tq-list mine">' + (how === "task" ? TD_GROUPS.map((function(g) {
+                var part = list.filter((function(x) { return x.kind === g[0]; }));
+                return part.length ? '<div class="tq-sect"><div class="tq-shead t-' + (TQ_KIND_TONE[g[0]] || "sign") + '"><b>' + esc(g[1]) + "</b><span>" + part.length + "</span>" + (tq.kind === "all" ? "<small>" + esc(g[2]) + "</small>" : "") + "</div>" + part.map(line).join("") + "</div>" : "";
+            })).join("") : list.map(line).join("")) + "</div>";
+        }
+        else if (tq.view === "prospects") rows = '<div class="tq-list">' + list.map(tqProspectRow).join("") + "</div>";
+        else rows = '<div class="tq-list"><div class="tq-colhead"><span>Company and Certification</span><span>' + (tq.view === "later" ? "Next Chase" : tq.view === "hold" ? "Hold" : "What Happens Next") + "</span><span>At This Step</span></div>" + list.map(tqWaitRow).join("") + "</div>";
+        var listBox = '<div class="tq-panel"><div class="tq-phead"><h2>' + esc(V[1]) + ' <span class="tq-n">' + L[tq.view].length + '</span></h2><p>' + esc(help) + "</p></div>" + tools + kinds + rows
+            + '<div class="tq-none" hidden>No company matches that search in this list.</div></div>';
+        host.innerHTML = band + listBox;
+        tqFilter();
         m.todo.invoice.forEach((function(r) { loadInvoice(r.key, (function(rec) { tdPaintDrop(r.key, rec); })); }));
     }
+    function tqFilter() {
+        var host = $("todo");
+        if (!host) return;
+        var q = String(tq.q || "").trim().toLowerCase(), shown = 0, all = host.querySelectorAll("[data-tqhay]");
+        Array.prototype.forEach.call(all, (function(r) { var hit = !q || r.getAttribute("data-tqhay").indexOf(q) >= 0; r.hidden = !hit; if (hit) shown++; }));
+        var none = host.querySelector(".tq-none");
+        if (none) none.hidden = !(q && all.length && !shown);
+    }
+    (function tqWire() {
+        var host = $("todo");
+        if (!host) return;
+        host.addEventListener("click", (function(e) {
+            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind]") : null;
+            if (!t) return;
+            if (t.hasAttribute("data-tqview")) { tq.view = t.getAttribute("data-tqview"); tq.kind = "all"; tqKeep(); renderTodo(); return; }
+            if (t.hasAttribute("data-tqsort")) { tq.sort[tq.view] = t.getAttribute("data-tqsort"); tqKeep(); renderTodo(); return; }
+            if (t.hasAttribute("data-tqkind")) { tq.kind = t.getAttribute("data-tqkind"); renderTodo(); return; }
+        }));
+        host.addEventListener("input", (function(e) {
+            if (e.target && e.target.hasAttribute && e.target.hasAttribute("data-tqsearch")) { tq.q = e.target.value; tqFilter(); }
+        }));
+    })();
     function tdFind(attr, key) {
         var host = $("todo");
         if (!host) return null;
@@ -4261,7 +4649,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         open.forEach((function(x) { recordMove(x, "ApplicationExpired", why, note); }));
         editOrg(f.org, { status: "prospect", statusReason: why, statusSince: isoDay(new Date) }, "moved to Prospects — " + why);
-        tdFold.prospects = true;
+        tq.view = "prospects";
+        tqKeep();
         renderTodo();
     }
     function tdStart(name) {
@@ -4610,7 +4999,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var workMode = "phase";
     var WORK_SUB = {
         queue: "Every item is a step waiting on someone, and each appears once - on the card for the " + "most pressing thing about it. Select a card to list what is in it, then a row to record the next move.",
-        phase: "The same open cycles, grouped by the step they are at rather than by urgency, so a " + "cycle appears wherever it actually sits. Select a phase to list what is in it."
+        phase: "Every open certification, counted by the phase it is at. Select a phase to list what is in it."
     };
     function setWorkMode(m) {
         workMode = m;
@@ -6081,6 +6470,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return n == null ? "?" : n;
     }
     function wireInvoice(scope) {
+        aiWire(scope);
         Array.prototype.forEach.call(scope.querySelectorAll("[data-inv]"), (function(i) {
             var ev = i.type === "checkbox" ? "change" : "input";
             i.addEventListener(ev, (function() {
@@ -6236,7 +6626,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join("");
         var assessorNow = c && c.assessor || f.assessor || "";
         var anniv = c ? c.anniversary || "" : "";
-        return '<div class="pc-body">' + followUpBlock(f) + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
+        return '<div class="pc-body">' + followUpBlock(f) + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + aiBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
         })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea>" + (c ? '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">' + "Open Full Record</button>" : "") + '<div class="pc-note">Milestone dates, the product name history and the cycle history are in ' + "the full record.</div>" + "</div>";
     }
@@ -7769,7 +8159,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             runs.forEach(function (r) { if (/^\d{7}$/.test(r)) counts[r] = (counts[r] || 0) + 1; });
             Object.keys(counts).forEach(function (k) { if (best === null || counts[k] > counts[best]) best = k; });
             var head = runs.slice(0, 5).join(" ");
-            return best ? { number: best, kind: /quot/i.test(head) ? "quotation" : "invoice" } : null;
+            /* the total (Grand Total, then the first amount after it), for the New Application invoice (30 Oct 2026) */
+            var total = null, gi = -1;
+            runs.forEach(function (r, i) { if (gi < 0 && /grand\s*total/i.test(r)) gi = i; });
+            if (gi >= 0) for (var ti = gi; ti < Math.min(runs.length, gi + 6); ti++) { var mt = runs[ti].match(/\$\s*([\d,]+\.\d\d)/); if (mt) { total = Number(mt[1].replace(/,/g, "")); break; } }
+            return best ? { number: best, kind: /quot/i.test(head) ? "quotation" : "invoice", total: total } : null;
         }).catch(function () { return null; });
     }
     function b64Bytes(b64) {
