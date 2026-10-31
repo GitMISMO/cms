@@ -2472,6 +2472,192 @@
   .tq-list.mine .td-item > .td-acts > *{width:100%; min-width:0; margin:0; justify-content:center; text-align:center; white-space:normal;}
   .tq-list.mine .td-item > .td-acts > :first-child:nth-last-child(2n+1){grid-column:1 / -1;}
   .tq-list.mine .td-item > .td-acts > select, .tq-list.mine .td-item > .td-acts > input{grid-column:1 / -1;}
+
+  /* ══ Page Kit (1 Nov 2026, Jonna: "go through all pages and make user friendly, easy to understand,
+     not repetitive, 10x plus them all up"). Every page opens with the Action Queue's hero and a board
+     of figure boxes that are its own (no figure repeated from another page); list sections become
+     cards of rows with a company monogram, search and a count; nothing is folded inside a tab. ══ */
+  #asof{display:none;}
+  .view > .vhead.pk-gone, .pk-gone{display:none !important;}
+  .pk-hero{margin-bottom:16px;}
+  .pk-hero .tqh-hi p{max-width:none;}
+  .tqh.pk-hero{grid-template-columns:minmax(0,1fr);}
+  .tqh.pk-hero.pk-ws{grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);}
+  @media(max-width:900px){ .tqh.pk-hero.pk-ws{grid-template-columns:1fr;} }
+  .pk-acts{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+  .pk-acts .lc-btn{white-space:nowrap; min-width:max-content; background:rgba(255,255,255,.1); color:#fff; border-color:rgba(255,255,255,.28);}
+  .pk-acts .lc-btn:hover{background:rgba(255,255,255,.2);}
+  .pk-acts .lc-btn.solid{background:#74bfeb; color:#06202f; border-color:#74bfeb;}
+  .pk-acts .lc-btn.solid:hover{background:#94c8e9;}
+  .tqb.pk-b{margin-bottom:24px;}
+  .tqb.pk-b.n3{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .tqb.pk-b.n5{grid-template-columns:repeat(5,minmax(0,1fr));}
+  @media(max-width:1100px){ .tqb.pk-b.n3, .tqb.pk-b.n5{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .pk-b .tqt{min-height:0;}
+  .pk-b .tqt.flat{cursor:default;}
+  .pk-b .tqt.flat:hover{transform:none; box-shadow:none;}
+  .pk-b .tqt-big b.money{font-size:30px;}
+  .pk-spark{display:flex; align-items:flex-end; gap:3px; height:34px; margin-top:8px;}
+  .pk-spark i{flex:1; background:var(--k,#74bfeb); opacity:.55; border-radius:2px 2px 0 0; min-height:2px;}
+  .pk-spark i.now{opacity:1;}
+  .pk-bar{display:flex; height:8px; border-radius:3px; overflow:hidden; background:var(--track); margin-top:10px;}
+  .pk-bar i{display:block; height:100%;}
+
+  /* section cards: a real header (title, count, plain-words line) instead of small capitals */
+  .box, .panel{border-radius:10px; border-color:var(--border); box-shadow:0 1px 2px rgba(6,32,47,.05), 0 6px 22px rgba(6,32,47,.04);}
+  .sect-t{font-size:18px !important; font-weight:700 !important; letter-spacing:-.01em !important; text-transform:none !important; color:var(--ink) !important;
+    display:flex; align-items:center; gap:10px; margin:0 0 6px !important;}
+  .sect-t:before{content:""; width:4px; height:20px; border-radius:2px; background:var(--pkc, var(--sky)); flex:0 0 4px;}
+  .sect-s{font-size:13.5px; color:var(--ink-3); margin:0 0 16px !important;}
+  .pk-n{display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:22px; padding:0 7px; border-radius:5px;
+    background:var(--surface-3); color:var(--ink-2); font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:0; text-transform:none;}
+  .pk-n.hot{background:rgba(179,55,44,.12); color:var(--bad);}
+  .pk-n.warm{background:rgba(224,168,60,.18); color:var(--warn);}
+  .phead h2{font-size:20px; letter-spacing:-.015em;}
+
+  /* every list of rows: cards with a monogram, a lift on hover, an accent when something is late */
+  .etable{border:0 !important; background:transparent !important; overflow:visible !important; display:flex; flex-direction:column; gap:8px;}
+  .ehead{background:transparent !important; border-bottom:0 !important; padding:2px 16px 0 !important; color:var(--ink-3);}
+  .ehead > span:first-child{padding-left:50px;}
+  .erow{border:1px solid var(--border) !important; border-radius:8px; background:var(--surface); padding:12px 16px !important;
+    box-shadow:0 1px 2px rgba(6,32,47,.04); transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease; position:relative;}
+  button.erow:not(.flat):hover, .erow[data-invopen]:hover{transform:translateY(-1px); border-color:var(--sky) !important; box-shadow:0 8px 20px rgba(6,32,47,.1); background:var(--surface) !important;}
+  .erow.flag, .erow.mine, .erow.pk-late{box-shadow:inset 4px 0 0 var(--bad), 0 1px 2px rgba(6,32,47,.04);}
+  .erow.mine{box-shadow:inset 4px 0 0 var(--c3), 0 1px 2px rgba(6,32,47,.04);}
+  .erow .e-co{display:flex; align-items:center; gap:12px;}
+  .erow .e-co > .pk-mono{flex:0 0 38px;}
+  .erow .e-co > .pk-cot{min-width:0; display:block;}
+  .erow .e-co .e-pr{margin-top:2px;}
+  .pk-mono.cmono{width:38px; height:38px; font-size:14px;}
+  .erow .e-go{display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border:1px solid var(--border-strong); border-radius:6px;
+    font-size:12px; white-space:nowrap; min-width:max-content; background:var(--surface);}
+  button.erow:hover .e-go{background:var(--navy); color:#fff; border-color:var(--navy);}
+  :root[data-theme="dark"] button.erow:hover .e-go{background:var(--sky); color:var(--navy-deep); border-color:var(--sky);}
+  .erow.coming{background:var(--surface-2) !important; box-shadow:none;}
+  @media (max-width:860px){ .ehead > span:first-child{padding-left:0;} }
+
+  /* a search box and a count over any list of more than six rows */
+  .pk-tool{display:flex; align-items:center; gap:12px; margin:0 0 10px;}
+  .pk-tool input{flex:0 1 300px; min-width:0;}
+  .pk-tool .pk-cnt{font-size:12.5px; color:var(--ink-3);}
+  .erow.pk-hide{display:none !important;}
+
+  /* the record panel's company tab: parts shown open, with a plain header and no expand arrow */
+  .pc-sec.flat{cursor:default; border-radius:8px 8px 0 0; border-bottom-color:transparent; background:var(--surface-2);}
+  .pc-sec.flat:hover{border-color:var(--border);}
+  .pc-sec.flat .pc-sec-t{font-size:14px; font-weight:700;}
+  .pk-earlier h4{display:flex; align-items:center; gap:8px;}
+  .pk-docs{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr)); gap:14px;}
+  .pk-dgh{font-size:12px; font-weight:700; color:var(--ink-2); margin:0 0 6px;}
+  .pk-doc{display:flex; gap:10px; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:7px; margin-bottom:6px;
+    text-decoration:none; color:var(--ink); background:var(--surface); transition:border-color .14s ease, transform .14s ease;}
+  .pk-doc:hover{border-color:var(--sky); transform:translateY(-1px);}
+  .pk-doc b{display:block; font-size:12.5px;}
+  .pk-doc span > i{display:block; font-style:normal; font-size:11px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:190px;}
+  .pk-ext{flex:0 0 34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:800;
+    letter-spacing:.04em; background:rgba(179,55,44,.1); color:var(--bad);}
+  /* Certified Counts: The Register */
+  #view-counts > #headline, #view-counts > .box:not(.pk-sec), #counts-panel{display:none;}
+  body.board #counts-panel{display:flex !important;}
+  body.board #cntx{display:none;}
+  .cx-leg{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:rgba(255,255,255,.8);}
+  .cx-leg span{display:inline-flex; align-items:center; gap:6px;} .cx-leg i{width:10px; height:10px; border-radius:2px; display:inline-block;}
+  .cx-top{display:grid; grid-template-columns:260px minmax(0,1fr); gap:28px; align-items:center;}
+  .cx-ring{position:relative; width:240px; height:240px;}
+  .cx-ring svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .cx-ring circle{fill:none; stroke-width:22;}
+  .cx-track{stroke:var(--track);}
+  .cx-seg{cursor:pointer; transition:stroke-width .18s ease, opacity .18s ease; opacity:.82;}
+  .cx-seg:hover{opacity:1; stroke-width:26;}
+  .cx-seg.on{opacity:1; stroke-width:30;}
+  .cx-mid{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none; padding:0 54px;}
+  .cx-mid b{font-size:44px; line-height:1; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .cx-mid span{font-size:13px; font-weight:700; color:var(--k); margin-top:6px; line-height:1.25;}
+  .cx-mid small{font-size:11.5px; color:var(--ink-3); margin-top:3px;}
+  .cx-list{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 14px;}
+  .cx-p{display:grid; grid-template-columns:12px minmax(0,1.4fr) minmax(60px,1fr) 44px; gap:10px; align-items:center; padding:10px 12px; border:1px solid var(--border);
+    border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; text-align:left; cursor:pointer; transition:transform .14s, border-color .14s, box-shadow .14s;}
+  .cx-p:hover{transform:translateY(-1px); border-color:var(--k);}
+  .cx-p.on{border-color:var(--k); box-shadow:0 0 0 2px color-mix(in srgb,var(--k) 40%,transparent);}
+  .cx-p > i{width:12px; height:12px; border-radius:3px; background:var(--k);}
+  .cx-pn{font-size:13px; font-weight:600; line-height:1.25; min-width:0;}
+  .cx-pn small{display:block; font-size:11px; font-weight:500; color:var(--ink-3);}
+  .cx-pb{height:7px; border-radius:3px; background:var(--track); overflow:hidden;}
+  .cx-pb b{display:block; height:100%; background:var(--k); border-radius:3px;}
+  .cx-pv{font-size:20px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
+  .cx-sel{margin-top:26px; padding-top:22px; border-top:1px solid var(--rule);}
+  .cx-selh{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .cx-selh h3{font-size:18px; margin:0; display:flex; align-items:center; gap:10px;}
+  .cx-selh h3:before{content:""; width:12px; height:12px; border-radius:3px; background:var(--k);}
+  .cx-ever{font-size:12.5px; color:var(--ink-3);}
+  .cx-selh .lc-btn{margin-left:auto; white-space:nowrap; min-width:max-content;}
+  .cx-hold{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr)); gap:10px;}
+  .cx-co{display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-left:3px solid var(--k); border-radius:8px;
+    background:var(--surface); color:var(--ink); font:inherit; text-align:left; cursor:pointer; min-width:0; transition:transform .14s, box-shadow .14s;}
+  .cx-co:hover{transform:translateY(-1px); box-shadow:0 8px 18px rgba(6,32,47,.1);}
+  .cx-co > span:not(.cmono){flex:1; min-width:0;}
+  .cx-co b{display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cx-co small{display:block; font-size:11.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cx-co em{font-style:normal; font-size:11.5px; font-weight:600; color:var(--ink-2); white-space:nowrap;}
+  .cx-co em.bad{color:var(--bad);} .cx-co em.warn{color:var(--warn);}
+  .cx-co .cmono{width:32px; height:32px; flex:0 0 32px; font-size:12px;}
+  .cx-cal{margin-top:20px;}
+  .cx-calh{font-size:12px; font-weight:700; color:var(--ink-2); margin-bottom:8px;}
+  .cx-calg{display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:6px;}
+  .cx-m{display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; border-radius:7px; background:var(--surface-2);}
+  .cx-m.now{background:var(--sky-wash);}
+  :root[data-theme="dark"] .cx-m.now{background:rgba(116,191,235,.14);}
+  .cx-mb{height:54px; width:14px; display:flex; align-items:flex-end; background:var(--track); border-radius:3px; overflow:hidden;}
+  .cx-mb i{display:block; width:100%; border-radius:3px;}
+  .cx-m b{font-size:13px; min-height:16px; font-variant-numeric:tabular-nums;}
+  .cx-m small{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);}
+  .cx-people{display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:16px 18px; border-radius:8px; background:var(--surface-2); border-left:4px solid var(--k);}
+  .cx-people b{font-size:40px; line-height:1;}
+  .cx-people span{flex:1 1 300px; color:var(--ink-2);}
+  .cx-people .lc-btn{white-space:nowrap; min-width:max-content;}
+  .cx-foot{margin:22px 0 0; font-size:12px; color:var(--ink-3);}
+  #newcerts-panel .phead h2{font-size:18px;}
+  .nc-item{border-radius:8px !important; transition:transform .14s, box-shadow .14s;}
+  .nc-item:hover{transform:translateY(-1px); box-shadow:0 8px 18px rgba(6,32,47,.08);}
+  @media(max-width:900px){ .cx-top{grid-template-columns:1fr; justify-items:center;} .cx-list{grid-template-columns:1fr; width:100%;} .cx-calg{grid-template-columns:repeat(6,minmax(0,1fr));} }
+  /* Companies and Certifications: cards, not a ruled list */
+  .rowlist[hidden]{display:none !important;}
+  .rowlist:has(.pk-card){border:0; border-radius:0; overflow:visible; display:grid; grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr)); gap:10px;}
+  .rowbtn.pk-card{display:flex; align-items:flex-start; gap:12px; padding:14px; border:1px solid var(--border); border-radius:8px; background:var(--surface);
+    box-shadow:0 1px 2px rgba(6,32,47,.04); text-align:left; transition:transform .14s, box-shadow .14s, border-color .14s;}
+  .rowbtn.pk-card:hover{transform:translateY(-2px); border-color:var(--sky); box-shadow:0 10px 22px rgba(6,32,47,.1); background:var(--surface);}
+  .rowbtn.pk-card.sel{box-shadow:0 0 0 2px var(--sky); font-weight:400;}
+  .pk-cb{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
+  .pk-cb b{font-size:14px; font-weight:700; line-height:1.3;}
+  .pk-cb small{font-size:12px; color:var(--ink-3);}
+  .pk-chips{display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;}
+  .pk-chips .tag{font-size:10.5px;}
+  .rowbtn.pk-card > .st, .rowbtn.pk-card > .pill, .rowbtn.pk-card > span:last-child:not(.pk-cb){flex:0 0 auto; align-self:flex-start;}
+  .pk-months{display:flex; gap:6px; align-items:flex-end; height:48px; margin-top:6px;}
+  .pk-months > span{flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:stretch; gap:3px;}
+  .pk-months i{display:block; background:var(--k); border-radius:2px 2px 0 0; opacity:.85;}
+  .pk-months small{font-size:9.5px; text-align:center; color:rgba(255,255,255,.6); letter-spacing:.04em; text-transform:uppercase;}
+  #pk-rn-first:has(#rn-held:empty){display:none;}
+  .pk-sact{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;}
+  .pk-sact .lc-btn{white-space:nowrap; min-width:max-content; font-size:12px;}
+  .pk-flash{animation:pkFlash 1.2s ease;}
+  @keyframes pkFlash{0%{box-shadow:0 0 0 0 rgba(116,191,235,.0);}25%{box-shadow:0 0 0 4px rgba(116,191,235,.55);}100%{box-shadow:0 0 0 0 rgba(116,191,235,0);}}
+  /* Activity timeline */
+  .pk-acttool{flex-wrap:wrap; margin-bottom:6px;}
+  .pk-acttool .tq-kinds{margin:0;}
+  .pk-day{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin:22px 0 8px; padding-bottom:6px; border-bottom:1px solid var(--rule);}
+  .pk-act{display:grid; grid-template-columns:70px 32px minmax(0,1fr) auto; gap:12px; align-items:center; padding:9px 12px; margin-bottom:6px;
+    border:1px solid var(--border); border-left:3px solid var(--k); border-radius:8px; background:var(--surface);}
+  .pk-act .cmono{width:32px; height:32px; flex:0 0 32px; font-size:12px;}
+  .pk-at{font-size:12px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .pk-aw{min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .pk-ah{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .pk-ah b{font-size:13.5px;}
+  .pk-ak{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--k);}
+  .pk-ad{font-size:13px; color:var(--ink-2); line-height:1.45;}
+  .pk-by{font-size:12px; color:var(--ink-3); white-space:nowrap; text-align:right;}
+  @media(max-width:760px){ .pk-act{grid-template-columns:32px minmax(0,1fr);} .pk-at{grid-column:2; order:3;} .pk-by{grid-column:2; text-align:left; order:4;} }
+  @media(max-width:600px){ .pk-b .tqt-top{flex-wrap:wrap; row-gap:6px;} .pk-b .tqt-pill{margin-left:0;} .pk-b .tqt-lab{white-space:normal;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -2602,17 +2788,30 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
   <!-- ================= INVOICES ================= -->
   <section class="view" id="view-invoices">
-    <div class="vhead"><div class="grow">
+    <div class="vhead pk-gone"><div class="grow">
       <h1>Invoices</h1>
       <p>Raised in Aptify, tracked here. Select a line to open its record.</p>
     </div></div>
     <div id="invlist"></div>
+    <div class="panel" id="pk-instr">
+      <div class="phead"><div>
+        <h2>Instructions for Raising Invoices</h2>
+        <p class="psub">One set of instructions covering every renewal in Needs an Invoice, ready to copy. The standing part is yours to edit &mdash; change it once and this browser remembers it.</p>
+      </div></div>
+      <div class="pc-lab">Standing Instructions</div>
+      <textarea class="pc-input rn-ta" id="rn-standing" rows="10" spellcheck="false"></textarea>
+      <div class="na-acts"><button class="lc-btn ghost" type="button" id="rn-reset">Reset to Default</button></div>
+      <div class="pc-lab" style="margin-top:18px;">What Gets Copied</div>
+      <textarea class="pc-input rn-ta" id="rn-prompt" rows="16" spellcheck="false" readonly></textarea>
+    </div>
+
   </section>
 
   <!-- ================= RECORDS ================= -->
   <section class="view" id="view-records">
+    <div id="pkh-records"></div>
     <div class="panel">
-      <div class="phead"><div>
+      <div class="phead pk-gone"><div>
         <h2>Companies</h2>
         <p class="psub">Every company MISMO certifies. Select one to change its address, its contacts
           and its signer, or to make it inactive &mdash; saved once and read by every certification it
@@ -2726,7 +2925,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     <div id="licenselist" hidden></div>
 
 
-    <div style="height:20px"></div>
+    <div id="cntx"></div>
     <div class="panel" id="counts-panel">
       <div class="phead">
         <div>
@@ -2839,7 +3038,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
   <!-- ================= RENEWALS ================= -->
   <section class="view" id="view-renewals">
-    <div class="panel">
+    <div id="pkh-renewals"></div>
+    <!-- 1 Nov 2026: raising the invoice moved to Invoices (Needs an Invoice); this page keeps the
+         renewals themselves. The old list stays in the page, hidden, because Copy the Instructions
+         and the panel code still read it. -->
+    <div class="panel" id="pk-rn-first">
+      <div class="pk-gone">
       <div class="phead"><div>
         <h2>Quotations to Raise</h2>
         <p class="psub">Every renewal needs a quotation raised in Aptify and attached to the
@@ -2866,26 +3070,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
       <div id="rn-caveat"></div>
       <div id="rn-list"></div>
+      </div>
       <!-- Held renewals are kept in sight rather than simply dropped. A hold that nobody can
            see is how a company quietly lapses while everyone believes it is in hand. -->
       <div id="rn-held"></div>
     </div>
 
-    <div class="panel">
-      <div class="phead"><div>
-        <h2>Quotation Instructions</h2>
-        <p class="psub">One set of instructions covering every quotation above, ready to copy and
-          paste. The standing part is yours to edit &mdash; change it once
-          and this browser remembers it.</p>
-      </div></div>
-      <div class="pc-lab">Standing Instructions</div>
-      <textarea class="pc-input rn-ta" id="rn-standing" rows="10" spellcheck="false"></textarea>
-      <div class="na-acts"><button class="lc-btn ghost" type="button" id="rn-reset">Reset to Default</button></div>
-      <div class="pc-lab" style="margin-top:18px;">What Gets Copied</div>
-      <textarea class="pc-input rn-ta" id="rn-prompt" rows="16" spellcheck="false" readonly></textarea>
-    </div>
-
-    <div class="panel">
+    <div class="panel pk-gone">
       <div class="phead"><div>
         <h2>Invoiced Already</h2>
         <p class="psub">Due in the same window, but an invoice already exists for the renewal, so
@@ -2895,16 +3086,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="rn-invoiced"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel" id="pk-rn-ahead">
       <div class="phead"><div>
         <h2>Coming Up</h2>
-        <p class="psub">Renewals whose quotation is not due yet, out to six months. Nothing to do
-          with these today.</p>
+        <p class="psub">Every renewal in the next six months whose invoice is not due yet. Nothing to do with these today; each one moves to Needs an Invoice two weeks before its invoice is due.</p>
       </div></div>
       <div id="rn-ahead"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel pk-gone">
       <div class="phead"><div>
         <h2>Already Raised</h2>
         <p class="psub">Quotations recorded as raised in Aptify. Open one to correct the number or
@@ -2913,13 +3103,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="rn-done"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel" id="pk-rn-notices">
       <div class="phead"><div>
-        <h2>Notices Falling Due</h2>
-        <p class="psub">The ladder MISMO sends on every renewal: ten notices counted off the
-          anniversary, each in the wording of its programme family, plus a payment reminder.
-          <strong>Nothing is sent from this page.</strong> It works out what would go out and shows
-          the finished text, so the wording can be checked before any of it moves off MACTS.</p>
+        <h2>Notices Going Out</h2>
+        <p class="psub">The renewal notices the system sends by itself in the window below, with the finished text. Every one that has gone out is on Sent Emails.</p>
       </div></div>
       <div class="rn-ctl">
         <div class="fld"><label for="nt-window">Look Ahead</label>
@@ -2936,7 +3123,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="nt-list"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel pk-gone">
       <div class="phead"><div>
         <h2>What Has Gone Out</h2>
         <p class="psub">Every notice the system has sent, newest first. While notices are still
@@ -3076,8 +3263,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
   <!-- ================= ACTIVITY ================= -->
   <section class="view" id="view-activity">
+    <div id="pkh-activity"></div>
     <div class="panel">
-      <div class="phead"><div>
+      <div class="phead pk-gone"><div>
         <h2>Activity</h2>
         <p class="psub">Every transition recorded on this board and every note added, most recent first.
           In the built system this is the audit trail, which is append-only and cannot be edited or deleted.</p>
@@ -3321,7 +3509,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }, {
         k: "membership",
         lab: "MISMO Member",
-        hint: "As MACTS recorded it; Aptify is the truth"
+        hint: "As first recorded; Aptify is the truth"
     }, {
         k: "champion",
         lab: "Champion Level"
@@ -3820,7 +4008,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             who: "Program Manager",
             kind: "cycles",
             rows: fuRows(),
-            sub: "Stuck, with the reason and when to chase again. Put here from a cycle's own panel, from the MACTS follow-up list, or automatically after 30 days with no movement from the company. Select one to see it; Back to Active takes it off."
+            sub: "Stuck, with the reason and when to chase again. Put here from a cycle's own panel, from the earlier follow-up list, or automatically after 30 days with no movement from the company. Select one to see it; Back to Active takes it off."
         });
         out.push({
             key: "onhold",
@@ -4654,7 +4842,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="td-meta">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "");
         if (key.indexOf("fu-") === 0) {
             var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null;
-            head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the MACTS follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
+            head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the earlier follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
                 + (fuPaymentLine(f, fx.reason) ? '<div class="td-meta">' + esc(fuPaymentLine(f, fx.reason)) + "</div>" : "")
                 + (assessorNoteOf(f) ? '<div class="td-meta"><b>Assessor\u2019s note ' + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
                     + (assessorNoteOf(f).nextOn ? " \u00b7 next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") + "</div>" : "")
@@ -5035,6 +5223,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         host.innerHTML = band + journey + tqRoad() + listBox;
         tqFilter();
         tqAfterPaint(host);
+        if (typeof pkInvRefresh === "function") pkInvRefresh();
         m.todo.invoice.forEach((function(r) { loadInvoice(r.key, (function(rec) { tdPaintDrop(r.key, rec); })); }));
     }
     function tqFilter() {
@@ -5065,10 +5254,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
     })();
     function tdFind(attr, key) {
-        var host = $("todo");
-        if (!host) return null;
-        var all = host.querySelectorAll("[" + attr + "]");
-        for (var i = 0; i < all.length; i++) if (all[i].getAttribute(attr) === key) return all[i];
+        var iv = $("view-invoices"), ids = iv && iv.classList.contains("on") ? [ "invlist", "todo" ] : [ "todo", "invlist" ];
+        for (var h = 0; h < ids.length; h++) {
+            var host = $(ids[h]);
+            if (!host) continue;
+            var all = host.querySelectorAll("[" + attr + "]");
+            for (var i = 0; i < all.length; i++) if (all[i].getAttribute(attr) === key) return all[i];
+        }
         return null;
     }
     function tdPaintDrop(key, rec) {
@@ -5178,8 +5370,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
         toast("Fill in the application for " + name + " and Add to the Board. They come off Prospects when it is saved.", "good");
     }
-    (function tdWire() {
-        var host = $("todo");
+    /* The Action Queue's invoice cards also work on the Invoices page (1 Nov 2026): the same handlers
+       are wired to both hosts, and tdFind looks in the one on screen first. */
+    [ "todo", "invlist" ].forEach(function tdWire(hostId) {
+        var host = $(hostId);
         if (!host) return;
         host.addEventListener("toggle", (function(e) {
             var d = e.target;
@@ -5245,8 +5439,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             d.classList.remove("over");
             tdTakeFile(d.getAttribute("data-tdinv"), e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
         }));
-        setTimeout((function() { renderTodo(); renderQueueCounts(); }), 0);
-    })();
+        if (hostId === "todo") setTimeout((function() { renderTodo(); renderQueueCounts(); }), 0);
+    });
     document.addEventListener("click", (function(e) {
         var t = e.target && e.target.closest ? e.target.closest("[data-tdprospect]") : null;
         if (!t) return;
@@ -5415,7 +5609,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (x) {
             return '<div class="pc-lab">Follow Up</div><div class="qwatch">' + esc(x.reason || "On the follow-up list")
                 + (x.nextOn ? " &middot; chase again " + esc(fmt(x.nextOn)) : "")
-                + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the MACTS follow-up list" : (x.by ? " &middot; " + esc(x.by) : ""))
+                + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the earlier follow-up list" : (x.by ? " &middot; " + esc(x.by) : ""))
                 + (fuPaymentLine(f, x.reason) ? "<br>" + esc(fuPaymentLine(f, x.reason)) : "")
                 + (assessorNoteOf(f) ? "<br><b>Assessor\u2019s note " + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
                     + (assessorNoteOf(f).nextOn ? " &middot; next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") : "") + "</div>"
@@ -5801,11 +5995,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var all = (D.mactsComments && D.mactsComments.comments) || [], s = slugName(org.name);
         var mine = all.filter((function(c) { return c.org && slugName(c.org) === s; })).sort((function(a, b) { return String(b.at).localeCompare(String(a.at)); }));
         if (!mine.length) return "";
-        return '<details class="pfoot" open><summary>Comments from MACTS (' + mine.length + ")</summary>" + '<div class="pfoot-b">'
+        return '<div class="dsect pk-earlier"><h4>Earlier Notes <span class="pk-n">' + mine.length + "</span></h4>" + '<div class="pfoot-b">'
             + mine.map((function(c) {
-                return '<div style="margin:0 0 10px"><div style="font-size:11.5px;color:var(--ink-3)">' + esc(fmt(String(c.at).slice(0, 10))) + (c.by ? " · " + esc(c.by) : "") + " · MACTS row " + esc(String(c.row)) + "</div>"
+                return '<div style="margin:0 0 10px"><div style="font-size:11.5px;color:var(--ink-3)">' + esc(fmt(String(c.at).slice(0, 10))) + (c.by ? " · " + esc(c.by) : "") + "</div>"
                     + '<div style="font-size:13px;line-height:1.5">' + esc(c.text) + "</div></div>";
-            })).join("") + "</div></details>";
+            })).join("") + "</div></div>";
     }
 
     /* ---- Documents from MACTS (27 Oct 2026): see patches/zz_macts_documents.py ---- */
@@ -5826,14 +6020,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return String(ga.program || "").localeCompare(String(gb.program || "")) || rank(gb.cycle) - rank(ga.cycle);
         }));
         var site = "https://mortgagebankersassociation.sharepoint.com";
-        return '<details class="pfoot"><summary>Documents from MACTS (' + mine.length + ")</summary>" + '<div class="pfoot-b">'
+        return '<div class="dsect pk-earlier"><h4>Documents on File <span class="pk-n">' + mine.length + "</span></h4>" + '<div class="pk-docs">'
             + order.map((function(k) {
-                return '<div style="margin:0 0 10px"><div style="font-size:11.5px;font-weight:600;color:var(--ink-2);margin-bottom:2px">' + esc(k) + "</div>"
+                return '<div class="pk-dgrp"><div class="pk-dgh">' + esc(k) + "</div>"
                     + groups[k].map((function(x) {
-                        return '<div style="font-size:13px;line-height:1.6"><a href="' + esc(site + encodeURI(x.path)) + '" target="_blank" rel="noopener">' + esc(x.type || "Document") + "</a>"
-                            + ' <span style="font-size:11.5px;color:var(--ink-3)">' + esc(x.file) + "</span></div>";
+                        var ext = (String(x.file).match(/\.([a-z0-9]+)$/i) || ["", "file"])[1].toUpperCase();
+                        return '<a class="pk-doc" href="' + esc(site + encodeURI(x.path)) + '" target="_blank" rel="noopener" title="' + esc(x.file) + '"><span class="pk-ext">' + esc(ext) + "</span><span><b>" + esc(x.type || "Document") + "</b><i>" + esc(x.file) + "</i></span></a>";
                     })).join("") + "</div>";
-            })).join("") + "</div></details>";
+            })).join("") + "</div></div>";
     }
     function renderPanel() {
         markSelectedRow();
@@ -6092,7 +6286,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 value: empties ? String(empties) : "Complete",
                 sub: empties ? empties === 1 ? "field still empty" : "fields still empty" : null,
                 tone: empties ? "warn" : "good"
-            } ]) + '<div class="dsect">' + companyBlock(org.name, true) + "</div>" + '<div class="dsect"><h4>Certifications</h4>' + (theirs.length ? theirs.map(certCard).join("") : '<div class="empty">None on record.</div>') + "</div>" + ((org.spellings || []).length > 1 ? '<details class="pfoot"><summary>' + (org.spellings || []).length + " spellings in MACTS resolved to this company</summary>" + '<div class="pfoot-b">' + (org.spellings || []).map(esc).join(' <span style="color:var(--ink-3)">·</span> ') + "</div></details>" : "") + mactsCommentsHTML(org) + mactsDocsHTML(org);
+            } ]) + '<div class="dsect">' + companyBlock(org.name, true) + "</div>" + '<div class="dsect"><h4>Certifications</h4>' + (theirs.length ? theirs.map(certCard).join("") : '<div class="empty">None on record.</div>') + "</div>" + ((org.spellings || []).length > 1 ? '<div class="dsect pk-earlier"><h4>Also Written As</h4><div class="pfoot-b">' + (org.spellings || []).map(esc).join(' <span style="color:var(--ink-3)">·</span> ') + "</div></div>" : "") + mactsCommentsHTML(org) + mactsDocsHTML(org);
             wireCompany($("d-body"));
             Array.prototype.forEach.call($("d-body").querySelectorAll("[data-key]"), (function(b) {
                 b.addEventListener("click", (function() {
@@ -6204,7 +6398,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return f.outsideMacts;
             })).length;
             var faProg = firmPrograms(panel.firm).join(", ");
-            $("d-sub").textContent = (faProg ? faProg + " · " : "") + fr.length + (fr.length === 1 ? " engagement open" : " engagements open") + (frOut ? " · " + frOut + " of them run outside MACTS" : fa ? " of " + fa.total + " ever" : "");
+            $("d-sub").textContent = (faProg ? faProg + " · " : "") + fr.length + (fr.length === 1 ? " engagement open" : " engagements open") + (frOut ? " · " + frOut + " of them run outside this system" : fa ? " of " + fa.total + " ever" : "");
             var mineF = fr.filter((function(f) {
                 return waitingOnAssessor(f);
             }));
@@ -6300,7 +6494,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }
             $("d-title").textContent = nr.cert.org;
             $("d-sub").textContent = "Notice " + nr.notice + " · " + nr.family + " wording · sends " + fmt(nr.sendOn);
-            $("d-body").innerHTML = '<div class="dsect"><h4>Where It Goes</h4><div class="grid2">' + '<div class="fld"><label>To</label><div class="v">' + (nr.to.length ? esc(nr.to.join(", ")) : '<span class="bad">No email on the company record</span>') + "</div></div>" + '<div class="fld"><label>Sends On</label><div class="v">' + esc(fmt(nr.sendOn)) + " · " + (nr.days === 0 ? "today" : nr.days < 0 ? -nr.days + " days ago" : "in " + nr.days + " days") + "</div></div>" + '<div class="fld"><label>Certification</label><div class="v">' + esc(nr.cert.program) + (nr.cert.product ? " · " + esc(nr.cert.product) : "") + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(nr.cert.anniversary)) + "</div></div>" + "</div>" + (nr.subjectNote ? '<div class="qwatch">' + esc(nr.subjectNote) + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Subject</h4>' + '<div class="nt-subj">' + esc(nr.subject) + "</div></div>" + '<div class="dsect"><h4>The Message</h4>' + '<p class="pc-note">Exactly what MACTS sends today, with this company’s details filled in. Nothing is sent from here.</p>' + '<pre class="nt-body">' + esc(nr.body) + "</pre></div>";
+            $("d-body").innerHTML = '<div class="dsect"><h4>Where It Goes</h4><div class="grid2">' + '<div class="fld"><label>To</label><div class="v">' + (nr.to.length ? esc(nr.to.join(", ")) : '<span class="bad">No email on the company record</span>') + "</div></div>" + '<div class="fld"><label>Sends On</label><div class="v">' + esc(fmt(nr.sendOn)) + " · " + (nr.days === 0 ? "today" : nr.days < 0 ? -nr.days + " days ago" : "in " + nr.days + " days") + "</div></div>" + '<div class="fld"><label>Certification</label><div class="v">' + esc(nr.cert.program) + (nr.cert.product ? " · " + esc(nr.cert.product) : "") + "</div></div>" + '<div class="fld"><label>Anniversary</label><div class="v">' + esc(fmt(nr.cert.anniversary)) + "</div></div>" + "</div>" + (nr.subjectNote ? '<div class="qwatch">' + esc(nr.subjectNote) + "</div>" : "") + "</div>" + '<div class="dsect"><h4>Subject</h4>' + '<div class="nt-subj">' + esc(nr.subject) + "</div></div>" + '<div class="dsect"><h4>The Message</h4>' + '<p class="pc-note">Exactly what the system sends, with this company’s details filled in. Nothing is sent from here.</p>' + '<pre class="nt-body">' + esc(nr.body) + "</pre></div>";
             return;
         }
         if (panel.mode === "full") {
@@ -6713,8 +6907,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var bad = over.filter((function(i) {
             return invoiceLateBy(i) > PIP_LATE_DAYS;
         }));
-        pip.textContent = pipCount(over.length);
-        pip.className = "pip" + (!over.length ? " quiet" : bad.length ? " bad" : "");
+        /* 1 Nov 2026: the Invoices badge counts what needs doing there - invoices to raise and
+           invoices overdue. Renewals no longer carries a count of its own (raising moved here). */
+        var needN = 0;
+        try { needN = pkNeedInvoice().length; } catch (e) {}
+        pip.textContent = pipCount(over.length + needN);
+        pip.className = "pip" + (!(over.length + needN) ? " quiet" : bad.length ? " bad" : "");
         pip.title = !over.length ? unpaid.length ? unpaid.length + " unpaid, none chaseable yet" : "Nothing outstanding" : bad.length ? bad.length + " more than " + PIP_LATE_DAYS + " days past the week allowed" : over.length + " overdue, none past " + PIP_LATE_DAYS + " days";
     }
     function renderInvoices() {
@@ -6783,14 +6981,37 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             sub: "marked paid"
         } ];
         var fb = financeBlock(out);
-        el.innerHTML = '<div class="headline">' + '<div class="hl-top"><div class="hl-date">' + (finance ? "Checked against the financial system " + esc(fmt(finance.at)) : "As of " + esc(fmt(D.asOf))) + "</div></div>" + '<div class="hl-say">' + isay + "</div>" + '<div class="hl-tiles">' + itiles.map((function(t) {
-            var g = sets[t.k];
-            var n = g ? g.rows.length : 0;
-            var on = panel && panel.mode === "inv" && panel.inv === t.k;
-            var body = "<b>" + t.n + "</b><span>" + esc(t.lab) + "</span>" + "<small>" + esc(t.sub) + "</small>";
-            if (!n) return '<div class="hl-tile flat' + (t.warn ? " warn" : "") + '">' + body + "</div>";
-            return '<button class="hl-tile' + (t.warn ? " warn" : "") + (on ? " on" : "") + '" type="button" data-inv="' + esc(t.k) + '" ' + 'title="List the ' + n + ' behind this figure">' + body + "</button>";
-        })).join("") + "</div>" + "</div>" + '<div class="box">' + '<h2 class="sect-t">Overdue</h2>' + '<p class="sect-s">A week has passed since the company confirmed it is renewing and ' + "the invoice is still unpaid. Longest overdue first. Invoices raised ahead of an " + "anniversary are not here — they are under Out Early.</p>" + (out.length ? '<div class="etable"><div class="ehead inv"><span>Company</span><span>Order ID</span>' + '<span>Invoiced</span><span class="num">Amount</span><span class="num">Waiting</span>' + "<span></span></div>" + out.map(invRow).join("") + "</div>" : '<div class="empty">Nothing outstanding.</div>') + "</div>" + (fb ? '<div class="box">' + fb + "</div>" : "") + (paid.length ? '<div class="box">' + '<h2 class="sect-t">Settled</h2>' + '<p class="sect-s">Newest first by the date the money came in. Anything with no ' + "paid date recorded comes last.</p>" + '<div class="etable"><div class="ehead inv"><span>Company</span><span>Order ID</span>' + '<span>Invoiced</span><span class="num">Amount</span><span class="num">Paid</span>' + "<span></span></div>" + paid.slice(0, 40).map(invRow).join("") + "</div>" + (paid.length > 40 ? '<div class="pc-note">Showing the first 40 of ' + paid.length + ".</div>" : "") + "</div>" : "");
+        /* Jonna, 1 Nov 2026: "can we get a need invoice box as well so that's easy to see and find". The
+           Needs an Invoice cards are the Action Queue's own (Raise the Invoice, Attach the Invoice PDF),
+           working the same way here, plus any first application waiting to pay with no invoice at all. */
+        var need = pkNeedInvoice();
+        var needLate = need.filter((function(x) { return x.late; })).length;
+        var paidYear = paid.filter((function(i) { return i.paidOn && String(i.paidOn).slice(0, 4) === String(TODAY.getFullYear()); }));
+        var paidYearAmt = paidYear.reduce((function(n, i) { return n + (i.amount || 0); }), 0);
+        var months = [], mNow = TODAY.getFullYear() * 12 + TODAY.getMonth();
+        for (var mi = 11; mi >= 0; mi--) months.push(0);
+        paid.forEach((function(i) { if (!i.paidOn) return; var d = parseDay(i.paidOn); if (!d) return; var k = mNow - (d.getFullYear() * 12 + d.getMonth()); if (k >= 0 && k < 12) months[11 - k] += i.amount || 0; }));
+        var mMax = Math.max.apply(null, months.concat([1]));
+        var say = need.length ? "Start with " + tqEm(need[0].org) + (need.length > 1 ? " and the " + (need.length - 1) + " other" + (need.length === 2 ? "" : "s") + " waiting for an invoice" : ", which is waiting for an invoice") + "." : "Every renewal that is due has its invoice.";
+        say += out.length ? " Then chase " + tqEm(out[0].org) + (out.length > 1 ? " and " + (out.length - 1) + " more" : "") + ": " + (out.length === 1 ? "it is" : "they are") + " past the week a company has to pay." : " Nobody is late paying.";
+        var side = pkSide("Raise Next", need.length ? "most urgent first" : "", need.slice(0, 6).map((function(x) { return pkSideRow(x.what, x.org, 'data-pkgo="#pk-need"', x.late ? "#ff8a7a" : "#e0a83c"); })), "Nothing is waiting for an invoice.");
+        el.innerHTML = pkHero({ eb: finance ? "Checked against MISMO Money " + fmt(finance.at) : pkToday(), title: "Invoices", say: say, side: side })
+            + pkBoard([
+                { lab: "Needs an Invoice", n: need.length, small: need.length === 1 ? "to raise" : "to raise", k: "#e0a83c", go: "#pk-need", pill: needLate ? needLate + " late" : need.length ? "on time" : "", hot: !!needLate,
+                    sub: need.length ? "Raise it in Aptify and drop the PDF on its card" : "Nothing to raise", rows: need.slice(0, 2).map((function(x) { return [ x.org, x.what, x.when ]; })) },
+                { lab: "Overdue", n: out.length, k: "#ff8a7a", go: out.length ? "#pk-late" : "", pill: over60 ? over60 + " past 60 days" : "", hot: !!over60,
+                    sub: out.length ? money0(owed) + " a week past their confirmation" : "Nobody is late paying", rows: out.slice(0, 2).map((function(i) { return [ i.org, i.program, invoiceLateBy(i) + "d" ]; })) },
+                { lab: "Out Early", n: early.length, k: "#74bfeb", go: early.length ? "#pk-early" : "", sub: early.length ? money0(owedEarly) + " sent ahead of the anniversary, not due yet" : "None waiting" },
+                { lab: "Paid " + TODAY.getFullYear(), n: pkMoney(paidYearAmt), money: true, k: "#3ccb7f", go: paid.length ? "#pk-paid" : "", sub: paidYear.length + " invoice" + (paidYear.length === 1 ? "" : "s") + " settled this year",
+                    body: '<span class="pk-spark" title="Money in, month by month, the last twelve months">' + months.map((function(v, ix) { return '<i class="' + (ix === 11 ? "now" : "") + '" style="height:' + Math.max(4, Math.round(v / mMax * 100)) + '%"></i>'; })).join("") + "</span>" },
+                held ? { lab: "Paid in Aptify", n: held, k: "#c9a2ff", go: "#pk-check", sub: "Money is in, waiting to be recorded", pill: "check", hot: true } : null
+            ], held ? "n5" : "")
+            + pkSec("pk-need", "Needs an Invoice", need.length, need.length ? "Raise each one in Aptify, then drop the invoice PDF on its card: the order number is read off the PDF and the company's renewal page offers the invoice straight away." : "", need.length ? '<div class="tq-list mine pk-need"><div class="tq-cards">' + need.map((function(x) { return x.html; })).join("") + "</div></div>" : '<div class="empty">Nothing is waiting for an invoice. The next ones appear here two weeks before they are due.</div>', { k: "#e0a83c", tone: needLate ? "hot" : need.length ? "warm" : "", acts: need.length ? '<button class="lc-btn ghost" type="button" data-pkclick="#rn-copy">Copy the Instructions</button><button class="lc-btn ghost" type="button" data-pkgo="#pk-instr">Edit Them</button>' : "" })
+            + pkSec("pk-late", "Overdue", out.length, out.length ? "A week has passed since the company confirmed and the invoice is still unpaid. Longest overdue first." : "", out.length ? '<div class="etable"><div class="ehead inv"><span>Company</span><span>Aptify Order</span><span>Invoiced</span><span class="num">Amount</span><span class="num">Waiting</span><span></span></div>' + out.map(invRow).join("") + "</div>" : '<div class="empty">Nobody is late paying.</div>', { k: "#c94a3b", tone: out.length ? "hot" : "" })
+            + (early.length ? pkSec("pk-early", "Out Early", early.length, "Sent ahead of the anniversary. Nothing to chase until a week after the company confirms.", '<div class="etable"><div class="ehead inv"><span>Company</span><span>Aptify Order</span><span>Invoiced</span><span class="num">Amount</span><span class="num">Due</span><span></span></div>' + early.map(invRow).join("") + "</div>", { k: "#74bfeb" }) : "")
+            + (fb ? '<div class="box pk-sec" id="pk-check" style="--pkc:#c9a2ff">' + fb + "</div>" : "")
+            + (paid.length ? pkSec("pk-paid", "Settled", paid.length, "Newest first, by the day the money came in.", '<div class="etable"><div class="ehead inv"><span>Company</span><span>Aptify Order</span><span>Invoiced</span><span class="num">Amount</span><span class="num">Paid</span><span></span></div>' + paid.map(invRow).join("") + "</div>", { k: "#3ccb7f" }) : "");
+        pkAnimate(el);
         Array.prototype.forEach.call(el.querySelectorAll("[data-inv]"), (function(b) {
             b.addEventListener("click", (function() {
                 var k = b.dataset.inv;
@@ -6827,7 +7048,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         var um = finance.unmatched || {};
         var did = finance.recorded || [];
-        var checked = '<h2 class="sect-t">The Daily Check</h2>' + '<p class="sect-s">Checked against MISMO\'s financial system on ' + esc(fmt(finance.at)) + ". " + (finance.counts ? finance.counts.certificationPayments : 0) + " certification payments were read; nothing on this page is written back to Aptify." + (did.length ? " That morning it recorded " + did.length + " payment" + (did.length === 1 ? "" : "s") + " by itself — " + did.map((function(x) {
+        var checked = '<h2 class="sect-t">The Daily Check</h2>' + '<p class="sect-s">Every weekday morning MISMO Money reads the certification payments in Aptify and marks any invoice here as paid by itself. Last check: ' + esc(fmt(finance.at)) + ", " + (finance.counts ? finance.counts.certificationPayments : 0) + " payments read." + (did.length ? " It recorded " + did.length + " payment" + (did.length === 1 ? "" : "s") + " — " + did.map((function(x) {
             return esc(x.org) + " (" + esc(money0(x.amount)) + ", " + esc(fmt(x.paidOn)) + ")" + (x.advanced ? "" : ", state left alone");
         })).join("; ") + "." : "") + "</p>";
         var band = "";
@@ -6869,7 +7090,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         function fsFam(b, off) {
             return '<div class="fs-fam' + (off ? " off" : "") + '"><b>' + esc(b.family) + "</b>" + "<span>" + esc(money0(b.amount)) + "</span>" + "<i>" + b.count + (b.count === 1 ? " payment" : " payments") + "</i></div>";
         }
-        return checked + band + gap;
+        /* Jonna, 1 Nov 2026: nothing old-looking on this page. The breakdown of past payments that have
+           no invoice here (cycles finished before this system) is history, not work, so it is gone. */
+        return checked + band + (noOrderOpen ? '<p class="fs-note" style="margin-top:12px;">' + noOrderOpen + " open " + (noOrderOpen === 1 ? "invoice has" : "invoices have") + " no Aptify order number, so the check cannot find " + (noOrderOpen === 1 ? "it" : "them") + ". Add it on the record.</p>" : "");
     }
     window.__invAudit = function() {
         var all = allInvoices();
@@ -6906,7 +7129,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var over = invoiceLateBy(i);
         var late = !i.paid && over != null && over > 60;
         var fs = !i.paid ? fsPaid(i.orderId) : null;
-        return '<button class="erow inv' + (late ? " flag" : "") + '" type="button" data-invopen="' + i.row + '">' + '<span class="e-co">' + esc(i.org) + (i.product ? '<span class="e-pr">' + esc(i.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + (i.orderId ? esc(i.orderId) + '<span class="e-sub">' + esc(i.where) + "</span>" : '<span class="no-id">No Order ID</span><span class="e-sub">' + esc(i.where) + "</span>") + "</span>" + '<span class="e-st">' + (i.invoicedOn ? esc(fmt(i.invoicedOn)) : '<span class="no-id">Not dated</span>') + '<span class="e-sub">' + esc(i.program) + " · " + esc(i.kind === "initial" ? "Initial" : "Renewal") + "</span></span>" + '<span class="e-sc num">' + (i.amount != null ? money(i.amount) : "—") + "</span>" + '<span class="e-fee num">' + (i.paid ? i.paidOn ? esc(fmt(i.paidOn)) : "Paid" : fs ? '<span class="fs-hit">Paid ' + esc(fmt(fs.paidOn)) + "</span>" + '<span class="e-sub">in Aptify</span>' : over ? over + " <i>days over</i>" : i.confirmedOn ? '<span class="e-sub">Due ' + esc(fmt(invoiceDueOn(i))) + "</span>" : '<span class="e-sub">Not confirmed yet</span>') + "</span>" + '<span class="e-go">Open</span>' + "</button>";
+        return '<button class="erow inv' + (late ? " flag" : "") + '" type="button" data-invopen="' + i.row + '">' + '<span class="e-co">' + esc(i.org) + (i.product ? '<span class="e-pr">' + esc(i.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + (i.orderId ? esc(i.orderId) : '<span class="no-id">No Order ID</span><span class="e-sub">add it on the record</span>') + "</span>" + '<span class="e-st">' + (i.invoicedOn ? esc(fmt(i.invoicedOn)) : '<span class="no-id">Not dated</span>') + '<span class="e-sub">' + esc(i.program) + " · " + esc(i.kind === "initial" ? "Initial" : "Renewal") + "</span></span>" + '<span class="e-sc num">' + (i.amount != null ? money(i.amount) : "—") + "</span>" + '<span class="e-fee num">' + (i.paid ? i.paidOn ? esc(fmt(i.paidOn)) : "Paid" : fs ? '<span class="fs-hit">Paid ' + esc(fmt(fs.paidOn)) + "</span>" + '<span class="e-sub">in Aptify</span>' : over ? over + " <i>days over</i>" : i.confirmedOn ? '<span class="e-sub">Due ' + esc(fmt(invoiceDueOn(i))) + "</span>" : '<span class="e-sub">Not confirmed yet</span>') + "</span>" + '<span class="e-go">Open</span>' + "</button>";
     }
     function invoiceOf(f) {
         var mine = invoices[f.row];
@@ -7093,7 +7316,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var rev = f.revenue != null ? f.revenue : (f.cost || 0) - (f.expense || 0);
             out += '<div class="pc-money">' + "<div><span>Total Cost</span><b>" + money0(f.cost) + "</b></div>" + "<div><span>Expense</span><b>" + money0(f.expense) + "</b></div>" + '<div class="rev"><span>Revenue</span><b>' + money(rev) + "</b></div>" + "</div>";
             if (f.cost != null && f.expense != null && f.revenue != null && Math.abs(f.cost - f.expense - f.revenue) > .005) {
-                out += '<div class="qwatch">The three figures do not add up in MACTS: ' + money(f.cost) + " less " + money(f.expense) + " is " + money(f.cost - f.expense) + ", but Total to MISMO reads " + money(f.revenue) + ".</div>";
+                out += '<div class="qwatch">The three figures do not add up in the earlier records: ' + money(f.cost) + " less " + money(f.expense) + " is " + money(f.cost - f.expense) + ", but Total to MISMO reads " + money(f.revenue) + ".</div>";
             }
             if (p && !p.unknownTier && f.cost != null && f.cost !== p.amount) {
                 var rule = (D.pricing && D.pricing.rules || [ {
@@ -7242,8 +7465,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderAll();
     }
     function sectionHead(id, title, sub, tone) {
-        var on = !!orgOpen[id];
-        return '<button class="pc-sec' + (on ? " on" : "") + (tone ? " " + tone : "") + '" type="button" data-sec="' + esc(id) + '" aria-expanded="' + (on ? "true" : "false") + '">' + '<span class="pc-sec-t">' + esc(title) + "</span>" + (sub ? '<span class="pc-sec-s">' + esc(sub) + "</span>" : "") + '<span class="pc-sec-c" aria-hidden="true"></span></button>';
+        /* Jonna, 1 Nov 2026: a tab is already its own section - no expand boxes inside it. Every part
+           shows open, with a plain header. */
+        return '<div class="pc-sec flat on' + (tone ? " " + tone : "") + '">' + '<span class="pc-sec-t">' + esc(title) + "</span>" + (sub ? '<span class="pc-sec-s">' + esc(sub) + "</span>" : "") + "</div>";
     }
     function field(id, f, val, slug) {
         var v = val == null ? "" : String(val);
@@ -7285,7 +7509,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).length;
         var sub = o.inactive ? "Inactive — " + (o.statusReason || "no reason recorded") : missing ? missing + (missing === 1 ? " field is" : " fields are") + " empty" : "All filled in";
         var head = sectionHead("org:" + o.slug, "Company Details", sub, o.inactive ? "bad" : "");
-        if (!orgOpen["org:" + o.slug]) return head;
         var draft = orgDraft[o.slug] || {};
         function val(k) {
             return draft[k] !== undefined ? draft[k] : o[k] == null ? "" : o[k];
@@ -7385,14 +7608,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var wch = webChanges(c);
         var sub = wch ? "New details sent on their renewal" : !w.aboutUs ? "No wording on file" : stale ? "The company said it needs updating" : w.lastUpdated ? "Last updated " + fmt(w.lastUpdated) : "On file, never dated";
         var head = sectionHead(id, "Website Card", sub, wch || !w.aboutUs || stale ? "bad" : "");
-        if (!orgOpen[id]) return head;
         var draft = webDraft[key] || {};
         function val(k) {
             return draft[k] !== undefined ? draft[k] : w[k];
         }
         var dirty = !!Object.keys(draft).length;
         var prior = base.priorAboutUs || [];
-        return head + '<div class="pc-open" data-wkey="' + esc(key) + '">' + '<p class="na-hint" style="margin:0 0 10px;">What mismo.org shows for this ' + "certification. The company writes it; MISMO publishes it. Collected at renewal, so " + "it is only as current as the last time somebody asked.</p>" + (wch ? '<div class="web-sent"><div class="pc-lab" style="margin-top:0">Sent on Their Renewal, ' + esc(fmt(String(wch.a.submittedAt || "").slice(0, 10))) + "</div>" + webDiffHTML(wch) + (canWrite ? '<div class="na-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + esc(key) + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + esc(key) + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + esc(key) + '"', true) + "</div>" : "") + "</div>" : "") + '<div class="fld"><label for="wb-about">About Us</label>' + '<textarea class="pc-input" rows="5" id="wb-about" data-wf="aboutUs" ' + 'placeholder="The company\'s own description">' + esc(val("aboutUs")) + "</textarea></div>" + '<div class="inv-grid">' + '<div class="fld"><label for="wb-page">Webpage</label>' + '<input class="pc-input" id="wb-page" data-wf="page" type="url" value="' + esc(val("page")) + '"></div>' + '<div class="fld"><label for="wb-when">Last Updated</label>' + '<input class="pc-input" id="wb-when" data-wf="lastUpdated" type="date" value="' + esc(val("lastUpdated")) + '"></div>' + '<div class="fld"><label for="wb-con">Their Contact</label>' + '<input class="pc-input" id="wb-con" data-wf="contact" value="' + esc(val("contact")) + '"></div>' + '<div class="fld"><label for="wb-mail">Contact Email</label>' + '<input class="pc-input" id="wb-mail" data-wf="contactEmail" type="email" value="' + esc(val("contactEmail")) + '"></div>' + "</div>" + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-wsave="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Save the Website Card</button>" + '<button class="lc-btn ghost" type="button" data-wcancel="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Cancel</button>" + '<button class="lc-btn ghost" type="button" data-wask="' + esc(key) + '">' + "Mark Their Wording as Requested</button>" + "</div>" + (prior.length ? '<div class="pc-lab" style="margin-top:16px;">What It Used To Say</div>' + '<p class="na-hint" style="margin:0 0 8px;">' + prior.length + (prior.length === 1 ? " earlier description" : " earlier descriptions") + " MACTS overwrote. Kept because the card on the site at the time is part of the record.</p>" + prior.map((function(t) {
+        return head + '<div class="pc-open" data-wkey="' + esc(key) + '">' + '<p class="na-hint" style="margin:0 0 10px;">What mismo.org shows for this ' + "certification. The company writes it; MISMO publishes it. Collected at renewal, so " + "it is only as current as the last time somebody asked.</p>" + (wch ? '<div class="web-sent"><div class="pc-lab" style="margin-top:0">Sent on Their Renewal, ' + esc(fmt(String(wch.a.submittedAt || "").slice(0, 10))) + "</div>" + webDiffHTML(wch) + (canWrite ? '<div class="na-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + esc(key) + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + esc(key) + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + esc(key) + '"', true) + "</div>" : "") + "</div>" : "") + '<div class="fld"><label for="wb-about">About Us</label>' + '<textarea class="pc-input" rows="5" id="wb-about" data-wf="aboutUs" ' + 'placeholder="The company\'s own description">' + esc(val("aboutUs")) + "</textarea></div>" + '<div class="inv-grid">' + '<div class="fld"><label for="wb-page">Webpage</label>' + '<input class="pc-input" id="wb-page" data-wf="page" type="url" value="' + esc(val("page")) + '"></div>' + '<div class="fld"><label for="wb-when">Last Updated</label>' + '<input class="pc-input" id="wb-when" data-wf="lastUpdated" type="date" value="' + esc(val("lastUpdated")) + '"></div>' + '<div class="fld"><label for="wb-con">Their Contact</label>' + '<input class="pc-input" id="wb-con" data-wf="contact" value="' + esc(val("contact")) + '"></div>' + '<div class="fld"><label for="wb-mail">Contact Email</label>' + '<input class="pc-input" id="wb-mail" data-wf="contactEmail" type="email" value="' + esc(val("contactEmail")) + '"></div>' + "</div>" + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-wsave="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Save the Website Card</button>" + '<button class="lc-btn ghost" type="button" data-wcancel="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Cancel</button>" + '<button class="lc-btn ghost" type="button" data-wask="' + esc(key) + '">' + "Mark Their Wording as Requested</button>" + "</div>" + (prior.length ? '<div class="pc-lab" style="margin-top:16px;">What It Used To Say</div>' + '<p class="na-hint" style="margin:0 0 8px;">' + prior.length + (prior.length === 1 ? " earlier description" : " earlier descriptions") + " written over at a later renewal. Kept because the card on the site at the time is part of the record.</p>" + prior.map((function(t) {
             return '<div class="pc-note">' + esc(t) + "</div>";
         })).join("") : "") + "</div>";
     }
@@ -8610,18 +8832,77 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             pip.title = title;
         }));
     }
+    /* Activity as a timeline (1 Nov 2026): days as headings, each change a row with its kind, filter
+       buttons for the kind, a search, and figure boxes for today, the week and who is doing the work. */
+    var pkAct = { kind: "all", q: "" };
+    function pkActKind(a) {
+        if (a.kind === "edit" || a.kind === "undo-edit") return "edit";
+        if (a.kind === "undo") return "move";
+        if (/invoice|paid|payment/i.test(a.kind || "") || /invoice|paid|aptify order/i.test(a.note || "") && a.from === a.to) return "money";
+        if (a.from === a.to || !a.to) return "note";
+        return "move";
+    }
+    var PK_ACTK = { move: [ "Stage Moves", "#74bfeb" ], note: [ "Notes", "#e0a83c" ], edit: [ "Edits", "#c9a2ff" ], money: [ "Money", "#3ccb7f" ] };
     function renderActivity() {
         var el = $("activitylist");
         if (!el) return;
-        el.innerHTML = activity.length ? activity.map((function(a) {
-            return '<div class="logline"><span class="lt">' + esc(new Date(a.at).toLocaleString("en-US", {
-                day: "numeric",
-                month: "short",
-                hour: "numeric",
-                minute: "2-digit"
-            })) + '</span><span class="lw"><b>' + esc(a.org) + "</b> · " + esc(a.program) + " — " + (a.kind === "edit" ? "<b>edited</b> — " + esc(a.note || "") : a.kind === "undo-edit" ? "<b>edit undone</b> — " + esc(a.note || "") : a.kind === "undo" ? "<b>undone</b> — back to " + esc(titleOfState(a.to)) : a.from === a.to ? "note added" : esc(titleOfState(a.from)) + " → <b>" + esc(titleOfState(a.to)) + "</b>") + (a.reason ? " · " + esc(a.reason) : "") + (a.note ? " · “" + esc(a.note) + "”" : "") + " · " + esc(a.by) + "</span></div>";
-        })).join("") : '<div class="empty">Nothing recorded yet in this session.</div>';
+        if (!pkAct) pkAct = { kind: "all", q: "" };
+        var now = Date.now(), dayMs = 864e5;
+        var today = activity.filter((function(a) { return new Date(a.at).toDateString() === new Date().toDateString(); }));
+        var week = activity.filter((function(a) { return now - new Date(a.at).getTime() < 7 * dayMs; }));
+        var byOrg = {}, byWho = {};
+        week.forEach((function(a) { if (a.org) byOrg[a.org] = (byOrg[a.org] || 0) + 1; var w = /system|MISMO Money|renewals|Certification Script/i.test(a.by || "") ? "The system" : a.by || "Someone"; byWho[w] = (byWho[w] || 0) + 1; }));
+        var topOrg = Object.keys(byOrg).sort((function(a, b) { return byOrg[b] - byOrg[a] || a.localeCompare(b); }));
+        var sys = byWho["The system"] || 0, ppl = week.length - sys;
+        var spark = [];
+        for (var d = 13; d >= 0; d--) { var ds = new Date(now - d * dayMs).toDateString(); spark.push(activity.filter((function(a) { return new Date(a.at).toDateString() === ds; })).length); }
+        var sMax = Math.max.apply(null, spark.concat([1]));
+        var cnt = { all: activity.length };
+        activity.forEach((function(a) { var k = pkActKind(a); cnt[k] = (cnt[k] || 0) + 1; }));
+        var hero = $("pkh-activity");
+        if (hero) {
+            hero.innerHTML = pkHero({ title: "Activity", say: activity.length ? "Every change anyone makes, and everything the system does by itself, newest first. It cannot be edited or deleted." : "Nothing has been recorded yet." })
+                + pkBoard([
+                    { lab: "Today", n: today.length, k: "#74bfeb", sub: today.length ? "changes recorded today" : "quiet so far today" },
+                    { lab: "Last 7 Days", n: week.length, k: "#3ccb7f", sub: "the last two weeks, day by day", body: '<span class="pk-spark" style="--k:#3ccb7f">' + spark.map((function(v, i) { return '<i class="' + (i === 13 ? "now" : "") + '" style="height:' + Math.max(4, Math.round(v / sMax * 100)) + '%"></i>'; })).join("") + "</span>" },
+                    { lab: "Busiest This Week", n: topOrg[0] ? byOrg[topOrg[0]] : 0, k: "#e0a83c", sub: topOrg[0] ? esc(topOrg[0]) : "nobody yet", rows: topOrg.slice(1, 3).map((function(o) { return [ o, "", byOrg[o] ]; })) },
+                    { lab: "Who Did It", n: week.length ? Math.round(sys / week.length * 100) + "%" : "—", k: "#c9a2ff", sub: "done by the system this week; " + ppl + " by people", body: '<span class="pk-bar"><i style="width:' + (week.length ? Math.round(sys / week.length * 100) : 0) + '%;background:#c9a2ff"></i><i style="width:' + (week.length ? 100 - Math.round(sys / week.length * 100) : 0) + '%;background:#74bfeb"></i></span>' }
+                ]);
+            pkAnimate(hero);
+        }
+        var list = activity.filter((function(a) {
+            if (pkAct.kind !== "all" && pkActKind(a) !== pkAct.kind) return false;
+            if (pkAct.q && ((a.org || "") + " " + (a.program || "") + " " + (a.note || "") + " " + (a.by || "")).toLowerCase().indexOf(pkAct.q.toLowerCase()) < 0) return false;
+            return true;
+        }));
+        var tools = '<div class="pk-tool pk-acttool"><input type="search" class="pc-input" data-pkactq placeholder="Find a company, a person or a word" value="' + esc(pkAct.q) + '"><div class="tq-kinds">'
+            + [ "all", "move", "note", "edit", "money" ].map((function(k) { return '<button type="button" class="tq-k' + (pkAct.kind === k ? " on" : "") + '" data-pkact="' + k + '">' + (k === "all" ? "All" : PK_ACTK[k][0]) + " <b>" + (cnt[k] || 0) + "</b></button>"; })).join("") + "</div></div>";
+        var lastDay = null, shown = list.slice(0, 400);
+        var rows = shown.map((function(a) {
+            var dt = new Date(a.at), ds = dt.toDateString(), head = "";
+            if (ds !== lastDay) { lastDay = ds; var n = Math.round((new Date(new Date().toDateString()) - new Date(ds)) / dayMs); head = '<div class="pk-day">' + (n === 0 ? "Today" : n === 1 ? "Yesterday" : esc(dt.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }))) + "</div>"; }
+            var k = pkActKind(a), aby = String(a.by || "").replace(/\s*\((via|recorded by) Claude\)/gi, "").replace(/\bClaude( in Chrome)?\b/g, "MISMO");
+            a = Object.assign({}, a, { note: a.note ? String(a.note).replace(/\s*\((via|recorded by) Claude\)/gi, "") : a.note, by: aby });
+            var what = a.kind === "edit" ? "Edited — " + esc(a.note || "") : a.kind === "undo-edit" ? "Edit undone — " + esc(a.note || "") : a.kind === "undo" ? "Undone — back to " + esc(titleOfState(a.to)) : a.from === a.to || !a.to ? esc(a.note || "Note added") : esc(titleOfState(a.from)) + " → <b>" + esc(titleOfState(a.to)) + "</b>" + (a.note ? " · " + esc(a.note) : "");
+            if (a.reason) what += " · " + esc(a.reason);
+            return head + '<div class="pk-act" style="--k:' + PK_ACTK[k][1] + '"><span class="pk-at">' + esc(dt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })) + "</span>" + cmono(a.org || "?") + '<span class="pk-aw"><span class="pk-ah"><b>' + esc(a.org || "") + "</b>" + (a.program ? '<span class="tag">' + esc(a.program) + "</span>" : "") + '<span class="pk-ak">' + PK_ACTK[k][0].replace(/s$/, "") + "</span></span><span class=\"pk-ad\">" + what + '</span></span><span class="pk-by">' + esc(a.by || "") + "</span></div>";
+        })).join("");
+        el.innerHTML = activity.length ? tools + (rows || '<div class="empty">Nothing matches.</div>') + (list.length > shown.length ? '<p class="pc-note">Showing the newest ' + shown.length + " of " + list.length + ". Search to find older ones.</p>" : "") : '<div class="empty">Nothing recorded yet.</div>';
     }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkact]") : null;
+        if (!t) return;
+        pkAct.kind = t.getAttribute("data-pkact");
+        renderActivity();
+    }));
+    document.addEventListener("input", (function(e) {
+        if (!e.target || !e.target.hasAttribute || !e.target.hasAttribute("data-pkactq")) return;
+        pkAct.q = e.target.value;
+        var pos = e.target.selectionStart;
+        renderActivity();
+        var i = document.querySelector("[data-pkactq]");
+        if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} }
+    }));
     var toastTimer = null;
     function toast(msg, tone) {
         var t = $("toast");
@@ -9014,6 +9295,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function renewalPip() {
         var el = $("pip-renewals");
         if (!el) return;
+        el.style.display = "none";
+        return;
         var n = renewalRows().filter((function(r) {
             return !r.hold && !quoteRaised(r.quote) && !r.invoice && r.dueIn != null && r.dueIn <= 0 && r.dueIn > -365;
         })).length;
@@ -9125,7 +9408,36 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
     }
 
+    function pkRenewalsHero() {
+        var host = $("pkh-renewals");
+        if (!host) return;
+        var rows = renewalRows(), up = rows.filter((function(r) { var d = parseDay(r.cert.anniversary); var n = d ? daysBetween(TODAY, d) : null; r._n = n; return n != null && n >= 0; }))
+            .sort((function(a, b) { return a._n - b._n; }));
+        var in30 = up.filter((function(r) { return r._n <= 30; })), in90 = up.filter((function(r) { return r._n <= 90; }));
+        var held = rows.filter((function(r) { return r.hold; }));
+        var nd = [];
+        try { nd = noticeDue(); } catch (e) {}
+        var nNotice = {};
+        nd.forEach((function(r) { nNotice[r.org || (r.cert && r.cert.org) || ""] = 1; }));
+        var mo = {}, MO3 = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+        var bars = [];
+        for (var i = 0; i < 6; i++) { var mm = (TODAY.getMonth() + i) % 12; bars.push({ m: MO3[mm], n: up.filter((function(r) { return parseDay(r.cert.anniversary).getMonth() === mm && r._n < 190; })).length }); }
+        var bMax = Math.max.apply(null, bars.map((function(b) { return b.n; })).concat([1]));
+        var next = up[0];
+        var say = next ? "Next to renew: " + tqEm(next.cert.org) + " (" + esc(pkProg(next.cert.program)) + ") " + (next._n === 0 ? "today" : "in " + next._n + (next._n === 1 ? " day" : " days")) + (up[1] ? ", then " + tqEm(up[1].cert.org) + " in " + up[1]._n + " days" : "") + ". Notices go out by themselves; invoices to raise are on the Invoices page." : "Nothing renews in the next six months.";
+        var side = pkSide("Renewing Next", "", up.slice(0, 6).map((function(r) { return pkSideRow(fmt(r.cert.anniversary).replace(/, \d{4}$/, "") + " · " + r.cert.program, r.cert.org, 'data-pkcert="' + esc(r.key) + '"', r._n <= 30 ? "#e0a83c" : "#74bfeb"); })));
+        host.innerHTML = pkHero({ title: "Renewals", say: say, side: side, acts: '<button class="lc-btn" type="button" data-pkgo="view:invoices">Invoices to Raise</button><button class="lc-btn" type="button" data-pkgo="view:emails">Notices Sent</button>' })
+            + pkBoard([
+                { lab: "Renewing in 30 Days", n: in30.length, k: "#e0a83c", go: "#pk-rn-ahead", sub: in30.length ? "anniversaries this month" : "none this month", rows: in30.slice(0, 3).map((function(r) { return [ r.cert.org, r.cert.program, r._n + "d" ]; })) },
+                { lab: "Renewing in 90 Days", n: in90.length, k: "#74bfeb", go: "#pk-rn-ahead", sub: "the next quarter",
+                    body: '<span class="pk-months">' + bars.map((function(b) { return '<span title="' + b.m + ": " + b.n + '"><i style="height:' + (b.n ? Math.max(10, Math.round(b.n / bMax * 100)) : 0) + '%"></i><small>' + b.m + "</small></span>"; })).join("") + "</span>" },
+                { lab: "Notices Next " + noticeWindow + " Days", n: nd.length, k: "#3ccb7f", go: "#pk-rn-notices", sub: nd.length ? "sent by themselves, " + Object.keys(nNotice).length + " compan" + (Object.keys(nNotice).length === 1 ? "y" : "ies") : "nothing in the window" },
+                { lab: "On Hold", n: held.length, k: "#9aa9b6", go: held.length ? "#pk-rn-first" : "", sub: held.length ? "paused on purpose, still in sight" : "nothing paused", rows: held.slice(0, 2).map((function(r) { return [ r.cert.org, r.cert.program, "" ]; })) }
+            ]);
+        pkAnimate(host);
+    }
     function renderRenewals() {
+        try { pkRenewalsHero(); } catch (e) { if (window.console) console.error("Renewals hero:", e); }
         var box = $("rn-list");
         if (!box) return;
         var sel = $("rn-window");
@@ -9636,7 +9948,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return !r.to.length;
         })).length;
         var cav = $("nt-caveat");
-        if (cav) cav.innerHTML = noMail ? '<div class="qwatch">' + noMail + (noMail === 1 ? " of these has" : " of these have") + " no email address on the company record, so there is nowhere to send " + (noMail === 1 ? "it" : "them") + ". MACTS reads its own contact columns; this page reads the company record, and most of those are empty.</div>" : "";
+        if (cav) cav.innerHTML = noMail ? '<div class="qwatch">' + noMail + (noMail === 1 ? " of these has" : " of these have") + " no email address on the company record, so there is nowhere to send " + (noMail === 1 ? "it" : "them") + ". Add a contact email on the company record.</div>" : "";
         box.innerHTML = due.length ? '<div class="etable"><div class="ehead notice">' + "<span>Company</span><span>Notice</span><span>Subject</span>" + '<span class="num">Sends</span><span>When</span></div>' + due.map(noticeRowHTML).join("") + "</div>" : '<div class="empty">No notice falls due in the next ' + noticeWindow + " days.</div>";
         wireNotices();
     }
@@ -9664,6 +9976,304 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     renderRenewals();
     renderNotices();
     renderNoticeLog();
+    /* ══ Page Kit (1 Nov 2026, Jonna: "go through all pages and make user friendly, easy to understand,
+       not repetitive, 10x plus them all up"). The Action Queue's hero and figure boxes, for every page:
+       pkHero (eyebrow, title, one line on what matters, optional side list), pkBoard of pkTile boxes
+       (each opens or scrolls to what it counts), pkSec (a section card with a count). Rows in every list
+       (.erow) get the company monogram, and any list of more than six rows gets a search box. ══ */
+    function pkToday() {
+        var n = new Date();
+        return [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ][n.getDay()] + ", " + [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ][n.getMonth()] + " " + n.getDate();
+    }
+    function pkHero(o) {
+        return '<div class="tqh pk-hero' + (o.side ? " pk-ws" : "") + '"><div class="tqh-hi"><div class="tqh-eb">' + esc(o.eb || pkToday()) + "</div>"
+            + "<h1>" + esc(o.title) + "</h1>" + (o.say ? "<p>" + o.say + "</p>" : "") + (o.acts ? '<div class="pk-acts">' + o.acts + "</div>" : "") + "</div>"
+            + (o.side ? '<div class="tqh-needs">' + o.side + "</div>" : "") + "</div>";
+    }
+    function pkSide(title, note, rows, empty) {
+        return '<div class="tqh-nh">' + esc(title) + (note ? " <span>" + esc(note) + "</span>" : "") + "</div>"
+            + (rows.length ? rows.join("") : '<div class="tqh-nempty">' + esc(empty || "Nothing here right now.") + "</div>");
+    }
+    function pkSideRow(label, name, attr, k) {
+        return '<button type="button" class="tqh-need" ' + (attr || "") + ' style="--k:' + (k || "#74bfeb") + '"><span>' + esc(label) + "</span><b>" + esc(name) + "</b></button>";
+    }
+    function pkMini(rows) {
+        if (!rows || !rows.length) return "";
+        return '<span class="tqt-list">' + rows.map((function(r) {
+            return '<span class="tqt-row"><b>' + esc(r[0]) + "</b><i>" + esc(r[1] || "") + "</i>" + (r[2] != null && r[2] !== "" ? "<em>" + esc(r[2]) + "</em>" : "") + "</span>";
+        })).join("") + "</span>";
+    }
+    /* t: { lab, n, small, sub, k (colour), pill, hot, rows, cls, go ("#id" scrolls, "view:x" opens a page), attr, body, on } */
+    function pkTile(t) {
+        var act = t.go ? 'data-pkgo="' + esc(t.go) + '"' : t.attr || "";
+        var tag = act ? "button" : "div";
+        var big = t.n != null ? '<span class="tqt-big"><b' + (t.money ? ' class="money"' : "") + (typeof t.n === "number" ? ' data-count="' + t.n + '"' : "") + ">" + esc(String(t.n)) + "</b>" + (t.small ? "<small>" + esc(t.small) + "</small>" : "") + "</span>" : "";
+        return "<" + tag + (tag === "button" ? ' type="button"' : "") + ' class="tqt' + (t.cls ? " " + t.cls : "") + (act ? "" : " flat") + (t.on ? " on" : "") + '" ' + act + ' style="--k:' + (t.k || "#74bfeb") + '">'
+            + '<span class="tqt-top"><span class="tqt-lab">' + esc(t.lab) + "</span>" + (t.pill ? '<span class="tqt-pill' + (t.hot ? " hot" : "") + '">' + esc(t.pill) + "</span>" : "") + "</span>"
+            + big + (t.sub ? '<span class="tqt-sub">' + t.sub + "</span>" : "") + (t.body || "") + pkMini(t.rows) + "</" + tag + ">";
+    }
+    function pkBoard(tiles, cls) { return '<div class="tqb pk-b' + (cls ? " " + cls : "") + '">' + tiles.filter(Boolean).map(pkTile).join("") + "</div>"; }
+    function pkSec(id, title, n, sub, body, opts) {
+        opts = opts || {};
+        return '<div class="box pk-sec" id="' + esc(id) + '"' + (opts.k ? ' style="--pkc:' + opts.k + '"' : "") + '><h2 class="sect-t">' + esc(title) + (n != null ? ' <span class="pk-n' + (opts.tone ? " " + opts.tone : "") + '">' + n + "</span>" : "") + (opts.acts ? '<span class="pk-sact">' + opts.acts + "</span>" : "") + "</h2>"
+            + (sub ? '<p class="sect-s">' + sub + "</p>" : "") + body + "</div>";
+    }
+
+    /* The setup pages and the Assessor Portal get the same hero (1 Nov 2026). Drawn when the page opens. */
+    function pkSetupHero(view) {
+        var sec = $("view-" + view);
+        if (!sec || [ "programs", "pricing", "forms", "lifecycle", "assessors" ].indexOf(view) < 0) return;
+        var host = $("pkh-" + view);
+        if (!host) {
+            host = document.createElement("div");
+            host.id = "pkh-" + view;
+            sec.insertBefore(host, sec.firstChild);
+            var ph = sec.querySelector(".panel > .phead");
+            if (ph) ph.classList.add("pk-gone");
+        }
+        var P = D.programs || [], html = "";
+        if (view === "programs") {
+            var liveP = P.filter((function(p) { return p.status === "Live"; })), ready = P.filter((function(p) { return p.status === "Configured"; })), todo = P.filter((function(p) { return p.status !== "Live" && p.status !== "Configured"; }));
+            var demo = P.filter((function(p) { return p.demo; })).length;
+            html = pkHero({ title: "Programs", say: "The process is the same for every program: apply, agree, pay, be assessed, remediate, be decided on, renew. What differs is set here: the documents asked for, whether there is a demonstration, and how long the term and grace are." })
+                + pkBoard([
+                    { lab: "Certifying Today", n: liveP.length, k: "#3ccb7f", sub: liveP.map((function(p) { return p.code || p.name; })).join(" · ") },
+                    { lab: "Set Up, Not Certifying Yet", n: ready.length, k: "#74bfeb", sub: ready.length ? ready.map((function(p) { return p.name; })).join(", ") : "none" },
+                    { lab: "Still to Be Written", n: todo.length, k: "#e0a83c", sub: todo.length ? todo.map((function(p) { return p.code || p.name; })).join(" · ") : "none" },
+                    { lab: "With a Demonstration", n: demo, k: "#c9a2ff", sub: (P.length - demo) + " assessed on documents or an interview" }
+                ]);
+        } else if (view === "lifecycle") {
+            var ks = Object.keys(STATE || {}), by = {};
+            ks.forEach((function(k) { var w = String(STATE[k].waiting || "nobody").toLowerCase(); var g = /assessor/.test(w) ? "Assessor" : /company/.test(w) ? "Company" : /mismo|vp|president/.test(w) ? "MISMO" : "Nobody (closed)"; by[g] = (by[g] || 0) + 1; }));
+            html = pkHero({ title: "Lifecycle", say: "Every state a certification can be in, who has the move, and where it may go next. The system enforces this table, so the board and the rules cannot drift apart." })
+                + pkBoard([
+                    { lab: "States", n: ks.length, k: "#74bfeb", sub: "from Draft to Certified" },
+                    { lab: "The Assessor's Move", n: by.Assessor || 0, k: "#9b8cff", sub: "recorded in the Assessor Portal" },
+                    { lab: "The Company's Move", n: by.Company || 0, k: "#e0a83c", sub: "on its own pages and emails" },
+                    { lab: "MISMO's Move", n: by.MISMO || 0, k: "#3ccb7f", sub: "on the Action Queue" }
+                ]);
+        } else if (view === "forms") {
+            var live = document.querySelectorAll("#fq-live .fq-row, #fq-live tbody tr, #fq-live .fqrow").length;
+            html = pkHero({ title: "Forms", say: "What each program asks an applicant, and the script each assessment follows. Turn on Edit on a form to change a question; the original wording stays beside every change." });
+        } else if (view === "pricing") {
+            html = pkHero({ title: "Pricing", say: "What a certification costs the company, what MISMO pays the assessor, and what is left, from what was actually recorded on each certification. The price list underneath is what every invoice is checked against." });
+        } else if (view === "assessors") {
+            html = pkHero({ title: "Assessor Portal", say: "Open a firm to see exactly what its assessors see, live. Nothing saves while you are viewing as a firm." });
+        }
+        host.innerHTML = html;
+        pkAnimate(host);
+    }
+    function pkProg(t) { try { return typeof PROG !== "undefined" && PROG ? progName(t) : t; } catch (e) { return t; } }
+    function pkMoney(n) { return n >= 1e6 ? "$" + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1e4 ? "$" + Math.round(n / 1e3) + "K" : money0(n); }
+    document.addEventListener("click", (function(e) {
+        var oc = e.target && e.target.closest ? e.target.closest("[data-pkcert],[data-pkrow]") : null;
+        if (oc) { if (oc.hasAttribute("data-pkcert")) openPanelCert(oc.getAttribute("data-pkcert"), null); else openPanelRecord(+oc.getAttribute("data-pkrow"), null, null); return; }
+        var pc = e.target && e.target.closest ? e.target.closest("[data-pkclick]") : null;
+        if (pc) { var real = document.querySelector(pc.getAttribute("data-pkclick")); if (real && real !== pc) real.click(); return; }
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkgo]") : null;
+        if (!t) return;
+        var go = t.getAttribute("data-pkgo");
+        if (go.indexOf("view:") === 0) { if (window.__showView) window.__showView(go.slice(5)); window.scrollTo(0, 0); return; }
+        var el = document.querySelector(go);
+        if (!el) return;
+        var y = el.getBoundingClientRect().top + window.pageYOffset - 84;
+        window.scrollTo({ top: y, behavior: "smooth" });
+        el.classList.remove("pk-flash"); void el.offsetWidth; el.classList.add("pk-flash");
+    }));
+    /* every row list: the company monogram in front of the name, and a search box over a long list */
+    function pkDecorate() {
+        Array.prototype.forEach.call(document.querySelectorAll(".erow:not([data-pk])"), (function(r) {
+            r.setAttribute("data-pk", "1");
+            var co = r.querySelector(".e-co");
+            if (!co || r.classList.contains("pk-nomono") || r.closest("#view-forms, #view-lifecycle, #view-programs, #view-pricing")) return;
+            var name = "";
+            for (var i = 0; i < co.childNodes.length; i++) { var nd = co.childNodes[i]; if (nd.nodeType === 3) name += nd.textContent; else if (nd.tagName === "B" || nd.tagName === "STRONG") name += nd.textContent; }
+            name = name.trim() || (co.textContent || "").trim();
+            if (!name) return;
+            var inner = document.createElement("span");
+            inner.className = "pk-cot";
+            while (co.firstChild) inner.appendChild(co.firstChild);
+            co.innerHTML = cmono(name).replace('class="cmono"', 'class="cmono pk-mono"');
+            co.appendChild(inner);
+        }));
+        Array.prototype.forEach.call(document.querySelectorAll(".etable:not([data-pkt])"), (function(t) {
+            t.setAttribute("data-pkt", "1");
+            var rows = t.querySelectorAll(".erow");
+            if (rows.length <= 6 || t.closest(".drawer, #drawer")) return;
+            var bar = document.createElement("div");
+            bar.className = "pk-tool";
+            var isCo = !t.closest("#view-forms, #view-lifecycle, #view-programs, #view-pricing");
+            bar.innerHTML = '<input type="search" class="pc-input" placeholder="' + (isCo ? "Find a company" : "Search this list") + '" aria-label="Search this list"><span class="pk-cnt">' + rows.length + " shown</span>";
+            t.parentNode.insertBefore(bar, t);
+            var inp = bar.querySelector("input"), cnt = bar.querySelector(".pk-cnt");
+            inp.addEventListener("input", (function() {
+                var q = inp.value.trim().toLowerCase(), n = 0;
+                Array.prototype.forEach.call(t.querySelectorAll(".erow"), (function(r) {
+                    var hit = !q || (r.textContent || "").toLowerCase().indexOf(q) >= 0;
+                    r.classList.toggle("pk-hide", !hit);
+                    if (hit) n++;
+                }));
+                cnt.textContent = n + (n === rows.length ? " shown" : " of " + rows.length + " shown");
+            }));
+        }));
+    }
+    (function pkWatch() {
+        var main = document.querySelector("main.main") || document.body, due = null;
+        try {
+            new MutationObserver((function() { if (due) return; due = setTimeout((function() { due = null; pkDecorate(); }), 40); })).observe(main, { childList: true, subtree: true });
+        } catch (e) {}
+        setTimeout(pkDecorate, 0);
+    })();
+    /* What is waiting for an invoice: the Action Queue's Raise the Invoice and Attach the Invoice PDF
+       cards, and any first application at Awaiting Payment with no invoice on record. */
+    function pkNeedInvoice() {
+        var out = [];
+        try {
+            var m = tdModel();
+            tqMine(m).forEach((function(x) {
+                if (x.kind !== "invoice" && x.kind !== "attach") return;
+                var when = x.kind === "attach" ? "no PDF yet" : x.days == null ? "" : x.days > 0 ? x.days + "d late" : x.days === 0 ? "today" : "in " + -x.days + "d";
+                out.push({ org: x.org, late: !!x.late, what: x.kind === "attach" ? "Attach the PDF" : (x.prog || "") + " renewal", when: when, html: x.html.replace(/<span class="tq-kind[^"]*">[\s\S]*?<\/span>/, "") });
+            }));
+            var have = {};
+            allInvoices().forEach((function(i) { have[i.row] = 1; }));
+            (D.inFlight || []).forEach((function(f) {
+                if (!f || have[f.row] || f.kind !== "initial" || fuClosed(f) || currentState(f) !== "AwaitingPayment" || tdProspect(f.org)) return;
+                var d = fuDaysInState(f);
+                out.push({ org: f.org, late: d != null && d > 7, what: f.program + " first invoice", when: d != null ? d + "d" : "",
+                    html: '<div class="td-item' + (d != null && d > 7 ? " bad" : "") + '">' + cmono(f.org) + '<div class="td-main"><button class="td-org" type="button" data-tdopen="' + f.row + '">' + esc(f.org) + "</button>"
+                        + '<div class="td-meta">' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + " · first certification · approved to apply, no invoice on record" + (d != null ? " · waiting " + d + (d === 1 ? " day" : " days") : "") + "</div></div>"
+                        + '<div class="td-acts">' + tdBtn("Open and Email the Invoice", 'data-tdopen="' + f.row + '"') + "</div></div>" });
+            }));
+        } catch (e) { if (window.console) console.error("Needs an Invoice:", e); }
+        out.sort((function(a, b) { return (b.late ? 1 : 0) - (a.late ? 1 : 0) || a.org.localeCompare(b.org); }));
+        return out;
+    }
+    var pkInvDue = null;
+    function pkInvRefresh() {
+        var v = $("view-invoices"), host = $("invlist");
+        if (!v || !host || !v.classList.contains("on") || pkInvDue) return;
+        pkInvDue = setTimeout((function() {
+            pkInvDue = null;
+            var ae = document.activeElement;
+            if (ae && host.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;
+            var y = window.pageYOffset;
+            renderInvoices();
+            window.scrollTo(0, y);
+        }), 0);
+    }
+    /* ══ Certified Counts, rebuilt (1 Nov 2026, Jonna: "super plus up level up dynamic interactive that
+       page, don't have repeat info"). Nothing here repeats the Action Queue (open steps, past due,
+       invoices): this page is the register. A hero with the latest first-time certifications, four
+       figure boxes, The Register (a ring by program you can click, the program list, and who holds the
+       chosen program, with its anniversaries month by month), then New Certifications. The old count
+       panel stays for Display Board and Copy for Slides. ══ */
+    var cx = cx || { prog: null };
+    var CX_PEOPLE_K = [ "#9b8cff", "#5fb3c9", "#e87ba4" ];
+    function cxLive(type) {
+        var src = typeof certs !== "undefined" && certs ? certs : D.certifications || [];
+        return src.filter((function(c) { return c.live && c.program === type && !orgInactive(c.org); }));
+    }
+    function cxEvents() {
+        var out = [];
+        (D.certifications || []).forEach((function(c) {
+            (c.cycleHistory || []).forEach((function(cy) { if (cy.completedOn) out.push({ org: c.org, program: c.program, kind: cy.kind, on: cy.completedOn }); }));
+        }));
+        return out.sort((function(a, b) { return a.on < b.on ? 1 : a.on > b.on ? -1 : 0; }));
+    }
+    function renderCountsX(m) {
+        var host = $("cntx");
+        if (!host) return;
+        if (!cx) cx = { prog: null };
+        var rows = m.rows.slice(), pi = 0;
+        rows.forEach((function(r) { r.k = r.people ? CX_PEOPLE_K[pi++ % CX_PEOPLE_K.length] : (PROG.filter((function(p) { return p.type === r.type; }))[0] || {}).colour || "var(--c1)"; }));
+        var firms = rows.filter((function(r) { return !r.people; }));
+        if (!cx.prog || !rows.some((function(r) { return r.type === cx.prog; }))) cx.prog = (firms.slice().sort((function(a, b) { return b.live - a.live; }))[0] || rows[0] || {}).type;
+        var sel = rows.filter((function(r) { return r.type === cx.prog; }))[0];
+        var ev = cxEvents(), yr = String(TODAY.getFullYear());
+        var firstYr = ev.filter((function(e) { return e.kind === "initial" && e.on.slice(0, 4) === yr; }));
+        var renYr = ev.filter((function(e) { return e.kind !== "initial" && e.on.slice(0, 4) === yr; }));
+        var spark = [], mNow = TODAY.getMonth();
+        for (var i = 0; i <= mNow; i++) spark.push(firstYr.filter((function(e) { return +e.on.slice(5, 7) - 1 === i; })).length);
+        var sMax = Math.max.apply(null, spark.concat([1]));
+        var latest = ev.filter((function(e) { return e.kind === "initial"; })).slice(0, 3);
+        var say = latest.length ? "Latest to earn a first certification: " + latest.map((function(e) { return tqEm(e.org) + " (" + esc(progName(e.program)) + ", " + esc(fmt(e.on).replace(/, \d{4}$/, "")) + ")"; })).join(", ") + "." : "";
+        var biggest = firms.slice().sort((function(a, b) { return b.live - a.live; }))[0];
+        var pct = function(a, b) { return b ? Math.round(a / b * 100) : 0; };
+        var fp = m.fam.professional || 0, ft = m.fam.technology || 0;
+        var acts = '<button class="lc-btn" type="button" data-cxdo="copy">Copy for Slides</button><button class="lc-btn solid" type="button" data-cxdo="board">Display Board</button>';
+        /* the ring */
+        var R = 64, C = 2 * Math.PI * R, off = 0, total = m.total || 1;
+        var ring = rows.filter((function(r) { return r.live; })).map((function(r) {
+            var len = r.live / total * C, s = '<circle class="cx-seg' + (r.type === cx.prog ? " on" : "") + '" data-cxp="' + esc(r.type) + '" cx="80" cy="80" r="' + R + '" style="stroke:' + r.k + ";stroke-dasharray:" + Math.max(len - 1.5, .5).toFixed(2) + " " + C.toFixed(2) + ";stroke-dashoffset:" + (-off).toFixed(2) + '"><title>' + esc(r.name) + ": " + r.live + "</title></circle>";
+            off += len;
+            return s;
+        })).join("");
+        var list = rows.slice().sort((function(a, b) { return a.family === b.family ? b.live - a.live : a.family < b.family ? 1 : -1; })).map((function(r) {
+            return '<button type="button" class="cx-p' + (r.type === cx.prog ? " on" : "") + '" data-cxp="' + esc(r.type) + '" style="--k:' + r.k + '"><i></i><span class="cx-pn">' + esc(r.name) + "<small>" + (r.people ? "people" : r.family === "professional" ? "professional" : "technology") + "</small></span>"
+                + '<span class="cx-pb"><b style="width:' + pct(r.live, biggest && biggest.live > 0 ? Math.max(biggest.live, r.live) : r.live || 1) + '%"></b></span><span class="cx-pv">' + r.live + "</span></button>";
+        })).join("");
+        /* who holds the chosen program */
+        var detail = "";
+        if (sel && sel.people) {
+            detail = '<div class="cx-people"><b>' + sel.live + "</b><span>people hold " + esc(sel.name) + " today, " + sel.onRecord + " ever certified. People are kept in the CMSP & AMSP register, one record each.</span>"
+                + '<button class="lc-btn" type="button" data-pkgo="view:individual">Open CMSP & AMSP</button></div>';
+        } else if (sel) {
+            var held = cxLive(sel.type).slice().sort((function(a, b) { return a.org.localeCompare(b.org); }));
+            var byMo = [];
+            for (var q = 0; q < 12; q++) byMo.push([]);
+            held.forEach((function(c) { var d = parseDay(c.anniversary); if (!d) return; var k = (d.getMonth() - TODAY.getMonth() + 12) % 12; byMo[k].push(c); }));
+            var moMax = Math.max.apply(null, byMo.map((function(x) { return x.length; })).concat([1]));
+            var MO3 = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+            detail = '<div class="cx-hold">' + held.map((function(c) {
+                return '<button type="button" class="cx-co" data-tdcert="' + esc(certKey(c)) + '">' + cmono(c.org) + '<span><b>' + esc(c.org) + "</b><small>" + esc(c.product || progName(c.program)) + "</small></span>"
+                    + '<em class="' + (c.condition === "PastDue" ? "bad" : c.condition === "DueWithin30Days" ? "warn" : "") + '">' + (c.anniversary ? esc(fmt(c.anniversary).replace(/, \d{4}$/, "")) : "—") + "</em></button>";
+            })).join("") + "</div>"
+                + '<div class="cx-cal"><div class="cx-calh">Anniversaries in the Next Twelve Months</div><div class="cx-calg">' + byMo.map((function(x, k) {
+                    var mo = (TODAY.getMonth() + k) % 12;
+                    return '<div class="cx-m' + (k === 0 ? " now" : "") + '" title="' + esc(x.map((function(c) { return c.org; })).join(", ")) + '"><span class="cx-mb"><i style="height:' + (x.length ? Math.max(12, Math.round(x.length / moMax * 100)) : 0) + '%;background:' + sel.k + '"></i></span><b>' + (x.length || "") + "</b><small>" + MO3[mo] + "</small></div>";
+                })).join("") + "</div></div>";
+        }
+        host.innerHTML = pkHero({ eb: "As of " + fmt(D.asOf), title: "Certified Counts", say: say, acts: acts })
+            + pkBoard([
+                { lab: "Live Certifications", n: m.total, k: "#74bfeb", sub: m.rows.length + " programs",
+                    body: '<span class="pk-bar" title="Professional ' + fp + ", technology " + ft + '"><i style="width:' + pct(fp, m.total) + '%;background:#9b8cff"></i><i style="width:' + pct(ft, m.total) + '%;background:#74bfeb"></i></span><span class="cx-leg"><span><i style="background:#9b8cff"></i>' + fp + " professional</span><span><i style=\"background:#74bfeb\"></i>" + ft + " technology</span></span>" },
+                { lab: "Certified Companies", n: m.companies, k: "#3ccb7f", sub: "hold " + m.firms + " live company certifications" + (m.people ? ", and " + m.people + " people hold CMSP or AMSP" : "") },
+                { lab: "First-Time in " + yr, n: firstYr.length, k: "#e0a83c", sub: firstYr.length ? "new to a program this year" : "none yet this year",
+                    body: '<span class="pk-spark" style="--k:#e0a83c">' + spark.map((function(v, ix) { return '<i class="' + (ix === mNow ? "now" : "") + '" title="' + [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][ix] + ": " + v + '" style="height:' + Math.max(4, Math.round(v / sMax * 100)) + '%"></i>'; })).join("") + "</span>", go: "#newcerts-panel" },
+                { lab: "Renewed in " + yr, n: renYr.length, k: "#c9a2ff", sub: renYr.length ? "certifications kept for another year" : "none recorded yet this year" }
+            ])
+            + '<div class="box pk-sec cx" style="--pkc:#74bfeb"><h2 class="sect-t">The Register</h2><p class="sect-s">Choose a program on the ring or in the list to see who holds it and when each one renews.</p>'
+            + '<div class="cx-top"><div class="cx-ring"><svg viewBox="0 0 160 160" aria-label="Live certifications by program"><circle class="cx-track" cx="80" cy="80" r="' + R + '"></circle>' + ring + "</svg>"
+            + '<div class="cx-mid" style="--k:' + (sel ? sel.k : "#74bfeb") + '"><b>' + (sel ? sel.live : m.total) + "</b><span>" + esc(sel ? sel.name : "live") + "</span><small>" + (sel ? pct(sel.live, m.total) + "% of the register" : "") + "</small></div></div>"
+            + '<div class="cx-list">' + list + "</div></div>"
+            + (sel ? '<div class="cx-sel" style="--k:' + sel.k + '"><div class="cx-selh"><h3>' + esc(sel.name) + '</h3><span class="pk-n">' + sel.live + " live</span><span class=\"cx-ever\">" + sel.onRecord + " ever certified</span>"
+                + (sel.people ? "" : '<button class="lc-btn ghost" type="button" data-cxlist="' + esc(sel.type) + '">List Them in the Panel</button>') + "</div>" + detail + "</div>" : "")
+            + '<p class="cx-foot">' + esc("Live means granted and not lapsed, superseded or cancelled. A company holding the same certification for two products counts twice, because that is how the certificates are issued.") + "</p></div>";
+        pkAnimate(host);
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("#cntx [data-cxp], #cntx [data-cxdo], #cntx [data-cxlist], #cntx [data-tdcert]") : null;
+        if (!t) return;
+        if (t.hasAttribute("data-cxp")) { cx.prog = t.getAttribute("data-cxp"); renderCountsX(countsModel()); return; }
+        if (t.hasAttribute("data-cxlist")) { openPanelCerts(t.getAttribute("data-cxlist"), progName(t.getAttribute("data-cxlist"))); return; }
+        if (t.hasAttribute("data-tdcert")) { openPanelCert(t.getAttribute("data-tdcert"), null); return; }
+        var b = $(t.getAttribute("data-cxdo") === "copy" ? "cnt-copy" : "cnt-board");
+        if (b) b.click();
+    }));
+    function pkAnimate(host) {
+        var done = window.__pkAnimated || (window.__pkAnimated = {});
+        if (!host || done[host.id]) return;
+        done[host.id] = 1;
+        try { if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; } catch (e) {}
+        Array.prototype.forEach.call(host.querySelectorAll(".pk-b [data-count]"), (function(el) {
+            var to = +el.getAttribute("data-count"), t0 = null;
+            if (!(to > 0)) return;
+            el.textContent = "0";
+            function step(t) { if (t0 === null) t0 = t; var k = Math.min(1, (t - t0) / 900); el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }
+            requestAnimationFrame(step);
+        }));
+    }
     function renderAll() {
         renderInvoices();
         renderInvoicePip();
@@ -9967,7 +10577,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             } catch (e) {}
         }));
     })();
-    var PANEL_OPENERS = "#drawer, .rowbtn, .col, .card, .cnt-row, .drow, .erow, .qpick, " + ".hl-tile, .ss-item, .ss-results, .stat" + ", [data-tdopen], [data-tdcert], [data-tdrenewal], [data-tdorg], [data-tdinv], [data-tdstart]";
+    var PANEL_OPENERS = "#drawer, .rowbtn, .col, .card, .cnt-row, .drow, .erow, .qpick, " + ".hl-tile, .ss-item, .ss-results, .stat" + ", [data-tdopen], [data-tdcert], [data-tdrenewal], [data-tdorg], [data-tdinv], [data-tdstart], [data-pkcert], [data-pkrow], .cx-co, .pk-card";
     document.addEventListener("click", (function(e) {
         if (!panel) return;
         if (!e.target.isConnected) return;
@@ -10054,7 +10664,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function accountHistory(c) {
         var hist = (c.cycleHistory || []).slice();
-        if (!hist.length) return '<div class="dsect"><h4>Account History</h4>' + '<div class="empty">No cycles were recorded in MACTS for this certification.</div></div>';
+        if (!hist.length) return '<div class="dsect"><h4>Account History</h4>' + '<div class="empty">No earlier cycles are recorded for this certification.</div></div>';
         var byRowMs = {};
         (c.milestones || []).forEach((function(m) {
             (byRowMs[m.row] = byRowMs[m.row] || []).push(m);
@@ -10167,7 +10777,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return a.org.localeCompare(b.org);
         }));
         $("certlist").innerHTML = list.map((function(c) {
-            return '<button class="rowbtn" type="button" data-key="' + esc(certKey(c)) + '">' + "<span>" + esc(c.org) + "</span>" + '<span class="hide-sm"><span class="tag">' + esc(c.program) + "</span></span>" + '<span class="hide-sm" style="color:var(--ink-3)">' + esc(c.product || "—") + "</span>" + '<span class="hide-sm">' + statusPill(c.status) + "</span>" + '<span class="caret">&#9654;</span>' + "</button>";
+            return '<button class="rowbtn pk-card" type="button" data-key="' + esc(certKey(c)) + '">' + cmono(c.org) + '<span class="pk-cb"><b>' + esc(c.org) + "</b><small>" + esc(c.product || pkProg(c.program)) + (c.anniversary && c.live ? " · renews " + esc(fmt(c.anniversary)) : "") + '</small><span class="pk-chips"><span class="tag">' + esc(c.program) + "</span></span></span>" + statusPill(c.status) + "</button>";
         })).join("");
         $("certcount").textContent = list.length + " of " + certs.length + " certifications shown.";
         Array.prototype.forEach.call($("certlist").querySelectorAll(".rowbtn"), (function(btn) {
@@ -11426,7 +12036,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         };
         var docked = !!origTarget(f);
         document.body.classList.toggle("on-dock", docked);
-        el.innerHTML = (docked ? '<div class="dockwrap"><div class="dockmain">' : "") + '<div class="panel">' + '<button class="dback" type="button" data-eng-back="1">← Back to my to do</button>' + '<div class="phead"><div>' + "<h2>" + esc(f.org) + (f.product ? " · " + esc(f.product) : "") + "</h2>" + '<p class="psub">' + esc(f.program) + " · " + esc(f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + esc(titleOfState(currentState(f))) + "</p>" + "</div></div>" + engReport(f, answered) + "</div>" + (f.program === "Consultant" ? submissionPanel(f) + scorecardPanel(f) : "") + (f.program === "FRAME" ? framePanel(f) + attachmentPanel(f) + interviewPanel(f) + frVerdictPanel(f, frameResult(f.org)) : "") + (scriptOutstanding(f) ? '<div class="panel"><div class="note bad" style="margin:0;">' + "<b>Waiting on MISMO.</b> The certification script for this renewal has not been " + "completed and sent yet. It carries the provider’s own questionnaire and " + "attestation answers, which is what the demo is read against.</div></div>" : "") + engActions(f) + (assessedOutside(f) ? uploadPanel(f) : "") + (f.program === "Consultant" || f.program === "FRAME" ? "" : '<div class="panel">' + '<div class="phead"><div>' + "<h2>" + (assessedOutside(f) ? "What the Assessment Found" : "Score the Instrument") + "</h2>" + '<p class="psub">' + (!assessedOutside(f) ? "" : scriptReadable(f) ? "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>, marked from the file brought in above. Nothing here has to be filled " + "in by hand — but anything read wrongly can be corrected here, and the " + "correction is recorded as one. " : "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>. The report itself is uploaded above; the recommendation is set here, " + "line by line, because a prose report is not something the system can read a " + "mark out of. ") + (assessedOutside(f) ? "" : sc ? "Working to <b>" + esc(sc.title) + "</b>, read out of the assessor workbook " + "rather than retyped. Every item carries the criterion MISMO applies and " + "the evidence required. " : items.length ? "No certification script exists for " + esc(f.program) + " yet, so these " + "are the questions " + (items[0] && items[0].fromForm ? "on the questionnaire" : "MACTS holds") + " and nothing more — " + "no criterion, no required evidence. " : "") + "The preliminary result follows from the marks — it is never typed.</p>" + "</div></div>" + '<div class="prelim ' + p.state + '">' + '<div><span class="pl-lab">Preliminary Result</span>' + '<span class="pl-val">' + esc(p.label) + "</span></div>" + '<div class="pl-prog"><span style="width:' + (p.total ? (p.scored / p.total * 100).toFixed(1) : 0) + '%"></span></div>' + '<div class="pl-n">' + p.scored + " of " + p.total + " scored</div>" + "</div>" + (items.length ? sections.map((function(sec) {
+        el.innerHTML = (docked ? '<div class="dockwrap"><div class="dockmain">' : "") + '<div class="panel">' + '<button class="dback" type="button" data-eng-back="1">← Back to my to do</button>' + '<div class="phead"><div>' + "<h2>" + esc(f.org) + (f.product ? " · " + esc(f.product) : "") + "</h2>" + '<p class="psub">' + esc(f.program) + " · " + esc(f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + esc(titleOfState(currentState(f))) + "</p>" + "</div></div>" + engReport(f, answered) + "</div>" + (f.program === "Consultant" ? submissionPanel(f) + scorecardPanel(f) : "") + (f.program === "FRAME" ? framePanel(f) + attachmentPanel(f) + interviewPanel(f) + frVerdictPanel(f, frameResult(f.org)) : "") + (scriptOutstanding(f) ? '<div class="panel"><div class="note bad" style="margin:0;">' + "<b>Waiting on MISMO.</b> The certification script for this renewal has not been " + "completed and sent yet. It carries the provider’s own questionnaire and " + "attestation answers, which is what the demo is read against.</div></div>" : "") + engActions(f) + (assessedOutside(f) ? uploadPanel(f) : "") + (f.program === "Consultant" || f.program === "FRAME" ? "" : '<div class="panel">' + '<div class="phead"><div>' + "<h2>" + (assessedOutside(f) ? "What the Assessment Found" : "Score the Instrument") + "</h2>" + '<p class="psub">' + (!assessedOutside(f) ? "" : scriptReadable(f) ? "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>, marked from the file brought in above. Nothing here has to be filled " + "in by hand — but anything read wrongly can be corrected here, and the " + "correction is recorded as one. " : "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>. The report itself is uploaded above; the recommendation is set here, " + "line by line, because a prose report is not something the system can read a " + "mark out of. ") + (assessedOutside(f) ? "" : sc ? "Working to <b>" + esc(sc.title) + "</b>, read out of the assessor workbook " + "rather than retyped. Every item carries the criterion MISMO applies and " + "the evidence required. " : items.length ? "No certification script exists for " + esc(f.program) + " yet, so these " + "are the questions " + (items[0] && items[0].fromForm ? "on the questionnaire" : "on file") + " and nothing more — " + "no criterion, no required evidence. " : "") + "The preliminary result follows from the marks — it is never typed.</p>" + "</div></div>" + '<div class="prelim ' + p.state + '">' + '<div><span class="pl-lab">Preliminary Result</span>' + '<span class="pl-val">' + esc(p.label) + "</span></div>" + '<div class="pl-prog"><span style="width:' + (p.total ? (p.scored / p.total * 100).toFixed(1) : 0) + '%"></span></div>' + '<div class="pl-n">' + p.scored + " of " + p.total + " scored</div>" + "</div>" + (items.length ? sections.map((function(sec) {
             return '<div class="ins-sec"><h3>' + esc(SECTION_LABEL[sec.name] || sec.name) + "</h3>" + sec.items.map((function(it) {
                 return itemRow(f, it);
             })).join("") + "</div>";
@@ -12369,7 +12979,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 var paid = live.filter((function(x) {
                     return (x.paymentStatus || "").toLowerCase() === "paid" || (x.paymentStatus || "").toLowerCase() === "waived";
                 })).length;
-                return '<div class="prog-live"><b>Live outside the system.</b> ' + live.length + " application" + (live.length === 1 ? "" : "s") + " in flight, " + paid + " settled, tracked in its own spreadsheet. Nothing about it is in MACTS.</div>";
+                return '<div class="prog-live"><b>Live outside the system.</b> ' + live.length + " application" + (live.length === 1 ? "" : "s") + " in flight, " + paid + " settled, tracked in its own spreadsheet for now.</div>";
             }() + (p.note ? '<div class="prog-note">' + esc(p.note) + "</div>" : "") + report([ cell("Certifies", esc(p.family === "Person" ? "A person" : p.family === "OrganizationProduct" ? "A product" : "A company"), esc(p.family === "Person" ? "One individual, named" : p.family === "OrganizationProduct" ? "One product per certification" : "The firm itself, not a product")), cell("Term", p.termMonths + " <i>months</i>", "From the completion date"), cell("Grace", p.graceDays + " <i>days</i>", "After the anniversary"), cell("Demo", p.demo ? "Required" : "None", p.preAssessment ? "Pre-assessment discussion first" : p.scopeReview ? "Scope review first" : p.demo ? "" : "Assessed on documents", p.demo ? "" : "quiet"), cell("Mark License", p.markLicense ? "Offered" : "None", p.markLicense ? "Optional — never blocks" : "Not part of this program", p.markLicense ? "" : "quiet"), function() {
                 var req = p.documents.filter((function(d) {
                     return d.required;
@@ -12609,7 +13219,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (ck) {
             var invs = knownInvoices();
             if (!invs.length) {
-                ck.innerHTML = '<div class="empty">No invoices are recorded on the board beyond MACTS. ' + "Once invoices come across from Aptify they are checked here.</div>";
+                ck.innerHTML = '<div class="empty">No invoices are recorded here yet. ' + "Once invoices come across from Aptify they are checked here.</div>";
             } else {
                 ck.innerHTML = '<div class="prc-inv">' + '<div class="prc-h">Company</div>' + '<div class="prc-h num hide-sm">Expected</div>' + '<div class="prc-h num">Invoiced</div>' + '<div class="prc-h num hide-sm">Revenue</div>' + invs.map((function(x) {
                     var v = priceVerdict(x.program, x.kind, x.tier, x.invoice.amount);
@@ -12923,7 +13533,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function mlFilesHTML(c) {
         var list = mlFilesFor(c);
         if (!list.length) return "";
-        return '<div class="pc-lab" style="margin-top:14px">Signed Copies from MACTS</div>' + '<ul class="ml-files">' + list.map((function(x) {
+        return '<div class="pc-lab" style="margin-top:14px">Earlier Signed Copies</div>' + '<ul class="ml-files">' + list.map((function(x) {
             var url = ML_SITE + encodeURI(x.path);
             return '<li><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc((x.cycle ? x.program + " " + x.cycle : x.file)) + "</a>"
                 + (x.cycle ? ' <span class="quiet">' + esc(x.file) + "</span>" : "") + "</li>";
@@ -12960,7 +13570,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         var hand = '<div class="two-acts">' + (st !== "signed" ? '<button class="lc-btn" type="button" data-licset="' + esc(k) + '|signed">It Has Been Signed</button>' + '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|declined">It Was Declined</button>' : "") + '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|not_sent">Start Again</button>' + "</div>";
         if (!auto && st !== "signed") {
-            return '<div class="lic-send"><div class="lic-auto hand"><b>This one needs you</b><span>It went out from MACTS, before DocuSign was connected here, so the system cannot see it come back. Say so when it does.</span></div>' + hand + "</div>";
+            return '<div class="lic-send"><div class="lic-auto hand"><b>This one needs you</b><span>It went out before DocuSign was connected here, so the system cannot see it come back. Say so when it does.</span></div>' + hand + "</div>";
         }
         var says = st === "signed" ? (L0.document && L0.document.url ? "Signed, and the signed copy is filed. Nothing to do." : auto ? "Signed. DocuSign’s signed copy files itself in the certification library at the next check and appears here." : "Signed. Nothing to do.") : "Out with the signer. DocuSign is checked three times every weekday: once it is signed the certification moves to Certified and the signed copy is filed, all by itself.";
         return '<div class="lic-send"><div class="lic-auto"><b>Automatic</b><span>' + esc(says) + "</span></div>" + '<details class="lic-hand"><summary>Something not right? Correct it by hand</summary>' + hand + "</details></div>";
@@ -13550,8 +14160,50 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         q: "",
         program: ""
     };
+    function pkRecordsHero(all) {
+        var host = $("pkh-records");
+        if (!host) return;
+        var act = all.filter((function(o) { return o.status === "active"; })), pro = all.filter((function(o) { return o.status === "prospect"; })), ina = all.filter((function(o) { return o.status !== "active" && o.status !== "prospect"; }));
+        var miss = act.filter(pkOrgMissing), liveSet = {};
+        (typeof certs !== "undefined" && certs || []).forEach((function(c) { if (c.live) liveSet[c.org] = 1; }));
+        var holding = act.filter((function(o) { return liveSet[o.name]; })).length;
+        var noApt = act.filter((function(o) { return !o.aptify; }));
+        var say = miss.length ? tqEm(miss.length + (miss.length === 1 ? " active company is" : " active companies are")) + " missing an Aptify customer ID or anyone to email" + (noApt.length ? " (" + noApt.length + " with no Aptify ID)" : "") + ". Fill them in once here and every certification they hold reads them." : "Every active company has its details filled in. Select a company to change its contacts, signer or address.";
+        var f = orgFilters;
+        host.innerHTML = pkHero({ title: "Companies", say: say, acts: '<button class="lc-btn solid" type="button" data-pkclick="#view-records .phead [data-na=jump]">+ New Application</button>' })
+            + pkBoard([
+                { lab: "Active Providers", n: act.length, k: "#3ccb7f", attr: 'data-pkorg="active"', on: f.status === "active" && !f.missing, sub: holding + " hold a live certification" },
+                { lab: "Missing Key Details", n: miss.length, k: "#e0a83c", attr: 'data-pkorg="missing"', on: !!f.missing, pill: noApt.length ? noApt.length + " no Aptify ID" : "", hot: !!noApt.length, sub: miss.length ? "No Aptify ID or nobody to email" : "Every active company has them", rows: miss.slice(0, 2).map((function(o) { var x = orgOf(o.name) || o; return [ o.name, [ x.aptify || o.aptify ? "" : "Aptify ID", pkOrgEmail(o) ? "" : "email" ].filter(Boolean).join(", "), "" ]; })) },
+                { lab: "Prospects", n: pro.length, k: "#5fb3c9", attr: 'data-pkorg="prospect"', on: f.status === "prospect", sub: "Talking to MISMO, not certifying yet" },
+                { lab: "Inactive", n: ina.length, k: "#9aa9b6", attr: 'data-pkorg="inactive"', on: !!f.status && f.status !== "active" && f.status !== "prospect", sub: "Stopped, acquired or withdrawn" }
+            ]);
+        pkAnimate(host);
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkorg]") : null;
+        if (!t) return;
+        var k = t.getAttribute("data-pkorg"), sel = $("f-orgstatus");
+        var stillOn = k === "missing" ? orgFilters.missing : orgFilters.status === k && !orgFilters.missing;
+        orgFilters.missing = !stillOn && k === "missing";
+        orgFilters.status = stillOn || k === "missing" ? "" : k;
+        if (k === "inactive" && !stillOn) { var opt = sel && Array.prototype.filter.call(sel.options, (function(o) { return o.value && o.value !== "active" && o.value !== "prospect"; }))[0]; orgFilters.status = opt ? opt.value : "inactive"; }
+        if (sel) sel.value = orgFilters.status;
+        var seg = document.querySelector('#view-records [data-rec="orgs"]');
+        if (seg && !seg.classList.contains("on")) seg.click();
+        renderOrgs();
+    }));
+    /* what the system needs to invoice and email a company: an Aptify customer ID and somebody to write
+       to (a contact email on the record or in the contact book). A missing signer falls back to the
+       primary contact (Jonna, 29 Oct 2026), so it is not counted. */
+    function pkOrgEmail(o) { var x = orgOf(o.name) || o; return !!(x.contactEmail || companyContacts(o.name)); }
+    function pkOrgMissing(o) {
+        var x = orgOf(o.name) || o;
+        return (x.aptify || o.aptify ? 0 : 1) + (pkOrgEmail(o) ? 0 : 1);
+    }
     function renderOrgs() {
-        var list = D.organizations.map(tdEffOrg).filter((function(o) {
+        var all = D.organizations.map(tdEffOrg);
+        var list = all.filter((function(o) {
+            if (orgFilters.missing && !pkOrgMissing(o)) return false;
             if (orgFilters.status && o.status !== orgFilters.status) return false;
             if (orgFilters.q && o.name.toLowerCase().indexOf(orgFilters.q.toLowerCase()) === -1) return false;
             if (orgFilters.program) {
@@ -13563,8 +14215,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return true;
         }));
         $("certcount").textContent = list.length + " of " + D.organizations.length + " companies shown.";
+        try { pkRecordsHero(all); } catch (e) { if (window.console) console.error("Companies hero:", e); }
         $("orglist").innerHTML = list.map((function(o) {
-            return '<button class="rowbtn" type="button" data-org="' + esc(o.name) + '">' + "<span>" + esc(o.name) + "</span>" + '<span class="hide-sm"><span class="st ' + (o.status === "active" ? "active" : o.status === "prospect" ? "applicationlapsed" : "notactive") + '">' + esc(o.status.charAt(0).toUpperCase() + o.status.slice(1)) + "</span></span>" + '<span class="hide-sm" style="color:var(--ink-3)">' + o.certifications + (o.certifications === 1 ? " certification" : " certifications") + "</span>" + '<span class="hide-sm" style="color:var(--ink-3)">' + esc(o.aptify || "no Aptify ID") + "</span>" + '<span class="caret">&#9654;</span></button>';
+            var lv = (typeof certs !== "undefined" && certs || []).filter((function(c) { return c.org === o.name && c.live; }));
+            var progs = {};
+            lv.forEach((function(c) { progs[c.program] = (progs[c.program] || 0) + 1; }));
+            var next = lv.filter((function(c) { return c.anniversary; })).sort((function(a, b) { return a.anniversary < b.anniversary ? -1 : 1; }))[0];
+            var miss = pkOrgMissing(o);
+            var stc = o.status === "active" ? "active" : o.status === "prospect" ? "applicationlapsed" : "notactive";
+            return '<button class="rowbtn pk-card" type="button" data-org="' + esc(o.name) + '">' + cmono(o.name) + '<span class="pk-cb"><b>' + esc(o.name) + "</b>"
+                + "<small>" + (lv.length ? lv.length + " live certification" + (lv.length === 1 ? "" : "s") + (next ? " · renews " + esc(fmt(next.anniversary).replace(/, \d{4}$/, "")) : "") : o.certifications ? "no live certification" : "no certification yet") + "</small>"
+                + '<span class="pk-chips">' + Object.keys(progs).sort().map((function(pg) { return '<span class="tag">' + esc(pg) + (progs[pg] > 1 ? " ×" + progs[pg] : "") + "</span>"; })).join("") + (miss ? '<span class="tag warn">' + miss + " key detail" + (miss === 1 ? "" : "s") + " missing</span>" : "") + "</span></span>"
+                + '<span class="st ' + stc + '">' + esc(o.status.charAt(0).toUpperCase() + o.status.slice(1)) + "</span></button>";
         })).join("");
         Array.prototype.forEach.call($("orglist").querySelectorAll(".rowbtn"), (function(btn) {
             btn.addEventListener("click", (function() {
@@ -13721,6 +14383,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         document.body.classList.toggle("on-queue", view === "queue");
         document.body.classList.toggle("on-invoices", view === "invoices");
         document.body.classList.toggle("on-scenarios", view === "assessors");
+        try { pkSetupHero(view); } catch (e) { if (window.console) console.error("Page hero:", e); }
         if (onPhone()) setNavOpen(false);
         if (scroll !== false) window.scrollTo(0, 0);
     }
@@ -14030,6 +14693,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 openPanelCerts(b.dataset.type, progName(b.dataset.type));
             }));
         }));
+        try { renderCountsX(m); } catch (e) { if (window.console) console.error("The Register:", e); }
         var everCount = D.certifications.length;
         $("cnt-foot").innerHTML = "<b>What is counted.</b> A live certification is one the records show as active — granted, " + "and not lapsed, superseded or cancelled. " + everCount + " are on record in total including " + 'every superseded and lapsed one, which is the "on record" figure. A company holding the same ' + "certification for two products counts twice, because that is how the certificates are issued." + (m.people ? " <b>AMSP and CMSP certify people</b>, and are kept in their own registers rather than " + "in MACTS, so they have no company behind them and no list to open — a renewal adds " + "a row to the same person, and each person is counted once. " + (m.stale ? "Their registers also carry an Active flag, which is set on <b>" + m.stale + "</b> more " + (m.stale === 1 ? "person" : "people") + " than the expiry dates " + "make live; the dates are used here, as they are everywhere else on this page." : "") : "");
         return m;

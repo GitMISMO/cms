@@ -22,19 +22,18 @@
 <script src="embed.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 :root{
-  --navy:#0f314c; --navy-deep:#06202f; --navy-mid:#14486e;
-  --sky:#50a4db; --sky-wash:#dcedf8;
+  --navy:#0d314c; --navy-deep:#06202f; --navy-mid:#14486e;
+  --sky:#74bfeb; --sky-wash:#dcedf8;
   --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
   --border:#d5e2ed; --border-strong:#adc4d6; --rule:#e5eef5;
-  --ink:#0f314c; --ink-2:#456179; --ink-3:#546f88;
+  --ink:#0d314c; --ink-2:#456179; --ink-3:#546f88;
   --good:#0f7b5c; --bad:#b3372c; --warn:#a2701a;
   --good-soft:#e1f2ec; --bad-soft:#fbe9e7; --warn-soft:#f7efe0;
-  --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9;
+  --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9; --mark:#fde9a8;
   --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --mono:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; /* no monospace anywhere (Jonna): figures use tabular-nums */
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -44,7 +43,7 @@
     --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
     --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
     --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
-    --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+    --accent:#7fc0ea; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea; --mark:#6b5414;
     color-scheme:dark;
   }
 }
@@ -54,13 +53,13 @@
   --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
   --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
   --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
-  --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+  --accent:#7fc0ea; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea; --mark:#6b5414;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased}
-.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(116,191,235,.28)}
 .logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
 .logoplate svg{height:24px;width:auto;display:block}
 .mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
@@ -72,69 +71,167 @@ body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-web
 .theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
 .theme:hover{border-color:var(--sky)}
 @media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
-main{max-width:980px;margin:0 auto;padding:26px 16px 60px}
-.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:18px}
-h1{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
-.vsub{color:var(--ink-2);margin-top:4px}
-.back{margin-left:auto;color:var(--navy-mid);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
-.back:hover{text-decoration:underline}
+main{max-width:1240px;margin:0 auto;padding:26px 16px 60px}
 .banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
 .banner.bad{border-left-color:var(--bad)}
 .banner b{color:var(--ink)}
-.group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:26px 0 8px}
-details.sect{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
-details.sect > summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
-details.sect > summary::-webkit-details-marker{display:none}
-details.sect > summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;flex:0 0 auto}
-details.sect[open] > summary::before{transform:rotate(45deg)}
-details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:8px}
-.cnt{margin-left:auto;font-weight:500;font-size:12.5px;color:var(--ink-3)}
-.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2)}
+html.embed .top{display:none}
+html.embed main{padding-top:6px;max-width:none}
+html.embed body{background:transparent}
+[hidden]{display:none !important}
+/* ══ Page Kit (1 Nov 2026): the CMS Action Queue's hero and figure boxes, copied here so the page stays self-contained ══ */
+.tqh{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:18px;color:#fff;border-radius:12px;padding:24px 26px;margin-bottom:16px;position:relative;overflow:hidden;
+  background:radial-gradient(900px 260px at 100% -30%,rgba(116,191,235,.30),transparent 60%),linear-gradient(135deg,#06202f 0%,#0d314c 58%,#14486e 100%);box-shadow:0 10px 30px rgba(6,32,47,.25)}
+.tqh.solo{grid-template-columns:minmax(0,1fr)}
+.tqh:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px);background-size:28px 28px}
+.tqh-hi{position:relative;z-index:1;min-width:0}
+.tqh-eb{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#74bfeb}
+.tqh h1{font-size:30px;font-weight:700;line-height:1.15;margin:6px 0 10px;color:#fff;letter-spacing:-.01em}
+.tqh p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.86);margin:0}
+.tqh p em{font-style:normal;color:#74bfeb;font-weight:600}
+.tqh-needs{background:rgba(255,255,255,.07);border:1px solid rgba(116,191,235,.25);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1;min-width:0}
+.tqh-nh{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.7);display:flex;gap:8px;align-items:baseline}
+.tqh-nh span{letter-spacing:0;text-transform:none;font-weight:500;color:rgba(255,255,255,.5)}
+.tqh-need{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:baseline;text-align:left;background:rgba(255,255,255,.06);border:0;border-left:3px solid var(--k,#74bfeb);border-radius:5px;padding:7px 10px;color:#fff;font:inherit;cursor:pointer;transition:background .15s,transform .15s}
+.tqh-need:hover{background:rgba(255,255,255,.13);transform:translateX(2px)}
+.tqh-need span{font-size:11.5px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqh-need b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pk-acts a{display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:6px;white-space:nowrap;min-width:max-content;background:#74bfeb;color:#06202f;font-weight:700;font-size:13px;text-decoration:none}
+.pk-acts a:hover{background:#94c8e9}
+html.embed .pk-acts{display:none}
+.tqb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.tqb.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.tqt{position:relative;display:flex;flex-direction:column;gap:10px;min-width:0;padding:16px 18px;border:1px solid rgba(116,191,235,.18);border-radius:12px;color:#fff;cursor:pointer;text-align:left;font:inherit;
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--k,#74bfeb) 26%,transparent),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px -14px rgba(6,32,47,.6);transition:transform .18s,box-shadow .18s;overflow:hidden}
+div.tqt{cursor:default}
+button.tqt:hover{transform:translateY(-3px);box-shadow:0 0 0 1px color-mix(in srgb,var(--k,#74bfeb) 55%,transparent),0 18px 34px -16px rgba(6,32,47,.75)}
+.tqt:focus-visible{outline:2px solid #74bfeb;outline-offset:2px}
+.tqt.on{box-shadow:0 0 0 2px var(--k),0 18px 34px -16px rgba(6,32,47,.75)}
+.tqt.on:after{content:"";position:absolute;left:18px;right:18px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--k)}
+.tqt-top{display:flex;align-items:center;gap:8px;min-width:0}
+.tqt-lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:color-mix(in srgb,var(--k,#74bfeb) 70%,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqt-pill{margin-left:auto;flex:0 0 auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.12);color:#fff;white-space:nowrap}
+.tqt-pill.hot{background:#c94a3b;animation:tqPulse 2.2s ease-in-out infinite}
+@keyframes tqPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,74,59,.55)}50%{box-shadow:0 0 0 7px rgba(201,74,59,0)}}
+.tqt-big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tqt-big b{font-size:40px;font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tqt-big small{font-size:13px;font-weight:600;color:#74bfeb}
+.tqt-sub{font-size:12.5px;line-height:1.45;color:rgba(255,255,255,.78)}
+.tqt-meter{height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:auto}
+.tqt-meter i{display:block;height:100%;background:var(--k);border-radius:3px;transition:width .9s ease}
+.tqt-list{display:flex;flex-direction:column;gap:4px;margin-top:auto}
+.tqt-row{display:flex;gap:8px;align-items:baseline;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.06);border-left:3px solid var(--k);font-size:12px;min-width:0}
+.tqt-row b{flex:0 1 auto;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqt-row i{flex:1 1 auto;font-style:normal;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.pk-spark{display:flex;align-items:flex-end;gap:3px;height:34px;margin-top:auto}
+.pk-spark i{flex:1;background:var(--k,#74bfeb);opacity:.55;border-radius:2px 2px 0 0;min-height:2px}
+.pk-spark i.now{opacity:1}
+@media(max-width:1100px){.tqb,.tqb.n5{grid-template-columns:repeat(2,minmax(0,1fr))}.tqb.n5 > .tqt:first-child{grid-column:span 2}}
+@media(max-width:900px){.tqh{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.tqh{padding:18px 16px}.tqh h1{font-size:24px}.tqh p{font-size:14px}.tqb,.tqb.n5{gap:10px}.tqt{padding:14px}.tqt-big b{font-size:32px}.tqt-list,.pk-tags{display:none}.tqh-need{grid-template-columns:minmax(0,1fr);gap:1px}.tqt-lab{white-space:normal;letter-spacing:.1em}.tqt-sub{font-size:12px}}
+.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;background:var(--chip);color:var(--ink-2);white-space:nowrap}
 .chip.good{background:var(--good-soft);color:var(--good)}
 .chip.warn{background:var(--warn-soft);color:var(--warn)}
 .chip.off{background:var(--surface-3);color:var(--ink-3)}
 .chip.edit{background:var(--accent-soft);color:var(--accent)}
-.sbody{padding:2px 16px 16px;border-top:1px solid var(--rule)}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin:14px 0 16px}
-.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
-.fact div{font-size:13px;color:var(--ink)}
+/* ══ Email Playbook (1 Nov 2026): figure boxes, stage filters and a search; each email a card that opens its wording in place ══ */
+.tqt-lab{white-space:normal}
+.pb-tool{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 10px}
+.pb-f{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 auto;min-width:0}
+.pb-f button{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--ink-2);font:600 13px var(--display);cursor:pointer;white-space:nowrap;min-width:max-content;transition:border-color .12s,background .12s}
+.pb-f button:hover{border-color:var(--sky);color:var(--ink)}
+.pb-f button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.pb-f button span{font-size:11px;font-weight:700;padding:0 5px;border-radius:4px;background:var(--chip);color:var(--ink-2)}
+.pb-f button.on span{background:rgba(255,255,255,.16);color:#fff}
+.pb-q{flex:0 1 280px;min-width:0;height:34px;font:14px var(--display);color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0 10px 0 32px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%237a9db4' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px 50%}
+.pb-q:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
+.pb-state{font-size:12.5px;color:var(--ink-3);margin:0 0 14px;min-height:18px}
+.pb-state b{color:var(--ink)}
+.pb-state button{border:0;background:none;padding:0;margin-left:8px;color:var(--accent);font:700 12.5px var(--display);cursor:pointer}
+.pb-sec{margin:0 0 22px}
+.pb-gh{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0 0 10px}
+.pb-gh:before{content:"";width:4px;height:20px;border-radius:2px;background:var(--sky);flex:0 0 4px}
+.pb-gh span{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 7px;border-radius:5px;background:var(--surface-3);color:var(--ink-2);font-size:12px;font-weight:700}
+.pb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.pc{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 2px rgba(6,32,47,.04);transition:transform .14s,box-shadow .14s,border-color .14s;min-width:0;scroll-margin-top:16px}
+.pc:before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:4px;border-radius:10px 0 0 10px;background:var(--k,var(--good))}
+.pc.held{--k:var(--warn)} .pc.off{--k:var(--border-strong)}
+.pc:not(.open):hover{transform:translateY(-2px);border-color:var(--sky);box-shadow:0 10px 22px rgba(6,32,47,.1)}
+.pc.open{grid-column:1/-1;border-color:var(--sky);box-shadow:0 0 0 1px var(--sky),0 14px 30px rgba(6,32,47,.12)}
+.pc.hide{display:none}
+.pc-hd{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left;border:0;background:none;padding:14px 16px 14px 18px;font:inherit;color:inherit;cursor:pointer;border-radius:10px}
+.pc-hd:focus-visible{outline:2px solid var(--sky);outline-offset:-2px}
+.pc-top{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.pc-t{font-size:15px;font-weight:700;line-height:1.3;color:var(--ink)}
+.pc-to{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11.5px;color:var(--ink-3)}
+.pc-to i{font-style:normal;font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;border:1px solid var(--border);color:var(--ink-2);background:var(--surface-2)}
+.pc-p{font-size:13px;line-height:1.45;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc-w{font-size:12px;color:var(--ink-3);display:flex;gap:6px;align-items:baseline}
+.pc-w:before{content:"";flex:0 0 7px;height:7px;border-radius:2px;background:var(--k,var(--good));transform:translateY(-1px)}
+.pc-go{align-self:flex-start;margin-top:2px;font-size:12.5px;font-weight:700;color:var(--accent);white-space:nowrap}
+.pc.open .pc-to,.pc.open .pc-p,.pc.open .pc-w{display:none}
+.pc.open .pc-t{font-size:18px}
+.pc-body{display:none;padding:0 18px 18px 20px;border-top:1px solid var(--rule)}
+.pc.open .pc-body{display:block}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0 16px}
+.fact{background:var(--surface-2);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;min-width:0}
+.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:3px}
+.fact div{font-size:13px;color:var(--ink);line-height:1.45}
 .fld{margin-bottom:12px}
-.fld label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.fld label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:4px}
 .fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
-.fld textarea{min-height:220px;resize:vertical;font-size:13px}
+.fld textarea{min-height:220px;resize:vertical;font-size:13.5px;line-height:1.6}
 .fld input:focus,.fld textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
 .fld input:disabled,.fld textarea:disabled{opacity:.75;cursor:not-allowed}
-.hint{font-size:12px;color:var(--ink-3);line-height:1.5}
-.hint code,.fields code{font-family:var(--mono);font-size:11.5px;background:var(--chip);border-radius:3px;padding:0 4px;color:var(--ink-2)}
+.hint{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+.hint code,.mf code{font-family:var(--display);font-size:12px;font-weight:600;background:var(--chip);border-radius:4px;padding:0 5px;color:var(--ink-2)}
+.hint button{border:0;background:none;padding:0;color:var(--accent);font:700 12.5px var(--display);cursor:pointer;text-decoration:underline}
 .btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
-.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff}
+.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff;white-space:nowrap;min-width:max-content}
+:root[data-theme="dark"] .btn:not(.ghost){color:#06202f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn:not(.ghost){color:#06202f}}
 .btn:hover{filter:brightness(1.08)}
 .btn.ghost{background:transparent;color:var(--navy-mid)}
 .btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
 .who{font-size:12px;color:var(--ink-3)}
 .status{font-size:12px;font-weight:600}
 .status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
-.rules{display:grid;gap:10px;margin-top:12px}
-.rule{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13px}
-.rule .d{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.pb-empty{background:var(--surface);border:1px dashed var(--border-strong);border-radius:10px;padding:22px;text-align:center;color:var(--ink-2);font-size:14px}
+.pb-empty button{margin-left:6px;border:0;background:none;color:var(--accent);font:700 14px var(--display);cursor:pointer}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin:0 0 16px;box-shadow:0 1px 2px rgba(6,32,47,.05),0 6px 22px rgba(6,32,47,.04);scroll-margin-top:16px}
+.box p{font-size:13.5px;line-height:1.6;margin:0 0 10px}
+.box p:last-child{margin-bottom:0}
+.how{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.how > .box{margin:0}
+.rules{display:grid;gap:8px}
+.rule{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:baseline;font-size:13px;padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--surface-2)}
+.rule .d{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 6px;border-radius:4px;text-align:center;background:var(--chip);color:var(--ink-2)}
+.rule .d.Waits{background:var(--accent-soft);color:var(--accent)} .rule .d.Held{background:var(--warn-soft);color:var(--warn)} .rule .d.Always{background:var(--good-soft);color:var(--good)}
 .rule b{display:block;color:var(--ink)}
 .rule span{color:var(--ink-2)}
-@media(max-width:560px){.rule{grid-template-columns:1fr;gap:2px}}
-.prose p{font-size:13px;margin:0 0 10px;color:var(--ink)}
-.prose table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
-.prose th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:6px 12px 6px 0;border-bottom:1px solid var(--border)}
-.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
-.prose td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.mfs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin-top:12px}
+.mf{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--surface-2);font-size:12.5px;color:var(--ink-2)}
+.mf code{align-self:flex-start;font-size:12.5px;color:var(--ink)}
 .toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .toast.bad{border-left-color:var(--bad)}
 .loading{padding:40px 0;text-align:center;color:var(--ink-3)}
-.foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
-html.embed .top{display:none}
-html.embed main{padding-top:6px;max-width:none}
-html.embed .back{display:none}
-html.embed body{background:transparent}
-  [style*="var(--mono)"], .num{font-variant-numeric:tabular-nums;}
+.sect-h{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px}
+.sect-h:before{content:"";width:4px;height:20px;border-radius:2px;background:var(--sky);flex:0 0 4px}
+.sect-s{font-size:13.5px;color:var(--ink-3);margin:0 0 12px}
+@media(max-width:1000px){.how{grid-template-columns:minmax(0,1fr)}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+  .pb-grid{grid-template-columns:minmax(0,1fr)}
+  .pb-f{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;flex-basis:100%}
+  .pb-q{flex:1 1 100%}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .rule{grid-template-columns:1fr;gap:4px}.rule .d{justify-self:start}
+  .box{padding:16px}
+  .pc-body{padding:0 14px 16px 16px}
+}
 </style>
 </head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
@@ -173,39 +270,43 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     <span id="rs-account"></span></span>
 </header>
 <main>
-  <div class="vhead">
-    <div><h1>Certification Email Playbook</h1>
-    <div class="vsub">Every email that follows a certification from payment to Mark License: when it goes, who it goes to, why, and what stops it. Edit the wording here.</div></div>
-    <a class="back" href="/cms/">Open the Certification Management System</a>
+  <div class="tqh solo" id="hero">
+    <div class="tqh-hi">
+      <div class="tqh-eb" id="today">&nbsp;</div>
+      <h1>Email Playbook</h1>
+      <p id="say">Every email that follows a certification from payment to Mark License: when it goes, who it goes to, why, and its wording.</p>
+      <div class="pk-acts"><a href="/cms/">Open the Certification Management System</a></div>
+    </div>
+    <div class="tqh-needs" id="side" hidden></div>
   </div>
   <div id="note"></div>
+  <div class="tqb n5" id="board"></div>
+  <div class="pb-tool">
+    <div class="pb-f" id="groups" role="group" aria-label="Show emails by stage"></div>
+    <input class="pb-q" id="q" type="search" placeholder="Search the Emails" aria-label="Search the emails by title, wording or purpose" autocomplete="off">
+  </div>
+  <div class="pb-state" id="state"></div>
   <div id="plays"><div class="loading">Loading the emails&hellip;</div></div>
 
-  <div class="group">How It Works</div>
-  <details class="sect">
-    <summary>When an Email Waits, Is Held or Is Skipped</summary>
-    <div class="sbody"><div class="rules" id="rules"></div></div>
-  </details>
-  <details class="sect">
-    <summary>Merge Fields</summary>
-    <div class="sbody prose">
-      <p style="margin-top:12px">Anything in double braces is filled in for each certification as the email goes out. Type them exactly as shown, braces included.</p>
-      <table id="fields"><tr><th>Field</th><th>Becomes</th></tr></table>
+  <div class="how">
+    <div class="box" id="how-edit">
+      <h2 class="sect-h">Editing and Testing</h2>
+      <p>Open an email, change the Heading, Subject Line or Email Body, then press Save Wording. The change is used for every send of that email from then on, and the card shows who last edited it and when. Restore Original Wording puts back the wording the email started with.</p>
+      <p>Send Me a Test sends that email to you alone, filled in with a real certification from the board as the sample, marked [Test] in the subject. It uses whatever is in the boxes at that moment, so you can change the wording, test it, and only save when you are happy. Nobody else receives it and nothing is recorded as sent. Tests go out at any hour; the real emails wait for business hours. A test normally arrives within two minutes, and the card shows when it has gone.</p>
+      <p>Who gets each email and when it sends are set in the system itself; changing those is a change to the system, not to the wording.<span id="how-from"></span> Saving needs Edit access to the Certification Management System; with View access the page is read only.</p>
     </div>
-  </details>
-  <details class="sect">
-    <summary>Editing and Testing</summary>
-    <div class="sbody prose">
-      <p style="margin-top:12px">Open an email, change the Heading, Subject Line or Email Body, then press Save Wording. The change is used for every send of that email from then on, and the card shows who last edited it and when. Restore Original Wording puts back the wording the email started with.</p>
-      <p>Send Me a Test sends that email to you alone, filled in with a real certification from the board as the sample, marked [Test] in the subject. It uses whatever is in the boxes at that moment, so you can change the wording, test it, and only save when you are happy. Nobody else receives it and nothing is recorded as sent. Tests go out at any hour; the real emails wait for business hours.</p>
-      <p>A test normally arrives within two minutes. The card shows when it has gone. Who gets each email and when it sends are set in the system itself; changing those is a change to the system, not to the wording.</p>
-      <p>Saving needs Edit access to the Certification Management System. With View access the page is read only.</p>
+    <div class="box" id="how-rules">
+      <h2 class="sect-h">When an Email Waits, Is Held or Is Skipped</h2>
+      <div class="rules" id="rules"></div>
     </div>
-  </details>
-  <div class="foot" id="foot"></div>
+  </div>
+  <div class="box" id="merge" style="margin-top:16px">
+    <h2 class="sect-h">Merge Fields</h2>
+    <p class="sect-s">Anything in double braces is filled in for each certification as the email goes out. Type them exactly as shown, braces included.</p>
+    <div class="mfs" id="fields"></div>
+  </div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <script>
 (function () {
   'use strict';
@@ -274,7 +375,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     Certified: 'Certified', AgreementSent: 'Agreement Sent' };
   function st(s) { return STATE[s] || String(s).replace(/([a-z])([A-Z])/g, '$1 $2'); }
   var ROLE = { company: "the company's contacts", firm: 'the assessor firm', internal: 'certifications@mismo.org',
-    vp: "MISMO's VP, Programs and Operations", president: "MISMO's President" };
+    vp: "MISMO's VP, Programs and Operations", president: "MISMO's President", booker: 'whoever booked the date', signer: 'the authorized signer' };
+  var SHORT = { company: 'Company', firm: 'Assessor', internal: 'certifications@', vp: 'VP', president: 'President', booker: 'Who Booked', signer: 'Signer' };
   var SHOWN = { 'Session Title': 'Demonstration', 'Session': 'demonstration' };
   function plainTitle(s) { return String(s || '').replace(/\{\{([^}]+)\}\}/g, function (m, k) { k = k.trim(); return SHOWN[k] || k; }); }
   var GROUPS = [
@@ -318,7 +420,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     'review-check-stalled-internal': 'Tells MISMO the assessor still has not submitted a preliminary result after the reminders.',
     'approval-waiting': "Reminds MISMO's VP that a decision is waiting, with a link to My Approvals.",
     'remediation-nudge': 'Reminds the company to send its remediation evidence when remediation is open with no target date.',
-    'remediation-nudge-stalled-internal': 'Tells MISMO remediation has stalled with no target date after the reminders.'
+    'remediation-nudge-stalled-internal': 'Tells MISMO remediation has stalled with no target date after the reminders.',
+    'assessor-nudge': 'Asks the assessor whether they have followed up with a company that has gone quiet, when Nudge the Assessor is pressed on the Action Queue.'
   };
   var FIELDS = [
     ['Company', 'The company being certified'], ['First Name', 'First name of the company contact (there, if none is on file)'],
@@ -338,6 +441,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   function sendsText(t) {
     var w = t.when || {}, f = CFG.followUps || {};
     if (w.followUp === 'welcome') return 'Every ' + (f.welcomeEveryDays || 7) + ' days while no date is agreed, up to ' + (f.welcomeMaxReminders || 4) + ' times';
+    if (w.followUp === 'assessorNudge') return 'When someone presses Nudge the Assessor on the Action Queue';
     if (w.followUp === 'welcomeStalled') return 'After the last weekly reminder, if there is still no date';
     if (w.followUp === 'remediation') return (f.remediationAfterTargetDays || [1, 14]).join(' and ') + ' days after the remediation target date';
     if (w.followUp === 'remediationEscalate') return (f.remediationEscalateAfterTargetDays || 30) + ' days after the remediation target date';
@@ -374,25 +478,44 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     return h('span', { class: 'status wait', text: 'Test on its way (asked ' + when(mine.requestedAt) + ')' });
   }
 
+  /* ---- each email is a card: title, status, who it goes to and why; opening it shows its wording in place ---- */
+  var OPEN = null, G = 'all', S = null;
+  function statusOf(t) { return t.disabled ? 'off' : t.approved ? 'approved' : 'held'; }
+  function groupOf(id) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].ids.indexOf(id) >= 0) return GROUPS[i].name; return 'Other'; }
+  function setOpen(id, scroll) {
+    OPEN = id;
+    Array.prototype.forEach.call(document.querySelectorAll('#plays .pc'), function (c) {
+      var on = c.id === 'play-' + id; c.classList.toggle('open', on);
+      var hd = c.querySelector('.pc-hd'); hd.setAttribute('aria-expanded', on ? 'true' : 'false');
+      c.querySelector('.pc-go').textContent = on ? 'Close' : 'Open Wording →';
+    });
+    var el = id && $('play-' + id);
+    if (el && scroll) setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30);
+  }
+
   function card(t) {
-    var cur = tplOf(t), e = TPL[t.id], dis = !canWrite;
+    var cur = tplOf(t), e = TPL[t.id], dis = !canWrite, stt = statusOf(t);
     var chips = [];
     if (t.disabled) chips.push(h('span', { class: 'chip off', text: 'Switched Off' }));
     else chips.push(t.approved ? h('span', { class: 'chip good', text: 'Approved' }) : h('span', { class: 'chip warn', text: 'Held for Review' }));
     if (t.internalOnly) chips.push(h('span', { class: 'chip', text: 'MISMO Only' }));
     if (e) chips.push(h('span', { class: 'chip edit', text: 'Wording Edited' }));
-    var d = h('details', { class: 'sect', id: 'play-' + t.id });
-    var sum = h('summary', null, plainTitle(t.title) || t.id);
-    chips.forEach(function (c) { sum.appendChild(c); });
-    sum.appendChild(h('span', { class: 'cnt', text: goesTo(t) }));
-    d.appendChild(sum);
-    var sb = h('div', { class: 'sbody' });
+    var d = h('article', { class: 'pc ' + stt, id: 'play-' + t.id });
+    var to = h('span', { class: 'pc-to' }, 'To ');
+    (t.to || []).forEach(function (r) { to.appendChild(h('i', { text: SHORT[r] || r })); });
+    var hd = h('button', { type: 'button', class: 'pc-hd', 'aria-expanded': 'false' },
+      h('span', { class: 'pc-top' }), h('b', { class: 'pc-t', text: plainTitle(t.title) || t.id }), to,
+      PURPOSE[t.id] ? h('span', { class: 'pc-p', text: PURPOSE[t.id] }) : null,
+      h('span', { class: 'pc-w', text: sendsText(t) }), h('span', { class: 'pc-go', text: 'Open Wording →' }));
+    chips.forEach(function (c) { hd.firstChild.appendChild(c); });
+    hd.addEventListener('click', function () { setOpen(OPEN === t.id ? null : t.id, OPEN !== t.id); });
+    d.appendChild(hd);
+    var sb = h('div', { class: 'pc-body' });
     sb.appendChild(h('div', { class: 'facts' },
       h('div', { class: 'fact' }, h('label', { text: 'Sends' }), h('div', { text: sendsText(t) })),
       h('div', { class: 'fact' }, h('label', { text: 'Goes To' }), h('div', { text: goesTo(t) })),
       h('div', { class: 'fact' }, h('label', { text: 'Purpose' }), h('div', { text: PURPOSE[t.id] || '' })),
-      h('div', { class: 'fact' }, h('label', { text: 'Skipped When' }), h('div', { text: skippedText(t) })),
-      t.replaces ? h('div', { class: 'fact' }, h('label', { text: 'Replaces in MACTS' }), h('div', { text: t.replaces })) : null));
+      h('div', { class: 'fact' }, h('label', { text: 'Skipped When' }), h('div', { text: skippedText(t) }))));
     var ti = h('input', { type: 'text', id: 'tpl-t-' + t.id, disabled: dis }); ti.value = cur.title;
     var si = h('input', { type: 'text', id: 'tpl-s-' + t.id, disabled: dis }); si.value = cur.subject;
     var bi = h('textarea', { id: 'tpl-b-' + t.id, rows: '12', disabled: dis }); bi.value = cur.body;
@@ -401,7 +524,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     sb.appendChild(h('div', { class: 'fld' }, h('label', { for: bi.id, text: 'Email Body' }), bi));
     sb.appendChild(h('div', { class: 'hint' }, 'Merge fields in ', h('code', { text: '{{double braces}}' }), ' are filled in for each certification, such as ',
       h('code', { text: '{{Company}}' }), ', ', h('code', { text: '{{First Name}}' }), ' and ', h('code', { text: '{{Assessor Name}}' }),
-      '. The full list is under Merge Fields at the bottom of the page. A blank line starts a new paragraph; lines starting with a dash become a bulleted list.'));
+      '. See every one under ', h('button', { type: 'button', text: 'Merge Fields', onclick: function () { $('merge').scrollIntoView({ behavior: 'smooth', block: 'start' }); } }),
+      '. A blank line starts a new paragraph; lines starting with a dash become a bulleted list.'));
     var save = h('button', { type: 'button', class: 'btn', disabled: dis, text: 'Save Wording' });
     var test = h('button', { type: 'button', class: 'btn ghost', disabled: dis, text: 'Send Me a Test' });
     var restore = e ? h('button', { type: 'button', class: 'btn ghost', disabled: dis, text: 'Restore Original Wording' }) : null;
@@ -437,22 +561,111 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     return d;
   }
 
-  function render(openId) {
-    var box = $('plays'); var open = {};
-    Array.prototype.forEach.call(box.querySelectorAll('details[open]'), function (d) { open[d.id] = true; });
-    if (openId) open['play-' + openId] = true;
-    box.textContent = '';
-    var byId = {}; (CFG.templates || []).forEach(function (t) { byId[t.id] = t; });
-    var placed = {};
+  function sections() {
+    var byId = {}, out = [], placed = {}; (CFG.templates || []).forEach(function (t) { byId[t.id] = t; });
     GROUPS.forEach(function (g) {
-      var list = g.ids.filter(function (id) { return byId[id]; });
-      if (!list.length) return;
-      box.appendChild(h('div', { class: 'group', text: g.name }));
-      list.forEach(function (id) { placed[id] = true; var c = card(byId[id]); if (open[c.id]) c.open = true; box.appendChild(c); });
+      var list = g.ids.filter(function (id) { return byId[id]; }).map(function (id) { placed[id] = true; return byId[id]; });
+      if (list.length) out.push({ name: g.name, list: list });
     });
     var rest = (CFG.templates || []).filter(function (t) { return !placed[t.id]; });
-    if (rest.length) { box.appendChild(h('div', { class: 'group', text: 'Other' })); rest.forEach(function (t) { var c = card(t); if (open[c.id]) c.open = true; box.appendChild(c); }); }
+    if (rest.length) out.push({ name: 'Other', list: rest });
+    return out;
   }
+
+  function render(openId) {
+    if (openId) OPEN = openId;
+    var box = $('plays'); box.textContent = '';
+    sections().forEach(function (g) {
+      var grid = h('div', { class: 'pb-grid' });
+      g.list.forEach(function (t) { var c = card(t); c.setAttribute('data-g', g.name); c.setAttribute('data-s', statusOf(t)); if (TPL[t.id]) c.setAttribute('data-e', '1'); grid.appendChild(c); });
+      box.appendChild(h('section', { class: 'pb-sec', 'data-g': g.name }, h('h2', { class: 'pb-gh' }, g.name, h('span', { text: String(g.list.length) })), grid));
+    });
+    box.appendChild(h('div', { class: 'pb-empty', id: 'pb-empty', hidden: true }));
+    paint(); applyFilter(); setOpen(OPEN, false);
+  }
+
+  /* ---- hero, figure boxes and stage filters ---- */
+  function paint() {
+    var all = CFG.templates || [], live = all.filter(function (t) { return !t.disabled; });
+    var ok = live.filter(function (t) { return t.approved; }), held = live.filter(function (t) { return !t.approved; }), off = all.filter(function (t) { return t.disabled; });
+    var edited = all.filter(function (t) { return TPL[t.id]; }).sort(function (a, b) { return String(TPL[b.id].updatedAt || '').localeCompare(String(TPL[a.id].updatedAt || '')); });
+    var secs = sections(), mx = Math.max.apply(null, secs.map(function (g) { return g.list.length; }).concat([1]));
+    function tile(o) {
+      var tag = o.go ? 'button' : 'div';
+      var el = h(tag, { type: o.go ? 'button' : null, class: 'tqt' + (o.go && S === o.go ? ' on' : ''), style: '--k:' + o.k, 'data-s': o.go || null });
+      var top = h('span', { class: 'tqt-top' }, h('span', { class: 'tqt-lab', text: o.lab }));
+      if (o.pill) top.appendChild(h('span', { class: 'tqt-pill' + (o.hot ? ' hot' : ''), text: o.pill }));
+      el.appendChild(top);
+      el.appendChild(h('span', { class: 'tqt-big' }, h('b', { text: String(o.n) })));
+      el.appendChild(h('span', { class: 'tqt-sub', text: o.sub }));
+      if (o.body) el.appendChild(o.body);
+      if (o.go) el.addEventListener('click', function () { S = S === o.go ? null : o.go; if (S) G = 'all'; paint(); applyFilter(); });
+      return el;
+    }
+    var spark = h('span', { class: 'pk-spark' });
+    secs.forEach(function (g) { spark.appendChild(h('i', { title: g.name + ': ' + g.list.length, style: 'height:' + Math.round(20 + 80 * g.list.length / mx) + '%' })); });
+    var meter = h('span', { class: 'tqt-meter' }, h('i', { style: 'width:' + (live.length ? Math.round(100 * ok.length / live.length) : 0) + '%' }));
+    var offList = off.length ? h('span', { class: 'tqt-list' }) : null;
+    off.slice(0, 2).forEach(function (t) { offList.appendChild(h('span', { class: 'tqt-row' }, h('b', { text: plainTitle(t.title) || t.id }))); });
+    var B = $('board'); B.textContent = '';
+    [tile({ lab: 'Emails in the Playbook', n: all.length, k: '#74bfeb', go: null, sub: 'Across ' + secs.length + ' stages, from payment to Mark License.', body: spark }),
+     tile({ lab: 'Approved', n: ok.length, k: '#1baf7a', go: ok.length ? 'approved' : null, sub: ok.length === live.length ? 'Every email in use sends for real.' : 'Of ' + live.length + ' in use; these send for real.', body: meter }),
+     tile({ lab: 'Held for Review', n: held.length, k: '#e0a83c', go: held.length ? 'held' : null, pill: held.length ? 'Needs Approval' : null, hot: held.length > 0,
+       sub: held.length ? 'Go only to certifications@mismo.org until the wording is approved.' : 'None. Nothing is waiting for its wording to be approved.' }),
+     tile({ lab: 'Not in Use', n: off.length, k: '#7a9db4', go: off.length ? 'off' : null, sub: off.length ? 'Switched off; kept here for reference.' : 'Every email is switched on.', body: offList }),
+     tile({ lab: 'Wording Edited', n: edited.length, k: '#e87ba4', go: edited.length ? 'edited' : null, sub: edited.length ? 'Changed here from the original wording.' : 'None yet: every email uses its original wording.' })
+    ].forEach(function (t) { B.appendChild(t); });
+
+    var say = $('say'); say.textContent = '';
+    if (held.length) say.append(h('em', { text: held.length + (held.length === 1 ? ' email is' : ' emails are') + ' held for review.' }), ' Until approved, ' + (held.length === 1 ? 'it goes' : 'they go') + ' only to certifications@mismo.org.');
+    else say.append(h('em', { text: 'Every email in use is approved and sending.' }), ' Open one to change its wording or send yourself a test.');
+    var side = $('side'), rows = held.length ? held : edited;
+    side.textContent = '';
+    if (rows.length) {
+      side.appendChild(h('div', { class: 'tqh-nh', text: held.length ? 'Held for Review' : 'Recently Edited' }));
+      rows.slice(0, 5).forEach(function (t) {
+        var lab = held.length ? groupOf(t.id) : (TPL[t.id].updatedAt ? when(TPL[t.id].updatedAt).replace(/ at .*$/, '') : 'Edited');
+        side.appendChild(h('button', { type: 'button', class: 'tqh-need', style: '--k:' + (held.length ? '#e0a83c' : '#e87ba4'), onclick: function () { G = 'all'; S = null; paint(); applyFilter(); setOpen(t.id, true); } },
+          h('span', { text: lab }), h('b', { text: plainTitle(t.title) || t.id })));
+      });
+    }
+    side.hidden = !rows.length; $('hero').classList.toggle('solo', !rows.length);
+
+    var F = $('groups'); F.textContent = '';
+    [{ name: 'all', label: 'All Emails', n: all.length }].concat(secs.map(function (g) { return { name: g.name, label: g.name, n: g.list.length }; })).forEach(function (g) {
+      F.appendChild(h('button', { type: 'button', class: G === g.name ? 'on' : null, 'aria-pressed': G === g.name ? 'true' : 'false',
+        onclick: function () { G = g.name; S = null; paint(); applyFilter(); } }, g.label, h('span', { text: String(g.n) })));
+    });
+  }
+  var SLAB = { approved: 'Approved', held: 'Held for Review', off: 'Not in Use', edited: 'Wording Edited' };
+  function applyFilter() {
+    var qs = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean), byId = {}, shown = 0;
+    (CFG.templates || []).forEach(function (t) { byId[t.id] = t; });
+    Array.prototype.forEach.call(document.querySelectorAll('#plays .pb-sec'), function (sec) {
+      var any = false, inG = G === 'all' || sec.getAttribute('data-g') === G;
+      Array.prototype.forEach.call(sec.querySelectorAll('.pc'), function (c) {
+        var t = byId[c.id.slice(5)], ok = inG;
+        if (ok && S) ok = S === 'edited' ? !!TPL[t.id] : statusOf(t) === S;
+        if (ok && qs.length) {
+          var cur = tplOf(t), txt = [plainTitle(t.title), t.id, cur.subject, cur.body, PURPOSE[t.id] || '', goesTo(t), sendsText(t)].join(' ').toLowerCase();
+          ok = qs.every(function (q) { return txt.indexOf(q) >= 0; });
+        }
+        c.classList.toggle('hide', !ok); if (ok) { any = true; shown++; }
+      });
+      sec.hidden = !any;
+    });
+    var em = $('pb-empty');
+    if (em) {
+      em.hidden = shown > 0; em.textContent = '';
+      if (!shown) em.append('No email matches “' + $('q').value.trim() + '”' + (G !== 'all' ? ' in ' + G : '') + '.', h('button', { type: 'button', text: 'Show Every Email', onclick: clearAll }));
+    }
+    var stEl = $('state'); stEl.textContent = '';
+    stEl.append('Showing ', h('b', { text: shown + (shown === 1 ? ' email' : ' emails') }), (G !== 'all' ? ' in ' + G : '') + (S ? ', ' + SLAB[S] + ' only' : '') + (qs.length ? ', matching “' + $('q').value.trim() + '”' : '') + '.');
+    if (G !== 'all' || S || qs.length) stEl.appendChild(h('button', { type: 'button', text: 'Show All', onclick: clearAll }));
+    fit();
+  }
+  function clearAll() { G = 'all'; S = null; $('q').value = ''; paint(); applyFilter(); }
+  $('q').addEventListener('input', applyFilter);
 
   function renderStatic() {
     var R = $('rules'); R.textContent = '';
@@ -463,10 +676,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
      ['Skipped', 'Seen for the first time', 'When the system first meets a certification it records the stage silently, so nobody gets an email about a stage reached weeks ago.'],
      ['Always', 'Never twice', 'Every email is recorded before it counts as sent, so the same email never goes twice for the same stage move.'],
      ['Always', 'MISMO is copied', 'certifications@mismo.org receives every email that goes outside MISMO.']
-    ].forEach(function (x) { R.appendChild(h('div', { class: 'rule' }, h('div', { class: 'd', text: x[0] }), h('div', null, h('b', { text: x[1] }), h('span', { text: x[2] })))); });
-    var F = $('fields');
-    FIELDS.forEach(function (f) { F.appendChild(h('tr', null, h('td', { text: '{{' + f[0] + '}}' }), h('td', { text: f[1] }))); });
-    $('foot').textContent = 'Emails are sent by the Stage notices job in cms-data from ' + (CFG.sendFrom || 'certifications@mismo.org') + '. Who gets each email and when it sends live in data/stage-notices.json; wording saved here is kept in data/db-stage-templates.json.';
+    ].forEach(function (x) { R.appendChild(h('div', { class: 'rule' }, h('div', { class: 'd ' + x[0], text: x[0] }), h('div', null, h('b', { text: x[1] }), h('span', { text: x[2] })))); });
+    var F = $('fields'); F.textContent = '';
+    FIELDS.slice().sort(function (a, b) { return a[0].localeCompare(b[0]); }).forEach(function (f) { F.appendChild(h('div', { class: 'mf' }, h('code', { text: '{{' + f[0] + '}}' }), h('span', { text: f[1] }))); });
+    $('how-from').textContent = ' Every email goes from ' + (CFG.sendFrom || 'certifications@mismo.org') + '.';
   }
 
   function startPolling() {
@@ -483,6 +696,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }, 15000);
   }
 
+  /* The page's own height for the CMS around it (not the window's, which never shrinks), posted
+     after embed.js's message so a shorter filter lets the frame shrink again. */
+  var fitT;
+  function fit() {
+    clearTimeout(fitT);
+    fitT = setTimeout(function () {
+      if (!root.classList.contains('embed')) return;
+      try { window.parent.postMessage({ embedHeight: Math.ceil(document.body.getBoundingClientRect().height), page: 'playbook' }, location.origin); } catch (e) {}
+    }, 30);
+  }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
+  window.addEventListener('load', fit);
+  (function () {
+    var D = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], M = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], n = new Date();
+    $('today').textContent = D[n.getDay()] + ', ' + M[n.getMonth()] + ' ' + n.getDate();
+  })();
+
   if (!RS || !RS.requireAccess) { $('plays').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
   RS.requireAccess(PROJECT, { toolName: 'Certification Email Playbook', eyebrow: 'Programs & Operations' }).then(function () {
     if (RS.mount) RS.mount($('rs-account'));
@@ -496,7 +726,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     CFG = res[0]; TPL = res[1].docs; TESTS = res[2].docs;
     if (!canWrite) $('note').appendChild(h('div', { class: 'banner' }, h('b', { text: 'View only. ' }), 'You can read every email here. Saving wording and sending tests needs Edit access to the Certification Management System.'));
     renderStatic(); render();
-    var target = location.hash.replace('#', ''); if (target && $('play-' + target)) { $('play-' + target).open = true; $('play-' + target).scrollIntoView(); }
+    var target = location.hash.replace('#', ''); if (target && $('play-' + target)) setOpen(target, true);
     if (Object.keys(TESTS).some(function (k) { return TESTS[k].status === 'requested'; })) startPolling();
   }).catch(function (e) {
     if (e && (e.code === 'NO_ACCESS' || e.code === 'SIGNED_OUT')) return;

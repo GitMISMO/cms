@@ -26,19 +26,18 @@
 <script src="embed.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 :root{
-  --navy:#0f314c; --navy-deep:#06202f; --navy-mid:#14486e;
-  --sky:#50a4db; --sky-wash:#dcedf8;
+  --navy:#0d314c; --navy-deep:#06202f; --navy-mid:#14486e;
+  --sky:#74bfeb; --sky-wash:#dcedf8;
   --ground:#f1f6fa; --surface:#ffffff; --surface-2:#f6fafd; --surface-3:#e9f1f8;
   --border:#d5e2ed; --border-strong:#adc4d6; --rule:#e5eef5;
-  --ink:#0f314c; --ink-2:#456179; --ink-3:#546f88;
+  --ink:#0d314c; --ink-2:#456179; --ink-3:#546f88;
   --good:#0f7b5c; --bad:#b3372c; --warn:#a2701a;
   --good-soft:#e1f2ec; --bad-soft:#fbe9e7; --warn-soft:#f7efe0;
   --accent:#14486e; --accent-soft:#dcedf8; --chip:#eef4f9;
   --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --mono:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; /* no monospace anywhere (Jonna): figures use tabular-nums */
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -48,7 +47,7 @@
     --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
     --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
     --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
-    --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+    --accent:#74bfeb; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
     color-scheme:dark;
   }
 }
@@ -58,13 +57,13 @@
   --ink:#e9f4fb; --ink-2:#a6c5d9; --ink-3:#7a9db4;
   --good:#4fc79b; --bad:#f08579; --warn:#e0a83c;
   --good-soft:#0c3128; --bad-soft:#3a1c19; --warn-soft:#3a2e13;
-  --accent:#50a4db; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
+  --accent:#74bfeb; --accent-soft:#123143; --chip:#173c52; --navy-mid:#7fc0ea;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased}
-.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(116,191,235,.28)}
 .logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
 .logoplate svg{height:24px;width:auto;display:block}
 .mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
@@ -76,100 +75,170 @@ body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-web
 .theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
 .theme:hover{border-color:var(--sky)}
 @media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
-main{max-width:980px;margin:0 auto;padding:26px 16px 60px}
-.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:18px}
-h1{font-size:24px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
-.vsub{color:var(--ink-2);margin-top:4px}
-.back{margin-left:auto;color:var(--navy-mid);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
-.back:hover{text-decoration:underline}
+main{max-width:1180px;margin:0 auto;padding:22px 16px 40px}
 .banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
 .banner.bad{border-left-color:var(--bad)}
 .banner b{color:var(--ink)}
-.group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:26px 0 8px}
-details.sect{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
-details.sect > summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
-details.sect > summary::-webkit-details-marker{display:none}
-details.sect > summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:4px;transition:transform .15s;flex:0 0 auto}
-details.sect[open] > summary::before{transform:rotate(45deg)}
-details.sect > summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:8px}
-.cnt{margin-left:auto;font-weight:500;font-size:12.5px;color:var(--ink-3)}
-.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;background:var(--chip);color:var(--ink-2);white-space:nowrap}
 .chip.good{background:var(--good-soft);color:var(--good)}
 .chip.warn{background:var(--warn-soft);color:var(--warn)}
-.chip.off{background:var(--surface-3);color:var(--ink-3)}
-.chip.edit{background:var(--accent-soft);color:var(--accent)}
-.sbody{padding:2px 16px 16px;border-top:1px solid var(--rule)}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin:14px 0 16px}
-.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
-.fact div{font-size:13px;color:var(--ink)}
+.loading{padding:40px 0;text-align:center;color:var(--ink-3)}
+.foot{font-size:12px;color:var(--ink-3);margin-top:18px;line-height:1.55}
+html.embed .top{display:none}
+html.embed main{padding:6px 2px 24px;max-width:none}
+html.embed .standalone{display:none}
+html.embed body{background:transparent}
+/* ══ Page Kit (1 Nov 2026): the CMS's hero and figure boxes, copied from index.html so this page stays self-contained ══ */
+.tqh{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;color:#fff;border-radius:12px;padding:24px 26px;margin-bottom:16px;position:relative;overflow:hidden;
+  background:radial-gradient(900px 260px at 100% -30%,rgba(116,191,235,.30),transparent 60%),linear-gradient(135deg,#06202f 0%,#0d314c 58%,#14486e 100%);box-shadow:0 10px 30px rgba(6,32,47,.25)}
+.tqh.ws{grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr)}
+.tqh:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px);background-size:28px 28px}
+.tqh-hi{position:relative;z-index:1;min-width:0}
+.tqh-eb{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#74bfeb}
+.tqh h1{font-size:30px;font-weight:700;line-height:1.15;margin:6px 0 10px;color:#fff;letter-spacing:-.01em}
+.tqh p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.86);margin:0}
+.tqh p em{font-style:normal;color:#74bfeb;font-weight:600}
+.tqh-needs{background:rgba(255,255,255,.07);border:1px solid rgba(116,191,235,.25);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1;min-width:0}
+.tqh-nh{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.7);display:flex;gap:8px;align-items:baseline}
+.tqh-nh span{letter-spacing:0;text-transform:none;font-weight:500;color:rgba(255,255,255,.5)}
+.tqh-need{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:baseline;text-align:left;background:rgba(255,255,255,.06);border:0;border-left:3px solid var(--k,#74bfeb);border-radius:5px;padding:7px 10px;color:#fff;font:inherit;cursor:pointer;transition:background .15s,transform .15s}
+.tqh-need:hover{background:rgba(255,255,255,.13);transform:translateX(2px)}
+.tqh-need span{font-size:11.5px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqh-need b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pk-acts .hbtn{white-space:nowrap;min-width:max-content;display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font:600 13px var(--display);text-decoration:none;cursor:pointer}
+.pk-acts .hbtn:hover{background:rgba(255,255,255,.2)}
+.tqb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.tqb.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tqb.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.tqt{position:relative;display:flex;flex-direction:column;gap:10px;min-width:0;padding:16px 18px;border:1px solid rgba(116,191,235,.18);border-radius:12px;color:#fff;cursor:pointer;text-align:left;font:inherit;
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--k,#74bfeb) 26%,transparent),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px -14px rgba(6,32,47,.6);transition:transform .18s,box-shadow .18s;overflow:hidden}
+.tqt:hover{transform:translateY(-3px);box-shadow:0 0 0 1px color-mix(in srgb,var(--k,#74bfeb) 55%,transparent),0 18px 34px -16px rgba(6,32,47,.75)}
+.tqt:focus-visible{outline:2px solid #74bfeb;outline-offset:2px}
+.tqt.flat{cursor:default}
+.tqt.flat:hover{transform:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px -14px rgba(6,32,47,.6)}
+.tqt.on{box-shadow:0 0 0 2px var(--k),0 18px 34px -16px rgba(6,32,47,.75)}
+.tqt.on:after{content:"";position:absolute;left:18px;right:18px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--k)}
+.tqt-top{display:flex;align-items:center;gap:8px;min-width:0}
+.tqt-lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:color-mix(in srgb,var(--k,#74bfeb) 70%,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqt-pill{margin-left:auto;flex:0 0 auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.12);color:#fff;white-space:nowrap}
+.tqt-pill.hot{background:#c94a3b;animation:tqPulse 2.2s ease-in-out infinite}
+@keyframes tqPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,74,59,.55)}50%{box-shadow:0 0 0 7px rgba(201,74,59,0)}}
+.tqt-big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tqt-big b{font-size:40px;font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tqt-big small{font-size:13px;font-weight:600;color:#74bfeb}
+.tqt-sub{font-size:12.5px;line-height:1.45;color:rgba(255,255,255,.78)}
+.tqt-meter{height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.tqt-meter i{display:block;height:100%;background:var(--k);border-radius:3px;transition:width .9s ease}
+.tqt-list{display:flex;flex-direction:column;gap:4px;margin-top:auto}
+.tqt-row{display:flex;gap:8px;align-items:baseline;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.06);border-left:3px solid var(--k);font-size:12px;min-width:0}
+.tqt-row b{flex:0 1 auto;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqt-row i{flex:1 1 auto;font-style:normal;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqt-row em{flex:0 0 auto;font-style:normal;font-weight:700;color:var(--k)}
+.pk-spark{display:flex;align-items:flex-end;gap:3px;height:34px;margin-top:auto}
+.pk-spark i{flex:1;background:var(--k,#74bfeb);opacity:.45;border-radius:2px 2px 0 0;min-height:2px}
+.pk-spark i.now{opacity:1}
+.pk-bar{display:flex;height:8px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.12);margin-top:auto}
+.pk-bar i{display:block;height:100%}
+.pk-sec{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin:0 0 18px;box-shadow:0 1px 2px rgba(6,32,47,.05),0 6px 22px rgba(6,32,47,.04)}
+.sect-t{font-size:18px;font-weight:700;letter-spacing:-.01em;color:var(--ink);display:flex;align-items:center;gap:10px;margin:0 0 6px;flex-wrap:wrap}
+.sect-t:before{content:"";width:4px;height:20px;border-radius:2px;background:var(--pkc,#74bfeb);flex:0 0 4px}
+.sect-s{font-size:13.5px;color:var(--ink-3);margin:0 0 16px}
+.pk-n{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 7px;border-radius:5px;background:var(--surface-3);color:var(--ink-2);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.pk-n.hot{background:rgba(179,55,44,.12);color:var(--bad)}
+.cmono{width:38px;height:38px;flex:0 0 38px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.pk-flash{animation:pkFlash 1.4s ease}
+@keyframes pkFlash{0%{box-shadow:0 0 0 0 rgba(116,191,235,0)}25%{box-shadow:0 0 0 4px rgba(116,191,235,.6)}100%{box-shadow:0 0 0 0 rgba(116,191,235,0)}}
+.fbtns{display:flex;gap:6px;flex-wrap:wrap}
+.fb{appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);border-radius:4px;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;border-left:3px solid var(--k,var(--border));white-space:nowrap;min-width:max-content}
+.fb:hover{border-color:var(--border-strong);border-left-color:var(--k,var(--border-strong))}
+.fb.on{background:var(--navy);border-color:var(--navy);color:#fff;border-left-color:var(--k,#74bfeb)}
+:root[data-theme="dark"] .fb.on{background:#14486e;border-color:#2f6688}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fb.on{background:#14486e;border-color:#2f6688}}
+@media(max-width:1100px){.tqb{grid-template-columns:repeat(2,minmax(0,1fr))}.tqb.n3{grid-template-columns:repeat(3,minmax(0,1fr))}.tqb.n5{grid-template-columns:repeat(6,minmax(0,1fr))}.tqb.n5>.tqt{grid-column:span 2}.tqb.n5>.tqt:nth-child(-n+2){grid-column:span 3}}
+@media(max-width:900px){.tqh.ws{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.tqh{padding:18px 16px}.tqh h1{font-size:24px}.tqh p{font-size:14px}.tqb,.tqb.n3,.tqb.n5{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tqb.n5>.tqt,.tqb.n5>.tqt:nth-child(-n+2){grid-column:auto}.tqb>.tqt:first-child,.tqb.n3>.tqt:first-child,.tqb.n5>.tqt:first-child{grid-column:span 2}.tqt-lab{white-space:normal;letter-spacing:.1em}.tqh-need{grid-template-columns:minmax(0,1fr) !important;gap:1px}.tqt{padding:14px}.tqt-big b{font-size:32px}.tqt-list{display:none}.pk-sec{padding:16px 14px}}
+@media (prefers-reduced-motion:reduce){.tqt-pill.hot,.pk-flash{animation:none}.tqt:hover,.tqh-need:hover{transform:none}}
+.tqh-need{grid-template-columns:118px minmax(0,1fr)}
+/* My Approvals: each result a card, the decision strip at its foot */
 .fld{margin-bottom:12px}
 .fld label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
-.fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.fld input,.fld textarea{width:100%;font:13.5px/1.5 var(--display);color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
 .fld textarea{min-height:220px;resize:vertical;font-size:13px}
 .fld input:focus,.fld textarea:focus{outline:2px solid var(--sky);outline-offset:0;border-color:transparent}
-.fld input:disabled,.fld textarea:disabled{opacity:.75;cursor:not-allowed}
 .hint{font-size:12px;color:var(--ink-3);line-height:1.5}
-.hint code,.fields code{font-family:var(--mono);font-size:11.5px;background:var(--chip);border-radius:3px;padding:0 4px;color:var(--ink-2)}
 .btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
-.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff}
+.btn{font:600 13px var(--display);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy-mid);background:var(--navy-mid);color:#fff;white-space:nowrap;min-width:max-content}
 .btn:hover{filter:brightness(1.08)}
-.btn.ghost{background:transparent;color:var(--navy-mid)}
+.btn.ghost{background:var(--surface);color:var(--navy-mid);border-color:var(--border-strong)}
+.btn.ghost:hover{border-color:var(--navy-mid)}
+.btn.good{background:var(--good);border-color:var(--good)}
+.btn.bad{background:var(--surface);color:var(--bad);border-color:var(--bad)}
 .btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
-.who{font-size:12px;color:var(--ink-3)}
-.status{font-size:12px;font-weight:600}
-.status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
-.rules{display:grid;gap:10px;margin-top:12px}
-.rule{display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:13px}
-.rule .d{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
-.rule b{display:block;color:var(--ink)}
-.rule span{color:var(--ink-2)}
-@media(max-width:560px){.rule{grid-template-columns:1fr;gap:2px}}
-.prose p{font-size:13px;margin:0 0 10px;color:var(--ink)}
-.prose table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
-.prose th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:6px 12px 6px 0;border-bottom:1px solid var(--border)}
-.prose td{padding:7px 12px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
-.prose td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
-.toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
-.toast.on{opacity:1;transform:translate(-50%,0)}
-.toast.bad{border-left-color:var(--bad)}
-.loading{padding:40px 0;text-align:center;color:var(--ink-3)}
-.foot{font-size:11.5px;color:var(--ink-3);margin-top:30px;line-height:1.55}
-.item{background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:14px;overflow:hidden}
-.item.done{border-color:var(--good)}
-.ihead{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 14px;padding:14px 16px 10px}
-.ihead h2{font-size:17px;margin:0;font-weight:700;line-height:1.3}
-.ihead .what{font-size:13px;color:var(--ink-2);margin-top:2px}
+/* dark: buttons keep white text on a deep fill */
+:root[data-theme="dark"] .btn{background:#14486e;border-color:#2f6688;color:#fff}
+:root[data-theme="dark"] .btn.good{background:#0f7b5c;border-color:#1f9a76}
+:root[data-theme="dark"] .btn.ghost{background:transparent;color:var(--ink);border-color:var(--border-strong)}
+:root[data-theme="dark"] .btn.ghost:hover{border-color:var(--sky)}
+:root[data-theme="dark"] .btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{background:#14486e;border-color:#2f6688;color:#fff}:root:not([data-theme="light"]) .btn.good{background:#0f7b5c;border-color:#1f9a76}:root:not([data-theme="light"]) .btn.ghost{background:transparent;color:var(--ink);border-color:var(--border-strong)}:root:not([data-theme="light"]) .btn.ghost:hover{border-color:var(--sky)}:root:not([data-theme="light"]) .btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}}
+.acts .btn{font-size:14px;padding:10px 18px}
+.acts .btn.good{padding:10px 26px;box-shadow:0 6px 16px -8px rgba(15,123,92,.7)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 18px;margin:4px 0 14px}
+.fact label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.fact div{font-size:13.5px;color:var(--ink);font-weight:500}
+.items{display:flex;flex-direction:column;gap:14px}
+.item{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--k,var(--sky));border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(6,32,47,.04);transition:box-shadow .15s,transform .15s}
+.item:hover{box-shadow:0 10px 24px rgba(6,32,47,.1)}
+.item.done{--k:var(--good)}
+.ihead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:16px 18px 12px}
+.ihead .who{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 300px}
+.ihead h2{font-size:19px;margin:0;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+.ihead .what{font-size:13px;color:var(--ink-2);margin-top:1px}
 .ihead .right{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.ibody{padding:0 16px 14px}
-.facts{margin:4px 0 12px}
-.box{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface-2);border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:13.5px;white-space:pre-wrap}
-.box.find{border-left-color:var(--warn)}
-.box.clean{border-left-color:var(--good)}
-.qnote{margin:2px 0 10px}
-.qnote textarea{min-height:58px}
-.box h3{margin:0 0 4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:normal}
-.flist{margin:0;padding-left:18px}
+.ibody{padding:0 18px 14px}
+.rbox{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface-2);border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:13.5px;white-space:pre-wrap}
+.rbox.find{border-left-color:var(--warn)}
+.rbox.clean{border-left-color:var(--good)}
+.rbox h3{margin:0 0 4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;white-space:normal}
+.flist{margin:0;padding-left:18px;white-space:normal}
 .flist li{margin:0 0 6px}
 .flist .meta{display:block;font-size:11.5px;color:var(--ink-3)}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.btn.good{background:var(--good);border-color:var(--good)}
-.btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
-.decide{display:none;margin-top:12px;border-top:1px solid var(--rule);padding-top:12px}
+.dbar{border-top:1px solid var(--rule);background:var(--surface-2);padding:14px 18px 16px}
+.dbar .dl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-3);margin:0 0 8px}
+.qnote{margin:0 0 12px}
+.qnote textarea{min-height:58px}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.decide{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px}
 .decide.on{display:block}
 .decide textarea{min-height:110px}
 .decide .warnline{font-size:12.5px;color:var(--warn);font-weight:600;margin:0 0 8px}
 .decide input[type=date]{max-width:220px}
-.outcome{padding:12px 16px;border-top:1px solid var(--rule);background:var(--good-soft);color:var(--ink);font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.outcome{padding:12px 18px;border-top:1px solid var(--rule);background:var(--good-soft);color:var(--ink);font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .outcome b{color:var(--good)}
-.empty{background:var(--surface);border:1px dashed var(--border-strong);border-radius:9px;padding:28px 18px;text-align:center;color:var(--ink-2)}
+.empty{border:1px dashed var(--border-strong);border-radius:9px;padding:24px 18px;text-align:center;color:var(--ink-2)}
 .empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
-.count{font-size:13px;color:var(--ink-3);font-weight:500;margin-left:8px}
-@media(max-width:560px){.ihead .right{margin-left:0}.btn{flex:1 1 auto}}
-html.embed .top{display:none}
-html.embed main{padding-top:6px;max-width:none}
-html.embed .back{display:none}
-html.embed body{background:transparent}
-  [style*="var(--mono)"], .num{font-variant-numeric:tabular-nums;}
+.recent{display:flex;flex-direction:column;gap:6px}
+.dec{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 12px;border:1px solid var(--border);border-left:3px solid var(--k);border-radius:8px;background:var(--surface)}
+.dec .cmono{width:32px;height:32px;flex:0 0 32px;font-size:12px}
+.dec .dw{min-width:0;display:flex;flex-direction:column;gap:2px}
+.dec .dh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dec .dh b{font-size:13.5px}
+.dec .dn{font-size:12.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dec .by{font-size:12px;color:var(--ink-3);white-space:nowrap;text-align:right}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:4px;background:var(--chip);color:var(--ink-2);white-space:nowrap}
+.kd{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.kd:before{content:"";width:8px;height:8px;border-radius:2px;background:var(--k)}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.rule{border:1px solid var(--border);border-top:3px solid var(--k);border-radius:8px;padding:12px 14px;background:var(--surface-2);font-size:13px}
+.rule .d{font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em}
+.rule b{display:block;color:var(--ink);font-size:14px;margin:2px 0 4px}
+.rule span{color:var(--ink-2);line-height:1.5}
+.toast{position:fixed;bottom:18px;left:50%;z-index:50;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--border);border-left:3px solid var(--good);border-radius:7px;padding:11px 14px;font-size:13px;box-shadow:0 10px 28px rgba(6,32,47,.22);opacity:0;transform:translate(-50%,8px);transition:opacity .16s,transform .16s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{border-left-color:var(--bad)}
+@media(max-width:600px){.ihead .right{margin-left:0}.acts .btn{flex:1 1 auto}.dec{grid-template-columns:32px minmax(0,1fr)}.dec .by{grid-column:2;text-align:left}.ihead,.ibody,.dbar,.outcome{padding-left:14px;padding-right:14px}}
 </style>
 </head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
@@ -208,20 +277,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     <span id="rs-account"></span></span>
 </header>
 <main>
-  <div class="vhead">
-    <div><h1>My Approvals</h1>
-    <div class="vsub">Every certification waiting on a MISMO decision. Decide it here and everything after it follows on its own: the emails to the company and the assessor, the Mark License through DocuSign, and the next anniversary.</div></div>
-    <a class="back" href="/cms/">Open the Certification Management System</a>
-  </div>
+  <div id="hero"><div class="tqh"><div class="tqh-hi"><div class="tqh-eb" id="eb">&nbsp;</div><h1>My Approvals</h1><p>Loading what is waiting&hellip;</p>
+    <div class="pk-acts standalone"><a class="hbtn" href="/cms/">Open the Certification Management System&nbsp;&rarr;</a></div></div></div></div>
   <div id="note"></div>
-  <div id="list"><div class="loading">Loading what is waiting&hellip;</div></div>
-  <div id="recent"></div>
-
-  <div class="group">How It Works</div>
-  <details class="sect">
-    <summary>What Each Decision Does</summary>
-    <div class="sbody"><div class="rules" id="rules"></div></div>
-  </details>
+  <div id="board"></div>
+  <section class="pk-sec" id="sec-wait">
+    <h2 class="sect-t">Waiting for Your Decision <span class="pk-n" id="wcnt">0</span></h2>
+    <p class="sect-s">Decide here and everything after it follows on its own: the emails to the company and the assessor, the Mark License through DocuSign, and the next anniversary.</p>
+    <div id="list"><div class="loading">Loading what is waiting&hellip;</div></div>
+  </section>
+  <section class="pk-sec" id="sec-done" style="--pkc:#4fc79b">
+    <h2 class="sect-t">Decided Recently <span class="pk-n" id="dcnt">0</span></h2>
+    <div id="recent"></div>
+  </section>
+  <section class="pk-sec" id="sec-how" style="--pkc:#8f9ff2">
+    <h2 class="sect-t">What Each Decision Does</h2>
+    <div class="rules" id="rules"></div>
+  </section>
   <div class="foot">A decision here is the same stage move the Certification Management System makes, and it shows in the CMS activity log under your name. The emails it starts wait for MISMO business hours (9:00-5:00 Eastern, working days).</div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -254,6 +326,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 7000 : 4500); }
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   function longDate(iso) { if (!iso) return ''; var p = String(iso).slice(0, 10).split('-'); return MONTHS[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
+  function shortDate(ts) { var d = new Date(ts); return isNaN(d) ? '' : MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getDate(); }
+  function todayLabel() { var n = new Date(); return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][n.getDay()] + ', ' + MONTHS[n.getMonth()] + ' ' + n.getDate(); }
+  $('eb').textContent = todayLabel();
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /* the company monogram, as the CMS draws it */
+  var CMONO = ['#14486e', '#0f7b5c', '#7a4fb3', '#b5651d', '#1f6f8b', '#a23e5c', '#4c6a1e', '#3d5a99'];
+  function cmono(name) {
+    var w = String(name || '?').replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).filter(Boolean);
+    var t = (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || '?').slice(0, 1)).toUpperCase(), hh = 0;
+    for (var i = 0; i < String(name).length; i++) hh = (hh * 31 + String(name).charCodeAt(i)) >>> 0;
+    var el = document.createElement('span'); el.className = 'cmono'; el.style.background = CMONO[hh % CMONO.length]; el.setAttribute('aria-hidden', 'true'); el.textContent = t; return el;
+  }
+  /* each outcome's colour, on the decided list and the Decided This Month bar */
+  var OUTK = { ApprovedPendingLicense: '#4fc79b', RemediationOpen: '#e0a83c', PrelimQueryOpen: '#74bfeb', RemediationQueryOpen: '#74bfeb', NotCertified: '#f08579' };
+  function outK(to) { return OUTK[to] || '#8f9ff2'; }
   function daysSince(ts) { if (!ts) return null; var d = new Date(ts); if (isNaN(d)) return null; return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000)); }
 
   /* ---- the relay ---- */
@@ -330,6 +417,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   var P = null, MOVES = {}, FIND = {}, LABEL = {}, LEGAL = {}, canWrite = false, me = null;
   var QN = {};   /* notes typed in a card's Note (Optional) field, by row */
   var decided = {};   /* row -> {to, before, at} decided in this visit, for Undo */
+  var UNDONE = {};    /* row|at of decisions undone on this visit, left off Decided This Month */
 
   function stateLabel(s) { return LABEL[s] || String(s || '').replace(/([a-z])([A-Z])/g, '$1 $2'); }
   function cyclesAll() { return [].concat(P.inFlight || [], P.pipelines || [], P.newApplications || []).filter(function (c) { return c && c.row != null; }); }
@@ -353,36 +441,40 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (m.findings === true) chips.push(h('span', { class: 'chip warn', text: 'Findings' }));
     if (m.findings === false) chips.push(h('span', { class: 'chip good', text: 'No Findings' }));
     if (since != null && since >= 3 && !done) chips.push(h('span', { class: 'chip warn', text: 'Waiting ' + since + ' Days' }));
-    var item = h('section', { class: 'item' + (done ? ' done' : ''), id: 'row-' + row });
+    /* a left accent: red once a decision has waited three days (the reminder point), green once decided */
+    var item = h('section', { class: 'item' + (done ? ' done' : ''), id: 'row-' + row, style: done ? null : '--k:' + (since != null && since >= 3 ? 'var(--bad)' : 'var(--sky)') });
     item.appendChild(h('div', { class: 'ihead' },
-      h('div', null, h('h2', { text: c.org }), h('div', { class: 'what', text: c.program + (c.product ? ' · ' + c.product : '') + ' · ' + kind })),
+      h('div', { class: 'who' }, cmono(c.org), h('div', null, h('h2', { text: c.org }), h('div', { class: 'what', text: c.program + (c.product ? ' · ' + c.product : '') + ' · ' + kind }))),
       h.apply(null, ['div', { class: 'right' }].concat(chips))));
     var body = h('div', { class: 'ibody' });
     body.appendChild(h('div', { class: 'facts' },
       fact('Assessor', c.assessor || ''),
-      fact(done ? 'Decided On' : 'Waiting Since', m.at ? longDate(new Date(m.at).toISOString()) : 'Before the move off MACTS'),
+      fact(done ? 'Decided On' : 'Waiting Since', m.at ? longDate(new Date(m.at).toISOString()) + (since != null && !done ? (since === 0 ? ' (today)' : since === 1 ? ' (1 day)' : ' (' + since + ' days)') : '') : 'In earlier records'),
       fact(done ? 'Decided By' : 'Recorded By', m.by || ''),
       fact((current(c).state === 'ReviewScheduled' ? 'Review' : 'Demonstration') + ' Date', (m.demoOn || c.demoOn) ? longDate(m.demoOn || c.demoOn) : '')));
-    if (m.note) body.appendChild(h('div', { class: 'box' }, h('h3', { text: m.assessorStep ? 'The Assessor’s Result' : 'Note With This Stage' }), m.note));
+    if (m.note) body.appendChild(h('div', { class: 'rbox' }, h('h3', { text: m.assessorStep ? 'The Assessor’s Result' : 'Note With This Stage' }), m.note));
     /* Findings, always said one way or the other, so a decision never rests on a missing box
        (Jonna, 26 Oct 2026): the list when there are findings, "No Findings" when there are none. */
     var f = FIND[row], entries = (f && f.entries) || [];
     if (entries.length) {
       var ul = h('ul', { class: 'flist' });
       entries.forEach(function (e) { ul.appendChild(h('li', null, (e.outcome ? e.outcome + ': ' : '') + (e.text || ''), h('span', { class: 'meta', text: (e.by ? e.by + ', ' : '') + (e.at ? longDate(e.at) : '') }))); });
-      body.appendChild(h('div', { class: 'box find' }, h('h3', { text: 'Findings (' + entries.length + ')' }), ul));
+      body.appendChild(h('div', { class: 'rbox find' }, h('h3', { text: 'Findings (' + entries.length + ')' }), ul));
     } else if (done) {
       /* decided here: the card now shows the decision, so the findings line has done its job */
     } else if (m.findings === true) {
-      body.appendChild(h('div', { class: 'box find' }, h('h3', { text: 'Findings' }),
+      body.appendChild(h('div', { class: 'rbox find' }, h('h3', { text: 'Findings' }),
         'The assessor reported findings but did not list them in the Assessor Portal. They are in the assessor’s result above.'));
     } else if (m.findings === false || m.assessorStep || f) {
-      body.appendChild(h('div', { class: 'box clean' }, h('h3', { text: 'No Findings' }), 'The assessor recorded no findings.'));
+      body.appendChild(h('div', { class: 'rbox clean' }, h('h3', { text: 'No Findings' }), 'The assessor recorded no findings.'));
     } else {
-      body.appendChild(h('div', { class: 'box clean' }, h('h3', { text: 'No Findings Recorded' }),
-        'Nothing was recorded in the Assessor Portal. This result came in before the move off MACTS, so any findings are in the assessor’s results email.'));
+      body.appendChild(h('div', { class: 'rbox clean' }, h('h3', { text: 'No Findings Recorded' }),
+        'Nothing was recorded in the Assessor Portal. This result is from the earlier records, so any findings are in the assessor’s results email.'));
     }
+    item.appendChild(body);
     if (!done) {
+      /* the decision strip at the foot of the card: the note, then the decision buttons */
+      var strip = h('div', { class: 'dbar' }, h('div', { class: 'dl', text: 'Your Decision' }));
       var acts = h('div', { class: 'acts' }), panel = h('div', { class: 'decide' });
       var offered = (DECISIONS[cur.state] || []).filter(function (d) { return !LEGAL[cur.state] || LEGAL[cur.state].indexOf(d.to) >= 0; });
       /* Approve is one click. The note is a plain field to use or leave; it is kept as typed
@@ -391,7 +483,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       qn.value = QN[row] || '';
       qn.addEventListener('input', function () { QN[row] = qn.value; });
       if (offered.some(function (d) { return d.note === 'optional'; }))
-        body.appendChild(h('div', { class: 'fld qnote' }, h('label', { for: qn.id, text: 'Note (Optional)' }), qn));
+        strip.appendChild(h('div', { class: 'fld qnote' }, h('label', { for: qn.id, text: 'Note (Optional)' }), qn));
       var btns = [];
       offered.forEach(function (d) {
         var b = h('button', { type: 'button', class: 'btn ' + (d.kind || ''), text: d.label, disabled: !canWrite });
@@ -404,10 +496,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         btns.push(b);
         acts.appendChild(b);
       });
-      body.appendChild(acts);
-      body.appendChild(panel);
+      strip.appendChild(acts);
+      strip.appendChild(panel);
+      item.appendChild(strip);
     }
-    item.appendChild(body);
     if (done) {
       var out = h('div', { class: 'outcome' }, h('b', { text: stateLabel(done.to) + '.' }), h('span', { text: AFTER[done.to] || '' }));
       if (done.undo) {
@@ -497,7 +589,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       if (dd.before) docs[row] = dd.before; else delete docs[row];
     }).then(function (ok) {
       if (ok === false) { toast('It has moved on since, so it cannot be undone here. Use the CMS.', true); return; }
-      MOVES = COLL['db-cycle-state'].docs; delete decided[row];
+      MOVES = COLL['db-cycle-state'].docs; UNDONE[row + '|' + dd.at] = 1; delete decided[row];
       logActivity({ row: c.row, org: c.org, program: c.program, from: dd.to, to: dd.from, reason: null, note: null, at: new Date().toISOString(), by: me.name, kind: 'undo' });
       toast('Undone: ' + c.org + ' is back at ' + stateLabel(dd.from) + '.');
       render();
@@ -508,24 +600,117 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     readColl('db-activity').then(function () { return writeColl('db-activity', function (docs) { docs[id] = entry; }); }).catch(function () {});
   }
 
+  /* Decisions: the moves off a decision stage in the CMS activity log, plus any made on this
+     visit that the log has not caught up with; one that was undone is left out. */
+  function decisions() {
+    var docs = (COLL['db-activity'] && COLL['db-activity'].docs) || {}, out = [], seen = {};
+    Object.keys(docs).map(function (k) { return docs[k]; }).filter(function (a) { return a && a.at; })
+      .sort(function (x, y) { return String(x.at).localeCompare(String(y.at)); })
+      .forEach(function (a) {
+        if (a.kind === 'undo') { for (var i = out.length - 1; i >= 0; i--) if (String(out[i].row) === String(a.row) && out[i].to === a.from) { out.splice(i, 1); break; } return; }
+        if (a.kind && a.kind !== 'move') return;
+        if (!DECISIONS[a.from] || !AFTER[a.to] || UNDONE[a.row + '|' + a.at]) return;
+        out.push(a); seen[a.row + '|' + a.at] = 1;
+      });
+    Object.keys(decided).forEach(function (r) {
+      var dd = decided[r]; if (seen[r + '|' + dd.at]) return;
+      var c = cyclesAll().filter(function (x) { return String(x.row) === r; })[0] || {};
+      out.push({ row: r, org: c.org, program: c.program, from: dd.from, to: dd.to, at: dd.at, by: me && me.name });
+    });
+    return out.sort(function (x, y) { return String(y.at).localeCompare(String(x.at)); });
+  }
+  function tile(o) {
+    var b = h(o.go ? 'button' : 'div', { type: o.go ? 'button' : null, class: 'tqt' + (o.go ? '' : ' flat'), style: '--k:' + o.k, 'data-go': o.go || null });
+    b.appendChild(h('span', { class: 'tqt-top' }, h('span', { class: 'tqt-lab', text: o.lab }), o.pill ? h('span', { class: 'tqt-pill' + (o.hot ? ' hot' : ''), text: o.pill }) : null));
+    b.appendChild(h('span', { class: 'tqt-big' }, h('b', { text: String(o.n) }), o.small ? h('small', { text: o.small }) : null));
+    if (o.sub) b.appendChild(h('span', { class: 'tqt-sub', text: o.sub }));
+    if (o.body) b.appendChild(o.body);
+    if (o.rows && o.rows.length) b.appendChild(h.apply(null, ['span', { class: 'tqt-list' }].concat(o.rows.map(function (r) { return h('span', { class: 'tqt-row' }, h('b', { text: r[0] }), h('i', { text: r[1] || '' }), r[2] != null ? h('em', { text: String(r[2]) }) : null); }))));
+    return b;
+  }
+  function waitDays(c) { var m = current(c).move; return m.at ? daysSince(m.at) : null; }
+  function kindOf(c) { return String(c.kind || '').toLowerCase() === 'renewal' ? 'Renewal' : 'Initial'; }
+  function renderTop(openList, decs) {
+    /* the hero: what is waiting, and the oldest first to jump to */
+    var n = openList.length, say;
+    /* the longest wait among results with a date; one from the earlier records has no date to count from */
+    var oldest = openList.filter(function (c) { return waitDays(c) != null; })[0] || openList[0], od = oldest ? waitDays(oldest) : null;
+    if (!n) say = 'Nothing is waiting for your decision. When an assessor submits a result, you are emailed a link to this page.';
+    else say = '<em>' + n + (n === 1 ? ' result is' : ' results are') + ' waiting</em> for your decision' + (od ? '; ' + esc(oldest.org) + ' has waited longest, ' + od + (od === 1 ? ' day.' : ' days.') : '.');
+    var side = n ? '<div class="tqh-needs"><div class="tqh-nh">Open a Result <span>oldest first</span></div>' + openList.slice(0, 5).map(function (c) {
+      var d = waitDays(c);
+      return '<button type="button" class="tqh-need" data-row="' + esc(c.row) + '" style="--k:' + (d != null && d >= 3 ? '#f08579' : '#74bfeb') + '"><span>' + (d == null ? 'Earlier Records' : d === 0 ? 'Since Today' : 'Waiting ' + d + (d === 1 ? ' Day' : ' Days')) + '</span><b>' + esc(c.org + ' — ' + c.program) + '</b></button>';
+    }).join('') + '</div>' : '';
+    $('hero').innerHTML = '<div class="tqh' + (side ? ' ws' : '') + '"><div class="tqh-hi"><div class="tqh-eb">' + esc(todayLabel()) + '</div><h1>My Approvals</h1><p>' + say + '</p>'
+      + '<div class="pk-acts standalone"><a class="hbtn" href="/cms/">Open the Certification Management System&nbsp;&rarr;</a></div></div>' + side + '</div>';
+    /* the figure boxes */
+    var B = $('board'); B.textContent = '';
+    var g = h('div', { class: 'tqb n3' });
+    var withF = openList.filter(function (c) { var f = FIND[String(c.row)]; return current(c).move.findings === true || (f && f.entries && f.entries.length); }).length;
+    var late = openList.filter(function (c) { var d = waitDays(c); return d != null && d >= 3; }).length;
+    g.appendChild(tile({ lab: 'Waiting for You', n: n, k: '#74bfeb', go: n ? 'sec-wait' : null, pill: late ? late + ' Over 3 Days' : null, hot: late > 0,
+      sub: n ? withF + ' with findings, ' + (n - withF) + ' without' : 'Nothing to decide right now',
+      rows: [['Initial', '', openList.filter(function (c) { return kindOf(c) === 'Initial'; }).length], ['Renewal', '', openList.filter(function (c) { return kindOf(c) === 'Renewal'; }).length]].filter(function (r) { return r[2]; }) }));
+    g.appendChild(tile({ lab: 'Longest Waiting', n: od == null ? (n ? '—' : 0) : od, small: od == null && n ? null : (od === 1 ? 'day' : 'days'), k: od != null && od >= 3 ? '#f08579' : '#e0a83c', go: oldest ? 'row-' + oldest.row : null,
+      sub: oldest ? oldest.org + ' · ' + oldest.program + (od == null ? ' · from the earlier records' : '') : 'Nothing is waiting',
+      body: oldest ? h('span', { class: 'tqt-sub', style: 'color:rgba(255,255,255,.6)', text: 'A reminder goes every three days, up to five.' }) : null }));
+    var now = new Date(), mk = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+    var month = decs.filter(function (a) { var d = new Date(a.at); return !isNaN(d) && d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) === mk; });
+    var by = {}; month.forEach(function (a) { by[a.to] = (by[a.to] || 0) + 1; });
+    var bar = h('span', { class: 'pk-bar' });
+    Object.keys(by).forEach(function (t) { bar.appendChild(h('i', { style: 'width:' + (by[t] / month.length * 100) + '%;background:' + outK(t), title: stateLabel(t) + ': ' + by[t] })); });
+    var appr = by.ApprovedPendingLicense || 0;
+    g.appendChild(tile({ lab: 'Decided This Month', n: month.length, k: '#4fc79b', go: decs.length ? 'sec-done' : null,
+      sub: month.length ? appr + ' approved' + (month.length - appr ? ', ' + (month.length - appr) + ' other' + (month.length - appr === 1 ? ' decision' : ' decisions') : '') + ' in ' + MONTHS[now.getMonth()] : 'No decisions yet in ' + MONTHS[now.getMonth()],
+      body: month.length ? bar : null }));
+    B.appendChild(g);
+  }
+  function renderRecent(decs) {
+    var R = $('recent'); R.textContent = '';
+    var shown = decs.slice(0, 8);
+    $('dcnt').textContent = String(decs.length);
+    if (!shown.length) { R.appendChild(h('div', { class: 'empty' }, h('b', { text: 'No decisions recorded yet.' }), 'Each decision made here or in the CMS is listed as it is made.')); return; }
+    var L = h('div', { class: 'recent' });
+    shown.forEach(function (a) {
+      L.appendChild(h('div', { class: 'dec', style: '--k:' + outK(a.to) }, cmono(a.org || '?'),
+        h('span', { class: 'dw' }, h('span', { class: 'dh' }, h('b', { text: a.org || '' }), a.program ? h('span', { class: 'tag', text: a.program }) : null, h('span', { class: 'kd', style: '--k:' + outK(a.to), text: stateLabel(a.to) })),
+          a.note || a.reason ? h('span', { class: 'dn', text: a.reason || a.note }) : null),
+        h('span', { class: 'by', text: (a.by ? a.by + ' · ' : '') + shortDate(a.at) })));
+    });
+    R.appendChild(L);
+    if (decs.length > shown.length) R.appendChild(h('div', { class: 'foot', style: 'margin-top:10px', text: 'The newest ' + shown.length + ' of ' + decs.length + '. Every one is in the CMS activity log.' }));
+  }
   function render() {
     var list = $('list'); list.textContent = '';
     var w = waiting();
     var shown = w.slice();
     Object.keys(decided).forEach(function (r) { if (!w.some(function (c) { return String(c.row) === r; })) { var c = cyclesAll().filter(function (x) { return String(x.row) === r; })[0]; if (c) shown.push(c); } });
-    var open = w.filter(function (c) { return !decided[String(c.row)]; }).length;
-    list.appendChild(h('div', { class: 'group' }, 'Waiting for a Decision', h('span', { class: 'count', text: open ? '(' + open + ')' : '' })));
+    var openList = w.filter(function (c) { return !decided[String(c.row)]; }), open = openList.length;
+    $('wcnt').textContent = String(open); $('wcnt').className = 'pk-n' + (openList.some(function (c) { var d = waitDays(c); return d != null && d >= 3; }) ? ' hot' : '');
+    var decs = decisions();
+    renderTop(openList, decs); renderRecent(decs);
     if (!shown.length) list.appendChild(h('div', { class: 'empty' }, h('b', { text: 'Nothing is waiting.' }), 'When an assessor submits a result, it appears here and you are sent an email with a link to this page.'));
-    shown.forEach(function (c) { list.appendChild(card(c)); });
+    var items = h('div', { class: 'items' });
+    shown.forEach(function (c) { items.appendChild(card(c)); });
+    if (shown.length) list.appendChild(items);
   }
+  /* the hero list and the boxes open what they point at */
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-row],[data-go]') : null;
+    if (!t) return;
+    var el = $(t.hasAttribute('data-row') ? 'row-' + t.getAttribute('data-row') : t.getAttribute('data-go'));
+    if (!el) return;
+    el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    el.classList.remove('pk-flash'); void el.offsetWidth; el.classList.add('pk-flash');
+  });
   function renderRules() {
     var R = $('rules'); R.textContent = '';
-    [['Approve', 'Approved, Pending License', 'The company and the assessor are told. The Mark License Agreement goes out through DocuSign on its own, and the certification’s next anniversary is set. A renewal keeps the same anniversary day every year, however early or late it is approved; an initial certification counts from the day it is approved.'],
-     ['Remediate', 'Remediation Open', 'Your list of items goes to the company with the assessor copied. Reminders follow on their own: from the target date if you give one, otherwise every two weeks.'],
-     ['Ask', 'Question to the Assessor', 'Your question goes to the assessor, who answers in the Assessor Portal. The answer comes back here and you are emailed.'],
-     ['Close', 'Not Certified', 'Closes the certification as not certified, with your reason recorded.'],
-     ['Remind', 'Nothing decided after three days', 'You are sent one reminder every three days, up to five, with a link to this page.']
-    ].forEach(function (x) { R.appendChild(h('div', { class: 'rule' }, h('div', { class: 'd', text: x[0] }), h('div', null, h('b', { text: x[1] }), h('span', { text: x[2] })))); });
+    [['Approve', 'Approved, Pending License', 'The company and the assessor are told. The Mark License Agreement goes out through DocuSign on its own, and the certification’s next anniversary is set. A renewal keeps the same anniversary day every year, however early or late it is approved; an initial certification counts from the day it is approved.', '#4fc79b'],
+     ['Remediate', 'Remediation Open', 'Your list of items goes to the company with the assessor copied. Reminders follow on their own: from the target date if you give one, otherwise every two weeks.', '#e0a83c'],
+     ['Ask', 'Question to the Assessor', 'Your question goes to the assessor, who answers in the Assessor Portal. The answer comes back here and you are emailed.', '#74bfeb'],
+     ['Close', 'Not Certified', 'Closes the certification as not certified, with your reason recorded.', '#f08579'],
+     ['Remind', 'Nothing Decided After Three Days', 'You are sent one reminder every three days, up to five, with a link to this page.', '#8f9ff2']
+    ].forEach(function (x) { R.appendChild(h('div', { class: 'rule', style: '--k:' + x[3] }, h('div', { class: 'd', text: x[0] }), h('b', { text: x[1] }), h('span', { text: x[2] }))); });
   }
 
   if (!RS || !RS.requireAccess) { $('list').innerHTML = '<div class="banner bad"><b>The MISMO Resources sign-in did not load.</b> Reload the page.</div>'; return; }
@@ -535,7 +720,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     canWrite = !!(RS.canEdit && RS.canEdit(PROJECT));
     return Promise.all([
       call('GET', '/file/portal-data.json').then(function (r) { if (r.status !== 200 || !r.json.content) throw new Error('portal-data.json could not be read (' + (r.json.error || r.status) + ')'); return JSON.parse(fromBase64(r.json.content)); }),
-      readColl('db-cycle-state'), readColl('db-assessor-findings')
+      readColl('db-cycle-state'), readColl('db-assessor-findings'),
+      /* the activity log, read only for Decided This Month and Decided Recently: the page works without it */
+      readColl('db-activity').catch(function () { return { docs: {} }; })
     ]);
   }).then(function (res) {
     P = res[0]; MOVES = res[1].docs; FIND = res[2].docs;
