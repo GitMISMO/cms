@@ -2359,6 +2359,109 @@
   .wd-new{color:var(--ink); font-weight:600; overflow-wrap:anywhere;}
   .web-sent{border:1px solid rgba(224,168,60,.45); background:rgba(224,168,60,.08); border-radius:8px; padding:12px 14px; margin:0 0 14px;}
   @media(max-width:600px){ .wd-row{grid-template-columns:1fr;} }
+
+  /* ---- 31 Oct 2026: the Action Queue top, styled like Team HQ, MISMO Media and Summit HQ ---- */
+  .tqh{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:18px; background:var(--navy); color:#fff; border-radius:12px; padding:24px 26px; margin-bottom:16px; position:relative; overflow:hidden;
+    background:radial-gradient(900px 260px at 100% -30%,rgba(116,191,235,.30),transparent 60%),linear-gradient(135deg,var(--navy-deep,#06202f) 0%,#0d314c 58%,#14486e 100%); box-shadow:0 10px 30px rgba(6,32,47,.25);}
+  .tqh:after{content:""; position:absolute; inset:0; pointer-events:none; opacity:.06; background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px); background-size:28px 28px;}
+  .tqh-hi{position:relative; z-index:1; min-width:0;}
+  .tqh-eb{font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--sky);}
+  .tqh h1{font-size:30px; font-weight:700; line-height:1.15; margin:6px 0 10px; color:#fff;}
+  .tqh p{font-size:15px; line-height:1.6; color:rgba(255,255,255,.86); margin:0;}
+  .tqh p em{font-style:normal; color:var(--sky); font-weight:600;}
+  .tqh-needs{background:rgba(255,255,255,.07); border:1px solid rgba(116,191,235,.25); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px; position:relative; z-index:1; min-width:0;}
+  .tqh-nh{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,.7); display:flex; gap:8px; align-items:baseline;}
+  .tqh-nh span{letter-spacing:0; text-transform:none; font-weight:500; color:rgba(255,255,255,.5);}
+  .tqh-need{display:grid; grid-template-columns:96px minmax(0,1fr); gap:10px; align-items:baseline; text-align:left; background:rgba(255,255,255,.06); border:0; border-left:3px solid var(--k,var(--sky)); border-radius:5px; padding:7px 10px; color:#fff; font:inherit; cursor:pointer; transition:background .15s, transform .15s;}
+  .tqh-need:hover{background:rgba(255,255,255,.13); transform:translateX(2px);}
+  .tqh-need span{font-size:11.5px; color:rgba(255,255,255,.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqh-need b{font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqh-nempty{font-size:13px; color:rgba(255,255,255,.7); padding:6px 2px;}
+  .tqh-all{align-self:flex-start; margin-top:4px; border:0; background:none; padding:2px 0; color:var(--sky); font:inherit; font-size:13px; font-weight:700; cursor:pointer;}
+  .tqh-all:hover{text-decoration:underline;}
+  .tqw{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:16px;}
+  .tqw-d{display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-width:0; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--ink); transition:transform .15s, box-shadow .15s;}
+  .tqw-d:hover{transform:translateY(-2px); box-shadow:0 10px 20px -12px rgba(6,32,47,.35);}
+  .tqw-d span{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:var(--ink-3);}
+  .tqw-d b{font-size:20px; line-height:1.1;}
+  .tqw-d small{max-width:100%; font-size:11px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tqw-d.now{background:var(--navy); border-color:var(--navy); color:#fff;} .tqw-d.now span{color:var(--sky);} .tqw-d.now small{color:rgba(255,255,255,.75);}
+  .tqw-d.wkd:not(.now){background:var(--surface-2);}
+  .tqw-p{display:flex; gap:3px; align-items:center; min-height:8px; margin:2px 0;}
+  .tqw-p i{width:16px; height:5px; border-radius:3px; background:var(--k);}
+  .tqw-p em{font-style:normal; font-size:10px; color:var(--ink-3);}
+  .tqb{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:22px;}
+  .tqt{--line:rgba(116,191,235,.18); position:relative; display:flex; flex-direction:column; gap:10px; min-width:0; padding:16px 18px; border:1px solid rgba(116,191,235,.18); border-radius:12px; color:#fff; cursor:pointer; text-align:left; font:inherit;
+    background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--k,#74bfeb) 26%,transparent),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px -14px rgba(6,32,47,.6); transition:transform .18s, box-shadow .18s; overflow:hidden;}
+  div.tqt{cursor:default;}
+  .tqt:hover{transform:translateY(-3px); box-shadow:0 0 0 1px color-mix(in srgb,var(--k,#74bfeb) 55%,transparent),0 18px 34px -16px rgba(6,32,47,.75);}
+  .tqt.on{box-shadow:0 0 0 2px var(--k),0 18px 34px -16px rgba(6,32,47,.75);}
+  .tqt.on:after{content:""; position:absolute; left:18px; right:18px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:var(--k);}
+  .tqt.w2{grid-column:span 2;}
+  .tqt-top{display:flex; align-items:center; gap:8px; min-width:0;}
+  .tqt-lab{font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:color-mix(in srgb,var(--k,#74bfeb) 70%,#fff); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqt-pill{margin-left:auto; flex:0 0 auto; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,.12); color:#fff; white-space:nowrap;}
+  .tqt-pill.hot{background:#c94a3b; animation:tqPulse 2.2s ease-in-out infinite;}
+  @keyframes tqPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,74,59,.55);}50%{box-shadow:0 0 0 7px rgba(201,74,59,0);}}
+  .tqt-big{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .tqt-big b{font-size:40px; font-weight:700; line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums;}
+  .tqt-big small{font-size:13px; font-weight:600; color:var(--sky);}
+  .tqt.sm .tqt-big b{font-size:30px;}
+  .tqt-sub{font-size:12.5px; line-height:1.45; color:rgba(255,255,255,.78);}
+  .tqt-meter{height:6px; border-radius:3px; background:rgba(255,255,255,.12); overflow:hidden;}
+  .tqt-meter i{display:block; height:100%; background:var(--k); border-radius:3px; transition:width .9s ease;}
+  .tqt-list{display:flex; flex-direction:column; gap:4px; margin-top:auto;}
+  .tqt-row{display:flex; gap:8px; align-items:baseline; padding:5px 8px; border-radius:5px; background:rgba(255,255,255,.06); border-left:3px solid var(--k); font-size:12px; min-width:0;}
+  .tqt-row b{flex:0 1 auto; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqt-row i{flex:1 1 auto; font-style:normal; color:rgba(255,255,255,.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqt-row em{flex:0 0 auto; font-style:normal; font-weight:700; color:var(--k);}
+  .tqt-ep{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .tqt-ep b{font-size:17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqt-ep small{font-size:12px; color:rgba(255,255,255,.7);}
+  .tqt-cd{display:flex; gap:6px;}
+  .tqt-cd > span{flex:1; background:rgba(0,0,0,.25); border:1px solid var(--line); border-radius:8px; padding:6px 4px; text-align:center; min-width:0;}
+  .tqt-cd b{display:block; font-size:20px; line-height:1.1; font-variant-numeric:tabular-nums;}
+  .tqt-cd small{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);}
+  .tqt-go{align-self:flex-start; margin-top:auto; height:28px; padding:0 11px; border:1px solid rgba(116,191,235,.45); border-radius:6px; background:rgba(255,255,255,.08); color:#fff; font:inherit; font-size:12px; font-weight:700; cursor:pointer;}
+  .tqt-go:hover{background:rgba(255,255,255,.16);}
+  .tqt-ring{position:relative; width:110px; height:110px; align-self:center;}
+  .tqt-ring svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .tqt-ring circle{fill:none; stroke:rgba(255,255,255,.12); stroke-width:8;}
+  .tqt-ring circle.rv{stroke:var(--k); stroke-linecap:round; transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1);}
+  .tqt-ring > span{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .tqt-ring b{font-size:26px; line-height:1;} .tqt-ring small{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);}
+  .tqt-flow{display:flex; flex-direction:column; gap:4px;}
+  .tqt-flow svg{width:100%; height:30px; overflow:visible;}
+  .tqt-flow path{stroke:var(--k); stroke-width:2; fill:none; stroke-dasharray:4 6; animation:tqFlow 1.1s linear infinite;}
+  .tqt-flow circle{fill:#0b2436; stroke:var(--k); stroke-width:2;}
+  .tqt-flow > span{display:flex; justify-content:space-between; font-size:10.5px; color:rgba(255,255,255,.65);}
+  .tqt-flow i{font-style:normal;}
+  @keyframes tqFlow{to{stroke-dashoffset:-20;}}
+  .cj-arrow{position:relative; overflow:hidden;}
+  .cj-arrow:before{content:""; position:absolute; left:0; right:0; top:50%; height:2px; margin-top:-1px; background:repeating-linear-gradient(90deg,var(--sky) 0 4px,transparent 4px 10px); background-size:20px 2px; animation:tqDash 1.2s linear infinite; opacity:.7;}
+  @keyframes tqDash{to{background-position:20px 0;}}
+  .tqr{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px 14px; margin:0 0 22px;}
+  .tqr-h h2{font-size:17px; margin:0;} .tqr-h p{font-size:12.5px; color:var(--ink-3); margin:4px 0 12px;}
+  .tqr-track{position:relative; height:118px; margin:22px 6px 0;}
+  .tqr-line{position:absolute; left:0; right:0; top:24px; height:2px; background:var(--border);}
+  .tqr-past{position:absolute; left:0; top:24px; height:2px; background:var(--bad); opacity:.5;}
+  .tqr-today{position:absolute; top:0; bottom:20px; width:2px; margin-left:-1px; background:var(--navy-mid); z-index:2;}
+  .tqr-today b{position:absolute; top:-2px; left:50%; transform:translate(-50%,-100%); font-size:10px; letter-spacing:.12em; color:var(--ink); background:var(--surface); padding:0 4px;}
+  .tqr-col{position:absolute; top:18px; display:flex; flex-direction:column; align-items:center; gap:4px; transform:translateX(-50%); z-index:3;}
+  .tqr-col em{font-style:normal; font-size:10px; color:var(--ink-3);}
+  .tqr-dot{width:13px; height:13px; border-radius:50%; border:2px solid var(--surface); background:var(--k); padding:0; cursor:pointer; box-shadow:0 0 0 1px color-mix(in srgb,var(--k) 60%,transparent); transition:transform .15s; animation:tqIn .5s ease both;}
+  .tqr-dot:hover{transform:scale(1.5);}
+  .tqr-dot.late{box-shadow:0 0 0 2px var(--bad);}
+  @keyframes tqIn{from{opacity:0; transform:translateY(-6px) scale(.6);} to{opacity:1; transform:none;}}
+  .tqr-tick{position:absolute; bottom:0; transform:translateX(-50%); font-size:10.5px; color:var(--ink-3); white-space:nowrap;}
+  .tqr-leg{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-2); margin-top:8px;}
+  .tqr-leg i{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--k); margin-right:5px; vertical-align:-1px;}
+  .tqr-leg .tqr-l i{background:transparent; box-shadow:0 0 0 2px var(--bad);}
+  @media(max-width:1100px){ .tqb{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  @media(max-width:900px){ .tqh{grid-template-columns:minmax(0,1fr);} .tqw{display:flex; overflow-x:auto;} .tqw-d{flex:0 0 96px;} }
+  @media(max-width:600px){ .tqh{padding:18px 16px;} .tqh h1{font-size:24px;} .tqh p{font-size:14px;} .tqb{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;} .tqt{padding:14px;} .tqt.w2, .tqt.cd, .tqt.ring-t{grid-column:span 2;} .tqt-big b{font-size:32px;} .tqt.sm .tqt-big b{font-size:26px;} .tqt:not(.w2) .tqt-list{display:none;} .tqt-flow > span{font-size:9.5px;} .tqr-track{height:132px;} }
+  @media (prefers-reduced-motion:reduce){ .tqt-pill.hot, .tqt-flow path, .cj-arrow:before, .tqr-dot{animation:none;} .tqt:hover, .tqh-need:hover, .tqw-d:hover{transform:none;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -4636,6 +4739,143 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         return out;
     }
+
+    /* ---- The Action Queue's top, in the style of Team HQ, MISMO Media and Summit HQ (31 Oct 2026,
+       Jonna: "the super cool dynamic plus up"). A greeting hero with On Your Plate, a board of live
+       tiles (each one opens its list below), a countdown to the next anniversary, a ring for how much
+       of the register is current, and The Road Ahead: every dated thing in the next sixty days. ---- */
+    var TQ_K = { you: "#e0a83c", company: "#74bfeb", assessor: "#9b8cff", jonathan: "#ff8a7a", system: "#3ccb7f", later: "#c9a2ff", hold: "#9aa9b6", prospects: "#5fb3c9" };
+    var tqAnimated = false, tqTick = null;
+    function tqEm(t) { return "<em>" + esc(t) + "</em>"; }
+    function tqDayLabel(iso) { var d = parseDay(iso); if (!d) return ""; var n = daysBetween(TODAY, d); return n < 0 ? "Late" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : fmt(iso).replace(/, \d{4}$/, ""); }
+    function tqUpcoming() {
+        /* every dated thing from 14 days back to 60 ahead: anniversaries, invoice-by dates, demos, chase-again dates */
+        var out = [], from = -14, to = 60;
+        function add(iso, kind, label, org, attr) { var d = parseDay(iso); if (!d) return; var n = daysBetween(TODAY, d); if (n < from || n > to) return; out.push({ iso: String(iso).slice(0, 10), n: n, kind: kind, label: label, org: org, attr: attr }); }
+        (certs || []).forEach((function(c) { if (c.live && c.anniversary && !holdOf(c) && !tdProspect(c.org)) add(c.anniversary, "anniv", c.program + " anniversary", c.org, 'data-tdcert="' + esc(certKey(c)) + '"'); }));
+        try { renewalRows().forEach((function(r) { if (r.hold || quoteRaised(r.quote) || r.invoice || !r.quoteBy) return; add(r.quoteBy, "invoice", "Invoice due", r.cert.org, 'data-tdrenewal="' + esc(r.key) + '"'); })); } catch (e) {}
+        (D.inFlight || []).concat(D.newApplications || []).forEach((function(f) {
+            if (!f || !tdOpen(f)) return;
+            var dm = demoOf(f); if (dm) add(dm, "demo", "Demonstration", f.org, 'data-tdopen="' + f.row + '"');
+            var fu = followUpOf(f); if (fu && fu.nextOn) add(fu.nextOn, "chase", "Chase again", f.org, 'data-tdopen="' + f.row + '"');
+        }));
+        return out.sort((function(a, b) { return a.n - b.n; }));
+    }
+    var TQ_RK = { anniv: [ "#74bfeb", "Anniversary" ], invoice: [ "#e0a83c", "Invoice due" ], demo: [ "#3ccb7f", "Demonstration" ], chase: [ "#c9a2ff", "Chase again" ] };
+    function tqHero(m, L, mineN, lateN, waitN, sub) {
+        var now = new Date(), hr = now.getHours(), first = me && me.name ? String(me.name).split(/\s+/)[0] : "";
+        var DOW = [ "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" ], MO = [ "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" ];
+        var you = L.you.slice().sort((function(a, b) { return (b.late ? 1 : 0) - (a.late ? 1 : 0) || (b.days || 0) - (a.days || 0); }));
+        var up = tqUpcoming(), ann = up.filter((function(x) { return x.kind === "anniv" && x.n >= 0; }));
+        var soon30 = ann.filter((function(x) { return x.n <= 30; })).length;
+        var bits = [];
+        bits.push(mineN ? tqEm(mineN + (mineN === 1 ? " thing needs" : " things need")) + " you" + (lateN ? ", " + tqEm(lateN + " overdue") : "") : "nothing needs you right now");
+        if (you[0]) bits.push("start with " + tqEm(you[0].org) + " — " + esc(you[0].label.replace(/^Follow Up: /, "").toLowerCase()));
+        if (waitN) bits.push(tqEm(String(waitN)) + " are moving with the company, an assessor or Jonathan");
+        if (ann[0]) bits.push(tqEm(ann[0].org) + " renews " + (ann[0].n === 0 ? "today" : "in " + tqEm(ann[0].n + (ann[0].n === 1 ? " day" : " days"))));
+        var say = bits.join("; ") + ".";
+        say = say.charAt(0) === "<" ? say : say.charAt(0).toUpperCase() + say.slice(1);
+        var plate = you.slice(0, 6).map((function(x) {
+            var a = (x.html.match(/data-td(open|renewal|cert)="[^"]*"/) || [ "" ])[0];
+            var k = x.late ? "#ff8a7a" : TQ_K.you;
+            var when = x.late ? "Overdue" : x.label.replace(/^Follow Up: /, "Follow Up");
+            return '<button type="button" class="tqh-need" ' + a + ' style="--k:' + k + '"><span>' + esc(when) + "</span><b>" + esc(x.org) + "</b></button>";
+        })).join("");
+        var hero = '<div class="tqh"><div class="tqh-hi"><div class="tqh-eb">' + DOW[now.getDay()] + ", " + MO[now.getMonth()] + " " + now.getDate() + "</div>"
+            + "<h1>" + (hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + esc(first) : "") + "</h1><p>" + say + "</p></div>"
+            + '<div class="tqh-needs"><div class="tqh-nh">On Your Plate <span>most urgent first</span></div>' + (plate || '<div class="tqh-nempty">Nothing needs you. Everything is moving.</div>')
+            + (mineN > 6 ? '<button type="button" class="tqh-all" data-tqview="you">See All ' + mineN + " →</button>" : "") + "</div></div>";
+        /* the week strip */
+        var week = "";
+        for (var d = 0; d < 7; d++) {
+            var day = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + d), iso = isoDay(day), on = up.filter((function(x) { return x.iso === iso; }));
+            week += '<div class="tqw-d' + (d === 0 ? " now" : "") + (day.getDay() === 0 || day.getDay() === 6 ? " wkd" : "") + '" title="' + esc(on.map((function(x) { return x.org + " — " + x.label; })).join("\n")) + '">'
+                + "<span>" + (d === 0 ? "TODAY" : DOW[day.getDay()]) + "</span><b>" + day.getDate() + '</b><div class="tqw-p">' + on.slice(0, 5).map((function(x) { return '<i style="--k:' + TQ_RK[x.kind][0] + '"></i>'; })).join("") + (on.length > 5 ? "<em>+" + (on.length - 5) + "</em>" : "") + "</div>"
+                + "<small>" + (on.length ? esc(on[0].org) + (on.length > 1 ? " +" + (on.length - 1) : "") : "Clear") + "</small></div>";
+        }
+        /* the tiles */
+        function mini(list, n) {
+            return list.slice(0, n).map((function(x) {
+                return '<span class="tqt-row"><b>' + esc(x.org) + "</b><i>" + esc(x.next || x.label || "") + "</i>" + (x.days != null ? "<em>" + esc(tqDaysTxt(x.days)) + "</em>" : "") + "</span>";
+            })).join("");
+        }
+        function longest(v) { var dd = 0; L[v].forEach((function(x) { if (x.days != null && x.days > dd) dd = x.days; })); return dd; }
+        function tile(v, title, body, opts) {
+            opts = opts || {};
+            return '<button type="button" class="tqt' + (opts.cls ? " " + opts.cls : "") + (tq.view === v ? " on" : "") + '" data-tqview="' + v + '" style="--k:' + TQ_K[v] + '" aria-pressed="' + (tq.view === v) + '">'
+                + '<span class="tqt-top"><span class="tqt-lab">' + esc(title) + "</span>" + (opts.pill ? '<span class="tqt-pill' + (opts.hot ? " hot" : "") + '">' + esc(opts.pill) + "</span>" : "") + "</span>" + body + "</button>";
+        }
+        function big(n, small) { return '<span class="tqt-big"><b data-count="' + n + '">' + n + "</b>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</span>"; }
+        var live = (certs || []).filter((function(c) { return c.live; })), current = live.filter((function(c) { return c.condition !== "PastDue"; })).length;
+        var pct = live.length ? Math.round(current / live.length * 100) : 0, C = 2 * Math.PI * 46;
+        var nextA = ann[0];
+        var tiles = '<div class="tqb">'
+            + tile("you", "Needs You", big(mineN, mineN === 1 ? "task" : "tasks") + '<span class="tqt-meter"><i style="width:' + (mineN ? Math.round((mineN - lateN) / mineN * 100) : 100) + '%"></i></span>'
+                + '<span class="tqt-sub">' + (lateN ? lateN + " overdue · " : "") + (mineN - lateN) + " on time</span>" + '<span class="tqt-list">' + mini(you, 3) + "</span>", { cls: "w2", pill: lateN ? lateN + " late" : "all on time", hot: !!lateN })
+            + '<div class="tqt cd" style="--k:#74bfeb"><span class="tqt-top"><span class="tqt-lab">Next Anniversary</span></span>'
+                + (nextA ? '<span class="tqt-ep"><b>' + esc(nextA.org) + "</b><small>" + esc(nextA.label.replace(" anniversary", "")) + " · " + esc(fmt(nextA.iso)) + "</small></span>"
+                    + '<span class="tqt-cd" data-cd="' + nextA.iso + '"><span><b data-cdp="d">' + nextA.n + "</b><small>Days</small></span><span><b data-cdp=\"h\">00</b><small>Hrs</small></span><span><b data-cdp=\"m\">00</b><small>Min</small></span><span><b data-cdp=\"s\">00</b><small>Sec</small></span></span>"
+                    + '<button type="button" class="tqt-go" ' + nextA.attr + ">Open the Record ›</button>"
+                  : '<span class="tqt-sub">No anniversary in the next sixty days.</span>') + "</div>"
+            + '<div class="tqt ring-t" style="--k:#3ccb7f"><span class="tqt-top"><span class="tqt-lab">The Register</span><span class="tqt-pill">' + live.length + ' live</span></span>'
+                + '<span class="tqt-ring"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="46"></circle><circle class="rv" cx="55" cy="55" r="46" style="stroke-dasharray:' + C.toFixed(1) + ";stroke-dashoffset:" + (tqAnimated ? (C * (1 - pct / 100)).toFixed(1) : C.toFixed(1)) + '" data-ring="' + (C * (1 - pct / 100)).toFixed(1) + '"></circle></svg><span><b><span data-count="' + pct + '">' + pct + "</span>%</b><small>Current</small></span></span>"
+                + '<span class="tqt-sub">' + current + " of " + live.length + " certifications are current" + (live.length - current ? "; " + (live.length - current) + " past their anniversary" : "") + ".</span></div>"
+            + tile("company", "With the Company", big(L.company.length) + '<span class="tqt-sub">' + esc(sub.company) + '</span><span class="tqt-list">' + mini(L.company.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2) + "</span>")
+            + tile("assessor", "With the Assessor", big(L.assessor.length) + '<span class="tqt-sub">' + esc(sub.assessor) + '</span><span class="tqt-list">' + mini(L.assessor.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2) + "</span>")
+            + tile("jonathan", "With Jonathan", big(L.jonathan.length) + '<span class="tqt-sub">' + (L.jonathan.length ? "Waiting on My Approvals" : "Nothing waiting for a decision") + "</span>")
+            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-flow" aria-hidden="true"><svg viewBox="0 0 220 34"><path class="fl" d="M18 17 H202"></path><circle cx="18" cy="17" r="7"></circle><circle cx="110" cy="17" r="7"></circle><circle cx="202" cy="17" r="7"></circle></svg><span><i>Notices</i><i>DocuSign</i><i>Payments</i></span></span>')
+            + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>", { cls: "sm" })
+            + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>", { cls: "sm" })
+            + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>", { cls: "sm" })
+            + '<button type="button" class="tqt sm" data-tqgo="renewals" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Renewing in 30 Days</span></span>' + big(soon30) + '<span class="tqt-sub">Open Renewals ›</span></button>'
+            + "</div>";
+        return hero + '<div class="tqw">' + week + "</div>" + tiles;
+    }
+    function tqRoad() {
+        var up = tqUpcoming(), from = -14, to = 60, span = to - from;
+        if (!up.length) return "";
+        var cols = {};
+        up.forEach((function(x) { (cols[x.n] = cols[x.n] || []).push(x); }));
+        var dots = Object.keys(cols).map((function(n) {
+            var left = ((+n - from) / span * 100).toFixed(2);
+            return '<span class="tqr-col" style="left:' + left + '%">' + cols[n].slice(0, 6).map((function(x) {
+                return '<button type="button" class="tqr-dot' + (x.n < 0 ? " late" : "") + '" ' + x.attr + ' style="--k:' + TQ_RK[x.kind][0] + '" title="' + esc(x.org + " — " + x.label + " · " + fmt(x.iso)) + '"></button>';
+            })).join("") + (cols[n].length > 6 ? "<em>+" + (cols[n].length - 6) + "</em>" : "") + "</span>";
+        })).join("");
+        var ticks = "";
+        for (var t = 0; t <= 60; t += 14) { var dd = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + t); ticks += '<span class="tqr-tick" style="left:' + ((t - from) / span * 100).toFixed(2) + '%">' + (t === 0 ? "" : esc(fmt(isoDay(dd)).replace(/, \d{4}$/, ""))) + "</span>"; }
+        var late = up.filter((function(x) { return x.n < 0; })).length;
+        return '<div class="tqr"><div class="tqr-h"><h2>The Road Ahead</h2><p>Every anniversary, invoice date, demonstration and chase-again date from two weeks back to sixty days out. Select a dot to open it.</p></div>'
+            + '<div class="tqr-track"><span class="tqr-line"></span><span class="tqr-past" style="width:' + ((0 - from) / span * 100).toFixed(2) + '%"></span><span class="tqr-today" style="left:' + ((0 - from) / span * 100).toFixed(2) + '%"><b>TODAY</b></span>' + dots + ticks + "</div>"
+            + '<div class="tqr-leg">' + Object.keys(TQ_RK).map((function(k) { var n = up.filter((function(x) { return x.kind === k; })).length; return '<span><i style="--k:' + TQ_RK[k][0] + '"></i>' + esc(TQ_RK[k][1]) + " <b>" + n + "</b></span>"; })).join("") + (late ? '<span class="tqr-l"><i></i>' + late + " already past</span>" : "") + "</div></div>";
+    }
+    function tqAfterPaint(host) {
+        var reduce = false;
+        try { reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+        if (!tqAnimated) {
+            tqAnimated = true;
+            if (!reduce) {
+                Array.prototype.forEach.call(host.querySelectorAll("[data-count]"), (function(el) {
+                    var to = +el.getAttribute("data-count"), t0 = null;
+                    if (!(to > 0)) return;
+                    el.textContent = "0";
+                    function step(t) { if (t0 === null) t0 = t; var k = Math.min(1, (t - t0) / 900); el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }
+                    requestAnimationFrame(step);
+                }));
+            }
+            Array.prototype.forEach.call(host.querySelectorAll("[data-ring]"), (function(c) { requestAnimationFrame((function() { requestAnimationFrame((function() { c.style.strokeDashoffset = c.getAttribute("data-ring"); })); })); }));
+        }
+        function tick() {
+            var el = document.querySelector("#todo [data-cd]");
+            if (!el) return;
+            var p = String(el.getAttribute("data-cd")).split("-"), end = new Date(+p[0], +p[1] - 1, +p[2]).getTime(), ms = Math.max(0, end - Date.now());
+            var d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), mi = Math.floor(ms % 36e5 / 6e4), se = Math.floor(ms % 6e4 / 1e3);
+            function put(k, v) { var b = el.querySelector('[data-cdp="' + k + '"]'); if (b) b.textContent = k === "d" ? String(v) : (v < 10 ? "0" : "") + v; }
+            put("d", d); put("h", h); put("m", mi); put("s", se);
+        }
+        tick();
+        if (!tqTick) tqTick = setInterval(tick, 1000);
+    }
     function tqWaitItem(view, f) {
         var st = currentState(f), next = TQ_NEXT[st] || titleOfState(st), extra = "";
         if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; }
@@ -4741,16 +4981,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             hold: L.hold.length ? "paused" : "none",
             prospects: "not certifying"
         };
-        var hr = (new Date).getHours(), first = me && me.name ? String(me.name).split(/\s+/)[0] : "";
-        var band = '<div class="headline tq-band"><div class="hl-top"><div class="hl-date">' + (hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + esc(first) : "")
-            + " \u00b7 " + esc((new Date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })) + "</div></div>"
-            + '<div class="hl-say">' + (mineN ? "<em" + (lateN ? ' class="hl-late"' : "") + ">" + mineN + "</em> " + (mineN === 1 ? "thing needs" : "things need") + " you." : "Nothing needs you right now.")
-            + " " + (waitN ? "<em>" + waitN + "</em> " + (waitN === 1 ? "is" : "are") + " with the company, an assessor, Jonathan or the system, and need nothing from you yet." : "") + "</div>"
-            + '<div class="hl-tiles tq-tiles">' + TQ_VIEWS.map((function(v) {
-                var n = L[v[0]].length, on = tq.view === v[0];
-                return '<button class="hl-tile tq-tile' + (on ? " on" : "") + (v[0] === "you" && lateN ? " warn" : "") + '" type="button" data-tqview="' + v[0] + '" aria-pressed="' + on + '">'
-                    + "<b>" + n + "</b><span>" + esc(v[1]) + "</span><small>" + esc(sub[v[0]]) + "</small></button>";
-            })).join("") + "</div></div>";
+        var band = tqHero(m, L, mineN, lateN, waitN, sub);
         var V = TQ_VIEWS.filter((function(v) { return v[0] === tq.view; }))[0], list = L[tq.view], how = tqSortOf(tq.view);
         if (!V && /^stop\d$/.test(tq.view)) { var cj0 = CJ[+tq.view.slice(4)]; V = [ tq.view, cj0.t, "Every open certification at this stop of the journey, whoever has the move. Usually: " + cj0.who + "." ]; }
         var sorts = tq.view === "you" ? [ [ "task", "By Task" ], [ "az", "Company A–Z" ], [ "late", "Most Overdue" ] ] : tq.view === "prospects" ? [] : [ [ "az", "Company A–Z" ], [ "long", "Longest Waiting" ] ];
@@ -4791,8 +5022,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + '<span class="cj-n">' + rows.length + '</span><span class="cj-t">' + esc(j.t) + '</span><span class="cj-w">' + esc(j.who) + "</span>"
                     + (mm ? '<span class="cj-me">' + mm + " with MISMO</span>" : "") + "</button>";
             })).join('<span class="cj-arrow" aria-hidden="true"></span>') + "</div></div>";
-        host.innerHTML = band + journey + listBox;
+        host.innerHTML = band + journey + tqRoad() + listBox;
         tqFilter();
+        tqAfterPaint(host);
         m.todo.invoice.forEach((function(r) { loadInvoice(r.key, (function(rec) { tdPaintDrop(r.key, rec); })); }));
     }
     function tqFilter() {
@@ -4807,9 +5039,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var host = $("todo");
         if (!host) return;
         host.addEventListener("click", (function(e) {
-            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind]") : null;
+            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind],[data-tqgo]") : null;
             if (!t) return;
-            if (t.hasAttribute("data-tqview")) { tq.view = t.getAttribute("data-tqview"); tq.kind = "all"; tqKeep(); renderTodo(); return; }
+            if (t.hasAttribute("data-tqgo")) { if (window.__showView) window.__showView(t.getAttribute("data-tqgo")); return; }
+            if (t.hasAttribute("data-tqview")) {
+                tq.view = t.getAttribute("data-tqview"); tq.kind = "all"; tqKeep(); renderTodo();
+                if (t.closest(".tqb, .tqh, .cj-map")) { var lp = host.querySelector(".tq-panel"); if (lp && lp.scrollIntoView) lp.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                return;
+            }
             if (t.hasAttribute("data-tqsort")) { tq.sort[tq.view] = t.getAttribute("data-tqsort"); tqKeep(); renderTodo(); return; }
             if (t.hasAttribute("data-tqkind")) { tq.kind = t.getAttribute("data-tqkind"); renderTodo(); return; }
         }));
