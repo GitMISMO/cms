@@ -10530,14 +10530,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         try { var ss = localStorage.getItem("resources:session"); if (ss) sessionStorage.setItem("resources:service-orders:session", ss); } catch (e) {}
         var o = $("live-portal");
         if (!o) { o = document.createElement("div"); o.id = "live-portal"; document.body.appendChild(o); }
-        o.innerHTML = '<div class="lp-bar"><span><b>' + esc(firmBrand(name).legalName || name) + "\u2019s Assessor Portal</b>, live, exactly as they see it. Anything recorded here is real.</span>"
-            + '<button class="lp-back" type="button" id="lp-close">Back to MISMO</button></div>'
-            + '<iframe class="lp-frame" src="/assessors/?firm=' + slug + '" title="' + esc(name) + ' Assessor Portal"></iframe>';
+        /* View As (31 Oct 2026): the portal draws the firm's own screen read-only, with its own
+           "Viewing As ... Back to My View" bar, the same as Service Orders and Agreements. */
+        o.innerHTML = '<iframe class="lp-frame" src="/assessors/?viewas=' + slug + '" title="' + esc(name) + ' Assessor Portal"></iframe>';
         o.hidden = false;
         document.documentElement.classList.add("lp-on");
-        $("lp-close").addEventListener("click", (function() { o.hidden = true; o.innerHTML = ""; document.documentElement.classList.remove("lp-on"); }));
         return true;
     }
+    window.addEventListener("message", (function(ev) {
+        if (ev.origin !== location.origin || !ev.data || ev.data.type !== "mismo-portal-close") return;
+        var o = $("live-portal");
+        if (o) { o.hidden = true; o.innerHTML = ""; }
+        document.documentElement.classList.remove("lp-on");
+    }));
     function renderAssessorSwitch() {
         var el = $("as-switch");
         if (!el || !D.assessors) return;
