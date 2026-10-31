@@ -2237,6 +2237,116 @@
   .cjs-s b{font-size:10.5px; font-weight:600; color:var(--ink-3); line-height:1.25;}
   .cjs-s.now b{color:var(--ink);}
   @media(max-width:760px){ .tq-colhead, .tq-row{grid-template-columns:38px 1fr;} .tq-row .tq-next, .tq-row .tq-age{grid-column:2;} .cjs-s b{display:none;} .cjs-s.now b{display:block;} }
+
+  /* ---- 31 Oct 2026: the Action Queue's companies look like the Assessor Portal's ----
+     Needs You: the portal's "your move" cards (monogram, journey, the task, its controls).
+     Every other list: the portal's engagement rows. */
+  .tq-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; margin-top:12px;}
+  .tq-list.mine{border:0;}
+  .tq-list.mine .td-item{display:grid; grid-template-columns:38px minmax(0,1fr); gap:12px; align-content:start; align-items:start;
+    background:var(--surface); border:1px solid var(--border); border-left:4px solid #e0a83c; border-radius:8px; padding:16px;
+    box-shadow:0 1px 2px rgba(6,32,47,.05); transition:transform .15s ease, box-shadow .15s ease;}
+  .tq-list.mine .td-item:hover{transform:translateY(-2px); box-shadow:0 10px 24px rgba(6,32,47,.12);}
+  .tq-list.mine .td-item.bad{border-left-color:var(--bad); box-shadow:0 1px 2px rgba(6,32,47,.05);}
+  .tq-list.mine .td-item > .cmono{order:0; margin:0;}
+  .tq-list.mine .td-item > .td-main{order:1;}
+  .tq-list.mine .td-item > .tq-step{order:2; grid-column:1 / -1; padding:2px 0 0;}
+  .tq-list.mine .td-item > *:not(.cmono):not(.td-main):not(.tq-step){order:3; grid-column:1 / -1; justify-content:flex-start; flex:none;}
+  .tq-list.mine .td-org{font-size:15px; font-weight:700;}
+  .tq-list.mine .td-main .tq-kind{display:table; margin:0 0 6px;}
+  .tq-list.mine .td-inv{justify-content:flex-start;}
+  .tq-list.mine .td-inv .td-drop{flex:1 1 100%;}
+  .tq-sect .tq-cards{margin-top:10px;}
+  .cjs.mini{margin:0;}
+  .cjs.mini .cjs-s:before{top:7px; height:2px;}
+  .cjs.mini .cjs-s span{width:16px; height:16px; font-size:0; border-width:2px; border-radius:4px;}
+  .cjs.mini .cjs-s.now span{box-shadow:0 0 0 3px rgba(116,191,235,.35);}
+  .cjs.mini .cjs-s.now.mine span{box-shadow:0 0 0 3px rgba(224,168,60,.3);}
+  .cjs.mini .cjs-s b{display:none;}
+  .cjs.mini .cjs-s.now b{display:block; font-size:10.5px; white-space:nowrap;}
+  .tq-list .er-head, .tq-row.er{display:grid; grid-template-columns:38px minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.4fr) minmax(0,1.4fr) 18px; gap:14px; align-items:center;}
+  .tq-list .er-head{border-bottom:0; padding:8px 14px 6px;}
+  .tq-row.er{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin:0 0 8px;
+    transition:border-color .15s, box-shadow .15s, transform .15s;}
+  .tq-row.er:hover{border-color:var(--sky); box-shadow:0 6px 16px rgba(6,32,47,.08); transform:translateY(-1px); background:var(--surface);}
+  .er-id b{display:block; font-size:14px;}
+  .er-id i, .er-jr i, .er-st i{display:block; font-style:normal; font-size:11.5px; color:var(--ink-3); margin-top:3px; overflow-wrap:anywhere;}
+  .er-pg{display:flex; gap:5px; flex-wrap:wrap;}
+  .er-pg .tag{font-size:10.5px;}
+  .tag.soft{background:transparent; border:1px solid var(--border); color:var(--ink-3);}
+  .er-jr .cjb{margin-top:0; max-width:none;}
+  .er-st b{display:block; font-size:13px;}
+  .er-st.late i{color:var(--bad); font-weight:600;}
+  .er-go{color:var(--ink-3); line-height:0;} .er-go svg{width:14px; height:14px;}
+  @media(max-width:900px){
+    .tq-list .er-head{display:none;}
+    .tq-row.er{grid-template-columns:38px minmax(0,1fr) 18px; gap:8px 12px;}
+    .tq-row.er .er-pg, .tq-row.er .er-jr, .tq-row.er .er-st{grid-column:2;}
+    .tq-row.er .er-go{grid-column:3; grid-row:1;}
+  }
+  @media(max-width:520px){ .tq-cards{grid-template-columns:1fr;} }
+  /* on a phone the record panel covers the folded menu rail rather than sliding under it */
+  @media(max-width:760px){ .drawer{z-index:70;} }
+
+  /* ---- 31 Oct 2026: the record panel (Jonna: "less confusing, more user friendly, give it a wow
+     factor"). A navy hero with the company's monogram, the journey, one plain "what happens
+     next", then tabs instead of one long scroll. ---- */
+  .dmono{display:none;}
+  .drawer.hero .dhead{position:relative; overflow:hidden; align-items:center; gap:14px; padding:20px 22px 18px; border-bottom:0; color:#fff;
+    background:radial-gradient(700px 220px at 100% -30%,rgba(116,191,235,.38),transparent 60%),
+      linear-gradient(135deg,var(--navy-deep,#06202f) 0%,#0d314c 60%,#14486e 100%);}
+  .drawer.hero .dhead:after{content:""; position:absolute; inset:0; pointer-events:none; opacity:.06;
+    background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px); background-size:28px 28px;}
+  .drawer.hero .dmono{display:block; position:relative; z-index:1;}
+  .drawer.hero .dmono .cmono{width:50px; height:50px; flex-basis:50px; font-size:18px; border-radius:9px; box-shadow:0 0 0 3px rgba(255,255,255,.18);}
+  .dhead-t{min-width:0; position:relative; z-index:1;}
+  .drawer.hero .dhead h3{color:#fff; font-size:19px; letter-spacing:-.01em;}
+  .drawer.hero .dhead .dsub{color:rgba(255,255,255,.72);}
+  .drawer.hero.chips .dhead .dsub{display:none;}
+  .dchips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .dchips:empty{display:none;}
+  .dchip{font-size:11px; font-weight:600; padding:3px 8px; border-radius:3px; background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.18); white-space:nowrap;}
+  .dchip.good{background:rgba(52,199,140,.22); border-color:rgba(52,199,140,.45);}
+  .dchip.warn{background:rgba(224,168,60,.25); border-color:rgba(224,168,60,.55);}
+  .dchip.bad{background:rgba(220,80,80,.28); border-color:rgba(220,80,80,.55);}
+  .drawer.hero .dwide, .drawer.hero .dclose{color:rgba(255,255,255,.8); position:relative; z-index:1;}
+  .drawer.hero .dwide:hover, .drawer.hero .dclose:hover{color:#fff; background:rgba(255,255,255,.12);}
+  .drawer.hero .dbody .cjs{margin:4px 0 16px;}
+  .dnext{border-radius:8px; padding:14px 16px; margin:0 0 16px; background:var(--surface-2); border:1px solid var(--border); animation:dIn .25s ease;}
+  .dnext.mine{background:rgba(224,168,60,.12); border-color:rgba(224,168,60,.45);}
+  .dn-k{display:block; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3);}
+  .dnext.mine .dn-k{color:var(--warn);}
+  .dnext b{display:block; font-size:17px; margin-top:3px; color:var(--ink); line-height:1.3;}
+  .dnext i{display:block; font-style:normal; font-size:12.5px; color:var(--ink-2); margin-top:4px;}
+  .dnext em{display:block; font-style:normal; font-size:12.5px; color:var(--bad); margin-top:6px; font-weight:600;}
+  .dtabs{position:sticky; top:-18px; z-index:3; display:flex; gap:2px; overflow-x:auto; margin:0 -22px 18px; padding:0 14px;
+    background:var(--surface); border-bottom:1px solid var(--border);}
+  .dtabs button{font:inherit; font-size:13px; font-weight:600; color:var(--ink-3); background:none; border:0; border-bottom:3px solid transparent;
+    padding:12px 10px 10px; cursor:pointer; white-space:nowrap;}
+  .dtabs button:hover{color:var(--ink);}
+  .dtabs button.on{color:var(--ink); border-bottom-color:var(--sky);}
+  .dtabs button b{font-size:10.5px; background:var(--surface-3); color:var(--ink-2); border-radius:3px; padding:1px 6px; margin-left:3px; font-weight:700;}
+  .dtabs button b.warn{background:rgba(224,168,60,.2); color:var(--warn);}
+  .dtabs button b.good{background:rgba(15,123,92,.15); color:var(--good);}
+  .dpane{display:none;}
+  .dpane.on{display:block; animation:dIn .2s ease;}
+  @keyframes dIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  .dcard{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:0 0 14px;}
+  .dcard-h{margin:0 0 10px;}
+  .dcard-h b{display:block; font-size:14px; color:var(--ink);}
+  .dcard-h span{display:block; font-size:12px; color:var(--ink-3); margin-top:2px;}
+  .dcard .mvs{margin:0;}
+  .dpane .lc-btn.full{margin-top:12px;}
+  .lic-auto{display:flex; flex-direction:column; gap:3px; padding:11px 13px; border-radius:6px; background:rgba(15,123,92,.08); border:1px solid rgba(15,123,92,.3);}
+  .lic-auto b{font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--good);}
+  .lic-auto span{font-size:13px; color:var(--ink); line-height:1.45;}
+  .lic-auto.hand{background:rgba(224,168,60,.1); border-color:rgba(224,168,60,.45); margin-bottom:12px;}
+  .lic-auto.hand b{color:var(--warn);}
+  .lic-hand{margin-top:10px;}
+  .lic-hand summary{font-size:12px; color:var(--ink-3); cursor:pointer;}
+  .lic-hand[open] summary{margin-bottom:10px;}
+  .lic-send:has(.lic-auto:not(.hand)){background:none; border:0; padding:0;}
+  @media (prefers-reduced-motion:reduce){ .dpane.on, .dnext{animation:none;} .tq-list.mine .td-item:hover, .tq-row.er:hover{transform:none;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -2874,9 +2984,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Record panel">
   <div class="dhead">
-    <div>
+    <span class="dmono" id="d-mono"></span>
+    <div class="dhead-t">
       <h3 id="d-title">—</h3>
       <div class="dsub" id="d-sub">—</div>
+      <div class="dchips" id="d-chips"></div>
     </div>
     <button class="dwide" id="d-wide" type="button" aria-pressed="false"
             aria-label="Make this panel wider" title="Make this panel wider">
@@ -4488,7 +4600,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 else if (g[0] === "license") { org = x.c.org; prog = x.c.program; days = x.f ? fuDaysInState(x.f) : null; }
                 else if (g[0] === "expiry") { org = x.org; prog = x.program; days = Math.abs(x.days || 0); late = true; }
                 else { org = x.org; prog = x.program; days = fuDaysInState(x); var fx = g[0].indexOf("fu-") === 0 ? followUpOf(x) || {} : {}; late = g[0] === "welcome" || fx.severity === "high"; }
-                var html = tdRowLine(g[0], x).replace('<div class="td-main">', cmono(org) + '<div class="td-main"><span class="tq-kind t-' + (TQ_KIND_TONE[g[0]] || "sign") + '">' + esc(g[1]) + "</span>");
+                var cyc = [ "invoice", "attach", "license", "expiry" ].indexOf(g[0]) < 0 && x && x.row != null && STATE[currentState(x)];
+                var html = tdRowLine(g[0], x).replace('<div class="td-main">', (cyc ? '<div class="tq-step">' + cjStepper(x).replace('class="cjs"', 'class="cjs mini"') + "</div>" : "") + cmono(org) + '<div class="td-main"><span class="tq-kind t-' + (TQ_KIND_TONE[g[0]] || "sign") + '">' + esc(g[1]) + "</span>");
                 out.push({ kind: g[0], label: g[1], org: org || "", prog: prog || "", days: days, late: late, html: html });
             }));
         }));
@@ -4562,11 +4675,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function tqHay(x) { return esc(String(x.org + " " + x.prog + " " + (x.label || "") + " " + (x.next || "")).toLowerCase()); }
     function tqWaitRow(x) {
-        var f = x.f, d = x.days, late = d != null && d > PIP_LATE_DAYS, w = d == null ? 0 : Math.max(4, Math.min(100, Math.round(d / 90 * 100)));
-        return '<button class="tq-row" type="button" data-tdopen="' + f.row + '" data-tqhay="' + tqHay(x) + '">' + cmono(f.org)
-            + '<span class="tq-co"><b>' + esc(f.org) + "</b><small>" + tdWhat(f) + "</small>" + cjBar(f) + "</span>"
-            + '<span class="tq-next"><b>' + esc(x.next) + "</b><small>" + esc(x.extra ? x.extra : x.stage) + "</small></span>"
-            + '<span class="tq-age' + (late ? " late" : "") + '"><b>' + esc(tqDaysTxt(d) || "—") + '</b><i><em style="width:' + w + '%"></em></i></span>'
+        /* the Assessor Portal's engagement row (31 Oct 2026, Jonna: "can the company cards be the same
+           for the action queue as for the assessors?") */
+        var f = x.f, d = x.days, late = d != null && d > PIP_LATE_DAYS, at = cjStop(f);
+        return '<button class="tq-row er" type="button" data-tdopen="' + f.row + '" data-tqhay="' + tqHay(x) + '">' + cmono(f.org)
+            + '<span class="er-id"><b>' + esc(f.org) + "</b><i>" + esc(f.product || f.program) + "</i></span>"
+            + '<span class="er-pg"><span class="tag">' + esc(f.program) + '</span><span class="tag soft">' + esc(kindLabel(f)) + "</span></span>"
+            + '<span class="er-jr">' + cjBar(f) + "<i>" + esc(CJ[at].t) + " · " + esc(x.stage) + "</i></span>"
+            + '<span class="er-st' + (late ? " late" : "") + '"><b>' + esc(x.next) + "</b><i>" + esc((x.extra ? x.extra + " · " : "") + (tqDaysTxt(d) || "")) + "</i></span>"
+            + '<span class="er-go" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
             + "</button>";
     }
     function tqProspectRow(x) {
@@ -4630,11 +4747,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var line = function(x) { var h = how === "task" ? x.html.replace(/<span class="tq-kind[^"]*">[\s\S]*?<\/span>/, "") : x.html; return h.replace('<div class="td-item', '<div data-tqhay="' + tqHay(x) + '" class="td-item'); };
             rows = '<div class="tq-list mine">' + (how === "task" ? TD_GROUPS.map((function(g) {
                 var part = list.filter((function(x) { return x.kind === g[0]; }));
-                return part.length ? '<div class="tq-sect"><div class="tq-shead t-' + (TQ_KIND_TONE[g[0]] || "sign") + '"><b>' + esc(g[1]) + "</b><span>" + part.length + "</span>" + (tq.kind === "all" ? "<small>" + esc(g[2]) + "</small>" : "") + "</div>" + part.map(line).join("") + "</div>" : "";
-            })).join("") : list.map(line).join("")) + "</div>";
+                return part.length ? '<div class="tq-sect"><div class="tq-shead t-' + (TQ_KIND_TONE[g[0]] || "sign") + '"><b>' + esc(g[1]) + "</b><span>" + part.length + "</span>" + (tq.kind === "all" ? "<small>" + esc(g[2]) + "</small>" : "") + "</div>" + '<div class="tq-cards">' + part.map(line).join("") + "</div></div>" : "";
+            })).join("") : '<div class="tq-cards">' + list.map(line).join("") + "</div>") + "</div>";
         }
         else if (tq.view === "prospects") rows = '<div class="tq-list">' + list.map(tqProspectRow).join("") + "</div>";
-        else rows = '<div class="tq-list"><div class="tq-colhead"><span></span><span>Company and Certification</span><span>' + (tq.view === "later" ? "Next Chase" : tq.view === "hold" ? "Hold" : "What Happens Next") + "</span><span>At This Step</span></div>" + list.map(tqWaitRow).join("") + "</div>";
+        else rows = '<div class="tq-list"><div class="tq-colhead er-head"><span></span><span>Company</span><span>Program</span><span>Journey</span><span>' + (tq.view === "later" ? "Next Chase" : tq.view === "hold" ? "Hold" : "What Happens Next") + "</span><span></span></div>" + list.map(tqWaitRow).join("") + "</div>";
         var listBox = '<div class="tq-panel"><div class="tq-phead"><h2>' + esc(V[1]) + ' <span class="tq-n">' + L[tq.view].length + '</span></h2><p>' + esc(help) + "</p></div>" + tools + kinds + rows
             + '<div class="tq-none" hidden>No company matches that search in this list.</div></div>';
         var openN = cjOpen().length;
@@ -5453,6 +5570,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         drawer.classList.add("on");
         drawer.setAttribute("aria-hidden", "false");
+        dHero(null);
         if ($("d-body")) $("d-body").scrollTop = 0;
         document.body.classList.add("panel-open");
         if (panel.mode === "queue") {
@@ -5660,6 +5778,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return c.live;
             })).length;
             $("d-title").textContent = org.name;
+            dHero(org.name, null);
             $("d-sub").textContent = org.status.charAt(0).toUpperCase() + org.status.slice(1) + " · " + liveCount + " live of " + theirs.length + " certification" + (theirs.length === 1 ? "" : "s");
             var soonest = theirs.filter((function(c) {
                 return c.live && c.anniversary;
@@ -5918,6 +6037,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }
             $("d-title").textContent = fc.org;
             $("d-sub").textContent = fc.program + (fc.product ? " · " + fc.product : "") + " · Full Record";
+            dHero(fc.org, [ { t: fc.program }, fc.product && fc.product !== fc.program ? { t: fc.product } : null, { t: fc.status || (fc.live ? "Active" : "Not current"), tone: fc.live ? "good" : "" }, fc.live && fc.anniversary ? { t: "Renews " + fmt(fc.anniversary), tone: renewalTone(fc) } : null ]);
             var backTo = panel.back ? panel.back.name : panel.row ? fc.org : panel.phase ? panel.phase : null;
             $("d-body").innerHTML = (backTo ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(backTo) + "</button>" : "") + certBody(fc);
             wireChaseNotes($("d-body"));
@@ -5936,7 +6056,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var c = certFor(f);
         $("d-title").textContent = f.org;
         $("d-sub").textContent = f.program + (f.product ? " · " + f.product : "") + " · " + kindLabel(f);
-        $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + '<div class="dsect"><h4>Where It Stands</h4><div class="grid2">' + '<div class="fld"><label>State</label><div class="v">' + esc(titleOfState(currentState(f))) + "</div></div>" + '<div class="fld"><label>Phase</label><div class="v">' + esc(phaseOf(currentState(f))) + "</div></div>" + '<div class="fld"><label>Status</label><div class="v">' + esc(STATE[currentState(f)] && STATE[currentState(f)].status || "") + "</div></div>" + '<div class="fld"><label>Waiting On</label><div class="v">' + esc(STATE[currentState(f)] && STATE[currentState(f)].waiting || "nobody") + "</div></div>" + "</div>" + (f.age != null ? '<div class="pc-note">Open ' + f.age + " days.</div>" : "") + (serious(f.flags) ? '<div class="pc-note bad">' + esc(f.flags[0]) + "</div>" : "") + "</div>" + cardBody(f);
+        var parts = cardParts(f), inv0 = invoiceOf(f), co0 = orgOf(f.org), empt0 = ORG_FIELDS.filter(function(x) { return !x.optional && !co0[x.k]; }).length;
+        dHero(f.org, [ { t: f.program }, f.product && f.product !== f.program ? { t: f.product } : null, { t: kindLabel(f) }, c && c.anniversary ? { t: "Renews " + fmt(c.anniversary), tone: renewalTone(c) } : null ]);
+        $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + cjStepper(f) + dNext(f) + dTabs("rec:" + f.row, [ [ "overview", "Overview", "", parts.overview ], [ "money", "Money", inv0 && inv0.paid === false ? "unpaid" : "", parts.money, "warn" ], [ "cert", "The Certification", "", parts.cert ], [ "company", "The Company", empt0 ? empt0 + " empty" : "", parts.company, "warn" ] ]);
+        wireHistory($("d-body"));
         if ($("d-back")) $("d-back").addEventListener("click", (function() {
             if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else if (panel.back && panel.back.kind === "mig") openPanelMig(panel.back.which); else openPanelList(panel.phase);
         }));
@@ -6723,7 +6846,40 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         return '<div class="' + (v.state === "ok" ? "pc-note" : "qwatch") + '">' + (v.state === "ok" ? "Checked against the price list: " : "Against the price list: ") + esc(v.text) + (v.expense != null ? " Once the assessor is paid " + money(v.expense) + ", " + money(Number(inv.amount) - v.expense) + " is revenue." : "") + "</div>";
     }
-    function cardBody(f) {
+    /* ---- The record panel's tabs and hero (31 Oct 2026). Every tab is drawn at once and only
+       shown or hidden, so the controls inside keep the wiring they already have. ---- */
+    var dtab = { id: "", on: "overview" };
+    function dTabs(id, tabs) {
+        tabs = tabs.filter(function(t) { return t && t[3]; });
+        if (dtab.id !== id) dtab = { id: id, on: tabs.length ? tabs[0][0] : "overview" };
+        if (!tabs.some(function(t) { return t[0] === dtab.on; })) dtab.on = tabs[0][0];
+        return '<div class="dtabs" role="tablist">' + tabs.map(function(t) {
+            return '<button type="button" role="tab" data-dtab="' + t[0] + '" class="' + (t[0] === dtab.on ? "on" : "") + '">' + esc(t[1]) + (t[2] ? ' <b class="' + (t[4] || "") + '">' + esc(t[2]) + "</b>" : "") + "</button>";
+        }).join("") + "</div>" + tabs.map(function(t) {
+            return '<div class="dpane' + (t[0] === dtab.on ? " on" : "") + '" data-dpane="' + t[0] + '">' + t[3] + "</div>";
+        }).join("");
+    }
+    document.addEventListener("click", function(e) {
+        var b = e.target.closest && e.target.closest("[data-dtab]");
+        if (!b) return;
+        dtab.on = b.getAttribute("data-dtab");
+        var host = $("d-body");
+        Array.prototype.forEach.call(host.querySelectorAll("[data-dtab]"), function(x) { x.classList.toggle("on", x === b); });
+        Array.prototype.forEach.call(host.querySelectorAll("[data-dpane]"), function(x) { x.classList.toggle("on", x.getAttribute("data-dpane") === dtab.on); });
+    });
+    function dHero(name, chips) {
+        var d = $("drawer"), m = $("d-mono"), c = $("d-chips");
+        d.classList.toggle("hero", !!name);
+        d.classList.toggle("chips", !!(name && chips));
+        if (m) m.innerHTML = name ? cmono(name) : "";
+        if (c) c.innerHTML = name && chips ? chips.filter(Boolean).map(function(x) { return '<span class="dchip' + (x.tone ? " " + x.tone : "") + '">' + esc(x.t) + "</span>"; }).join("") : "";
+    }
+    function dNext(f) {
+        var st = currentState(f), def = STATE[st] || {}, who = def.waiting || f.waiting || "nobody", mine = cjMismo(f);
+        var next = TQ_NEXT[st] || titleOfState(st);
+        return '<div class="dnext' + (mine ? " mine" : "") + (serious(f.flags) ? " flag" : "") + '">' + '<span class="dn-k">' + (mine ? "Your move" : "Waiting on " + esc(who)) + "</span>" + "<b>" + esc(next) + "</b>" + "<i>" + esc(titleOfState(st)) + " · " + esc(phaseOf(st)) + (f.age != null ? " · open " + esc(f.age) + " days" : "") + "</i>" + (serious(f.flags) ? '<em>' + esc(f.flags[0]) + "</em>" : "") + "</div>";
+    }
+    function cardParts(f) {
         var st = currentState(f), def = STATE[st] || {
             next: []
         };
@@ -6746,9 +6902,24 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join("");
         var assessorNow = c && c.assessor || f.assessor || "";
         var anniv = c ? c.anniversary || "" : "";
-        return '<div class="pc-body">' + cjStepper(f) + followUpBlock(f) + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + aiBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
+        /* Jonna, 31 Oct 2026: "make the company right details pane less confusing, more user
+           friendly, give it a wow factor". One record, four tabs instead of one long scroll:
+           Overview (where it is, what to do), Money, The Certification, The Company. */
+        var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
+        var whoHtml = '<div class="dcard"><div class="dcard-h"><b>Assessor and Notes</b></div>' + '<div class="pc-lab" style="margin-top:0">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
-        })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea>" + (c ? '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">' + "Open Full Record</button>" : "") + '<div class="pc-note">Milestone dates, the product name history and the cycle history are in ' + "the full record.</div>" + "</div>";
+        })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea></div>";
+        var certHtml = '<div class="dcard"><div class="dcard-h"><b>Anniversary Date</b></div><input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + "</div>" + scriptLine(f) + (c ? licPanelHTML(c) : "") + (c ? accountHistory(c) + '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">Open the Full Record</button>' : "");
+        return {
+            overview: followUpBlock(f) + extra + (demoOf(f) ? '<div class="dcard"><div class="dcard-h"><b>Demo</b><span>Scheduled for ' + esc(fmt(demoOf(f))) + ".</span></div></div>" : "") + moveHtml + whoHtml,
+            money: feeLine(f) + invoiceBlock(f) + aiBlock(f),
+            cert: certHtml,
+            company: companyBlock(f.org) + websiteBlock(c)
+        };
+    }
+    function cardBody(f) {
+        var p = cardParts(f);
+        return '<div class="pc-body">' + cjStepper(f) + p.overview + p.money + p.cert + p.company + "</div>";
     }
     function editCert(c, patch, reason) {
         var key = certKey(c);
@@ -9480,8 +9651,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 h += '<div class="dsect"><h4>Nothing Is Open</h4>' + '<div class="qwatch">This certification is past its anniversary and <b>no renewal has ' + "been opened for it</b>, so there is no step to move. The next action is to raise the " + "renewal, which the system cannot do until it can write.</div></div>";
             }
         }
-        h += licPanelHTML(c);
-        h += paneSummary([ {
+        var lic = licPanelHTML(c);
+        h = paneSummary([ {
             label: "Status",
             html: statusPill(c.status)
         }, {
@@ -9493,15 +9664,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             label: "Rounds on Record",
             value: String(c.cycles),
             sub: c.completedRenewals ? c.completedRenewals + (c.completedRenewals === 1 ? " renewal" : " renewals") + " completed" : "first certification"
-        } ]) + (c.headline ? '<div class="qwhy' + (c.graceExhausted ? " bad" : "") + '" style="margin:-8px 0 20px;">' + esc(c.headline) + "</div>" : "");
+        } ]) + (c.headline ? '<div class="qwhy' + (c.graceExhausted ? " bad" : "") + '" style="margin:-8px 0 20px;">' + esc(c.headline) + "</div>" : "") + h;
         if (c.productHistory) {
             h += '<div class="dsect"><h4>Product Name History</h4><div style="font-size:13px;">' + c.productHistory.map((function(n, i) {
                 return (i ? '<span style="color:var(--ink-3)"> &rarr; </span>' : "") + (i === c.productHistory.length - 1 ? "<b>" + esc(n) + "</b>" : esc(n));
             })).join("") + '</div><div class="qwhy">The certification follows the product, not the name it carried that year. ' + "Earlier names are kept because the documents of the day use them.</div></div>";
         }
-        h += '<div class="dsect">' + companyBlock(c.org) + websiteBlock(c) + "</div>";
-        h += accountHistory(c);
-        return h;
+        var co1 = orgOf(c.org), empt1 = ORG_FIELDS.filter(function(x) { return !x.optional && !co1[x.k]; }).length;
+        var L1 = licOf(c), ls1 = L1.status === "not_sent" && c.markLicense === "executed" ? "signed" : L1.status || "not_sent";
+        return dTabs("full:" + certKey(c), [ [ "overview", "Overview", "", h || '<div class="empty">Nothing needs doing on this certification.</div>' ],
+            [ "license", "Mark License", c.markLicense === "not offered" ? "" : LIC_RUNG[ls1] || LIC_SAID[ls1] || "", lic, ls1 === "signed" ? "good" : "" ],
+            [ "hist", "History", String((c.cycleHistory || []).length || ""), accountHistory(c) ],
+            [ "company", "The Company", empt1 ? empt1 + " empty" : "", companyBlock(c.org) + websiteBlock(c), "warn" ] ]);
     }
     var STEP_ORDER = [ "agreement_executed", "application_received", "invoice_issued", "payment_received", "questionnaire_received", "welcome_sent", "demo_selected", "demo_confirmed", "demo_completed", "artifacts_received", "prelim_results_to_mismo", "prelim_results_to_company", "remediation_complete", "final_results_to_mismo", "license_executed", "completion" ];
     function daysBetween(a, b) {
@@ -12193,7 +12367,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         requested: "Recorded here and waiting for the flow to pick it up and raise the " + "DocuSign envelope.",
         sent: "DocuSign has it and the signer has been emailed.",
         delivered: "The signer has opened the envelope but not signed it yet.",
-        signed: "Executed and on file. The copy below is the one DocuSign returned.",
+        signed: "Executed.",
         declined: "The signer declined. Nothing about the certification changes.",
         voided: "The envelope was voided before it was signed.",
         needs_contact: "The certification was approved and this is ready to go, but there is " + "no email address on the company record to send it to. Add one below and it " + "goes straight out."
@@ -12400,11 +12574,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<div class="dsect"><h4>Mark License</h4>' + '<div class="pc-note quiet">' + esc(c.program) + " has no Mark License.</div></div>";
         }
         var L = licOf(c);
-        if (L.document && typeof L.document !== "object") L = Object.assign({}, L, { document: { name: String(L.document), at: L.signedAt || L.sentAt || null } });
+        /* a bare string here is the template the envelope was raised from, not a signed copy */
+        if (L.document && typeof L.document !== "object") L = Object.assign({}, L, { document: null });
         var st = L.status || "not_sent";
         if (st === "not_sent" && c.markLicense === "executed") st = "signed";
         var fromMacts = st === "signed" && !L.signedAt;
-        return '<div class="dsect"><h4>Mark License</h4>' + licStepperHTML(st) + '<div class="pc-note' + (st === "declined" || st === "voided" ? " bad" : "") + '">' + esc(LIC_WHY[st] || "") + (fromMacts ? " Recorded in MACTS before this system." + (mlFilesFor(c).length ? " The signed copies MACTS held are linked below." : " No signed copy was found among the MACTS attachments.") : "") + "</div>" + '<div class="grid2">' + (L.signer ? '<div class="fld"><label>Signer</label><div class="v">' + esc(L.signer.name) + (L.signer.title ? " · " + esc(L.signer.title) : "") + '<br><span class="quiet">' + esc(L.signer.email) + "</span></div></div>" : "") + (L.envelopeId ? '<div class="fld"><label>DocuSign Envelope</label>' + '<div class="v mono">' + esc(L.envelopeId) + "</div></div>" : "") + (L.requestedAt ? '<div class="fld"><label>Requested</label><div class="v">' + esc(fmt(L.requestedAt.slice(0, 10))) + " by " + esc(L.requestedBy || "someone") + "</div></div>" : "") + (L.sentAt ? '<div class="fld"><label>Sent</label><div class="v">' + esc(fmt(L.sentAt)) + "</div></div>" : "") + (L.signedAt ? '<div class="fld"><label>Executed</label><div class="v">' + esc(fmt(L.signedAt)) + "</div></div>" : "") + (L.declinedAt ? '<div class="fld"><label>Declined</label><div class="v">' + esc(fmt(L.declinedAt)) + (L.declineReason ? " — " + esc(L.declineReason) : "") + "</div></div>" : "") + "</div>" + (L.document ? '<div class="lic-doc">' + '<div class="ld-name">' + esc(L.document.name) + "</div>" + '<div class="ld-meta">' + esc(fmtBytes(L.document.size)) + "" + (L.document.at ? " · on file since " + esc(fmt(String(L.document.at).slice(0, 10))) : "") + (L.document.digest ? ' · <span class="mono">' + esc(L.document.digest) + "</span>" : "") + "</div>" + (L.document.url ? '<a class="lc-btn ghost" href="' + esc(L.document.url) + '" download>Download</a>' : '<span class="ld-where">Held in MISMO’s document library. The link ' + "appears here once the flow returns it.</span>") + "</div>" : "") + (canWrite ? licActionsHTML(c, st) : "") + (L.history && L.history.length ? '<details class="wb-det"><summary>' + L.history.length + " change" + (L.history.length === 1 ? "" : "s") + " on this licence</summary>" + '<table class="wb-tab"><tbody>' + L.history.slice().reverse().map((function(h) {
+        return '<div class="dsect"><h4>Mark License</h4>' + licStepperHTML(st) + '<div class="pc-note' + (st === "declined" || st === "voided" ? " bad" : "") + '">' + esc(LIC_WHY[st] || "") + (fromMacts ? " Recorded in MACTS before this system." + (mlFilesFor(c).length ? " The signed copies MACTS held are linked below." : " No signed copy was found among the MACTS attachments.") : "") + "</div>" + '<div class="grid2">' + (L.signer ? '<div class="fld"><label>Signer</label><div class="v">' + esc(L.signer.name) + (L.signer.title ? " · " + esc(L.signer.title) : "") + '<br><span class="quiet">' + esc(L.signer.email) + "</span></div></div>" : "") + (L.envelopeId ? '<div class="fld"><label>DocuSign Envelope</label>' + '<div class="v mono">' + esc(L.envelopeId) + "</div></div>" : "") + (L.requestedAt ? '<div class="fld"><label>Requested</label><div class="v">' + esc(fmt(L.requestedAt.slice(0, 10))) + " by " + esc(L.requestedBy || "someone") + "</div></div>" : "") + (L.sentAt ? '<div class="fld"><label>Sent</label><div class="v">' + esc(fmt(L.sentAt)) + "</div></div>" : "") + (L.signedAt ? '<div class="fld"><label>Executed</label><div class="v">' + esc(fmt(L.signedAt)) + "</div></div>" : "") + (L.declinedAt ? '<div class="fld"><label>Declined</label><div class="v">' + esc(fmt(L.declinedAt)) + (L.declineReason ? " — " + esc(L.declineReason) : "") + "</div></div>" : "") + "</div>" + (L.document ? '<div class="lic-doc">' + '<div class="ld-name">' + esc(L.document.name) + "</div>" + '<div class="ld-meta">' + (L.document.from ? "Filed from DocuSign" : esc(fmtBytes(L.document.size))) + "" + (L.document.at ? " · on file since " + esc(fmt(String(L.document.at).slice(0, 10))) : "") + (L.document.digest ? ' · <span class="mono">' + esc(L.document.digest) + "</span>" : "") + "</div>" + (L.document.url ? '<a class="lc-btn" href="' + esc(L.document.url) + '" target="_blank" rel="noopener">Open the Signed Copy</a>' : '<span class="ld-where">Recorded by hand before the signed copy filed itself; the file was not uploaded here.</span>') + "</div>" : "") + (canWrite ? licActionsHTML(c, st) : "") + (L.history && L.history.length ? '<details class="wb-det"><summary>' + L.history.length + " change" + (L.history.length === 1 ? "" : "s") + " on this licence</summary>" + '<table class="wb-tab"><tbody>' + L.history.slice().reverse().map((function(h) {
             return "<tr><td>" + esc(fmt(h.at.slice(0, 10))) + "</td><td>" + esc(LIC_SAID[h.status] || h.status) + '</td><td class="dim">' + esc(h.note || "") + '</td><td class="dim">' + esc(h.by || "") + "</td></tr>";
         })).join("") + "</tbody></table></details>" : "") + mlFilesHTML(c) + "</div>";
     }
@@ -12414,7 +12589,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (st === "not_sent" || st === "declined" || st === "voided" || st === "needs_contact") {
             return '<div class="lic-send">' + '<div class="pc-lab">Send It for Signature</div>' + '<div class="grid2">' + '<div class="fld"><label>Signer’s Name</label>' + '<input class="pc-input" type="text" data-lic="name" data-k="' + esc(k) + '" value="' + esc(org.signer || "") + '" placeholder="Who signs for ' + esc(c.org) + '"></div>' + '<div class="fld"><label>Signer’s Email</label>' + '<input class="pc-input" type="email" data-lic="email" data-k="' + esc(k) + '" value="' + esc(org.contactEmail || "") + '" placeholder="name@company.com"></div>' + '<div class="fld"><label>Their Title</label>' + '<input class="pc-input" type="text" data-lic="title" data-k="' + esc(k) + '" value=""></div>' + "</div>" + '<p class="em-n">MISMO holds business contact details only. If the name or address ' + "above is not right, correct it on the company record rather than here — that is " + "the copy everything else reads.</p>" + '<button class="lc-btn" type="button" data-licsend="' + esc(k) + '">Send for Signature</button>' + "</div>";
         }
-        return '<div class="lic-send">' + '<div class="pc-lab">Record What Happened</div>' + '<div class="two-acts">' + (st !== "signed" ? '<button class="lc-btn" type="button" data-licset="' + esc(k) + '|signed">It Has Been Signed</button>' : "") + (st !== "signed" ? '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|declined">It Was Declined</button>' : "") + '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|not_sent">Start Again</button>' + "</div>" + '<div class="pc-lab" style="margin-top:14px;">The Executed Copy</div>' + '<label class="up-drop"><b>Attach the signed agreement</b>' + "<span>The PDF DocuSign returned, or the one that arrived by email</span>" + '<input type="file" accept=".pdf" data-licdoc="' + esc(k) + '"></label>' + "</div>";
+        /* Jonna, 31 Oct 2026: "shouldn't everything be automatic?" It is, for anything sent through
+           DocuSign from here: the signature is checked three times every weekday, a signed licence
+           moves the certification to Certified, and the signed copy files itself in the
+           certification library. Correcting a record by hand is tucked away for the odd mistake.
+           Only a licence MACTS sent (no envelope here) still needs a person to say it came back. */
+        var L0 = licOf(c), auto = !!L0.envelopeId, cyc0 = openCycleFor(k);
+        if (st === "not_sent" && cyc0 && cjStop(cyc0) < 6) {
+            return '<div class="lic-send"><div class="lic-auto"><b>Automatic</b><span>Nothing to do yet. It goes out through DocuSign by itself once this certification is approved, to the signer on the company record.</span></div></div>';
+        }
+        var hand = '<div class="two-acts">' + (st !== "signed" ? '<button class="lc-btn" type="button" data-licset="' + esc(k) + '|signed">It Has Been Signed</button>' + '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|declined">It Was Declined</button>' : "") + '<button class="lc-btn ghost" type="button" data-licset="' + esc(k) + '|not_sent">Start Again</button>' + "</div>";
+        if (!auto && st !== "signed") {
+            return '<div class="lic-send"><div class="lic-auto hand"><b>This one needs you</b><span>It went out from MACTS, before DocuSign was connected here, so the system cannot see it come back. Say so when it does.</span></div>' + hand + "</div>";
+        }
+        var says = st === "signed" ? (L0.document && L0.document.url ? "Signed, and the signed copy is filed. Nothing to do." : auto ? "Signed. DocuSign’s signed copy files itself in the certification library at the next check and appears here." : "Signed. Nothing to do.") : "Out with the signer. DocuSign is checked three times every weekday: once it is signed the certification moves to Certified and the signed copy is filed, all by itself.";
+        return '<div class="lic-send"><div class="lic-auto"><b>Automatic</b><span>' + esc(says) + "</span></div>" + '<details class="lic-hand"><summary>Something not right? Correct it by hand</summary>' + hand + "</details></div>";
     }
     (function licenseControls() {
         function certOf(k) {
