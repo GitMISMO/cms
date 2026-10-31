@@ -2462,6 +2462,16 @@
   @media(max-width:900px){ .tqh{grid-template-columns:minmax(0,1fr);} .tqw{display:flex; overflow-x:auto;} .tqw-d{flex:0 0 96px;} }
   @media(max-width:600px){ .tqh{padding:18px 16px;} .tqh h1{font-size:24px;} .tqh p{font-size:14px;} .tqb{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;} .tqt{padding:14px;} .tqt.w2, .tqt.cd, .tqt.ring-t{grid-column:span 2;} .tqt-big b{font-size:32px;} .tqt.sm .tqt-big b{font-size:26px;} .tqt:not(.w2) .tqt-list{display:none;} .tqt-flow > span{font-size:9.5px;} .tqr-track{height:132px;} }
   @media (prefers-reduced-motion:reduce){ .tqt-pill.hot, .tqt-flow path, .cj-arrow:before, .tqr-dot{animation:none;} .tqt:hover, .tqh-need:hover, .tqw-d:hover{transform:none;} }
+
+  /* Needs You cards even and balanced (31 Oct 2026, Jonna: "make this even / balanced"): every card in a
+     row is the same height, the journey and the buttons sit at the bottom of each card at the same
+     height, and the buttons fill the width in an even grid - an odd one out spans the full row. */
+  .tq-list.mine .td-item{grid-template-rows:minmax(0,1fr) auto auto; align-content:stretch;}
+  .tq-list.mine .td-item > .tq-step{align-self:end; padding-top:4px;}
+  .tq-list.mine .td-item > .td-acts{display:grid; grid-template-columns:1fr 1fr; gap:8px; align-self:end;}
+  .tq-list.mine .td-item > .td-acts > *{width:100%; min-width:0; margin:0; justify-content:center; text-align:center; white-space:normal;}
+  .tq-list.mine .td-item > .td-acts > :first-child:nth-last-child(2n+1){grid-column:1 / -1;}
+  .tq-list.mine .td-item > .td-acts > select, .tq-list.mine .td-item > .td-acts > input{grid-column:1 / -1;}
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -8589,7 +8599,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return scenState(r).k === "todo";
         })).length;
         var title = todo ? todo + " FRAME exercise" + (todo === 1 ? "" : "s") + " not sent yet" : "Every FRAME exercise has been sent";
-        [ "pip-scen", "pip-as-scen" ].forEach((function(id) {
+        /* Jonna, 31 Oct 2026: the number beside Assessor Portal in the menu (FRAME practical exercises not
+           sent) was pointless there; it stays only on the Practical Exercises tab inside the portal view. */
+        var navPip = $("pip-scen"); if (navPip) navPip.style.display = "none";
+        [ "pip-as-scen" ].forEach((function(id) {
             var pip = $(id);
             if (!pip) return;
             pip.textContent = pipCount(todo);
