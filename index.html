@@ -362,6 +362,14 @@
   /* ---------- queue ---------- */
 
   /* ---- Action Queue to-do list (26 Oct 2026): see patches/todo_queue.py ---- */
+  /* A firm's live portal (31 Oct 2026) */
+  #live-portal{position:fixed; inset:0; z-index:9500; display:flex; flex-direction:column; background:var(--ground);}
+  #live-portal[hidden]{display:none;}
+  html.lp-on, html.lp-on body{overflow:hidden;}
+  .lp-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:8px 16px; background:var(--navy-deep); color:#fff; font-size:13px;}
+  .lp-bar b{font-weight:700;}
+  .lp-back{appearance:none; border:0; border-radius:4px; background:var(--sky); color:var(--navy-deep); font:inherit; font-weight:700; padding:7px 14px; cursor:pointer;}
+  .lp-frame{flex:1; width:100%; border:0; background:#fff;}
   .td-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin:0 0 14px;}
   .td-head .td-n{font-size:30px; font-weight:700; color:var(--ink); line-height:1; font-variant-numeric:tabular-nums;}
   .td-head .td-say{color:var(--ink-2); font-size:14px;}
@@ -9605,7 +9613,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return d !== 0 ? d : a.localeCompare(b);
         }));
         el.innerHTML = names.length ? '<div class="firms">' + names.map((function(n) {
-            var rows = firmOpen(n);
+            /* counted the way the firm's own portal counts its board (31 Oct 2026): a closed
+               certification is off it, and so is a finished one the firm has invoiced for */
+            var rows = firmOpen(n).filter((function(f) {
+                var st = currentState(f);
+                if ([ "Certified", "NotCertified", "Canceled", "ApplicationExpired" ].indexOf(st) >= 0) return false;
+                return !([ "ApprovedPendingLicense", "LicenseSent" ].indexOf(st) >= 0 && f.expense != null);
+            }));
             var mine = rows.filter(waitingOnAssessor).length;
             var late = rows.filter((function(f) {
                 return scriptOutstanding(f);
@@ -10500,21 +10514,32 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }
         }
     }
+    /* Viewing a firm's portal (Jonna, 31 Oct 2026: "my view as is a live view of what they see ... it
+       should be exact"). The three outside firms open their real Assessor Portal, live, in a full-window
+       frame: the same page, the same file and the same lists the firm gets, opened on this sign-in. */
+    var LIVE_PORTAL = { "Falcon": "falcon", "Actualize": "actualize", "Viant Eye": "vianteye" };
+    function openLivePortal(name) {
+        var slug = LIVE_PORTAL[name];
+        if (!slug) return false;
+        try { var ss = localStorage.getItem("resources:session"); if (ss) sessionStorage.setItem("resources:service-orders:session", ss); } catch (e) {}
+        var o = $("live-portal");
+        if (!o) { o = document.createElement("div"); o.id = "live-portal"; document.body.appendChild(o); }
+        o.innerHTML = '<div class="lp-bar"><span><b>' + esc(firmBrand(name).legalName || name) + "\u2019s Assessor Portal</b>, live, exactly as they see it. Anything recorded here is real.</span>"
+            + '<button class="lp-back" type="button" id="lp-close">Back to MISMO</button></div>'
+            + '<iframe class="lp-frame" src="/assessors/?firm=' + slug + '" title="' + esc(name) + ' Assessor Portal"></iframe>';
+        o.hidden = false;
+        document.documentElement.classList.add("lp-on");
+        $("lp-close").addEventListener("click", (function() { o.hidden = true; o.innerHTML = ""; document.documentElement.classList.remove("lp-on"); }));
+        return true;
+    }
     function renderAssessorSwitch() {
         var el = $("as-switch");
         if (!el || !D.assessors) return;
+        if (asFirm !== null && LIVE_PORTAL[asFirm]) { var lf = asFirm; asFirm = null; asOpen = null; openLivePortal(lf); }
         el.innerHTML = asFirm !== null ? '<div class="asw preview">' + '<span class="asw-lab">Preview</span>' + '<span class="asw-now">You are seeing ' + esc(asFirm) + "’s portal</span>" + '<button class="asw-out" type="button" data-firm="">Back to MISMO</button>' + "</div>" : "";
+        /* No preview banner: a firm's view shows only what the firm sees (Jonna, 31 Oct 2026). */
         var b = $("as-banner");
-        if (b) {
-            if (asFirm === null) {
-                b.className = "";
-                b.innerHTML = "";
-            } else {
-                b.className = "note bad";
-                b.innerHTML = "<b>Everything below is what " + esc(asFirm) + " would see.</b> Its own " + "engagements and nothing else: no other firm, no company fee, no part of MISMO’s " + "board. Sign-in is not built yet, so this is a switch rather than a login — but " + "the rule it shows is the rule the system will enforce.";
-            }
-            b.style.display = "";
-        }
+        if (b) { b.className = ""; b.innerHTML = ""; }
         $("as-mismo").hidden = asFirm !== null;
         $("as-switchpanel").hidden = asFirm === null || asOpen !== null;
         $("as-firm").hidden = asFirm === null || asOpen !== null;
@@ -10556,7 +10581,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         var cannot = $("as-cannot");
         if (cannot) cannot.hidden = !on || asOpen !== null || asSection !== "todo";
-        if (on && cannot && !cannot.hidden) renderCannotSee();
+        if (cannot) cannot.hidden = true;   /* not part of what a firm sees (Jonna, 31 Oct 2026) */
     }
     function renderCannotSee() {
         var c = $("as-cannot");
