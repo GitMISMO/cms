@@ -449,7 +449,7 @@
   .tq-shead small{font-size:12.5px; color:var(--ink-3); flex:1 1 300px;}
   .tq-shead.t-money{border-left-color:var(--warn);} .tq-shead.t-assess{border-left-color:var(--sky);} .tq-shead.t-co{border-left-color:var(--navy-mid);} .tq-shead.t-late{border-left-color:var(--bad);} .tq-shead.t-sign{border-left-color:var(--good);}
   .tq-list .td-clear{margin:14px 0;}
-  .tq-colhead, .tq-row{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 150px; gap:16px; align-items:center;}
+  .tq-colhead, .tq-row{display:grid; grid-template-columns:38px minmax(0,1.3fr) minmax(0,1.2fr) 150px; gap:16px; align-items:center;}
   .tq-colhead{font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); padding:10px 4px 8px; border-bottom:1px solid var(--border);}
   .tq-row{width:100%; text-align:left; background:none; border:none; border-bottom:1px solid var(--border); padding:12px 4px; font:inherit; color:var(--ink); cursor:pointer;}
   .tq-row:hover{background:var(--surface-2);}
@@ -2176,6 +2176,67 @@
   /* The legend dot beside a bar segment is a dot, and the segbar is already squared. */
   .card .legend i{border-radius:2px;}
   [style*="var(--mono)"], .num{font-variant-numeric:tabular-nums;}
+
+  /* ══ The Assessor Portal's treatment, brought to the CMS (Jonna, 31 Oct 2026) ══════════════════
+     Every navy band becomes the portal's hero (gradient, faint grid, depth); figure boxes lift on
+     hover; companies carry a coloured monogram; the certification journey reads the same here as in
+     the firms' portal. Squared shapes throughout. */
+  .headline{position:relative; overflow:hidden; border-radius:10px; padding:26px 26px 22px;
+    background:radial-gradient(1200px 300px at 100% -20%,rgba(116,191,235,.35),transparent 60%),
+      radial-gradient(600px 260px at -10% 120%,rgba(116,191,235,.18),transparent 60%),
+      linear-gradient(135deg,var(--navy-deep,#06202f) 0%,#0d314c 55%,#14486e 100%);
+    box-shadow:0 10px 30px rgba(6,32,47,.25);}
+  .headline:after{content:""; position:absolute; inset:0; pointer-events:none; opacity:.07;
+    background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px);
+    background-size:28px 28px; -webkit-mask-image:linear-gradient(90deg,transparent,#000 60%); mask-image:linear-gradient(90deg,transparent,#000 60%);}
+  .headline > *{position:relative; z-index:1;}
+  .headline .hl-date{color:var(--sky); font-weight:700; letter-spacing:.12em;}
+  .headline .hl-say{font-size:19px; line-height:1.45; color:rgba(255,255,255,.92);}
+  .headline .hl-say em{font-weight:700;}
+  .hl-tile{border-radius:8px; padding:14px 16px; transition:transform .15s ease, background .15s ease, border-color .15s ease;}
+  button.hl-tile:hover{transform:translateY(-2px);}
+  .hl-tile b{font-size:30px; line-height:1.05;}
+  .hl-tile span{color:var(--sky); font-weight:600; font-size:12.5px; margin-top:4px;}
+  .vhead h1{font-size:26px; letter-spacing:-.02em;}
+  .panel, .box, .tq-panel{box-shadow:0 1px 2px rgba(6,32,47,.05);}
+  .card{transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;}
+  button.card:hover, .card[data-phase]:hover{transform:translateY(-2px); box-shadow:0 10px 24px rgba(6,32,47,.12);}
+  .cmono{width:38px; height:38px; flex:0 0 38px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center;
+    color:#fff !important; font-weight:700; font-size:14px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.18);}
+  .tq-list.mine .td-item{align-items:center;}
+  .tq-list.mine .td-item > .cmono{margin-right:2px;}
+  .tq-row{border-radius:6px;}
+  .cjb{display:flex; gap:3px; margin-top:7px; max-width:240px;}
+  .cjb i{flex:1; height:5px; border-radius:2px; background:var(--track);}
+  .cjb i.past{background:var(--good);} .cjb i.now{background:var(--navy-mid);} .cjb i.now.mine{background:#e0a83c;}
+  .cj{margin:0 0 22px;}
+  .cj-h h2{font-size:18px; margin:0;} .cj-h p{font-size:13px; color:var(--ink-3); margin:4px 0 12px;}
+  .cj-map{display:flex; align-items:stretch; overflow-x:auto; padding-bottom:4px;}
+  .cj-stop{flex:1 1 0; min-width:120px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-align:left; background:var(--surface);
+    border:1px solid var(--border); border-top:3px solid var(--sky); border-radius:8px; padding:13px; font:inherit; color:var(--ink); cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease;}
+  .cj-stop:hover{transform:translateY(-2px); border-color:var(--sky);}
+  .cj-stop.hot{border-top-color:#e0a83c;}
+  .cj-stop.on{box-shadow:0 0 0 2px var(--sky) inset;}
+  .cj-n{font-size:28px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums;}
+  .cj-t{font-size:13px; font-weight:700; margin-top:6px;}
+  .cj-w{font-size:11px; color:var(--ink-3); line-height:1.35;}
+  .cj-me{font-size:10.5px; font-weight:700; color:var(--warn); text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
+  .cj-arrow{flex:0 0 14px; align-self:center; height:2px; background:var(--border-strong); position:relative;}
+  .cj-arrow:after{content:""; position:absolute; right:-1px; top:-4px; border:5px solid transparent; border-left-color:var(--border-strong);}
+  .cjs{display:flex; margin:2px 0 18px;}
+  .cjs-s{flex:1; position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; gap:5px; min-width:0;}
+  .cjs-s:before{content:""; position:absolute; top:13px; left:-50%; right:50%; height:3px; background:var(--border);}
+  .cjs-s:first-child:before{display:none;}
+  .cjs-s.past:before, .cjs-s.now:before{background:var(--good);}
+  .cjs-s span{position:relative; z-index:1; width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; background:var(--surface-3); color:var(--ink-3); border:2px solid var(--border);}
+  .cjs-s.past span{background:var(--good); border-color:var(--good); color:#fff;}
+  .cjs-s.now span{background:var(--navy); border-color:var(--navy); color:#fff; box-shadow:0 0 0 4px rgba(116,191,235,.35);}
+  .cjs-s.now.mine span{background:#e0a83c; border-color:#e0a83c; color:#2a1d05; box-shadow:0 0 0 4px rgba(224,168,60,.3);}
+  .cjs-s b{font-size:10.5px; font-weight:600; color:var(--ink-3); line-height:1.25;}
+  .cjs-s.now b{color:var(--ink);}
+  @media(max-width:760px){ .tq-colhead, .tq-row{grid-template-columns:38px 1fr;} .tq-row .tq-next, .tq-row .tq-age{grid-column:2;} .cjs-s b{display:none;} .cjs-s.now b{display:block;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -4427,7 +4488,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 else if (g[0] === "license") { org = x.c.org; prog = x.c.program; days = x.f ? fuDaysInState(x.f) : null; }
                 else if (g[0] === "expiry") { org = x.org; prog = x.program; days = Math.abs(x.days || 0); late = true; }
                 else { org = x.org; prog = x.program; days = fuDaysInState(x); var fx = g[0].indexOf("fu-") === 0 ? followUpOf(x) || {} : {}; late = g[0] === "welcome" || fx.severity === "high"; }
-                var html = tdRowLine(g[0], x).replace('<div class="td-main">', '<div class="td-main"><span class="tq-kind t-' + (TQ_KIND_TONE[g[0]] || "sign") + '">' + esc(g[1]) + "</span>");
+                var html = tdRowLine(g[0], x).replace('<div class="td-main">', cmono(org) + '<div class="td-main"><span class="tq-kind t-' + (TQ_KIND_TONE[g[0]] || "sign") + '">' + esc(g[1]) + "</span>");
                 out.push({ kind: g[0], label: g[1], org: org || "", prog: prog || "", days: days, late: late, html: html });
             }));
         }));
@@ -4442,9 +4503,49 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: titleOfState(st) };
     }
     var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "Jonathan", system: "Automatic", later: "Chase later", hold: "On hold" };
+    /* ---- The certification journey (31 Oct 2026, Jonna: give the CMS the Assessor Portal's treatment).
+       The same seven stops the assessors see, so MISMO and the firms read the process the same way. ---- */
+    var CJ = [
+        { t: "Application", who: "Company & MISMO", s: [ "Draft", "DocumentsRequested", "AgreementSent", "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ] },
+        { t: "Booking", who: "Company picks, assessor confirms", s: [ "AwaitingDemoSelection", "AwaitingReviewSelection", "PreAssessmentDiscussion", "DemoProposed" ] },
+        { t: "Demonstration", who: "Assessor", s: [ "DemoScheduled", "ReviewScheduled" ] },
+        { t: "Evidence", who: "Company sends, assessor reviews", s: [ "AwaitingArtifacts", "ArtifactReview" ] },
+        { t: "Results", who: "Assessor submits, Jonathan decides", s: [ "PrelimResultsSubmitted", "PrelimQueryOpen", "AppealOpen" ] },
+        { t: "Remediation", who: "Company fixes, assessor verifies", s: [ "RemediationOpen", "RemediationEscalated", "RemediationSubmitted", "RemediationQueryOpen" ] },
+        { t: "Certified", who: "MISMO and DocuSign", s: [ "ApprovedPendingLicense", "LicenseSent", "Certified" ] }
+    ];
+    function cjStop(f) { var st = currentState(f); for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return 0; }
+    function cjMismo(f) { return /MISMO|VP/.test(String((STATE[currentState(f)] || {}).waiting || f.waiting || "")); }
+    function cjBar(f) {
+        var at = cjStop(f), mine = cjMismo(f);
+        return '<span class="cjb" title="' + esc(CJ[at].t) + '">' + CJ.map((function(j, i) { return '<i class="' + (i < at ? "past" : i === at ? (mine ? "now mine" : "now") : "") + '"></i>'; })).join("") + "</span>";
+    }
+    function cjStepper(f) {
+        var at = cjStop(f), mine = cjMismo(f);
+        return '<div class="cjs">' + CJ.map((function(j, i) {
+            return '<div class="cjs-s ' + (i < at ? "past" : i === at ? (mine ? "now mine" : "now") : "next") + '"><span>' + (i < at ? "&#10003;" : (i + 1)) + "</span><b>" + esc(j.t) + "</b></div>";
+        })).join("") + "</div>";
+    }
+    var CMONO = [ "#14486e", "#0f7b5c", "#7a4fb3", "#b5651d", "#1f6f8b", "#a23e5c", "#4c6a1e", "#3d5a99" ];
+    function cmono(name) {
+        var w = String(name || "?").replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);
+        var t = (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || "?").slice(0, 1)).toUpperCase(), h = 0;
+        for (var i = 0; i < String(name).length; i++) h = (h * 31 + String(name).charCodeAt(i)) >>> 0;
+        return '<span class="cmono" style="background:' + CMONO[h % CMONO.length] + '">' + esc(t) + "</span>";
+    }
+    function cjOpen() { return (D.inFlight || []).filter((function(f) { return f && tdOpen(f); })); }
     function tqLists(m) {
         var L = { you: tqMine(m), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
         [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
+        /* one list per journey stop, every open certification at it, with whose move it is */
+        var open = cjOpen();
+        CJ.forEach((function(j, i) {
+            L["stop" + i] = open.filter((function(f) { return cjStop(f) === i; })).map((function(f) {
+                var x = tqWaitItem("stop", f), w = String((STATE[currentState(f)] || {}).waiting || f.waiting || "");
+                x.extra = fuHeld(f) ? "On hold" : w ? "With " + w.replace("Company + President", "the company").replace(/^Company$/, "the company") : x.stage;
+                return x;
+            }));
+        }));
         return L;
     }
     function tqSorted(list, how) {
@@ -4462,8 +4563,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tqHay(x) { return esc(String(x.org + " " + x.prog + " " + (x.label || "") + " " + (x.next || "")).toLowerCase()); }
     function tqWaitRow(x) {
         var f = x.f, d = x.days, late = d != null && d > PIP_LATE_DAYS, w = d == null ? 0 : Math.max(4, Math.min(100, Math.round(d / 90 * 100)));
-        return '<button class="tq-row" type="button" data-tdopen="' + f.row + '" data-tqhay="' + tqHay(x) + '">'
-            + '<span class="tq-co"><b>' + esc(f.org) + "</b><small>" + tdWhat(f) + "</small></span>"
+        return '<button class="tq-row" type="button" data-tdopen="' + f.row + '" data-tqhay="' + tqHay(x) + '">' + cmono(f.org)
+            + '<span class="tq-co"><b>' + esc(f.org) + "</b><small>" + tdWhat(f) + "</small>" + cjBar(f) + "</span>"
             + '<span class="tq-next"><b>' + esc(x.next) + "</b><small>" + esc(x.extra ? x.extra : x.stage) + "</small></span>"
             + '<span class="tq-age' + (late ? " late" : "") + '"><b>' + esc(tqDaysTxt(d) || "—") + '</b><i><em style="width:' + w + '%"></em></i></span>'
             + "</button>";
@@ -4494,7 +4595,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             hold: L.hold.length ? "paused" : "none",
             prospects: "not certifying"
         };
-        var band = '<div class="headline tq-band"><div class="hl-top"><div class="hl-date">As of ' + esc(fmt(isoDay(new Date))) + "</div></div>"
+        var hr = (new Date).getHours(), first = me && me.name ? String(me.name).split(/\s+/)[0] : "";
+        var band = '<div class="headline tq-band"><div class="hl-top"><div class="hl-date">' + (hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + esc(first) : "")
+            + " \u00b7 " + esc((new Date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })) + "</div></div>"
             + '<div class="hl-say">' + (mineN ? "<em" + (lateN ? ' class="hl-late"' : "") + ">" + mineN + "</em> " + (mineN === 1 ? "thing needs" : "things need") + " you." : "Nothing needs you right now.")
             + " " + (waitN ? "<em>" + waitN + "</em> " + (waitN === 1 ? "is" : "are") + " with the company, an assessor, Jonathan or the system, and need nothing from you yet." : "") + "</div>"
             + '<div class="hl-tiles tq-tiles">' + TQ_VIEWS.map((function(v) {
@@ -4503,6 +4606,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + "<b>" + n + "</b><span>" + esc(v[1]) + "</span><small>" + esc(sub[v[0]]) + "</small></button>";
             })).join("") + "</div></div>";
         var V = TQ_VIEWS.filter((function(v) { return v[0] === tq.view; }))[0], list = L[tq.view], how = tqSortOf(tq.view);
+        if (!V && /^stop\d$/.test(tq.view)) { var cj0 = CJ[+tq.view.slice(4)]; V = [ tq.view, cj0.t, "Every open certification at this stop of the journey, whoever has the move. Usually: " + cj0.who + "." ]; }
         var sorts = tq.view === "you" ? [ [ "task", "By Task" ], [ "az", "Company A–Z" ], [ "late", "Most Overdue" ] ] : tq.view === "prospects" ? [] : [ [ "az", "Company A–Z" ], [ "long", "Longest Waiting" ] ];
         var tools = '<div class="tq-tools"><input type="search" class="pc-input tq-search" data-tqsearch placeholder="Find a company" aria-label="Find a company" value="' + esc(tq.q) + '">'
             + (sorts.length ? '<div class="segbar tq-sort" role="group" aria-label="Sort">' + sorts.map((function(s) { return '<button class="seg' + (how === s[0] ? " on" : "") + '" type="button" data-tqsort="' + s[0] + '">' + esc(s[1]) + "</button>"; })).join("") + "</div>" : "") + "</div>";
@@ -4530,10 +4634,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             })).join("") : list.map(line).join("")) + "</div>";
         }
         else if (tq.view === "prospects") rows = '<div class="tq-list">' + list.map(tqProspectRow).join("") + "</div>";
-        else rows = '<div class="tq-list"><div class="tq-colhead"><span>Company and Certification</span><span>' + (tq.view === "later" ? "Next Chase" : tq.view === "hold" ? "Hold" : "What Happens Next") + "</span><span>At This Step</span></div>" + list.map(tqWaitRow).join("") + "</div>";
+        else rows = '<div class="tq-list"><div class="tq-colhead"><span></span><span>Company and Certification</span><span>' + (tq.view === "later" ? "Next Chase" : tq.view === "hold" ? "Hold" : "What Happens Next") + "</span><span>At This Step</span></div>" + list.map(tqWaitRow).join("") + "</div>";
         var listBox = '<div class="tq-panel"><div class="tq-phead"><h2>' + esc(V[1]) + ' <span class="tq-n">' + L[tq.view].length + '</span></h2><p>' + esc(help) + "</p></div>" + tools + kinds + rows
             + '<div class="tq-none" hidden>No company matches that search in this list.</div></div>';
-        host.innerHTML = band + listBox;
+        var openN = cjOpen().length;
+        var journey = '<div class="cj"><div class="cj-h"><h2>The Certification Journey</h2><p>All ' + openN + " open certifications, by where they are. The same seven stops the assessors see in their portal. Select a stop to list it.</p></div>"
+            + '<div class="cj-map">' + CJ.map((function(j, i) {
+                var rows = L["stop" + i], mm = rows.filter((function(x) { return cjMismo(x.f); })).length;
+                return '<button type="button" class="cj-stop' + (tq.view === "stop" + i ? " on" : "") + (mm ? " hot" : "") + '" data-tqview="stop' + i + '">'
+                    + '<span class="cj-n">' + rows.length + '</span><span class="cj-t">' + esc(j.t) + '</span><span class="cj-w">' + esc(j.who) + "</span>"
+                    + (mm ? '<span class="cj-me">' + mm + " with MISMO</span>" : "") + "</button>";
+            })).join('<span class="cj-arrow" aria-hidden="true"></span>') + "</div></div>";
+        host.innerHTML = band + journey + listBox;
         tqFilter();
         m.todo.invoice.forEach((function(r) { loadInvoice(r.key, (function(rec) { tdPaintDrop(r.key, rec); })); }));
     }
@@ -6634,7 +6746,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join("");
         var assessorNow = c && c.assessor || f.assessor || "";
         var anniv = c ? c.anniversary || "" : "";
-        return '<div class="pc-body">' + followUpBlock(f) + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + aiBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
+        return '<div class="pc-body">' + cjStepper(f) + followUpBlock(f) + extra + (demoOf(f) ? '<div class="pc-lab">Demo</div><div class="pc-note">Scheduled for ' + esc(fmt(demoOf(f))) + ".</div>" : "") + '<div class="pc-lab"' + (demoOf(f) ? ' style="margin-top:12px;"' : "") + ">Record a Transition</div>" + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + '<div class="pc-lab" style="margin-top:12px;">Anniversary Date</div>' + '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + scriptLine(f) + feeLine(f) + invoiceBlock(f) + aiBlock(f) + companyBlock(f.org) + websiteBlock(c) + '<div class="pc-lab" style="margin-top:12px;">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
         })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea>" + (c ? '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">' + "Open Full Record</button>" : "") + '<div class="pc-note">Milestone dates, the product name history and the cycle history are in ' + "the full record.</div>" + "</div>";
     }
