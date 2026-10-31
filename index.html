@@ -9036,6 +9036,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderNotices();
         renderNoticeLog();
         if (typeof orgFilters !== "undefined" && orgFilters && $("orglist")) renderOrgs();
+        if (typeof renderAssessorCards === "function") renderAssessorCards();   /* stage moves and scripts change the firm cards too (31 Oct 2026) */
         renderPanel();
     }
     document.addEventListener("keydown", (function(e) {
@@ -10536,6 +10537,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var el = $("as-switch");
         if (!el || !D.assessors) return;
         if (asFirm !== null && LIVE_PORTAL[asFirm]) { var lf = asFirm; asFirm = null; asOpen = null; openLivePortal(lf); }
+        /* the firm cards were drawn once, before the script-prep records had loaded, and kept showing
+           "2 scripts not sent" for scripts already prepared (Jonna, 31 Oct 2026) */
+        renderAssessorCards();
         el.innerHTML = asFirm !== null ? '<div class="asw preview">' + '<span class="asw-lab">Preview</span>' + '<span class="asw-now">You are seeing ' + esc(asFirm) + "’s portal</span>" + '<button class="asw-out" type="button" data-firm="">Back to MISMO</button>' + "</div>" : "";
         /* No preview banner: a firm's view shows only what the firm sees (Jonna, 31 Oct 2026). */
         var b = $("as-banner");
