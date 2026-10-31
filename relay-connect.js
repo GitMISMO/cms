@@ -76,6 +76,8 @@
     /* the MACTS Comments sheet, carried over 27 Oct 2026; optional the same way */
     jobs.push(readData('macts-comments').then(function (v) { D.mactsComments = v; }, function () { D.mactsComments = null; }));
     jobs.push(readData('macts-documents').then(function (v) { D.mactsDocuments = v; }, function () { D.mactsDocuments = null; }));
+    /* what each company sent for mismo.org on its renewal page (31 Oct 2026); optional the same way */
+    jobs.push(readData('website-answers').then(function (v) { D.websiteAnswers = v; }, function () { D.websiteAnswers = null; }));
     jobs.push(Promise.all([readData('frame-questionnaire'), readData('emortgage-questionnaires')]).then(function (r) {
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });

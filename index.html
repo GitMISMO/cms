@@ -2347,6 +2347,18 @@
   .lic-hand[open] summary{margin-bottom:10px;}
   .lic-send:has(.lic-auto:not(.hand)){background:none; border:0; padding:0;}
   @media (prefers-reduced-motion:reduce){ .dpane.on, .dnext{animation:none;} .tq-list.mine .td-item:hover, .tq-row.er:hover{transform:none;} }
+
+  /* What a company sent for mismo.org on its renewal page, against what is listed (31 Oct 2026). */
+  .web-diff{display:grid; gap:8px; margin:10px 0 2px;}
+  .wd-row{display:grid; grid-template-columns:110px minmax(0,1fr) minmax(0,1fr); gap:10px; font-size:12.5px; align-items:start;}
+  .wd-row b{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3); padding-top:2px;}
+  .wd-old{color:var(--ink-3); text-decoration:line-through; overflow-wrap:anywhere;}
+  .wd-none{color:var(--ink-3); font-style:italic;}
+  .td-item .wd-row, .drawer .wd-row{grid-template-columns:96px minmax(0,1fr);}
+  .td-item .wd-row .wd-new, .drawer .wd-row .wd-new{grid-column:2;}
+  .wd-new{color:var(--ink); font-weight:600; overflow-wrap:anywhere;}
+  .web-sent{border:1px solid rgba(224,168,60,.45); background:rgba(224,168,60,.08); border-radius:8px; padding:12px 14px; margin:0 0 14px;}
+  @media(max-width:600px){ .wd-row{grid-template-columns:1fr;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -4385,7 +4397,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return esc(f.program) + (f.product ? " · " + esc(f.product) : "") + " · " + esc(kindLabel(f).toLowerCase());
     }
     function tdModel() {
-        var todo = { invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [] };
+        var todo = { website: [], invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [] };
         var wait = { company: [], assessor: [], jonathan: [], system: [], later: [], hold: [] };
         if (!certs || typeof QUOTE_LEAD !== "number" || typeof LIC_SAID !== "object") return { todo: todo, wait: wait, prospects: [] };
         var taken = {};
@@ -4439,6 +4451,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (openCycleFor(certKey(c))) return;
             todo.expiry.push(c);
         }));
+        (live || []).forEach((function(c) {
+            if (tdProspect(c.org)) return;
+            var ch = webChanges(c);
+            if (ch) todo.website.push({ c: c, ch: ch });
+        }));
         var pros = {};
         (D.organizations || []).forEach((function(o) { if (tdOrgStatus(o.name) === "prospect") pros[orgSlug(o.name)] = o.name; }));
         Object.keys(orgEdits || {}).forEach((function(s) { var e = orgEdits[s]; if (e && e.status === "prospect" && !pros[s]) pros[s] = e.org || s; }));
@@ -4462,6 +4479,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "fu-assessor", "Follow Up: Assessor to Chase", "The company has gone quiet at a stage the assessor runs. Nudge the Assessor emails them how long it has been and asks whether they have followed up; certifications@mismo.org is copied." ],
         [ "fu-invoice", "Follow Up: Unpaid Invoice", "Invoiced and not paid. Chase the company, note what you did and pick the next date." ],
         [ "fu-demo", "Follow Up: Demo Not Booked", "Paid, but no demonstration date picked after the weekly reminders." ],
+        [ "website", "Update Their mismo.org Listing", "They sent new details for mismo.org on their renewal page. Copy them to their listing on the website, then press Done: the Website Card keeps them." ],
         [ "fu-quiet", "Follow Up: Gone Quiet", "Stuck before the assessment started. Chase them, or move them to Prospects if they are not going ahead." ]
     ];
     function tdItem(key, inner, acts, bad) {
@@ -4471,6 +4489,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return '<button class="lc-btn' + (ghost ? " ghost" : "") + '" type="button" ' + attr + ">" + esc(label) + "</button>";
     }
     function tdRowLine(key, x) {
+        if (key === "website") {
+            var wc = x.c, wk = esc(certKey(wc)), wa = x.ch.a;
+            return '<div class="td-item"><div class="td-main"><button class="td-org" type="button" data-tdcert="' + wk + '">' + esc(wc.org) + "</button>"
+                + '<div class="td-meta">' + esc(wc.program) + (wc.product ? " \u00b7 " + esc(wc.product) : "") + " \u00b7 sent on their renewal " + esc(fmt(String(wa.submittedAt || "").slice(0, 10))) + "</div>"
+                + webDiffHTML(x.ch) + "</div>"
+                + (canWrite ? '<div class="td-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + wk + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + wk + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + wk + '"', true) + "</div>" : "") + "</div>";
+        }
         if (key === "invoice") {
             var r = x, c = r.cert, k = esc(r.key);
             var when = r.dueIn < 0 ? '<span class="bad">' + -r.dueIn + (r.dueIn === -1 ? " day" : " days") + " late</span>" : r.dueIn === 0 ? '<span class="bad">due today</span>' : "due in " + r.dueIn + (r.dueIn === 1 ? " day" : " days");
@@ -4584,7 +4609,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         OnHold: "Nothing until the hold is released"
     };
     var TQ_KIND_TONE = { invoice: "money", attach: "money", "fu-invoice": "money", license: "sign", expiry: "late", assessor: "assess", "fu-assessor": "assess", script: "assess",
-        welcome: "co", "fu-demo": "co", "fu-quiet": "co", record: "sign" };
+        welcome: "co", "fu-demo": "co", "fu-quiet": "co", record: "sign", website: "co" };
     var tq = { view: "you", kind: "all", q: "", sort: {} };
     try { var tqSaved = JSON.parse(localStorage.getItem("cms-tq") || "null"); if (tqSaved) { tq.view = tqSaved.view || "you"; tq.sort = tqSaved.sort || {}; } } catch (e) {}
     function tqKeep() { try { localStorage.setItem("cms-tq", JSON.stringify({ view: tq.view, sort: tq.sort })); } catch (e) {} }
@@ -4598,6 +4623,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 var org = "", prog = "", days = null, late = false;
                 if (g[0] === "invoice" || g[0] === "attach") { org = x.cert.org; prog = x.cert.program; days = x.dueIn != null ? -x.dueIn : null; late = g[0] === "attach" || x.dueIn < 0; }
                 else if (g[0] === "license") { org = x.c.org; prog = x.c.program; days = x.f ? fuDaysInState(x.f) : null; }
+                else if (g[0] === "website") { org = x.c.org; prog = x.c.program; days = daysSince(String(x.ch.a.submittedAt || "").slice(0, 10)); }
                 else if (g[0] === "expiry") { org = x.org; prog = x.program; days = Math.abs(x.days || 0); late = true; }
                 else { org = x.org; prog = x.program; days = fuDaysInState(x); var fx = g[0].indexOf("fu-") === 0 ? followUpOf(x) || {} : {}; late = g[0] === "welcome" || fx.severity === "high"; }
                 var cyc = [ "invoice", "attach", "license", "expiry" ].indexOf(g[0]) < 0 && x && x.row != null && STATE[currentState(x)];
@@ -7030,6 +7056,71 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return "<option>" + esc(r) + "</option>";
         })).join("") + "</select></div></div>" + '<button class="lc-btn ghost" type="button" data-oinactive="' + esc(o.slug) + '" disabled>Make Them Inactive</button>') + "</div>";
     }
+    /* ---- What a company sent for mismo.org on its renewal page (31 Oct 2026). This replaces MACTS's
+       three "Webpage" workflows (request the update, alert when it is needed, note when it is not).
+       data/website-answers.json is built by .github/scripts/website-answers.js from the renewal
+       responses; where it differs from the Website Card, Needs You shows "Update Their mismo.org
+       Listing" and Done puts the new details on the card. ---- */
+    var WEB_F = [ [ "aboutUs", "About Us" ], [ "page", "Webpage" ], [ "contact", "Contact" ], [ "contactEmail", "Contact Email" ] ];
+    function webNorm(v) { return String(v || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+    function webCard(c) {
+        var key = certKey(c), base = c.website || {}, e = (certEdits[key] || {}).website || {}, w = {};
+        [ "aboutUs", "page", "contact", "contactEmail", "lastUpdated", "needsUpdate", "reviewedAt" ].forEach((function(k) {
+            w[k] = e[k] !== undefined && e[k] !== null ? e[k] : base[k] == null ? "" : base[k];
+        }));
+        return w;
+    }
+    function webAnswerFor(c) {
+        var list = (D.websiteAnswers && D.websiteAnswers.answers) || [], hit = null;
+        list.forEach((function(a) {
+            if (webNorm(a.org) !== webNorm(c.org) || a.program !== c.program) return;
+            if (a.product && c.product && webNorm(a.product) !== webNorm(c.product)) return;
+            if (!hit || String(a.submittedAt || "") > String(hit.submittedAt || "")) hit = a;
+        }));
+        return hit;
+    }
+    function webChanges(c) {
+        var a = c && webAnswerFor(c);
+        if (!a) return null;
+        var w = webCard(c);
+        if (w.reviewedAt && String(w.reviewedAt) >= String(a.submittedAt || "")) return null;
+        var fields = WEB_F.filter((function(f) {
+            var v = String((a.website || {})[f[0]] || "").trim();
+            return v && v !== String(w[f[0]] || "").trim();
+        }));
+        return fields.length ? { a: a, w: w, fields: fields } : null;
+    }
+    function webDiffHTML(ch) {
+        return '<div class="web-diff">' + ch.fields.map((function(f) {
+            var was = String(ch.w[f[0]] || "").trim(), now = String(ch.a.website[f[0]] || "").trim();
+            return '<div class="wd-row"><b>' + esc(f[1]) + '</b><span class="' + (was ? "wd-old" : "wd-none") + '">' + (was ? esc(was) : "nothing listed") + '</span><span class="wd-new">' + esc(now) + "</span></div>";
+        })).join("") + "</div>";
+    }
+    function webCertOf(key) { return certs.filter((function(x) { return certKey(x) === key; }))[0]; }
+    function webSettle(key, use) {
+        var c = webCertOf(key), ch = c && webChanges(c);
+        if (!ch) return;
+        var cur = (certEdits[key] || {}).website || {}, next = {};
+        for (var k in cur) next[k] = cur[k];
+        if (use) {
+            ch.fields.forEach((function(f) { next[f[0]] = String(ch.a.website[f[0]]).trim(); }));
+            next.lastUpdated = (new Date).toISOString().slice(0, 10);
+        }
+        next.needsUpdate = null;
+        next.reviewedAt = ch.a.submittedAt || (new Date).toISOString();
+        editCert(c, { website: next });
+    }
+    document.addEventListener("click", (function(e) {
+        var b = e.target.closest && e.target.closest("[data-webcopy],[data-webdone],[data-webkeep]");
+        if (!b) return;
+        if (b.dataset.webcopy) {
+            var c = webCertOf(b.dataset.webcopy), ch = c && webChanges(c);
+            if (!ch) return;
+            var w = ch.a.website || {};
+            copy(WEB_F.filter((function(f) { return w[f[0]]; })).map((function(f) { return f[1] + ": " + w[f[0]]; })).join("\n\n"), c.org + " \u2014 the details they sent are on your clipboard.");
+        } else if (b.dataset.webdone) webSettle(b.dataset.webdone, true);
+        else webSettle(b.dataset.webkeep, false);
+    }));
     function websiteBlock(c) {
         if (!c) return "";
         var key = certKey(c);
@@ -7041,8 +7132,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         var stale = String(w.needsUpdate || "").toLowerCase().indexOf("y") === 0;
         var id = "web:" + key;
-        var sub = !w.aboutUs ? "No wording on file" : stale ? "The company said it needs updating" : w.lastUpdated ? "Last updated " + fmt(w.lastUpdated) : "On file, never dated";
-        var head = sectionHead(id, "Website Card", sub, !w.aboutUs || stale ? "bad" : "");
+        var wch = webChanges(c);
+        var sub = wch ? "New details sent on their renewal" : !w.aboutUs ? "No wording on file" : stale ? "The company said it needs updating" : w.lastUpdated ? "Last updated " + fmt(w.lastUpdated) : "On file, never dated";
+        var head = sectionHead(id, "Website Card", sub, wch || !w.aboutUs || stale ? "bad" : "");
         if (!orgOpen[id]) return head;
         var draft = webDraft[key] || {};
         function val(k) {
@@ -7050,7 +7142,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         var dirty = !!Object.keys(draft).length;
         var prior = base.priorAboutUs || [];
-        return head + '<div class="pc-open" data-wkey="' + esc(key) + '">' + '<p class="na-hint" style="margin:0 0 10px;">What mismo.org shows for this ' + "certification. The company writes it; MISMO publishes it. Collected at renewal, so " + "it is only as current as the last time somebody asked.</p>" + '<div class="fld"><label for="wb-about">About Us</label>' + '<textarea class="pc-input" rows="5" id="wb-about" data-wf="aboutUs" ' + 'placeholder="The company\'s own description">' + esc(val("aboutUs")) + "</textarea></div>" + '<div class="inv-grid">' + '<div class="fld"><label for="wb-page">Webpage</label>' + '<input class="pc-input" id="wb-page" data-wf="page" type="url" value="' + esc(val("page")) + '"></div>' + '<div class="fld"><label for="wb-when">Last Updated</label>' + '<input class="pc-input" id="wb-when" data-wf="lastUpdated" type="date" value="' + esc(val("lastUpdated")) + '"></div>' + '<div class="fld"><label for="wb-con">Their Contact</label>' + '<input class="pc-input" id="wb-con" data-wf="contact" value="' + esc(val("contact")) + '"></div>' + '<div class="fld"><label for="wb-mail">Contact Email</label>' + '<input class="pc-input" id="wb-mail" data-wf="contactEmail" type="email" value="' + esc(val("contactEmail")) + '"></div>' + "</div>" + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-wsave="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Save the Website Card</button>" + '<button class="lc-btn ghost" type="button" data-wcancel="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Cancel</button>" + '<button class="lc-btn ghost" type="button" data-wask="' + esc(key) + '">' + "Mark Their Wording as Requested</button>" + "</div>" + (prior.length ? '<div class="pc-lab" style="margin-top:16px;">What It Used To Say</div>' + '<p class="na-hint" style="margin:0 0 8px;">' + prior.length + (prior.length === 1 ? " earlier description" : " earlier descriptions") + " MACTS overwrote. Kept because the card on the site at the time is part of the record.</p>" + prior.map((function(t) {
+        return head + '<div class="pc-open" data-wkey="' + esc(key) + '">' + '<p class="na-hint" style="margin:0 0 10px;">What mismo.org shows for this ' + "certification. The company writes it; MISMO publishes it. Collected at renewal, so " + "it is only as current as the last time somebody asked.</p>" + (wch ? '<div class="web-sent"><div class="pc-lab" style="margin-top:0">Sent on Their Renewal, ' + esc(fmt(String(wch.a.submittedAt || "").slice(0, 10))) + "</div>" + webDiffHTML(wch) + (canWrite ? '<div class="na-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + esc(key) + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + esc(key) + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + esc(key) + '"', true) + "</div>" : "") + "</div>" : "") + '<div class="fld"><label for="wb-about">About Us</label>' + '<textarea class="pc-input" rows="5" id="wb-about" data-wf="aboutUs" ' + 'placeholder="The company\'s own description">' + esc(val("aboutUs")) + "</textarea></div>" + '<div class="inv-grid">' + '<div class="fld"><label for="wb-page">Webpage</label>' + '<input class="pc-input" id="wb-page" data-wf="page" type="url" value="' + esc(val("page")) + '"></div>' + '<div class="fld"><label for="wb-when">Last Updated</label>' + '<input class="pc-input" id="wb-when" data-wf="lastUpdated" type="date" value="' + esc(val("lastUpdated")) + '"></div>' + '<div class="fld"><label for="wb-con">Their Contact</label>' + '<input class="pc-input" id="wb-con" data-wf="contact" value="' + esc(val("contact")) + '"></div>' + '<div class="fld"><label for="wb-mail">Contact Email</label>' + '<input class="pc-input" id="wb-mail" data-wf="contactEmail" type="email" value="' + esc(val("contactEmail")) + '"></div>' + "</div>" + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-wsave="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Save the Website Card</button>" + '<button class="lc-btn ghost" type="button" data-wcancel="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Cancel</button>" + '<button class="lc-btn ghost" type="button" data-wask="' + esc(key) + '">' + "Mark Their Wording as Requested</button>" + "</div>" + (prior.length ? '<div class="pc-lab" style="margin-top:16px;">What It Used To Say</div>' + '<p class="na-hint" style="margin:0 0 8px;">' + prior.length + (prior.length === 1 ? " earlier description" : " earlier descriptions") + " MACTS overwrote. Kept because the card on the site at the time is part of the record.</p>" + prior.map((function(t) {
             return '<div class="pc-note">' + esc(t) + "</div>";
         })).join("") : "") + "</div>";
     }
