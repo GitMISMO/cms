@@ -3323,14 +3323,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function effective(c) {
         var e = certEdits[certKey(c)];
-        if (!e) return c;
+        /* the exported days-to-anniversary are as of the export; recount them for today (31 Oct 2026) */
+        if (!e && !(c.live && c.anniversary && D.dataAsOf && D.dataAsOf !== D.asOf)) return c;
         var out = {};
         for (var k in c) out[k] = c[k];
-        if (e.anniversary !== undefined) out.anniversary = e.anniversary;
-        if (e.assessor !== undefined) out.assessor = e.assessor;
-        out.edited = true;
-        out.editedBy = e.by;
-        out.editReason = e.reason || null;
+        if (e) {
+            if (e.anniversary !== undefined) out.anniversary = e.anniversary;
+            if (e.assessor !== undefined) out.assessor = e.assessor;
+            out.edited = true;
+            out.editedBy = e.by;
+            out.editReason = e.reason || null;
+        }
         if (out.live) {
             var a = assessAnniversary(out.anniversary, out.program);
             out.condition = a.condition;
@@ -5071,8 +5074,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var m = moves[f.row];
         if (m && m.at) return Math.floor((Date.now() - new Date(m.at).getTime()) / 864e5);
         if (f.age != null) {
-            var since = parseDay(D.asOf);
-            return f.age + (since ? Math.max(0, daysBetween(since, new Date())) : 0);
+            /* f.age is already brought up to today when the records load (relay-connect.js) */
+            return f.age;
         }
         return null;
     }
@@ -6935,7 +6938,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var whoHtml = '<div class="dcard"><div class="dcard-h"><b>Assessor and Notes</b></div>' + '<div class="pc-lab" style="margin-top:0">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
         })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea></div>";
-        var certHtml = '<div class="dcard"><div class="dcard-h"><b>Anniversary Date</b></div><input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c && c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') + "</div>" + scriptLine(f) + (c ? licPanelHTML(c) : "") + (c ? accountHistory(c) + '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">Open the Full Record</button>' : "");
+        var certHtml = '<div class="dcard"><div class="dcard-h"><b>Anniversary Date</b></div>' + (c ? '<input class="pc-input" type="date" data-anniv="' + f.row + '" value="' + esc(anniv) + '">' + (c.live && c.headline ? '<div class="pc-note' + (c.graceExhausted ? " bad" : "") + '">' + esc(c.headline) + "</div>" : '<div class="pc-note">Changing this moves a contractual expiry, so it asks for a reason.</div>') : '<div class="pc-note">Set when it is approved: a first certification has no anniversary until then.</div>') + "</div>" + scriptLine(f) + (c ? licPanelHTML(c) : "") + (c ? accountHistory(c) + '<button class="lc-btn ghost full" type="button" data-full="' + esc(certKey(c)) + '">Open the Full Record</button>' : "");
         return {
             overview: followUpBlock(f) + extra + (demoOf(f) ? '<div class="dcard"><div class="dcard-h"><b>Demo</b><span>Scheduled for ' + esc(fmt(demoOf(f))) + ".</span></div></div>" : "") + moveHtml + whoHtml,
             money: feeLine(f) + invoiceBlock(f) + aiBlock(f),
@@ -7791,11 +7794,26 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         Array.prototype.forEach.call(scope.querySelectorAll("[data-assessor]"), (function(sel) {
             sel.addEventListener("change", (function() {
-                var f = byRow(+sel.dataset.assessor), c = certFor(f);
-                if (!c) return;
-                editCert(c, {
-                    assessor: sel.value || null
-                }, null);
+                var f = byRow(+sel.dataset.assessor), c = f && certFor(f);
+                if (!f) return;
+                if (c) {
+                    editCert(c, {
+                        assessor: sel.value || null
+                    }, null);
+                    return;
+                }
+                /* a first application has no certification record yet: the assessor goes on the
+                   cycle, the same way the Action Queue's Assign an Assessor does it (31 Oct 2026 test:
+                   this used to do nothing for DecisionX, Firstline and Stellar Innovations) */
+                var v = sel.value || null;
+                f.assessor = v;
+                moves[f.row] = Object.assign({ state: currentState(f) }, moves[f.row], { assessor: v });
+                var aen = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "edit",
+                    note: v ? "Assessor set to " + v : "Assessor cleared", reason: null, at: (new Date).toISOString(), by: me && me.name ? me.name : "You" };
+                activity.unshift(aen);
+                persist(f.row, aen);
+                toast(f.org + " \u2014 " + (v ? "assessor set to " + v : "assessor cleared") + ".", "good");
+                renderAll();
             }));
         }));
         Array.prototype.forEach.call(scope.querySelectorAll("[data-full]"), (function(b) {

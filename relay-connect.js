@@ -69,6 +69,20 @@
       if (r.status !== 200 || !r.json.content) throw err('unavailable', 'portal-data.json (' + (r.json.error || r.status) + ')');
       var P = JSON.parse(fromBase64(r.json.content));
       Object.keys(P).forEach(function (k) { D[k] = P[k]; });
+      /* The page counts days from D.asOf (days to an anniversary, days at a step, the date a payment or
+         a new application is recorded). portal-data.json carries the date it was exported, which stays
+         put while every record on top of it is live, so the page thought it was still 24 October
+         (found in the 31 Oct 2026 full test). Today, in Eastern time, from here on; the export date is
+         kept as D.dataAsOf. */
+      D.dataAsOf = D.asOf;
+      var gone = 0;
+      try { gone = Math.max(0, Math.round((Date.parse(new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })) - Date.parse(D.asOf)) / 864e5)); } catch (e) {}
+      /* a cycle's "open N days" was counted at the export too */
+      if (gone) ['inFlight', 'pipelines', 'newApplications'].forEach(function (k) {
+        (D[k] || []).forEach(function (f) { if (f && typeof f.age === 'number') f.age += gone; });
+      });
+      try { D.asOf = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+      catch (e) { var t = new Date(); D.asOf = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); }
     })];
     Object.keys(FILES).forEach(function (k) { jobs.push(readData(FILES[k]).then(function (v) { D[k] = v; })); });
     /* past Mark License Agreements filed from the MACTS attachments; optional, so a missing index never stops the page */
