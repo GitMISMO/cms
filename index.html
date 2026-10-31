@@ -4788,7 +4788,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var plate = you.slice(0, 6).map((function(x) {
             var a = (x.html.match(/data-td(open|renewal|cert)="[^"]*"/) || [ "" ])[0];
             var k = x.late ? "#ff8a7a" : TQ_K.you;
-            var when = x.late ? "Overdue" : x.label.replace(/^Follow Up: /, "Follow Up");
+            var when = x.late ? "Overdue" : x.label.replace(/^Follow Up: /, "");
             return '<button type="button" class="tqh-need" ' + a + ' style="--k:' + k + '"><span>' + esc(when) + "</span><b>" + esc(x.org) + "</b></button>";
         })).join("");
         var hero = '<div class="tqh"><div class="tqh-hi"><div class="tqh-eb">' + DOW[now.getDay()] + ", " + MO[now.getMonth()] + " " + now.getDate() + "</div>"
