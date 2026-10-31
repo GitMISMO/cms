@@ -9566,9 +9566,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function waitingOnAssessor(f) {
         return !!(f.waiting && f.waiting.indexOf("Assessor") >= 0);
     }
+    /* The firm a cycle is with, worked out the way the engagement files are (31 Oct 2026): one picked for
+       the cycle, else the one set on the certification, else the board's. Viant Eye's own Product
+       certification is Actualize's by a certification edit, so it was missing from Actualize's card. */
     function firmOpen(name) {
         return (D.inFlight || []).filter((function(f) {
-            return f && f.assessor === name;
+            if (!f) return false;
+            var m = moves[f.row] || {};
+            return (m.assessor || tdAssessorOf(f) || f.assessor) === name;
         }));
     }
     function firmRank(n) {
