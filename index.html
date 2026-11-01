@@ -4508,10 +4508,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var to0 = aiEmails(a.contactEmail || "");
             if (!to0.length) { var d0 = aiDefaultTo(f0); to0 = aiEmails(d0.email); }
             if (!(inv && inv.orderId)) sentMsg = " The invoice was kept but not sent: record the Aptify order number on the record (so the payment can be matched and the email names it), then press Send the Invoice.";
+            else if (a.pdf.readNumber && orderIdOf(a.pdf.readNumber) !== orderIdOf(inv.orderId)) sentMsg = " The invoice was kept but not sent: the PDF is for order " + a.pdf.readNumber + " and the form says " + inv.orderId + ". Fix the Order ID on the record, then press Send the Invoice.";
             else if (to0.length && aiRequest(f0, to0, String(a.contactName || "").trim(), inv)) sentMsg = " The invoice goes to " + to0.join(", ") + " on the next run in business hours.";
             else sentMsg = " The invoice was kept, but there is no email address to send it to: add one on the record and press Send the Invoice.";
         }
-        toast(body.org + " added to the board." + sentMsg, sentMsg && sentMsg.indexOf("no email") >= 0 ? "warn" : "good");
+        toast(body.org + " added to the board." + sentMsg, sentMsg && /no email|not sent/.test(sentMsg) ? "warn" : "good");
         renderAll();
         renderNewApp();
         renderAssessorSwitch();
@@ -4593,7 +4594,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         fr.onload = function() {
             var rec = { name: file.name, size: file.size, type: "application/pdf", data: String(fr.result).split(",")[1] || "", at: (new Date).toISOString(), by: me && me.name || "someone" };
             var u8 = b64Bytes(rec.data);
-            (u8 ? readPdfOrder(u8) : Promise.resolve(null)).then((function(info) { then(rec, info || {}); }));
+            (u8 ? readPdfOrder(u8) : Promise.resolve(null)).then((function(info) { if (info && info.number) rec.readNumber = String(info.number); then(rec, info || {}); }));
         };
         fr.readAsDataURL(file);
     }
@@ -4603,6 +4604,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
         aiReadFile(file, (function(rec, info) {
             rec.row = row;
+            /* the order number printed on the PDF, kept so Send the Invoice can refuse a PDF for a
+               different order (1 Nov 2026 stress test: the email named one order and attached another) */
+            if (info.number) rec.readNumber = String(info.number);
             Promise.resolve(db.collection(appInvColl(row)).doc("pdf").set(rec)).then((function() {
                 appInv[row] = rec;
                 aiPaint(row);
@@ -4611,6 +4615,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 if (info.total != null && !dr.amount) { dr.amount = String(info.total); ch.push(money(info.total)); }
                 if ((info.number || ch.length) && !dr.invoicedOn) dr.invoicedOn = isoDay(new Date);
                 if (ch.length) { invEdit[row] = dr; saveInvoice(row); }
+                if (info.number && dr.orderId && orderIdOf(dr.orderId) !== orderIdOf(info.number)) {
+                    toast(f.org + " — the PDF is for order " + info.number + ", but the record says order " + dr.orderId + ". Fix the Order ID or drop the right PDF before sending.", "warn");
+                    return;
+                }
                 toast(f.org + " — invoice PDF kept" + (ch.length ? "; " + ch.join(" and ") + " read off it and recorded." : info.number ? "." : ". The order number could not be read from it, so type it in Order ID.") + " Press Send the Invoice to email it.", "good");
             }), onWriteRefused);
         }));
@@ -4640,6 +4648,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!to.length) { toast("Type the address to send it to.", "warn"); if (inp) inp.focus(); return; }
         var i = invoiceOf(f) || {};
         if (!i.orderId) { toast("Record the Aptify order number first (Order ID, then Save the Invoice), so the payment can be matched.", "warn"); return; }
+        if (appInv[row].readNumber && orderIdOf(appInv[row].readNumber) !== orderIdOf(i.orderId)) { toast("The PDF is for order " + appInv[row].readNumber + ", but the record says order " + i.orderId + ". Fix the Order ID or drop the right PDF, then send.", "warn"); return; }
         if (!window.confirm("Email the invoice for " + f.org + " (" + f.program + ") to " + to.join(", ") + "?\n\nAptify order " + i.orderId + (i.amount != null ? ", " + money(i.amount) : "") + ". It goes from certifications@mismo.org with the PDF attached and certifications@ copied, on the next run in business hours.")) return;
         var d = aiDefaultTo(f), name = to[0] && d.email && to[0].toLowerCase() === String(d.email).toLowerCase() ? d.name : "";
         if (aiRequest(f, to, name, i)) toast(f.org + " — the invoice goes to " + to.join(", ") + " on the next run in business hours.", "good");
@@ -6331,7 +6340,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                                 var ext = (String(x.file).match(/\.([a-z0-9]+)$/i) || [ "", "File" ])[1].toUpperCase();
                                 var t = x.type && x.type !== "Other" ? x.type : String(x.file).replace(/^\[[^\]]*\]\s*/, "").replace(/\.[a-z0-9]+$/i, "");
                                 seen[t] = (seen[t] || 0) + 1;
-                                return '<a class="pk-dd" data-pkdhay="' + esc((t + " " + x.file).toLowerCase()) + '" href="' + esc(site + encodeURI(x.path)) + '" target="_blank" rel="noopener" title="' + esc(x.file) + '"><span class="pk-dx" style="--x:' + (EXT[ext] || "#6b7c8c") + '">' + esc(ext) + "</span><span class=\"pk-dt\">" + esc(t) + (seen[t] > 1 ? " <em>(" + seen[t] + ")</em>" : "") + "</span></a>";
+                                return '<a class="pk-dd" data-pkdhay="' + esc((t + " " + x.file).toLowerCase()) + '" href="' + esc(spLink(site, x.path)) + '" target="_blank" rel="noopener" title="' + esc(x.file) + '"><span class="pk-dx" style="--x:' + (EXT[ext] || "#6b7c8c") + '">' + esc(ext) + "</span><span class=\"pk-dt\">" + esc(t) + (seen[t] > 1 ? " <em>(" + seen[t] + ")</em>" : "") + "</span></a>";
                             })).join("") + "</div></div>";
                     })).join("") + "</div>";
             })).join("") + "</div>";
@@ -6925,6 +6934,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (moves[f.row]) for (var kk in moves[f.row]) if ([ "state", "reason", "note", "by", "at", "decidedOn" ].indexOf(kk) < 0) kept[kk] = moves[f.row][kk];
         if ([ "AwaitingDemoSelection", "PreAssessmentDiscussion", "DemoProposed" ].indexOf(toState) >= 0) delete kept.demoOn;
         if (toState === "RemediationOpen") { delete kept.remediationTarget; delete kept.remediationTargetBy; }
+        /* where a hold came from, so it can be released back there (1 Nov 2026 stress test: a cycle put
+           On Hold from its record had no way back after a reload) */
+        if (toState === "OnHold") kept.heldFrom = from !== "OnHold" ? from : kept.heldFrom || null;
+        else delete kept.heldFrom;
         kept.state = toState;
         kept.reason = reason || null;
         kept.note = note || null;
@@ -7083,7 +7096,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             canWrite = false;
             toast("You have view-only access, so changes are not being saved for others.", "warn");
             renderPipe();
+            return;
         }
+        /* any other refusal used to pass silently, so the screen showed a change that was never kept
+           (1 Nov 2026 stress test). Say so plainly; the change shows until the page is reloaded. */
+        if (window.console) console.warn("Save refused:", e);
+        toast("That did not save" + (e && e.message ? " (" + String(e.message).replace(/^Not saved \(|\)$/g, "") + ")" : "") + ". Reload the page and try again; if it keeps happening, tell certifications@mismo.org.", "bad");
     }
     function certFor(f) {
         var want = [ f.org, f.program, f.product || "" ].join("|");
@@ -7759,6 +7777,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var needs = STATE[t] && STATE[t].reasonRequired;
             return '<button class="mv" type="button" data-row="' + f.row + '" data-to="' + esc(t) + '">' + esc(titleOfState(t)) + (needs ? " …" : "") + "</button>";
         })).join("");
+        if (currentState(f) === "OnHold") {
+            var heldFrom = heldFromOf(f);
+            opts = heldFrom ? '<button class="mv" type="button" data-row="' + f.row + '" data-to="' + esc(heldFrom) + '">Release From Hold: Back to ' + esc(titleOfState(heldFrom)) + "</button>"
+                + '<button class="mv" type="button" data-row="' + f.row + '" data-to="Canceled">' + esc(titleOfState("Canceled")) + " …</button>" : "";
+        }
         var assessorNow = c && c.assessor || f.assessor || "";
         var anniv = c ? c.anniversary || "" : "";
         /* Jonna, 31 Oct 2026: "make the company right details pane less confusing, more user
@@ -8606,6 +8629,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
     }
     function wireRecordControls(scope) {
+        /* View only (1 Nov 2026 stress test): the record offered moves, notes and saves to someone
+           without Edit access, said "moved", and only then learned the relay had refused it. */
+        if (!canWrite && scope) {
+            Array.prototype.forEach.call(scope.querySelectorAll(".mv, [data-assessor], [data-note], [data-anniv], [data-osave], [data-ocancel], [data-of], [data-oreason], [data-oinactive], [data-inv], [data-invsave], [data-invcancel], [data-aipick], [data-aisend], [data-aito], [data-fuclear], [data-fuedit], [data-tdprospect], [data-licset], [data-licsend]"), (function(el) { el.disabled = true; el.title = "View only: ask for Edit access to change this"; }));
+            if (!scope.querySelector(".vo-note")) scope.insertAdjacentHTML("afterbegin", '<div class="pc-note vo-note" style="margin:0 0 12px">You have view-only access. Nothing here can be changed.</div>');
+        }
         wireInvoice(scope);
         wireCompany(scope);
         Array.prototype.forEach.call(scope.querySelectorAll(".mv"), (function(b) {
@@ -8666,13 +8695,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     by: me && me.name ? me.name : "You"
                 };
                 moves[f.row].note = t.value;
+                /* the note is the person writing it, not whoever last moved the cycle (1 Nov 2026 stress
+                   test: notes were credited to "MACTS cutover") */
+                var noteBy = me && me.name ? me.name : "You";
                 persist(f.row, {
                     row: f.row,
                     org: f.org,
                     program: f.program,
                     note: t.value,
                     at: (new Date).toISOString(),
-                    by: moves[f.row].by,
+                    by: noteBy,
                     from: currentState(f),
                     to: currentState(f),
                     reason: null
@@ -8685,7 +8717,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     to: currentState(f),
                     note: t.value,
                     at: (new Date).toISOString(),
-                    by: moves[f.row].by,
+                    by: noteBy,
                     reason: null
                 });
                 renderActivity();
@@ -8821,6 +8853,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function attempt(f, toState) {
         if (!f || !toState) return;
+        if (!canWrite) { toast("You have view-only access, so this cannot be moved.", "warn"); return; }
         if (STATE[toState] && STATE[toState].reasonRequired) {
             var reason = window.prompt("Moving " + f.org + " to " + titleOfState(toState) + " needs a reason. It is recorded against the cycle.");
             if (!reason || !reason.trim()) {
@@ -11891,6 +11924,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     var DEMO_ONLY = [ "AwaitingDemoSelection", "PreAssessmentDiscussion", "DemoProposed", "DemoScheduled" ];
     var REVIEW_ONLY = [ "AwaitingReviewSelection", "ReviewScheduled" ];
+    /* the state a held cycle goes back to: recorded with the hold, else the last move into the hold,
+       else where the export had it */
+    function heldFromOf(f) {
+        var m = moves[f.row] || {};
+        if (m.heldFrom && STATE[m.heldFrom]) return m.heldFrom;
+        for (var i = 0; i < activity.length; i++) { var a = activity[i]; if (a && a.row === f.row && a.to === "OnHold" && a.from && a.from !== "OnHold" && STATE[a.from]) return a.from; }
+        return f.state && f.state !== "OnHold" && STATE[f.state] ? f.state : null;
+    }
     function movesFor(f, list) {
         var outside = assessedOutside(f);
         return (list || []).filter((function(t) {
@@ -14132,6 +14173,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
     /* ---- Past Mark License Agreements (26 Oct 2026): see patches/zz_mark_license_files.py ---- */
     var ML_SITE = "https://mortgagebankersassociation.sharepoint.com";
+    /* A SharePoint file link, each part of the path encoded on its own, as the Assessor Portal does it
+       (1 Nov 2026 stress test: encodeURI left "#" and "?" in a file name unencoded, which cuts the link
+       short), and Word, Excel and PowerPoint files opened in the browser rather than downloaded. */
+    function spLink(site, path) {
+        var u = String(site || ML_SITE) + String(path || "").split("/").map((function(seg) { return encodeURIComponent(seg); })).join("/");
+        return /\.(docx?|xlsx?|pptx?)$/i.test(String(path || "")) ? u + "?web=1" : u;
+    }
     function mlFilesFor(c) {
         var idx = D.markLicenseFiles || {}, s = slugName(c.org);
         return (idx.files || []).filter((function(x) {
@@ -14145,7 +14193,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var list = mlFilesFor(c);
         if (!list.length) return "";
         return '<div class="pc-lab" style="margin-top:14px">Earlier Signed Copies</div>' + '<ul class="ml-files">' + list.map((function(x) {
-            var url = ML_SITE + encodeURI(x.path);
+            var url = spLink(ML_SITE, x.path);
             return '<li><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc((x.cycle ? x.program + " " + x.cycle : x.file)) + "</a>"
                 + (x.cycle ? ' <span class="quiet">' + esc(x.file) + "</span>" : "") + "</li>";
         })).join("") + "</ul>";
