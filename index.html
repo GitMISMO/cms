@@ -2812,6 +2812,51 @@
   .wd-tag{display:inline-block; margin-left:6px; font-size:10px; font-weight:700; letter-spacing:.04em; padding:1px 6px; border-radius:4px; vertical-align:1px;}
   .wd-tag.new{background:rgba(15,123,92,.14); color:var(--good);} .wd-tag.chg{background:rgba(224,168,60,.2); color:var(--warn);}
   @media(max-width:700px){ .wd-h{display:none;} .wd-r{grid-template-columns:1fr; gap:3px;} .wd-was:before{content:"Now: ";} .wd-now:before{content:"Sent: "; font-weight:400; color:var(--ink-3);} }
+  /* The company record (2 Nov 2026) */
+  .drawer.co-wide{width:min(980px, 92vw);}
+  .co-panel{container-type:inline-size;}
+  .co-tiles{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:4px 0 20px;}
+  @container (min-width:640px){ .co-tiles{grid-template-columns:repeat(4,minmax(0,1fr));} .co-ppl{grid-template-columns:repeat(3,minmax(0,1fr)) !important;} }
+  .co-panel .dtabs{flex-wrap:wrap; row-gap:2px;}
+  .co-t{display:flex; flex-direction:column; gap:3px; text-align:left; padding:12px 14px; border-radius:10px; border:1px solid rgba(116,191,235,.18); color:#fff; font:inherit;
+    background:radial-gradient(120% 90% at 100% 0%,rgba(116,191,235,.28),transparent 60%),linear-gradient(160deg,#10324a,#0b2436); box-shadow:0 8px 20px -12px rgba(6,32,47,.6);}
+  button.co-t{cursor:pointer; transition:transform .15s;} button.co-t:hover{transform:translateY(-2px);}
+  .co-t.warn{background:radial-gradient(120% 90% at 100% 0%,rgba(224,168,60,.35),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);}
+  .co-t.bad{background:radial-gradient(120% 90% at 100% 0%,rgba(201,74,59,.45),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);}
+  .co-t.good{background:radial-gradient(120% 90% at 100% 0%,rgba(60,203,127,.3),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);}
+  .co-tl{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--sky);}
+  .co-t b{font-size:26px; line-height:1.1; font-variant-numeric:tabular-nums;} .co-of{font-size:13px; font-weight:600; color:var(--sky);}
+  .co-t small{font-size:12px; color:rgba(255,255,255,.75);}
+  .co-sec{margin:0 0 22px;}
+  .co-sec h4, .co-panel .dsect > h4{display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; letter-spacing:-.01em; text-transform:none; color:var(--ink); margin:0 0 10px;}
+  .co-sec h4:before{content:""; width:4px; height:16px; border-radius:2px; background:var(--sky);}
+  .co-ppl{display:grid; grid-template-columns:1fr; gap:10px;}
+  .co-p{display:flex; flex-direction:column; gap:3px; padding:12px 14px; border:1px solid var(--border); border-radius:8px; background:var(--surface); min-width:0;}
+  .co-pr{font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3);}
+  .co-p b{font-size:14px;} .co-p a{font-size:12.5px; color:var(--navy-mid); text-decoration:none; overflow-wrap:break-word;} .co-p small{font-size:12px; color:var(--ink-3);}
+  :root[data-theme="dark"] .co-p a{color:var(--sky);}
+  .co-pnone{font-size:12.5px; color:var(--ink-3);}
+  .co-cc{font-size:12px; color:var(--ink-3); margin-top:8px;} .co-cc span{font-weight:700;}
+  .co-none{font-size:13px; color:var(--ink-2); padding:12px 14px; border:1px dashed var(--border-strong); border-radius:8px; background:var(--surface-2);}
+  .co-open{display:flex; flex-direction:column; gap:8px;}
+  .co-o{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:4px 14px; align-items:center; text-align:left; padding:12px 14px; border:1px solid var(--border);
+    border-left:4px solid var(--sky); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; transition:transform .14s, box-shadow .14s;}
+  .co-o.mine{border-left-color:#e0a83c;}
+  .co-o:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.1);}
+  .co-ot, .co-os{display:flex; flex-direction:column; gap:2px; min-width:0;} .co-ot b{font-size:13.5px;} .co-ot small, .co-os small{font-size:11.5px; color:var(--ink-3);}
+  .co-os{font-size:13px; font-weight:600;}
+  .co-o .cjb{grid-column:1 / -1; max-width:none; margin-top:6px;}
+  .co-act{display:flex; flex-direction:column; border:1px solid var(--border); border-radius:8px; overflow:hidden;}
+  .co-a{display:grid; grid-template-columns:62px 88px minmax(0,1fr); gap:10px; padding:8px 12px; border-top:1px solid var(--rule); font-size:12.5px; align-items:baseline; background:var(--surface);}
+  .co-a:first-child{border-top:0;} .co-a span{color:var(--ink-3); font-size:12px;} .co-a i{font-style:normal; color:var(--ink-2);}
+  .co-certs{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr)); gap:10px;}
+  .co-certs .ccard{margin:0; border-radius:8px;}
+  .co-form .pc-open{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; border:0; padding:0; background:none;}
+  .co-form .pc-open > .fgroup{margin:0; padding:14px; border:1px solid var(--border); border-radius:10px; background:var(--surface);}
+  .co-form .pc-open > .fgroup .inv-grid{grid-template-columns:1fr;}
+  .co-form .pc-open > .na-acts, .co-form .pc-open > .qwatch, .co-form .pc-open > .pc-lab, .co-form .pc-open > p, .co-form .pc-open > .inv-grid, .co-form .pc-open > button{grid-column:1 / -1;}
+  .co-form > .pc-sec.flat{display:none;}
+  @media(max-width:760px){ .co-tiles{grid-template-columns:repeat(2,minmax(0,1fr));} .co-ppl{grid-template-columns:1fr;} .co-form .pc-open{grid-template-columns:1fr;} .co-o{grid-template-columns:1fr;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -6228,6 +6273,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function renderPanel() {
         markSelectedRow();
         var drawer = $("drawer");
+        /* the company record opens wide: it holds a whole company (2 Nov 2026) */
+        if (drawer) drawer.classList.toggle("co-wide", !!panel && panel.mode === "org");
         if (!panel) {
             drawer.classList.remove("on");
             drawer.setAttribute("aria-hidden", "true");
@@ -6465,24 +6512,56 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var empties = ORG_FIELDS.filter((function(f) {
                 return !f.optional && !o2[f.k];
             })).length;
-            $("d-body").innerHTML = paneSummary([ {
-                label: "Status",
-                html: org.status === "active" ? statusPill("Active") : org.status === "prospect" ? '<span class="st applicationlapsed">Prospect</span>' : '<span class="st notactive">Inactive</span>'
-            }, {
-                label: "Certifications",
-                value: String(liveCount),
-                sub: theirs.length === liveCount ? "all current" : theirs.length - liveCount + " not current"
-            }, {
-                label: "Next Renewal",
-                value: soonest ? fmt(soonest.anniversary) : "None due",
-                sub: soonest ? soonest.program : null,
-                tone: worst
-            }, {
-                label: "Details",
-                value: empties ? String(empties) : "Complete",
-                sub: empties ? empties === 1 ? "field still empty" : "fields still empty" : null,
-                tone: empties ? "warn" : "good"
-            } ]) + '<div class="dsect">' + companyBlock(org.name, true) + "</div>" + '<div class="dsect"><h4>Certifications</h4>' + (theirs.length ? theirs.map(certCard).join("") : '<div class="empty">None on record.</div>') + "</div>" + ((org.spellings || []).length > 1 ? '<div class="dsect pk-earlier"><h4>Also Written As</h4><div class="pfoot-b">' + (org.spellings || []).map(esc).join(' <span style="color:var(--ink-3)">·</span> ') + "</div></div>" : "") + mactsCommentsHTML(org) + mactsDocsHTML(org);
+            /* The company record, rebuilt (2 Nov 2026, Jonna: "the company record pane, it's not great to look
+               at"). Tabs like a certification's record: Overview (figure boxes, who MISMO writes to, open work,
+               recent activity), Certifications, Contacts and Details (the form, in cards), Documents, Notes. */
+            var oSlug = (o2 && o2.slug) || slugName(org.name);
+            var open = (D.inFlight || []).filter((function(f) { return f && f.org === org.name && !fuClosed(f); }));
+            var mineAct = activity.filter((function(x) { return x.org === org.name; })).slice(0, 6);
+            var book = companyContacts(org.name) || [];
+            var docsN = ((D.mactsDocuments || {}).files || []).filter((function(x) { return x.org && slugName(x.org) === slugName(org.name); })).length;
+            var notesN = ((D.mactsComments && D.mactsComments.comments) || []).filter((function(x) { return x.org && slugName(x.org) === slugName(org.name); })).length + ((org.spellings || []).length > 1 ? 1 : 0);
+            var nDays = soonest ? daysBetween(TODAY, parseDay(soonest.anniversary)) : null;
+            function ctile(lab, big, sub, tone, attr) {
+                return "<" + (attr ? 'button type="button" ' + attr : "div") + ' class="co-t' + (tone ? " " + tone : "") + '"><span class="co-tl">' + esc(lab) + '</span><b>' + big + "</b>" + (sub ? "<small>" + sub + "</small>" : "") + "</" + (attr ? "button" : "div") + ">";
+            }
+            function person(role, name, email, extra, fallback) {
+                return '<div class="co-p"><span class="co-pr">' + esc(role) + "</span>" + (name || email ? (name ? "<b>" + esc(name) + "</b>" : "") + (email ? '<a href="mailto:' + esc(email) + '">' + esc(email).replace(/@/g, "@<wbr>") + "</a>" : "") + (extra ? "<small>" + esc(extra) + "</small>" : "")
+                    : '<span class="co-pnone">' + esc(fallback) + "</span>") + "</div>";
+            }
+            var who = '<div class="co-ppl">'
+                + person("Primary Contact", o2.contactName || (book[0] && book[0].name), o2.contactEmail || (book[0] && book[0].email), o2.contactPhone || "", "Nobody on file")
+                + person("Invoice Contact", o2.invoiceName, o2.invoiceEmail, "", "Goes to the primary contact")
+                + person("Authorized Signer", o2.signer, o2.signerEmail, o2.signerTitle || "", "Goes to the primary contact")
+                + "</div>" + (book.length > 1 ? '<div class="co-cc"><span>Also on every email:</span> ' + book.slice(1).map((function(b) { return esc(b.name || b.email); })).join(", ") + "</div>" : "");
+            var openHTML = open.length ? '<div class="co-open">' + open.map((function(f) {
+                var st = currentState(f), def = STATE[st] || {}, d = fuDaysInState(f), mine = cjMismo(f);
+                return '<button type="button" class="co-o' + (mine ? " mine" : "") + '" data-pkrow="' + f.row + '"><span class="co-ot"><b>' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</b><small>" + esc(kindLabel(f)) + "</small></span>"
+                    + '<span class="co-os">' + esc(TQ_NEXT[st] || titleOfState(st)) + "<small>" + (mine ? "Your move" : "Waiting on " + esc(def.waiting || f.waiting || "nobody")) + (d != null ? " · " + d + (d === 1 ? " day" : " days") : "") + "</small></span>" + cjBar(f) + "</button>";
+            })).join("") + "</div>" : '<div class="co-none">Nothing open right now.' + (soonest ? " Next up: " + esc(soonest.program) + " renews " + esc(fmt(soonest.anniversary)) + (nDays != null ? ", in " + nDays + " days." : ".") : "") + "</div>";
+            var actHTML = mineAct.length ? '<div class="co-act">' + mineAct.map((function(x) {
+                var what = x.kind === "edit" ? "Edited — " + (x.note || "") : x.from && x.to && x.from !== x.to ? titleOfState(x.from) + " → " + titleOfState(x.to) : x.note || "Note added";
+                return '<div class="co-a"><span>' + esc(fmt(String(x.at).slice(0, 10)).replace(/, \d{4}$/, "")) + "</span><b>" + esc(x.program || "") + "</b><i>" + esc(String(what).replace(/\s*\((via|recorded by) Claude\)/gi, "")) + "</i></div>";
+            })).join("") + "</div>" : '<div class="empty">Nothing recorded yet.</div>';
+            var certTab = theirs.length ? '<div class="co-certs">' + theirs.map(certCard).join("") + "</div>" : '<div class="empty">None on record.</div>';
+            var overview = '<div class="co-tiles">'
+                + ctile("Certifications", liveCount + '<span class="co-of"> live</span>', theirs.length === liveCount ? "all current" : (theirs.length - liveCount) + " not current", "")
+                + ctile("Next Renewal", soonest ? esc(fmt(soonest.anniversary).replace(/, \d{4}$/, "")) : "None", soonest ? esc(soonest.program) + (nDays != null ? " · in " + nDays + " days" : "") : "nothing renewing", worst)
+                + ctile("Open Work", String(open.length), open.length ? open.filter(cjMismo).length + " your move" : "nothing open", open.some(cjMismo) ? "warn" : "")
+                + ctile("Details", empties ? String(empties) + '<span class="co-of"> empty</span>' : "Complete", empties ? "fill them in" : "every field filled", empties ? "warn" : "good", 'data-dtab="details"')
+                + "</div>"
+                + '<div class="co-sec"><h4>Who MISMO Writes To</h4>' + who + "</div>"
+                + '<div class="co-sec"><h4>Certifications <span class="pk-n">' + theirs.length + "</span></h4>" + certTab + "</div>"
+                + '<div class="co-sec"><h4>Open Work <span class="pk-n">' + open.length + "</span></h4>" + openHTML + "</div>"
+                + (mineAct.length ? '<div class="co-sec"><h4>Recent Activity</h4>' + actHTML + "</div>" : "");
+            var notes = ((org.spellings || []).length > 1 ? '<div class="dsect pk-earlier"><h4>Also Written As</h4><div class="pfoot-b">' + (org.spellings || []).map(esc).join(' <span style="color:var(--ink-3)">·</span> ') + "</div></div>" : "") + mactsCommentsHTML(org);
+            dHero(org.name, [ { t: org.status === "active" ? "Active Provider" : org.status === "prospect" ? "Prospect" : "Inactive", tone: org.status === "active" ? "" : "warn" }, o2.aptify ? { t: "Aptify " + o2.aptify } : { t: "No Aptify ID", tone: "warn" } ].concat(Object.keys(theirs.filter((function(c) { return c.live; })).reduce((function(m, c) { m[c.program] = 1; return m; }), {})).map((function(pg) { return { t: pg }; }))));
+            $("d-body").innerHTML = '<div class="co-panel">' + dTabs("org:" + oSlug, [
+                [ "overview", "Overview", "", overview, "" ],
+                [ "details", "Contacts and Details", empties ? empties + " empty" : "", '<div class="dsect co-form">' + companyBlock(org.name, true) + "</div>", empties ? "warn" : "" ],
+                [ "docs", "Documents", docsN ? String(docsN) : "", docsN ? mactsDocsHTML(org) : "", "" ],
+                [ "notes", "Earlier Notes", notesN ? String(notesN) : "", notes, "" ]
+            ]) + "</div>";
             wireCompany($("d-body"));
             Array.prototype.forEach.call($("d-body").querySelectorAll("[data-key]"), (function(b) {
                 b.addEventListener("click", (function() {
