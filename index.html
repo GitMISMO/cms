@@ -2793,6 +2793,24 @@
   :root[data-theme="dark"] .pk-dx{color:color-mix(in srgb,var(--x) 60%,#fff);}
   .pk-dt em{font-style:normal; font-weight:500; color:var(--ink-3);}
   @media(max-width:700px){ .pk-dcyc{grid-template-columns:1fr; gap:6px;} .pk-dcl{padding-top:0;} }
+  /* Update Their mismo.org Listing: a wide card with a two-column comparison */
+  .tq-cards .td-item.wd-wide{grid-column:1 / -1;}
+  .tq-list.mine .td-item.wd-wide > .td-acts{display:flex !important; flex-wrap:wrap; gap:8px; justify-content:flex-start;}
+  .tq-list.mine .td-item.wd-wide > .td-acts > *{width:auto !important; flex:0 0 auto; white-space:nowrap; min-width:max-content;}
+  .wd{margin:12px 0 4px; border:1px solid var(--border); border-radius:8px; overflow:hidden;}
+  .wd-h, .wd-r{display:grid; grid-template-columns:150px minmax(0,1fr) minmax(0,1.3fr); gap:14px; padding:9px 14px; align-items:baseline;}
+  .wd-h{background:var(--surface-2); font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); padding-top:7px; padding-bottom:7px;}
+  .wd-r{border-top:1px solid var(--rule); font-size:13px;}
+  .wd-r b{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);}
+  .wd-was{color:var(--ink-3); overflow-wrap:break-word; min-width:0;}
+  .wd-no{color:var(--ink-3); opacity:.8;}
+  .wd-now{color:var(--ink); font-weight:600; overflow-wrap:break-word; min-width:0;}
+  .wd-r.long .wd-was, .wd-r.long .wd-now{font-weight:400; font-size:12.5px; line-height:1.5;}
+  .wd a{color:var(--navy-mid); text-decoration:none; border-bottom:1px solid var(--border-strong);}
+  :root[data-theme="dark"] .wd a{color:var(--sky);}
+  .wd-tag{display:inline-block; margin-left:6px; font-size:10px; font-weight:700; letter-spacing:.04em; padding:1px 6px; border-radius:4px; vertical-align:1px;}
+  .wd-tag.new{background:rgba(15,123,92,.14); color:var(--good);} .wd-tag.chg{background:rgba(224,168,60,.2); color:var(--warn);}
+  @media(max-width:700px){ .wd-h{display:none;} .wd-r{grid-template-columns:1fr; gap:3px;} .wd-was:before{content:"Now: ";} .wd-now:before{content:"Sent: "; font-weight:400; color:var(--ink-3);} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -4933,7 +4951,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tdRowLine(key, x) {
         if (key === "website") {
             var wc = x.c, wk = esc(certKey(wc)), wa = x.ch.a;
-            return '<div class="td-item"><div class="td-main"><button class="td-org" type="button" data-tdcert="' + wk + '">' + esc(wc.org) + "</button>"
+            return '<div class="td-item wd-wide"><div class="td-main"><button class="td-org" type="button" data-tdcert="' + wk + '">' + esc(wc.org) + "</button>"
                 + '<div class="td-meta">' + esc(wc.program) + (wc.product ? " \u00b7 " + esc(wc.product) : "") + " \u00b7 sent on their renewal " + esc(fmt(String(wa.submittedAt || "").slice(0, 10))) + "</div>"
                 + webDiffHTML(x.ch) + "</div>"
                 + (canWrite ? '<div class="td-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + wk + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + wk + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + wk + '"', true) + "</div>" : "") + "</div>";
@@ -7740,10 +7758,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         return fields.length ? { a: a, w: w, fields: fields } : null;
     }
+    /* What is on mismo.org now beside what they sent, as a small table (1 Nov 2026, Jonna: "this looks weird"). */
     function webDiffHTML(ch) {
-        return '<div class="web-diff">' + ch.fields.map((function(f) {
+        function show(k, v) {
+            if (!v) return "";
+            if (/page|url|site/i.test(k) && /^https?:\/\//i.test(v)) return '<a href="' + esc(v) + '" target="_blank" rel="noopener">' + esc(v.replace(/^https?:\/\//i, "").replace(/\/$/, "")) + "</a>";
+            return esc(v);
+        }
+        return '<div class="wd"><div class="wd-h"><span></span><span>On mismo.org Now</span><span>They Sent</span></div>' + ch.fields.map((function(f) {
             var was = String(ch.w[f[0]] || "").trim(), now = String(ch.a.website[f[0]] || "").trim();
-            return '<div class="wd-row"><b>' + esc(f[1]) + '</b><span class="' + (was ? "wd-old" : "wd-none") + '">' + (was ? esc(was) : "nothing listed") + '</span><span class="wd-new">' + esc(now) + "</span></div>";
+            var long = now.length > 90 || was.length > 90;
+            return '<div class="wd-r' + (long ? " long" : "") + '"><b>' + esc(f[1]) + '</b><span class="wd-was">' + (was ? show(f[0], was) : '<span class="wd-no">Not listed</span>') + "</span>"
+                + '<span class="wd-now">' + show(f[0], now) + ' <span class="wd-tag ' + (was ? "chg" : "new") + '">' + (was ? "Changed" : "New") + "</span></span></div>";
         })).join("") + "</div>";
     }
     function webCertOf(key) { return certs.filter((function(x) { return certKey(x) === key; }))[0]; }
