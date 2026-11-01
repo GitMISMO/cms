@@ -9701,7 +9701,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function pkRenewalsHero() {
         var host = $("pkh-renewals");
         if (!host) return;
-        var rows = renewalRows(), up = rows.filter((function(r) { var d = parseDay(r.cert.anniversary); var n = d ? daysBetween(TODAY, d) : null; r._n = n; return n != null && n >= 0; }))
+        var rows = renewalRows(), up = rows.filter((function(r) { if (r.hold) return false; var d = parseDay(r.cert.anniversary); var n = d ? daysBetween(TODAY, d) : null; r._n = n; return n != null && n >= 0; }))
             .sort((function(a, b) { return a._n - b._n; }));
         var in30 = up.filter((function(r) { return r._n <= 30; })), in90 = up.filter((function(r) { return r._n <= 90; }));
         var held = rows.filter((function(r) { return r.hold; }));
@@ -9715,7 +9715,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var bMax = Math.max.apply(null, bars.map((function(b) { return b.n; })).concat([1]));
         var next = up[0];
         var say = next ? "Next to renew: " + tqEm(next.cert.org) + " (" + esc(pkProg(next.cert.program)) + ") " + (next._n === 0 ? "today" : "in " + next._n + (next._n === 1 ? " day" : " days")) + (up[1] ? ", then " + tqEm(up[1].cert.org) + " in " + up[1]._n + " days" : "") + ". Notices go out by themselves; invoices to raise are on the Invoices page." : "Nothing renews in the next six months.";
-        var side = pkSide("Renewing Next", "", up.slice(0, 6).map((function(r) { return pkSideRow(fmt(r.cert.anniversary).replace(/, \d{4}$/, "") + " · " + r.cert.program, r.cert.org, 'data-pkcert="' + esc(r.key) + '"', r._n <= 30 ? "#e0a83c" : "#74bfeb"); })));
+        var side = pkSide("Renewing Next", held.length ? "on hold left out" : "", up.slice(0, 6).map((function(r) { return pkSideRow(fmt(r.cert.anniversary).replace(/, \d{4}$/, "") + " · " + r.cert.program, r.cert.org, 'data-pkcert="' + esc(r.key) + '"', r._n <= 30 ? "#e0a83c" : "#74bfeb"); })));
         host.innerHTML = pkHero({ title: "Renewals", say: say, side: side, acts: '<button class="lc-btn" type="button" data-pkgo="view:invoices">Invoices to Raise</button><button class="lc-btn" type="button" data-pkgo="view:emails">Notices Sent</button>' })
             + pkBoard([
                 { lab: "Renewing in 30 Days", n: in30.length, k: "#e0a83c", go: "#pk-rn-ahead", sub: in30.length ? "anniversaries this month" : "none this month", rows: in30.slice(0, 3).map((function(r) { return [ r.cert.org, r.cert.program, r._n + "d" ]; })) },
