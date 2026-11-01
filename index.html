@@ -6529,11 +6529,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return '<div class="co-p"><span class="co-pr">' + esc(role) + "</span>" + (name || email ? (name ? "<b>" + esc(name) + "</b>" : "") + (email ? '<a href="mailto:' + esc(email) + '">' + esc(email).replace(/@/g, "@<wbr>") + "</a>" : "") + (extra ? "<small>" + esc(extra) + "</small>" : "")
                     : '<span class="co-pnone">' + esc(fallback) + "</span>") + "</div>";
             }
+            /* the primary contact as one person: the record's own name and email, or a contact-book person
+               with the same name, or the first person in the book - never one person's name with another's email */
+            var pName = o2.contactName || "", pMail = o2.contactEmail || "";
+            if (pName && !pMail) { var bm = book.filter((function(b) { return String(b.name || "").toLowerCase().trim() === pName.toLowerCase().trim(); }))[0]; if (bm) pMail = bm.email; }
+            if (!pName && !pMail && book[0]) { pName = book[0].name || ""; pMail = book[0].email || ""; }
+            var others = book.filter((function(b) { return String(b.email || "").toLowerCase() !== String(pMail).toLowerCase() && String(b.name || "").toLowerCase() !== pName.toLowerCase(); }));
             var who = '<div class="co-ppl">'
-                + person("Primary Contact", o2.contactName || (book[0] && book[0].name), o2.contactEmail || (book[0] && book[0].email), o2.contactPhone || "", "Nobody on file")
+                + person("Primary Contact", pName, pMail, o2.contactPhone || (pName && !pMail ? "No email on record for them" : ""), "Nobody on file")
                 + person("Invoice Contact", o2.invoiceName, o2.invoiceEmail, "", "Goes to the primary contact")
                 + person("Authorized Signer", o2.signer, o2.signerEmail, o2.signerTitle || "", "Goes to the primary contact")
-                + "</div>" + (book.length > 1 ? '<div class="co-cc"><span>Also on every email:</span> ' + book.slice(1).map((function(b) { return esc(b.name || b.email); })).join(", ") + "</div>" : "");
+                + "</div>" + (others.length ? '<div class="co-cc"><span>Also on every email:</span> ' + others.map((function(b) { return esc(b.name || b.email); })).join(", ") + "</div>" : "");
             var openHTML = open.length ? '<div class="co-open">' + open.map((function(f) {
                 var st = currentState(f), def = STATE[st] || {}, d = fuDaysInState(f), mine = cjMismo(f);
                 return '<button type="button" class="co-o' + (mine ? " mine" : "") + '" data-pkrow="' + f.row + '"><span class="co-ot"><b>' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</b><small>" + esc(kindLabel(f)) + "</small></span>"
