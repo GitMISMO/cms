@@ -5331,6 +5331,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var mineAll = tqMine(m), isInv = function(x) { return x.kind === "invoice" || x.kind === "attach"; };
         var L = { all: mineAll, you: mineAll.filter(function(x) { return !isInv(x); }), invoice: mineAll.filter(isInv), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
         [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
+        /* certifications paused before their renewal started (no open cycle to hold), the same ones the
+           Renewals page counts as On Hold (Jonna, 1 Nov 2026: the queue said 0 while nCino was paused) */
+        try {
+            var heldC = L.hold.map((function(x) { return certFor(x.f); }));
+            renewalRows().forEach((function(r) {
+                if (!r.hold || heldC.indexOf(r.cert) >= 0) return;
+                var h = holdOf(r.cert) || {};
+                L.hold.push({ c: r.cert, key: r.key, org: r.cert.org || "", prog: r.cert.program || "", days: h.at ? daysSince(String(h.at).slice(0, 10)) : null,
+                    next: "On hold" + (h.at ? " since " + fmt(String(h.at).slice(0, 10)) : ""), extra: h.reason || "", stage: "renewal not started" });
+            }));
+        } catch (e) {}
         /* one list per journey stop, every open certification at it, with whose move it is */
         var open = cjOpen();
         CJ.forEach((function(j, i) {
@@ -5358,6 +5369,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tqWaitRow(x) {
         /* the Assessor Portal's engagement row (31 Oct 2026, Jonna: "can the company cards be the same
            for the action queue as for the assessors?") */
+        if (!x.f && x.c) {
+            var c = x.c;
+            return '<button class="tq-row er" type="button" data-tdcert="' + esc(x.key) + '" data-tqhay="' + tqHay(x) + '">' + cmono(c.org)
+                + '<span class="er-id"><b>' + esc(c.org) + "</b><i>" + esc(c.product || c.program) + "</i></span>"
+                + '<span class="er-pg"><span class="tag">' + esc(c.program) + '</span><span class="tag soft">Renewal</span></span>'
+                + '<span class="er-jr"><i>Renews ' + esc(fmt(c.anniversary) || "date not set") + " · renewal not started</i></span>"
+                + '<span class="er-st"><b>' + esc(x.next) + "</b><i>" + esc(x.extra || "") + "</i></span>"
+                + '<span class="er-go" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+                + "</button>";
+        }
         var f = x.f, d = x.days, late = d != null && d > PIP_LATE_DAYS, at = cjStop(f);
         return '<button class="tq-row er" type="button" data-tdopen="' + f.row + '" data-tqhay="' + tqHay(x) + '">' + cmono(f.org)
             + '<span class="er-id"><b>' + esc(f.org) + "</b><i>" + esc(f.product || f.program) + "</i></span>"
