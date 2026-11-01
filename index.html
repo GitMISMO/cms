@@ -319,6 +319,9 @@
     body.nav-open .navlink .pip{position:static; margin-left:auto; min-width:19px; height:19px;
       padding:0 6px; line-height:19px; font-size:10.5px;}
 
+    /* MISMO Money's status in the rail: just the two dots, as when collapsed on a desktop (1 Nov 2026 stress test) */
+    body:not(.nav-open) #money-sync b, body:not(.nav-open) #money-sync .ms-t{display:none;}
+    body:not(.nav-open) #money-sync{padding:6px 0 10px; display:flex; flex-direction:column; align-items:center; gap:6px;}
     /* the desktop collapse state means nothing here - the rail is already the collapsed one */
     body.nav-collapsed .side{width:var(--rail); flex-basis:var(--rail);}
     body.nav-collapsed.nav-open .side{width:240px; flex-basis:240px;}
@@ -388,6 +391,13 @@
   .td-meta .bad, .td-warn{color:var(--bad);}
   .td-warn{font-size:12px; margin-top:4px;}
   .td-acts{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .seg{white-space:nowrap;}
+  .segbar{max-width:100%; overflow-x:auto; scrollbar-width:none;}
+  .segbar::-webkit-scrollbar{display:none;}
+  .lc-btn{white-space:nowrap;}
+  .tq-sort{max-width:100%; overflow-x:auto; scrollbar-width:none;}
+  .tq-sort::-webkit-scrollbar{display:none;}
+  .td-acts button, .td-acts .lc-btn, .td-acts a{white-space:nowrap;}
   .td-acts .lc-btn{white-space:nowrap;}
   .td-inv{display:flex; gap:8px; flex-wrap:wrap; align-items:center; flex:1 1 420px; justify-content:flex-end;}
   .td-drop{border:1.5px dashed var(--border-strong); border-radius:7px; padding:7px 10px; font-size:12.5px; color:var(--ink-3); display:flex; align-items:center; gap:10px; min-height:36px;}
@@ -2467,7 +2477,7 @@
   .tqr-leg .tqr-l i{background:transparent; box-shadow:0 0 0 2px var(--bad);}
   @media(max-width:1100px){ .tqb{grid-template-columns:repeat(2,minmax(0,1fr));} }
   @media(max-width:900px){ .tqh{grid-template-columns:minmax(0,1fr);} .tqh-needs{grid-template-columns:repeat(2,minmax(0,1fr));} .tqw{display:flex; overflow-x:auto;} .tqw-d{flex:0 0 96px;} }
-  @media(max-width:600px){ .tqh-nh{white-space:nowrap;} .tqh-nh span{display:none;} .tqh{padding:18px 16px;} .tqh h1{font-size:24px;} .tqh p{font-size:14px;} .tqb{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;} .tqt{padding:14px;} .tqt.w2, .tqt.cd, .tqt.ring-t{grid-column:span 2;} .tqt-big b{font-size:32px;} .tqt.sm .tqt-big b{font-size:26px;} .tqt:not(.w2) .tqt-list{display:none;} .tqt-flow > span{font-size:9.5px;} .tqr-track{height:132px;} }
+  @media(max-width:600px){ .tqb .tqt-top{flex-wrap:wrap; row-gap:6px;} .tqb .tqt-pill{margin-left:0;} .tqb .tqt-lab{white-space:normal;} .tqh-nh{white-space:nowrap;} .tqh-nh span{display:none;} .tqh{padding:18px 16px;} .tqh h1{font-size:24px;} .tqh p{font-size:14px;} .tqb{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;} .tqt{padding:14px;} .tqt.w2, .tqt.cd, .tqt.ring-t{grid-column:span 2;} .tqt-big b{font-size:32px;} .tqt.sm .tqt-big b{font-size:26px;} .tqt:not(.w2) .tqt-list{display:none;} .tqt-flow > span{font-size:9.5px;} .tqr-track{height:132px;} }
   @media (prefers-reduced-motion:reduce){ .tqt-pill.hot, .tqt-flow path, .cj-arrow:before, .tqr-dot{animation:none;} .tqt:hover, .tqh-need:hover, .tqw-d:hover{transform:none;} }
 
   /* Needs You cards even and balanced (31 Oct 2026, Jonna: "make this even / balanced"): every card in a
@@ -2476,6 +2486,7 @@
   .tq-list.mine .td-item{grid-template-rows:minmax(0,1fr) auto auto; align-content:stretch;}
   .tq-list.mine .td-item > .tq-step{align-self:end; padding-top:4px;}
   .tq-list.mine .td-item > .td-acts{display:grid; grid-template-columns:1fr 1fr; gap:8px; align-self:end;}
+  @media(max-width:600px){ .tq-list.mine .td-item > .td-acts{grid-template-columns:1fr;} }
   .tq-list.mine .td-item > .td-acts > *{width:100%; min-width:0; margin:0; justify-content:center; text-align:center; white-space:normal;}
   .tq-list.mine .td-item > .td-acts > :first-child:nth-last-child(2n+1){grid-column:1 / -1;}
   .tq-list.mine .td-item > .td-acts > select, .tq-list.mine .td-item > .td-acts > input{grid-column:1 / -1;}
@@ -4496,7 +4507,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var f0 = byRow(row) || { row: row, org: body.org, program: body.program, product: body.product, kind: body.kind, state: body.state };
             var to0 = aiEmails(a.contactEmail || "");
             if (!to0.length) { var d0 = aiDefaultTo(f0); to0 = aiEmails(d0.email); }
-            if (to0.length && aiRequest(f0, to0, String(a.contactName || "").trim(), inv)) sentMsg = " The invoice goes to " + to0.join(", ") + " on the next run in business hours.";
+            if (!(inv && inv.orderId)) sentMsg = " The invoice was kept but not sent: record the Aptify order number on the record (so the payment can be matched and the email names it), then press Send the Invoice.";
+            else if (to0.length && aiRequest(f0, to0, String(a.contactName || "").trim(), inv)) sentMsg = " The invoice goes to " + to0.join(", ") + " on the next run in business hours.";
             else sentMsg = " The invoice was kept, but there is no email address to send it to: add one on the record and press Send the Invoice.";
         }
         toast(body.org + " added to the board." + sentMsg, sentMsg && sentMsg.indexOf("no email") >= 0 ? "warn" : "good");
@@ -9316,10 +9328,26 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         return MONEY_BY_CERT;
     }
-    function invoiceForRenewal(c) {
+    /* This renewal's invoice (fixed 1 Nov 2026, stress test: the renewal calendar showed NotaryCam,
+       Proof, Remote Notarez and others as Paid from LAST cycle's invoice, which had gone out late
+       and so fell inside the year before the anniversary). When the CMS has this renewal's order
+       number, only that order counts, paid when MISMO Money or the cycle's own record says so.
+       Without one, only an invoice dated in the eight months before the anniversary counts. */
+    function invoiceForRenewal(c, q, byDate) {
         if (!c.anniversary) return null;
-        var from = addDays(c.anniversary, -365);
-        var hits = (moneyIndex()[certKey(c)] || []).filter((function(x) {
+        var list = moneyIndex()[certKey(c)] || [], f = openCycleFor(certKey(c)), ci = f ? invoices[f.row] || invoices[String(f.row)] || null : null;
+        var num = q && q.number ? orderIdOf(q.number) : ci && ci.orderId ? orderIdOf(ci.orderId) : f && f.invoiceNumber ? orderIdOf(f.invoiceNumber) : null;
+        if (num) {
+            var m = list.filter((function(x) { return orderIdOf(x.invoiceNumber) === num; }))[0] || null;
+            var fp = fsPaid(num);
+            var ciPaid = ci && orderIdOf(ci.orderId) === num && (ci.paid || ci.paidOn) ? ci : null;
+            if (m && (m.paid || m.paidOn)) return m;
+            if (fp || ciPaid) return Object.assign({ kind: "renewal", invoiceNumber: num }, m || {}, { paid: (fp && (fp.amount || fp.invoiced)) || (ciPaid && ciPaid.amount) || true, paidOn: (fp && fp.paidOn) || (ciPaid && ciPaid.paidOn) || null });
+            return m || { kind: "renewal", invoiceNumber: num, paid: null, paidOn: null };
+        }
+        if (!byDate) return null;
+        var from = addDays(c.anniversary, -240);
+        var hits = list.filter((function(x) {
             return x.kind === "renewal" && x.invoiceNumber && x.date && x.date >= from;
         })).sort((function(a, b) {
             return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
@@ -9616,7 +9644,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             /* An Aptify number on an old MACTS row belongs to the cycle before (checked against the
                export, 25 Oct 2026). This renewal counts as invoiced only once its invoice is recorded
                here, the same test the weekly Invoices to Raise email uses. */
-            var inv = quoteRaised(q) || tdCyclePaid(c) ? invoiceForRenewal(c) : null;
+            var inv = invoiceForRenewal(c, q, quoteRaised(q) || tdCyclePaid(c));
             return {
                 key: key,
                 cert: c,
