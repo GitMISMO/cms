@@ -2773,6 +2773,26 @@
   .pk-pg.on{background:var(--navy); color:#fff; border-color:var(--navy); border-top-color:var(--k);}
   .pk-pg b{font-size:13px;} .pk-pg small{font-size:11px; color:var(--ink-3);} .pk-pg.on small{color:rgba(255,255,255,.75);}
   .pk-pg.all{border-top-color:var(--border-strong); justify-content:center; font-weight:600; font-size:12.5px;}
+  /* Documents on File */
+  .pk-dtool{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 12px;}
+  .pk-dtool .tq-kinds{margin:0; flex:1 1 auto;} .pk-dtool input{flex:0 1 220px;}
+  .pk-dprog{border:1px solid var(--border); border-radius:10px; background:var(--surface); margin-bottom:12px; overflow:hidden;}
+  .pk-dph{display:flex; align-items:baseline; gap:10px; padding:10px 14px; background:var(--surface-2); border-bottom:1px solid var(--rule);}
+  .pk-dph b{font-size:14px;} .pk-dph span{font-size:12px; color:var(--ink-3);}
+  .pk-dcyc{display:grid; grid-template-columns:120px minmax(0,1fr); gap:12px; align-items:start; padding:10px 14px; border-bottom:1px solid var(--rule);}
+  .pk-dcyc:last-child{border-bottom:0;}
+  .pk-dcl{font-size:12.5px; font-weight:700; color:var(--ink-2); padding-top:6px; display:flex; align-items:center; gap:6px;}
+  .pk-dcl small{font-size:10.5px; font-weight:700; padding:1px 6px; border-radius:4px; background:var(--surface-3); color:var(--ink-3);}
+  .pk-dlist{display:flex; flex-wrap:wrap; gap:6px;}
+  .pk-dd{display:inline-flex; align-items:center; gap:8px; padding:5px 10px 5px 5px; border:1px solid var(--border); border-radius:7px; background:var(--surface);
+    color:var(--ink); text-decoration:none; font-size:12.5px; font-weight:600; max-width:100%; transition:border-color .14s, transform .14s, box-shadow .14s;}
+  .pk-dt{min-width:0; overflow-wrap:anywhere;}
+  .pk-dd:hover{border-color:var(--sky); transform:translateY(-1px); box-shadow:0 6px 14px rgba(6,32,47,.1);}
+  .pk-dx{min-width:38px; height:24px; padding:0 5px; border-radius:5px; display:inline-flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:800; letter-spacing:.04em;
+    background:color-mix(in srgb,var(--x) 15%,transparent); color:var(--x);}
+  :root[data-theme="dark"] .pk-dx{color:color-mix(in srgb,var(--x) 60%,#fff);}
+  .pk-dt em{font-style:normal; font-weight:500; color:var(--ink-3);}
+  @media(max-width:700px){ .pk-dcyc{grid-template-columns:1fr; gap:6px;} .pk-dcl{padding-top:0;} }
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -5118,7 +5138,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         function longest(v) { var dd = 0; L[v].forEach((function(x) { if (x.days != null && x.days > dd) dd = x.days; })); return dd; }
         function tile(v, title, body, opts) {
             opts = opts || {};
-            return '<button type="button" class="tqt' + (opts.cls ? " " + opts.cls : "") + (tq.view === v ? " on" : "") + '" data-tqview="' + v + '" style="--k:' + TQ_K[v] + '" aria-pressed="' + (tq.view === v) + '">'
+            return '<button type="button" class="tqt' + (opts.cls ? " " + opts.cls : "") + (tq.view === v && !(v === "you" && tq.kind === "invoice") ? " on" : "") + '" data-tqview="' + v + '" style="--k:' + TQ_K[v] + '" aria-pressed="' + (tq.view === v) + '">'
                 + '<span class="tqt-top"><span class="tqt-lab">' + esc(title) + "</span>" + (opts.pill ? '<span class="tqt-pill' + (opts.hot ? " hot" : "") + '">' + esc(opts.pill) + "</span>" : "") + "</span>" + body + "</button>";
         }
         function big(n, small) { return '<span class="tqt-big"><b data-count="' + n + '">' + n + "</b>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</span>"; }
@@ -5143,7 +5163,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>", { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>", { cls: "sm" })
             + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>", { cls: "sm" })
-            + '<button type="button" class="tqt sm" data-tqgo="renewals" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Renewing in 30 Days</span></span>' + big(soon30) + '<span class="tqt-sub">Open Renewals ›</span></button>'
+            /* Raise an Invoice as its own tile (Jonna, 1 Nov 2026): opens Needs You showing only the invoice cards */
+            + (function() {
+                var ri = you.filter((function(x) { return x.kind === "invoice" || x.kind === "attach"; })), rl = ri.filter((function(x) { return x.late; })).length;
+                return '<button type="button" class="tqt sm' + (tq.view === "you" && tq.kind === "invoice" ? " on" : "") + '" data-tqinvtile="1" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Raise an Invoice</span>' + (rl ? '<span class="tqt-pill hot">' + rl + " late</span>" : "") + "</span>" + big(ri.length)
+                    + '<span class="tqt-sub">' + (ri.length ? esc(ri[0].org) + (ri.length > 1 ? " and " + (ri.length - 1) + " more" : "") : "Nothing to raise") + "</span></button>";
+            })()
             + "</div>";
         return hero + '<div class="tqw">' + week + "</div>" + tiles;
     }
@@ -5314,7 +5339,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 })).join("") + "</div>";
             var G = TD_GROUPS.filter((function(g) { return g[0] === tq.kind; }))[0];
             help = G ? G[2] : V[2];
-            if (tq.kind !== "all") list = list.filter((function(x) { return x.kind === tq.kind; }));
+            if (tq.kind !== "all") list = list.filter((function(x) { return x.kind === tq.kind || (tq.kind === "invoice" && x.kind === "attach"); }));
         } else help = V[2];
         list = tq.view === "prospects" || how === "task" ? tqSorted(list, "az") : tqSorted(list, how);
         var rows;
@@ -5356,9 +5381,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var host = $("todo");
         if (!host) return;
         host.addEventListener("click", (function(e) {
-            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind],[data-tqgo]") : null;
+            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind],[data-tqgo],[data-tqinvtile]") : null;
             if (!t) return;
             if (t.hasAttribute("data-tqgo")) { if (window.__showView) window.__showView(t.getAttribute("data-tqgo")); return; }
+            if (t.hasAttribute("data-tqinvtile")) {
+                tq.view = "you"; tq.kind = "invoice"; tqKeep(); renderTodo();
+                var ip = host.querySelector(".tq-panel"); if (ip && ip.scrollIntoView) ip.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+            }
             if (t.hasAttribute("data-tqview")) {
                 tq.view = t.getAttribute("data-tqview"); tq.kind = "all"; tqKeep(); renderTodo();
                 if (t.closest(".tqb, .tqh, .cj-map")) { var lp = host.querySelector(".tq-panel"); if (lp && lp.scrollIntoView) lp.scrollIntoView({ behavior: "smooth", block: "start" }); }
@@ -6121,32 +6151,61 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
 
     /* ---- Documents from MACTS (27 Oct 2026): see patches/zz_macts_documents.py ---- */
+    /* Documents on File (1 Nov 2026, Jonna: "can this be organized and look better"): one block per
+       program, one row per cycle (newest first), each document a small tile with its file type in colour;
+       program buttons and a search when there are many. The file name shows on hover. */
     function mactsDocsHTML(org) {
         var idx = D.mactsDocuments || {}, s = slugName(org.name);
         var mine = (idx.files || []).filter((function(x) { return x.org && slugName(x.org) === s; }));
         if (!mine.length) return "";
-        function rank(c) { var m = /Renewal\s*(\d+)/.exec(c || ""); return /Initial/.test(c || "") ? 0 : m ? +m[1] : 99; }
-        var groups = {}, order = [];
+        function rank(c) { var m = /Renewal\s*(\d+)/.exec(c || ""); return !c ? -2 : /Initial/.test(c) ? -1 : m ? +m[1] : -3; }
+        var TYPE_ORDER = [ /application/i, /questionnaire/i, /attestation/i, /artifact|demo/i, /report|result/i, /invoice/i ];
+        function tRank(t) { for (var i = 0; i < TYPE_ORDER.length; i++) if (TYPE_ORDER[i].test(t || "")) return i; return 9; }
+        var EXT = { PDF: "#c94a3b", DOCX: "#2477b8", DOC: "#2477b8", XLSX: "#0f7b5c", XLS: "#0f7b5c", CSV: "#0f7b5c", PPTX: "#d95926", ZIP: "#6b7c8c", PNG: "#9b6bd6", JPG: "#9b6bd6", JPEG: "#9b6bd6" };
+        var progs = {}, porder = [];
         mine.forEach((function(x) {
-            var k = (x.program ? x.program + " " : "") + (x.cycle || "") || "Other Documents";
-            if (!groups[k]) { groups[k] = []; order.push(k); }
-            groups[k].push(x);
+            var p = x.program || "Other";
+            if (!progs[p]) { progs[p] = {}; porder.push(p); }
+            var c = x.cycle || "Other Documents";
+            (progs[p][c] = progs[p][c] || []).push(x);
         }));
-        order.sort((function(a, b) {
-            var ga = groups[a][0], gb = groups[b][0];
-            if (!ga.cycle !== !gb.cycle) return ga.cycle ? -1 : 1;
-            return String(ga.program || "").localeCompare(String(gb.program || "")) || rank(gb.cycle) - rank(ga.cycle);
-        }));
+        porder.sort((function(a, b) { return a === "Other" ? 1 : b === "Other" ? -1 : a.localeCompare(b); }));
         var site = "https://mortgagebankersassociation.sharepoint.com";
-        return '<div class="dsect pk-earlier"><h4>Documents on File <span class="pk-n">' + mine.length + "</span></h4>" + '<div class="pk-docs">'
-            + order.map((function(k) {
-                return '<div class="pk-dgrp"><div class="pk-dgh">' + esc(k) + "</div>"
-                    + groups[k].map((function(x) {
-                        var ext = (String(x.file).match(/\.([a-z0-9]+)$/i) || ["", "file"])[1].toUpperCase();
-                        return '<a class="pk-doc" href="' + esc(site + encodeURI(x.path)) + '" target="_blank" rel="noopener" title="' + esc(x.file) + '"><span class="pk-ext">' + esc(ext) + "</span><span><b>" + esc(x.type || "Document") + "</b><i>" + esc(x.file) + "</i></span></a>";
+        var count = function(p) { var n = 0; for (var c in progs[p]) n += progs[p][c].length; return n; };
+        var many = mine.length > 8 && porder.length > 1;
+        return '<div class="dsect pk-earlier pk-dfile"><h4>Documents on File <span class="pk-n">' + mine.length + "</span></h4>"
+            + (many ? '<div class="pk-dtool"><div class="tq-kinds"><button type="button" class="tq-k on" data-pkdp="">All <b>' + mine.length + "</b></button>"
+                + porder.map((function(p) { return '<button type="button" class="tq-k" data-pkdp="' + esc(p) + '">' + esc(p === "Other" ? "Other" : pkProg(p)) + " <b>" + count(p) + "</b></button>"; })).join("") + "</div>"
+                + '<input type="search" class="pc-input" data-pkdq placeholder="Find a document"></div>' : "")
+            + porder.map((function(p) {
+                var cyc = Object.keys(progs[p]).sort((function(a, b) { return rank(b === "Other Documents" ? "" : b) - rank(a === "Other Documents" ? "" : a); }));
+                return '<div class="pk-dprog" data-pkdprog="' + esc(p) + '"><div class="pk-dph"><b>' + esc(p === "Other" ? "Other Documents" : pkProg(p)) + "</b><span>" + count(p) + " document" + (count(p) === 1 ? "" : "s") + " across " + cyc.length + " cycle" + (cyc.length === 1 ? "" : "s") + "</span></div>"
+                    + cyc.map((function(c) {
+                        var seen = {};
+                        var docs = progs[p][c].slice().sort((function(a, b) { return tRank(a.type) - tRank(b.type) || String(a.file).localeCompare(String(b.file)); }));
+                        return '<div class="pk-dcyc"><div class="pk-dcl">' + esc(c === "Other Documents" ? "Undated" : c) + '<small>' + docs.length + "</small></div><div class=\"pk-dlist\">"
+                            + docs.map((function(x) {
+                                var ext = (String(x.file).match(/\.([a-z0-9]+)$/i) || [ "", "File" ])[1].toUpperCase();
+                                var t = x.type && x.type !== "Other" ? x.type : String(x.file).replace(/^\[[^\]]*\]\s*/, "").replace(/\.[a-z0-9]+$/i, "");
+                                seen[t] = (seen[t] || 0) + 1;
+                                return '<a class="pk-dd" data-pkdhay="' + esc((t + " " + x.file).toLowerCase()) + '" href="' + esc(site + encodeURI(x.path)) + '" target="_blank" rel="noopener" title="' + esc(x.file) + '"><span class="pk-dx" style="--x:' + (EXT[ext] || "#6b7c8c") + '">' + esc(ext) + "</span><span class=\"pk-dt\">" + esc(t) + (seen[t] > 1 ? " <em>(" + seen[t] + ")</em>" : "") + "</span></a>";
+                            })).join("") + "</div></div>";
                     })).join("") + "</div>";
-            })).join("") + "</div></div>";
+            })).join("") + "</div>";
     }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkdp]") : null;
+        if (!t) return;
+        var box = t.closest(".pk-dfile"), p = t.getAttribute("data-pkdp");
+        Array.prototype.forEach.call(box.querySelectorAll("[data-pkdp]"), (function(b) { b.classList.toggle("on", b === t); }));
+        Array.prototype.forEach.call(box.querySelectorAll(".pk-dprog"), (function(d) { d.style.display = !p || d.getAttribute("data-pkdprog") === p ? "" : "none"; }));
+    }));
+    document.addEventListener("input", (function(e) {
+        if (!e.target || !e.target.hasAttribute || !e.target.hasAttribute("data-pkdq")) return;
+        var box = e.target.closest(".pk-dfile"), q = e.target.value.trim().toLowerCase();
+        Array.prototype.forEach.call(box.querySelectorAll(".pk-dd"), (function(a) { a.style.display = !q || a.getAttribute("data-pkdhay").indexOf(q) >= 0 ? "" : "none"; }));
+        Array.prototype.forEach.call(box.querySelectorAll(".pk-dcyc"), (function(r) { r.style.display = r.querySelector('.pk-dd:not([style*="none"])') ? "" : "none"; }));
+    }));
     function renderPanel() {
         markSelectedRow();
         var drawer = $("drawer");
