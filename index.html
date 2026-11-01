@@ -420,7 +420,7 @@
   .tq-tile{position:relative;}
   .tq-tile.on{background:rgba(116,191,235,.22); border-color:var(--sky); box-shadow:0 0 0 1px var(--sky) inset;}
   .tq-tile.on:after{content:""; position:absolute; left:14px; right:14px; bottom:-1px; height:3px; background:var(--sky);}
-  .tq-panel{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px 20px 8px; margin-bottom:20px;}
+  .tq-panel{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px 20px 8px; margin-bottom:20px; scroll-margin-top:84px;}
   .tq-phead h2{font-size:18px; margin:0; display:flex; align-items:center; gap:10px;}
   .tq-phead .tq-n{font-size:12px; font-weight:600; background:var(--chip); color:var(--ink-2); border-radius:4px; padding:2px 8px;}
   .tq-phead p{margin:4px 0 0; color:var(--ink-2); font-size:13px; line-height:1.5;}
@@ -5093,7 +5093,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        is its own list. "Waiting on Others" is gone - each party has its own box and each line says,
        in plain words, what that party is doing next. ---- */
     var TQ_VIEWS = [
-        [ "you", "Needs You", "MISMO has the next move. Each line has the button that does it." ],
+        [ "you", "Needs You", "MISMO has the next move. Each line has the button that does it. Invoices to raise are under Raise an Invoice." ],
+        [ "all", "Everything on Your Plate", "Every task that needs you, the invoices to raise included, most urgent first." ],
+        [ "invoice", "Raise an Invoice", "Renewal invoices to raise in Aptify and email, and invoices still waiting for their PDF." ],
         [ "company", "With the Company", "Nothing for you to do yet. The company has the next move, written on each line. If they go quiet, the line comes back to Needs You as a follow-up." ],
         [ "assessor", "With the Assessor", "Nothing for you to do yet. The assessor has the next move and records it in the Assessor Portal." ],
         [ "jonathan", "With Jonathan", "Results and scope decisions waiting for Jonathan on My Approvals." ],
@@ -5119,7 +5121,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var tq = { view: "you", kind: "all", q: "", sort: {} };
     try { var tqSaved = JSON.parse(localStorage.getItem("cms-tq") || "null"); if (tqSaved) { tq.view = tqSaved.view || "you"; tq.sort = tqSaved.sort || {}; } } catch (e) {}
     function tqKeep() { try { localStorage.setItem("cms-tq", JSON.stringify({ view: tq.view, sort: tq.sort })); } catch (e) {} }
-    function tqSortOf(v) { return tq.sort[v] || (v === "you" ? "task" : "az"); }
+    function tqSortOf(v) { return tq.sort[v] || (v === "you" || v === "invoice" || v === "all" ? "task" : "az"); }
     function tqDaysTxt(d) { return d == null ? "" : d <= 0 ? "today" : d === 1 ? "1 day" : d + " days"; }
     /* every Needs You line as {kind, label, org, prog, days, late, html} */
     function tqMine(m) {
@@ -5165,7 +5167,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tqHero(m, L, mineN, lateN, waitN, sub) {
         var now = new Date(), hr = now.getHours(), first = me && me.name ? String(me.name).split(/\s+/)[0] : "";
         var DOW = [ "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" ], MO = [ "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" ];
-        var you = L.you.slice().sort((function(a, b) { return (b.late ? 1 : 0) - (a.late ? 1 : 0) || (b.days || 0) - (a.days || 0); }));
+        var you = L.all.slice().sort((function(a, b) { return (b.late ? 1 : 0) - (a.late ? 1 : 0) || (b.days || 0) - (a.days || 0); }));
         var up = tqUpcoming(), ann = up.filter((function(x) { return x.kind === "anniv" && x.n >= 0; }));
         var soon30 = ann.filter((function(x) { return x.n <= 30; })).length;
         var bits = [];
@@ -5184,7 +5186,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var hero = '<div class="tqh"><div class="tqh-hi"><div class="tqh-eb">' + DOW[now.getDay()] + ", " + MO[now.getMonth()] + " " + now.getDate() + "</div>"
             + "<h1>" + (hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + esc(first) : "") + "</h1><p>" + say + "</p></div>"
             + '<div class="tqh-needs"><div class="tqh-nh">On Your Plate <span>most urgent first</span>'
-            + (mineN > 6 ? '<button type="button" class="tqh-all" data-tqview="you">See All ' + mineN + " →</button>" : "") + "</div>"
+            + (mineN > 6 ? '<button type="button" class="tqh-all" data-tqview="all">See All ' + mineN + " →</button>" : "") + "</div>"
             + (plate || '<div class="tqh-nempty">Nothing needs you. Everything is moving.</div>') + "</div></div>";
         /* the week strip */
         var week = "";
@@ -5203,7 +5205,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         function longest(v) { var dd = 0; L[v].forEach((function(x) { if (x.days != null && x.days > dd) dd = x.days; })); return dd; }
         function tile(v, title, body, opts) {
             opts = opts || {};
-            return '<button type="button" class="tqt' + (opts.cls ? " " + opts.cls : "") + (tq.view === v && !(v === "you" && tq.kind === "invoice") ? " on" : "") + '" data-tqview="' + v + '" style="--k:' + TQ_K[v] + '" aria-pressed="' + (tq.view === v) + '">'
+            return '<button type="button" class="tqt' + (opts.cls ? " " + opts.cls : "") + (tq.view === v ? " on" : "") + '" data-tqview="' + v + '" style="--k:' + TQ_K[v] + '" aria-pressed="' + (tq.view === v) + '">'
                 + '<span class="tqt-top"><span class="tqt-lab">' + esc(title) + "</span>" + (opts.pill ? '<span class="tqt-pill' + (opts.hot ? " hot" : "") + '">' + esc(opts.pill) + "</span>" : "") + "</span>" + body + "</button>";
         }
         function big(n, small) { return '<span class="tqt-big"><b data-count="' + n + '">' + n + "</b>" + (small ? "<small>" + esc(small) + "</small>" : "") + "</span>"; }
@@ -5211,8 +5213,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var pct = live.length ? Math.round(current / live.length * 100) : 0, C = 2 * Math.PI * 46;
         var nextA = ann[0];
         var tiles = '<div class="tqb">'
-            + tile("you", "Needs You", big(mineN, mineN === 1 ? "task" : "tasks") + '<span class="tqt-meter"><i style="width:' + (mineN ? Math.round((mineN - lateN) / mineN * 100) : 100) + '%"></i></span>'
-                + '<span class="tqt-sub">' + (lateN ? lateN + " overdue · " : "") + (mineN - lateN) + " on time</span>" + '<span class="tqt-list">' + mini(you, 3) + "</span>", { cls: "w2", pill: lateN ? lateN + " late" : "all on time", hot: !!lateN })
+            + (function() {
+                var yl = you.filter((function(x) { return x.kind !== "invoice" && x.kind !== "attach"; })), yN = yl.length, yLate = yl.filter((function(x) { return x.late; })).length;
+                return tile("you", "Needs You", big(yN, yN === 1 ? "task" : "tasks") + '<span class="tqt-meter"><i style="width:' + (yN ? Math.round((yN - yLate) / yN * 100) : 100) + '%"></i></span>'
+                + '<span class="tqt-sub">' + (yLate ? yLate + " overdue · " : "") + (yN - yLate) + " on time · invoices are their own tile</span>" + '<span class="tqt-list">' + mini(yl, 3) + "</span>", { cls: "w2", pill: yLate ? yLate + " late" : "all on time", hot: !!yLate });
+            })()
             + '<div class="tqt cd" style="--k:#74bfeb"><span class="tqt-top"><span class="tqt-lab">Next Anniversary</span></span>'
                 + (nextA ? '<span class="tqt-ep"><b>' + esc(nextA.org) + "</b><small>" + esc(nextA.label.replace(" anniversary", "")) + " · " + esc(fmt(nextA.iso)) + "</small></span>"
                     + '<span class="tqt-cd" data-cd="' + nextA.iso + '"><span><b data-cdp="d">' + nextA.n + "</b><small>Days</small></span><span><b data-cdp=\"h\">00</b><small>Hrs</small></span><span><b data-cdp=\"m\">00</b><small>Min</small></span><span><b data-cdp=\"s\">00</b><small>Sec</small></span></span>"
@@ -5231,7 +5236,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             /* Raise an Invoice as its own tile (Jonna, 1 Nov 2026): opens Needs You showing only the invoice cards */
             + (function() {
                 var ri = you.filter((function(x) { return x.kind === "invoice" || x.kind === "attach"; })), rl = ri.filter((function(x) { return x.late; })).length;
-                return '<button type="button" class="tqt sm' + (tq.view === "you" && tq.kind === "invoice" ? " on" : "") + '" data-tqinvtile="1" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Raise an Invoice</span>' + (rl ? '<span class="tqt-pill hot">' + rl + " late</span>" : "") + "</span>" + big(ri.length)
+                return '<button type="button" class="tqt sm' + (tq.view === "invoice" ? " on" : "") + '" data-tqinvtile="1" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Raise an Invoice</span>' + (rl ? '<span class="tqt-pill hot">' + rl + " late</span>" : "") + "</span>" + big(ri.length)
                     + '<span class="tqt-sub">' + (ri.length ? esc(ri[0].org) + (ri.length > 1 ? " and " + (ri.length - 1) + " more" : "") : "Nothing to raise") + "</span></button>";
             })()
             + "</div>";
@@ -5323,7 +5328,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function cjOpen() { return (D.inFlight || []).filter((function(f) { return f && tdOpen(f); })); }
     function tqLists(m) {
-        var L = { you: tqMine(m), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
+        var mineAll = tqMine(m), isInv = function(x) { return x.kind === "invoice" || x.kind === "attach"; };
+        var L = { all: mineAll, you: mineAll.filter(function(x) { return !isInv(x); }), invoice: mineAll.filter(isInv), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
         [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
         /* one list per journey stop, every open certification at it, with whose move it is */
         var open = cjOpen();
@@ -5373,7 +5379,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         tdSubscribe();
         var m = tdModel(), L = tqLists(m);
         if (!L[tq.view]) tq.view = "you";
-        var mineN = L.you.length, lateN = L.you.filter((function(x) { return x.late; })).length;
+        var mineN = L.all.length, lateN = L.all.filter((function(x) { return x.late; })).length, MINEV = tq.view === "you" || tq.view === "invoice" || tq.view === "all";
         var waitN = 0;
         [ "company", "assessor", "jonathan", "system" ].forEach((function(v) { waitN += L[v].length; }));
         function longest(v) { var d = 0; L[v].forEach((function(x) { if (x.days != null && x.days > d) d = x.days; })); return d; }
@@ -5390,11 +5396,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var band = tqHero(m, L, mineN, lateN, waitN, sub);
         var V = TQ_VIEWS.filter((function(v) { return v[0] === tq.view; }))[0], list = L[tq.view], how = tqSortOf(tq.view);
         if (!V && /^stop\d$/.test(tq.view)) { var cj0 = CJ[+tq.view.slice(4)]; V = [ tq.view, cj0.t, "Every open certification at this stop of the journey, whoever has the move. Usually: " + cj0.who + "." ]; }
-        var sorts = tq.view === "you" ? [ [ "task", "By Task" ], [ "az", "Company A–Z" ], [ "late", "Most Overdue" ] ] : tq.view === "prospects" ? [] : [ [ "az", "Company A–Z" ], [ "long", "Longest Waiting" ] ];
+        var sorts = MINEV ? [ [ "task", "By Task" ], [ "az", "Company A–Z" ], [ "late", "Most Overdue" ] ] : tq.view === "prospects" ? [] : [ [ "az", "Company A–Z" ], [ "long", "Longest Waiting" ] ];
         var tools = '<div class="tq-tools"><input type="search" class="pc-input tq-search" data-tqsearch placeholder="Find a company" aria-label="Find a company" value="' + esc(tq.q) + '">'
             + (sorts.length ? '<div class="segbar tq-sort" role="group" aria-label="Sort">' + sorts.map((function(s) { return '<button class="seg' + (how === s[0] ? " on" : "") + '" type="button" data-tqsort="' + s[0] + '">' + esc(s[1]) + "</button>"; })).join("") + "</div>" : "") + "</div>";
         var kinds = "", help = "";
-        if (tq.view === "you") {
+        if (MINEV) {
             var byK = {};
             list.forEach((function(x) { byK[x.kind] = (byK[x.kind] || 0) + 1; }));
             if (tq.kind !== "all" && !byK[tq.kind]) tq.kind = "all";
@@ -5408,8 +5414,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         } else help = V[2];
         list = tq.view === "prospects" || how === "task" ? tqSorted(list, "az") : tqSorted(list, how);
         var rows;
-        if (!list.length) rows = '<div class="td-clear">' + (tq.view === "you" ? "Nothing needs you right now." : "Nobody is here right now.") + "</div>";
-        else if (tq.view === "you") {
+        if (!list.length) rows = '<div class="td-clear">' + (MINEV ? (tq.view === "invoice" ? "No invoice to raise right now." : "Nothing needs you right now.") : "Nobody is here right now.") + "</div>";
+        else if (MINEV) {
             var line = function(x) { var h = how === "task" ? x.html.replace(/<span class="tq-kind[^"]*">[\s\S]*?<\/span>/, "") : x.html; return h.replace('<div class="td-item', '<div data-tqhay="' + tqHay(x) + '" class="td-item'); };
             rows = '<div class="tq-list mine">' + (how === "task" ? TD_GROUPS.map((function(g) {
                 var part = list.filter((function(x) { return x.kind === g[0]; }));
@@ -5428,7 +5434,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + '<span class="cj-n">' + rows.length + '</span><span class="cj-t">' + esc(j.t) + '</span><span class="cj-w">' + esc(j.who) + "</span>"
                     + (mm ? '<span class="cj-me">' + mm + " with MISMO</span>" : "") + "</button>";
             })).join('<span class="cj-arrow" aria-hidden="true"></span>') + "</div></div>";
-        host.innerHTML = band + journey + tqRoad() + listBox;
+        host.innerHTML = band + listBox + journey + tqRoad();
         tqFilter();
         tqAfterPaint(host);
         if (typeof pkInvRefresh === "function") pkInvRefresh();
@@ -5450,7 +5456,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (!t) return;
             if (t.hasAttribute("data-tqgo")) { if (window.__showView) window.__showView(t.getAttribute("data-tqgo")); return; }
             if (t.hasAttribute("data-tqinvtile")) {
-                tq.view = "you"; tq.kind = "invoice"; tqKeep(); renderTodo();
+                tq.view = "invoice"; tq.kind = "all"; tqKeep(); renderTodo();
                 var ip = host.querySelector(".tq-panel"); if (ip && ip.scrollIntoView) ip.scrollIntoView({ behavior: "smooth", block: "start" });
                 return;
             }
