@@ -2423,6 +2423,13 @@
   .tqt-cd > span{flex:1; background:rgba(0,0,0,.25); border:1px solid var(--line); border-radius:8px; padding:6px 4px; text-align:center; min-width:0;}
   .tqt-cd b{display:block; font-size:20px; line-height:1.1; font-variant-numeric:tabular-nums;}
   .tqt-cd small{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);}
+  .tqt-sl{display:none; flex-direction:column; gap:10px; flex:1 1 auto; min-height:0;}
+  .tqt-sl.on{display:flex; animation:tqSl .35s ease;}
+  @keyframes tqSl{from{opacity:0; transform:translateX(8px);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){ .tqt-sl.on{animation:none;} }
+  .tqt-dots{display:flex; gap:6px; flex-wrap:wrap;}
+  .tqt-dots button{width:9px; height:9px; padding:0; border-radius:50%; border:1px solid rgba(116,191,235,.6); background:transparent; cursor:pointer;}
+  .tqt-dots button.on{background:var(--sky); border-color:var(--sky);}
   .tqt-go{align-self:flex-start; margin-top:auto; height:28px; padding:0 11px; border:1px solid rgba(116,191,235,.45); border-radius:6px; background:rgba(255,255,255,.08); color:#fff; font:inherit; font-size:12px; font-weight:700; cursor:pointer;}
   .tqt-go:hover{background:rgba(255,255,255,.16);}
   .tqt-ring{position:relative; width:110px; height:110px; align-self:center;}
@@ -5147,7 +5154,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        tiles (each one opens its list below), a countdown to the next anniversary, a ring for how much
        of the register is current, and The Road Ahead: every dated thing in the next sixty days. ---- */
     var TQ_K = { you: "#e0a83c", company: "#74bfeb", assessor: "#9b8cff", jonathan: "#ff8a7a", system: "#3ccb7f", later: "#c9a2ff", hold: "#9aa9b6", prospects: "#5fb3c9" };
-    var tqAnimated = false, tqTick = null;
+    var tqAnimated = false, tqTick = null, tqCd = { i: 0, n: 0, hold: false, at: 0 };
     function tqEm(t) { return "<em>" + esc(t) + "</em>"; }
     function tqDayLabel(iso) { var d = parseDay(iso); if (!d) return ""; var n = daysBetween(TODAY, d); return n < 0 ? "Late" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : fmt(iso).replace(/, \d{4}$/, ""); }
     function tqUpcoming() {
@@ -5174,7 +5181,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         bits.push(mineN ? tqEm(mineN + (mineN === 1 ? " thing needs" : " things need")) + " you" + (lateN ? ", " + tqEm(lateN + " overdue") : "") : "nothing needs you right now");
         if (you[0]) bits.push("start with " + tqEm(you[0].org) + " — " + esc(you[0].label.replace(/^Follow Up: /, "").toLowerCase()));
         if (waitN) bits.push(tqEm(String(waitN)) + " are moving with the company, an assessor or Jonathan");
-        if (ann[0]) bits.push(tqEm(ann[0].org) + " renews " + (ann[0].n === 0 ? "today" : "in " + tqEm(ann[0].n + (ann[0].n === 1 ? " day" : " days"))));
+        if (ann[0]) {
+            var sameD = ann.filter((function(x) { return x.n === ann[0].n && x.org !== ann[0].org; })).map((function(x) { return x.org; })).filter((function(o, i, a) { return a.indexOf(o) === i; }));
+            bits.push(tqEm(ann[0].org) + (sameD.length === 1 ? " and " + tqEm(sameD[0]) : sameD.length > 1 ? " and " + sameD.length + " others" : "") + (sameD.length ? " renew " : " renews ") + (ann[0].n === 0 ? "today" : "in " + tqEm(ann[0].n + (ann[0].n === 1 ? " day" : " days"))));
+        }
         var say = bits.join("; ") + ".";
         say = say.charAt(0) === "<" ? say : say.charAt(0).toUpperCase() + say.slice(1);
         var plate = you.slice(0, 6).map((function(x) {
@@ -5218,11 +5228,25 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return tile("you", "Needs You", big(yN, yN === 1 ? "task" : "tasks") + '<span class="tqt-meter"><i style="width:' + (yN ? Math.round((yN - yLate) / yN * 100) : 100) + '%"></i></span>'
                 + '<span class="tqt-sub">' + (yLate ? yLate + " overdue · " : "") + (yN - yLate) + " on time · invoices are their own tile</span>" + '<span class="tqt-list">' + mini(yl, 3) + "</span>", { cls: "w2", pill: yLate ? yLate + " late" : "all on time", hot: !!yLate });
             })()
-            + '<div class="tqt cd" style="--k:#74bfeb"><span class="tqt-top"><span class="tqt-lab">Next Anniversary</span></span>'
-                + (nextA ? '<span class="tqt-ep"><b>' + esc(nextA.org) + "</b><small>" + esc(nextA.label.replace(" anniversary", "")) + " · " + esc(fmt(nextA.iso)) + "</small></span>"
-                    + '<span class="tqt-cd" data-cd="' + nextA.iso + '"><span><b data-cdp="d">' + nextA.n + "</b><small>Days</small></span><span><b data-cdp=\"h\">00</b><small>Hrs</small></span><span><b data-cdp=\"m\">00</b><small>Min</small></span><span><b data-cdp=\"s\">00</b><small>Sec</small></span></span>"
-                    + '<button type="button" class="tqt-go" ' + nextA.attr + ">Open the Record ›</button>"
-                  : '<span class="tqt-sub">No anniversary in the next sixty days.</span>') + "</div>"
+            /* Next Anniversary rotates through every company renewing in the next 30 days (or the next one,
+               when none is that close), soonest first; dots pick one, hovering holds it still (Jonna, 1 Nov 2026) */
+            + (function() {
+                var rot = ann.filter((function(x) { return x.n <= 30; }));
+                if (!rot.length && ann[0]) rot = [ ann[0] ];
+                if (tqCd.i >= rot.length) tqCd.i = 0;
+                tqCd.n = rot.length;
+                var slides = rot.map((function(a, i) {
+                    var same = rot.filter((function(y) { return y.n === a.n; })).length;
+                    return '<div class="tqt-sl' + (i === tqCd.i ? " on" : "") + '" data-tqsl="' + i + '"><span class="tqt-ep"><b>' + esc(a.org) + "</b><small>" + esc(a.label.replace(" anniversary", "")) + " · " + esc(fmt(a.iso))
+                        + (same > 1 ? " · " + same + " that day" : "") + "</small></span>"
+                        + '<span class="tqt-cd" data-cd="' + a.iso + '"><span><b data-cdp="d">' + a.n + "</b><small>Days</small></span><span><b data-cdp=\"h\">00</b><small>Hrs</small></span><span><b data-cdp=\"m\">00</b><small>Min</small></span><span><b data-cdp=\"s\">00</b><small>Sec</small></span></span>"
+                        + '<button type="button" class="tqt-go" ' + a.attr + ">Open the Record ›</button></div>";
+                })).join("");
+                var dots = rot.length > 1 ? '<span class="tqt-dots">' + rot.map((function(a, i) { return '<button type="button" class="' + (i === tqCd.i ? "on" : "") + '" data-tqcd="' + i + '" aria-label="' + esc(a.org) + '" title="' + esc(a.org + " · " + fmt(a.iso)) + '"></button>'; })).join("") + "</span>" : "";
+                return '<div class="tqt cd" style="--k:#74bfeb"><span class="tqt-top"><span class="tqt-lab">' + (rot.length > 1 ? "Renewing Soon" : "Next Anniversary") + "</span>"
+                    + (rot.length > 1 ? '<span class="tqt-pill" data-tqcdn>' + (tqCd.i + 1) + " of " + rot.length + "</span>" : "") + "</span>"
+                    + (rot.length ? slides + dots : '<span class="tqt-sub">No anniversary in the next sixty days.</span>') + "</div>";
+            })()
             + '<div class="tqt ring-t" style="--k:#3ccb7f"><span class="tqt-top"><span class="tqt-lab">The Register</span><span class="tqt-pill">' + live.length + ' live</span></span>'
                 + '<span class="tqt-ring"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="46"></circle><circle class="rv" cx="55" cy="55" r="46" style="stroke-dasharray:' + C.toFixed(1) + ";stroke-dashoffset:" + (tqAnimated ? (C * (1 - pct / 100)).toFixed(1) : C.toFixed(1)) + '" data-ring="' + (C * (1 - pct / 100)).toFixed(1) + '"></circle></svg><span><b><span data-count="' + pct + '">' + pct + "</span>%</b><small>Current</small></span></span>"
                 + '<span class="tqt-sub">' + current + " of " + live.length + " certifications are current" + (live.length - current ? "; " + (live.length - current) + " past their anniversary" : "") + ".</span></div>"
@@ -5260,6 +5284,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="tqr-track"><span class="tqr-line"></span><span class="tqr-past" style="width:' + ((0 - from) / span * 100).toFixed(2) + '%"></span><span class="tqr-today" style="left:' + ((0 - from) / span * 100).toFixed(2) + '%"><b>TODAY</b></span>' + dots + ticks + "</div>"
             + '<div class="tqr-leg">' + Object.keys(TQ_RK).map((function(k) { var n = up.filter((function(x) { return x.kind === k; })).length; return '<span><i style="--k:' + TQ_RK[k][0] + '"></i>' + esc(TQ_RK[k][1]) + " <b>" + n + "</b></span>"; })).join("") + (late ? '<span class="tqr-l"><i></i>' + late + " already past</span>" : "") + "</div></div>";
     }
+    function tqCdShow(i) {
+        tqCd.i = i;
+        Array.prototype.forEach.call(document.querySelectorAll("#todo [data-tqsl]"), (function(el) { el.classList.toggle("on", +el.getAttribute("data-tqsl") === i); }));
+        Array.prototype.forEach.call(document.querySelectorAll("#todo [data-tqcd]"), (function(el) { el.classList.toggle("on", +el.getAttribute("data-tqcd") === i); }));
+        var n = document.querySelector("#todo [data-tqcdn]"); if (n) n.textContent = (i + 1) + " of " + tqCd.n;
+    }
     function tqAfterPaint(host) {
         var reduce = false;
         try { reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
@@ -5277,12 +5307,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             Array.prototype.forEach.call(host.querySelectorAll("[data-ring]"), (function(c) { requestAnimationFrame((function() { requestAnimationFrame((function() { c.style.strokeDashoffset = c.getAttribute("data-ring"); })); })); }));
         }
         function tick() {
-            var el = document.querySelector("#todo [data-cd]");
-            if (!el) return;
-            var p = String(el.getAttribute("data-cd")).split("-"), end = new Date(+p[0], +p[1] - 1, +p[2]).getTime(), ms = Math.max(0, end - Date.now());
-            var d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), mi = Math.floor(ms % 36e5 / 6e4), se = Math.floor(ms % 6e4 / 1e3);
-            function put(k, v) { var b = el.querySelector('[data-cdp="' + k + '"]'); if (b) b.textContent = k === "d" ? String(v) : (v < 10 ? "0" : "") + v; }
-            put("d", d); put("h", h); put("m", mi); put("s", se);
+            Array.prototype.forEach.call(document.querySelectorAll("#todo [data-cd]"), (function(el) {
+                var p = String(el.getAttribute("data-cd")).split("-"), end = new Date(+p[0], +p[1] - 1, +p[2]).getTime(), ms = Math.max(0, end - Date.now());
+                var d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), mi = Math.floor(ms % 36e5 / 6e4), se = Math.floor(ms % 6e4 / 1e3);
+                function put(k, v) { var b = el.querySelector('[data-cdp="' + k + '"]'); if (b) b.textContent = k === "d" ? String(v) : (v < 10 ? "0" : "") + v; }
+                put("d", d); put("h", h); put("m", mi); put("s", se);
+            }));
+            if (tqCd.n > 1 && !tqCd.hold && ++tqCd.at >= 6) { tqCd.at = 0; tqCdShow((tqCd.i + 1) % tqCd.n); }
+        }
+        var cdt = host.querySelector(".tqt.cd");
+        if (cdt) {
+            cdt.addEventListener("mouseenter", (function() { tqCd.hold = true; }));
+            cdt.addEventListener("mouseleave", (function() { tqCd.hold = false; tqCd.at = 0; }));
+            cdt.addEventListener("focusin", (function() { tqCd.hold = true; }));
+            cdt.addEventListener("focusout", (function() { tqCd.hold = false; }));
         }
         tick();
         if (!tqTick) tqTick = setInterval(tick, 1000);
@@ -5473,8 +5511,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var host = $("todo");
         if (!host) return;
         host.addEventListener("click", (function(e) {
-            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind],[data-tqgo],[data-tqinvtile]") : null;
+            var t = e.target && e.target.closest ? e.target.closest("[data-tqview],[data-tqsort],[data-tqkind],[data-tqgo],[data-tqinvtile],[data-tqcd]") : null;
             if (!t) return;
+            if (t.hasAttribute("data-tqcd")) { tqCd.at = 0; tqCdShow(+t.getAttribute("data-tqcd")); return; }
             if (t.hasAttribute("data-tqgo")) { if (window.__showView) window.__showView(t.getAttribute("data-tqgo")); return; }
             if (t.hasAttribute("data-tqinvtile")) {
                 tq.view = "invoice"; tq.kind = "all"; tqKeep(); renderTodo();
