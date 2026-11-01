@@ -2658,6 +2658,121 @@
   .pk-by{font-size:12px; color:var(--ink-3); white-space:nowrap; text-align:right;}
   @media(max-width:760px){ .pk-act{grid-template-columns:32px minmax(0,1fr);} .pk-at{grid-column:2; order:3;} .pk-by{grid-column:2; text-align:left; order:4;} }
   @media(max-width:600px){ .pk-b .tqt-top{flex-wrap:wrap; row-gap:6px;} .pk-b .tqt-pill{margin-left:0;} .pk-b .tqt-lab{white-space:normal;} }
+  /* Renewals: the calendar and the notice strip */
+  #rn-ahead, #nt-list{display:none;}
+  .pk-rtool{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 10px;}
+  .pk-rtool input{flex:0 1 240px;}
+  .pk-rtool .tq-kinds{margin:0; flex:1 1 auto;}
+  .pk-rmode{margin-left:auto;}
+  .pk-rleg{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-3); margin:0 0 14px;}
+  .pk-rleg span{display:inline-flex; align-items:center; gap:6px;}
+  .pk-rleg span:before{content:""; width:10px; height:10px; border-radius:2px; background:var(--sc);}
+  .s-due{--sc:#c94a3b;} .s-soon{--sc:#e0a83c;} .s-later{--sc:#74bfeb;} .s-sent{--sc:#9b8cff;} .s-paid{--sc:#3ccb7f;} .s-hold{--sc:#9aa9b6;}
+  .pk-rcal{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr)); gap:12px;}
+  .pk-rcol{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:8px; min-width:0;}
+  .pk-rcol:first-child{background:var(--sky-wash); border-color:var(--sky);}
+  :root[data-theme="dark"] .pk-rcol:first-child{background:rgba(116,191,235,.1);}
+  .pk-rch{display:flex; flex-direction:column; gap:1px; padding:2px 2px 6px; border-bottom:1px solid var(--rule);}
+  .pk-rch b{font-size:15px;} .pk-rch span{font-size:11.5px; color:var(--ink-3);}
+  .pk-rnone{font-size:12px; color:var(--ink-3); padding:10px 2px;}
+  .pk-rc{display:flex; gap:10px; align-items:center; text-align:left; width:100%; position:relative;
+    padding:9px 10px; border:1px solid var(--border); border-left:4px solid var(--sc); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; cursor:pointer;
+    transition:transform .14s, box-shadow .14s;}
+  .pk-rc:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.12);}
+  .pk-rc .cmono{display:none;}
+  .pk-rd{display:flex; flex-direction:column; align-items:center; justify-content:center; width:38px; height:38px; border-radius:7px; background:var(--surface-3); line-height:1;}
+  .pk-rd b{font-size:16px;} .pk-rd small{font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:2px;}
+  .pk-rb{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; padding-right:30px;}
+  .pk-rd{flex:0 0 38px;}
+  .pk-rb b{font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pk-rb small{font-size:11px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pk-rs{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:3px;}
+  .pk-rs em{font-style:normal; font-size:11.5px; font-weight:700; color:var(--ink-2); font-variant-numeric:tabular-nums;}
+  .pk-rs em.bad{color:var(--bad); font-weight:600;}
+  .pk-st{font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:4px; background:color-mix(in srgb,var(--sc) 18%,transparent); color:color-mix(in srgb,var(--sc) 75%,var(--ink));}
+  .pk-rn{position:absolute; top:8px; right:10px; font-size:11px; font-weight:700; color:var(--ink-3);}
+  .pk-rlist{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr)); gap:10px;}
+  .pk-rlist .pk-rc .cmono{display:inline-flex; width:34px; height:34px; flex:0 0 34px; font-size:12px;}
+  
+  .pk-ntd{display:grid; grid-auto-flow:column; grid-auto-columns:minmax(250px,1fr); gap:10px; overflow-x:auto; padding-bottom:6px;}
+  .pk-ntday{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:8px;}
+  .pk-ntday.now{border-color:#3ccb7f; box-shadow:inset 0 3px 0 #3ccb7f;}
+  .pk-ntdh{display:flex; align-items:center; justify-content:space-between;}
+  .pk-ntdh b{font-size:14px;} .pk-ntdh span{font-size:12px; font-weight:700; padding:1px 7px; border-radius:4px; background:var(--surface-3);}
+  .pk-nt{display:flex; gap:10px; align-items:flex-start; text-align:left; padding:9px 10px; border:1px solid var(--border); border-left:3px solid #3ccb7f; border-radius:8px; background:var(--surface);
+    color:var(--ink); font:inherit; cursor:pointer; transition:transform .14s, box-shadow .14s;}
+  .pk-nt:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.12);}
+  .pk-nt.nomail{border-left-color:var(--bad);}
+  .pk-nt .cmono{width:32px; height:32px; flex:0 0 32px; font-size:12px;}
+  .pk-nt > span:last-child{min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .pk-nt b{font-size:13px;} .pk-nt small{font-size:11px; color:var(--ink-3);}
+  .pk-nt i{font-style:normal; font-size:12px; color:var(--ink-2); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .pk-nt em{font-style:normal; font-size:11px; font-weight:600; color:var(--good);}
+  .pk-nt.nomail em{color:var(--bad);}
+  .rn-heldrow{border:1px solid var(--border); border-left:4px solid #9aa9b6; border-radius:8px; padding:12px 14px; margin-bottom:8px; background:var(--surface);}
+  /* New Certifications */
+  #newcerts-panel > .filters, #newcerts-panel #nc-caveat, #newcerts-panel #nc-list, #newcerts-panel #nc-lede{display:none !important;}
+  .pk-nctool{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 10px;}
+  .pk-ncp{margin:0 0 16px;}
+  .pk-ncp .tq-k{border-left:3px solid var(--k, var(--border-strong));}
+  .pk-ncsum{display:grid; grid-template-columns:minmax(220px,1fr) minmax(0,2fr); gap:18px; align-items:stretch; margin-bottom:20px;}
+  .pk-ncbig{display:flex; flex-direction:column; justify-content:center; gap:6px; padding:18px; border-radius:10px; color:#fff;
+    background:radial-gradient(120% 90% at 100% 0%,rgba(116,191,235,.3),transparent 60%),linear-gradient(160deg,#10324a,#0b2436);}
+  .pk-ncbig b{font-size:48px; line-height:1;} .pk-ncbig span{font-size:13.5px; color:rgba(255,255,255,.82);}
+  .pk-ncbig .lc-btn{align-self:flex-start; margin-top:6px; background:rgba(255,255,255,.1); color:#fff; border-color:rgba(255,255,255,.3);}
+  .pk-ncchart{border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:var(--surface-2);}
+  .pk-ncch{font-size:12px; font-weight:700; color:var(--ink-2); margin-bottom:6px;} .pk-ncch span{font-weight:500; color:var(--ink-3); margin-left:6px;}
+  .pk-ncy{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; height:150px; align-items:end;}
+  .pk-ncyb{height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:stretch; gap:4px; border:0; background:none; padding:0; cursor:pointer; font:inherit; color:var(--ink);}
+  .pk-ncyt{text-align:center; font-size:12px; min-height:16px;}
+  .pk-ncys{display:flex; flex-direction:column-reverse; border-radius:4px 4px 0 0; overflow:hidden; min-height:2px; transition:transform .15s;}
+  .pk-ncys i{display:block; min-height:2px;}
+  .pk-ncyb small{font-size:11px; font-weight:700; color:var(--ink-3); text-align:center;}
+  .pk-ncyb:hover .pk-ncys{transform:scaleX(1.06);}
+  .pk-ncyb.on small{color:var(--ink);} .pk-ncyb.on .pk-ncys{box-shadow:0 0 0 2px var(--sky);}
+  .pk-ncm{margin-bottom:18px;}
+  .pk-ncmh{display:flex; align-items:center; gap:8px; margin-bottom:8px;} .pk-ncmh b{font-size:15px;}
+  .pk-ncg{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr)); gap:10px;}
+  .pk-ncc{display:flex; gap:10px; align-items:flex-start; text-align:left; padding:11px 12px; border:1px solid var(--border); border-left:4px solid var(--k); border-radius:8px;
+    background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; transition:transform .14s, box-shadow .14s;}
+  .pk-ncc:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.12);}
+  .pk-ncc .cmono{width:34px; height:34px; flex:0 0 34px; font-size:12px;}
+  .pk-ncc > span:last-child{min-width:0; display:flex; flex-direction:column; gap:2px; flex:1;}
+  .pk-ncc b{font-size:13.5px;} .pk-ncc small{font-size:11.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pk-ncct{display:flex; gap:5px; align-items:center; flex-wrap:wrap; margin-top:4px;} .pk-ncct em{font-style:normal; margin-left:auto; font-size:11.5px; font-weight:600; color:var(--ink-2);}
+  .tag.good{background:rgba(15,123,92,.14); color:var(--good);}
+  @media(max-width:760px){ .pk-ncsum{grid-template-columns:1fr;} }
+  /* Lifecycle */
+  #lcgrid.lcgrid{display:block;}
+  .pk-lcmap{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding:2px 2px 8px; margin-bottom:12px;}
+  .pk-lcs{flex:1 1 0; min-width:118px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-align:left; padding:12px; border:1px solid var(--border);
+    border-top:3px solid var(--sky); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; transition:transform .14s, box-shadow .14s;}
+  .pk-lcs:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.1);}
+  .pk-lcs.on{background:var(--navy); color:#fff; border-color:var(--navy); border-top-color:#e0a83c;}
+  .pk-lcs.on small{color:rgba(255,255,255,.75);} .pk-lcs.on em{color:#e0a83c;}
+  .pk-lcs b{font-size:13.5px;} .pk-lcs small{font-size:11px; color:var(--ink-3); line-height:1.3;}
+  .pk-lcs em{font-style:normal; font-size:11px; font-weight:700; color:var(--warn); margin-top:2px;}
+  .pk-lcn{width:22px; height:22px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; background:var(--surface-3); color:var(--ink-2);}
+  .pk-lcs.on .pk-lcn{background:#e0a83c; color:#2a1d05;}
+  .pk-lcar{flex:0 0 14px; align-self:center; height:2px; background:var(--border-strong); position:relative;}
+  .pk-lcar:after{content:""; position:absolute; right:-1px; top:-4px; border:5px solid transparent; border-left-color:var(--border-strong);}
+  .pk-lcw{margin:0 0 14px;} .pk-lcw .tq-k{border-left:3px solid var(--k, var(--border-strong));}
+  .pk-lcg{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr)); gap:10px;}
+  .pk-lcc{border:1px solid var(--border); border-left:4px solid var(--k); border-radius:8px; padding:12px 14px; background:var(--surface); transition:box-shadow .14s;}
+  .pk-lcc.focus{box-shadow:0 0 0 2px var(--sky);}
+  .pk-lch{display:flex; align-items:center; gap:8px; justify-content:space-between;} .pk-lch b{font-size:14px;}
+  .pk-lcm{font-size:12px; color:var(--ink-3); margin-top:3px;} .pk-lcwho{font-weight:700; color:var(--k);}
+  .pk-lcnx{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; align-items:center;}
+  .pk-lcnx small{width:100%; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);}
+  .pk-lcto{font:inherit; font-size:11.5px; padding:3px 8px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); color:var(--ink-2); cursor:pointer; white-space:nowrap;}
+  .pk-lcto:hover{border-color:var(--sky); color:var(--ink); background:var(--surface);}
+  .pk-pgp{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr)); gap:8px; margin:0 0 16px;}
+  .pk-pg{display:flex; flex-direction:column; gap:2px; text-align:left; padding:10px 12px; border:1px solid var(--border); border-top:3px solid var(--k); border-radius:8px;
+    background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; transition:transform .14s, box-shadow .14s;}
+  .pk-pg:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.1);}
+  .pk-pg.on{background:var(--navy); color:#fff; border-color:var(--navy); border-top-color:var(--k);}
+  .pk-pg b{font-size:13px;} .pk-pg small{font-size:11px; color:var(--ink-3);} .pk-pg.on small{color:rgba(255,255,255,.75);}
+  .pk-pg.all{border-top-color:var(--border-strong); justify-content:center; font-weight:600; font-size:12.5px;}
 </style>
 <script src="/assets/session.js"></script>
 </head>
@@ -2961,6 +3076,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <select id="nc-program"><option value="">All Programs</option></select>
       </div>
       <div class="note" id="nc-caveat"></div>
+      <div id="pk-nc"></div>
       <div id="nc-list"></div>
     </div>
 </section>
@@ -3088,9 +3204,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
     <div class="panel" id="pk-rn-ahead">
       <div class="phead"><div>
-        <h2>Coming Up</h2>
-        <p class="psub">Every renewal in the next six months whose invoice is not due yet. Nothing to do with these today; each one moves to Needs an Invoice two weeks before its invoice is due.</p>
+        <h2>The Next Six Months</h2>
+        <p class="psub">Every renewal by the month it falls in, with where its invoice stands. Choose a card to open the renewal; each one moves to Needs an Invoice on the Invoices page two weeks before its invoice is due.</p>
       </div></div>
+      <div id="pk-rn-cal"></div>
       <div id="rn-ahead"></div>
     </div>
 
@@ -3120,6 +3237,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <div class="fld rn-act"><span class="na-hint" id="nt-count"></span></div>
       </div>
       <div id="nt-caveat"></div>
+      <div id="pk-nt-strip"></div>
       <div id="nt-list"></div>
     </div>
 
@@ -3212,7 +3330,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div class="lcgrid" id="lcgrid"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel pk-gone">
       <div class="phead"><div>
         <h2>The Assessor Portal, Configured</h2>
         <p class="psub">Confirmed as the goal. This is the place assessors sign in and
@@ -3253,7 +3371,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel pk-gone">
       <h2>States the Assessor Owns Today</h2>
       <p class="psub">Recording work in any of these moves the cycle on and updates Status, Phase and
         Waiting-On everywhere else at the same time. That is the interconnection: one state, three views.</p>
@@ -9487,6 +9605,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (db2) db2.innerHTML = dn.length ? '<div class="etable"><div class="ehead renew">' + "<span>Company</span><span>Program</span><span>Quote By</span>" + '<span class="num">Anniversary</span><span class="num">Fee</span><span>Due</span></div>' + dn.map(renewalRowHTML).join("") + "</div>" : '<div class="empty">None marked as raised yet.</div>';
         renewalPip();
         wireRenewals();
+        try { pkRenewCal(); } catch (e) { if (window.console) console.error("Renewal calendar:", e); }
     }
     function wireRenewals() {
         var sel = $("rn-window");
@@ -9951,6 +10070,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (cav) cav.innerHTML = noMail ? '<div class="qwatch">' + noMail + (noMail === 1 ? " of these has" : " of these have") + " no email address on the company record, so there is nowhere to send " + (noMail === 1 ? "it" : "them") + ". Add a contact email on the company record.</div>" : "";
         box.innerHTML = due.length ? '<div class="etable"><div class="ehead notice">' + "<span>Company</span><span>Notice</span><span>Subject</span>" + '<span class="num">Sends</span><span>When</span></div>' + due.map(noticeRowHTML).join("") + "</div>" : '<div class="empty">No notice falls due in the next ' + noticeWindow + " days.</div>";
         wireNotices();
+        try { pkNoticeStrip(); } catch (e) { if (window.console) console.error("Notice strip:", e); }
     }
     function wireNotices() {
         var sel = $("nt-window");
@@ -10037,9 +10157,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var demo = P.filter((function(p) { return p.demo; })).length;
             html = pkHero({ title: "Programs", say: "The process is the same for every program: apply, agree, pay, be assessed, remediate, be decided on, renew. What differs is set here: the documents asked for, whether there is a demonstration, and how long the term and grace are." })
                 + pkBoard([
-                    { lab: "Certifying Today", n: liveP.length, k: "#3ccb7f", sub: liveP.map((function(p) { return p.code || p.name; })).join(" · ") },
-                    { lab: "Set Up, Not Certifying Yet", n: ready.length, k: "#74bfeb", sub: ready.length ? ready.map((function(p) { return p.name; })).join(", ") : "none" },
-                    { lab: "Still to Be Written", n: todo.length, k: "#e0a83c", sub: todo.length ? todo.map((function(p) { return p.code || p.name; })).join(" · ") : "none" },
+                    { lab: "Certifying Today", n: liveP.length, k: "#3ccb7f", attr: 'data-pkpgst="Live"', on: pkPg && pkPg.st === "Live", sub: liveP.map((function(p) { return p.code || p.name; })).join(" · ") },
+                    { lab: "Set Up, Not Certifying Yet", n: ready.length, k: "#74bfeb", attr: ready.length ? 'data-pkpgst="Configured"' : "", on: pkPg && pkPg.st === "Configured", sub: ready.length ? ready.map((function(p) { return p.name; })).join(", ") : "none" },
+                    { lab: "Still to Be Written", n: todo.length, k: "#e0a83c", attr: todo.length ? 'data-pkpgst="ToBeAuthored"' : "", on: pkPg && pkPg.st === "ToBeAuthored", sub: todo.length ? todo.map((function(p) { return p.code || p.name; })).join(" · ") : "none" },
                     { lab: "With a Demonstration", n: demo, k: "#c9a2ff", sub: (P.length - demo) + " assessed on documents or an interview" }
                 ]);
         } else if (view === "lifecycle") {
@@ -10047,10 +10167,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             ks.forEach((function(k) { var w = String(STATE[k].waiting || "nobody").toLowerCase(); var g = /assessor/.test(w) ? "Assessor" : /company/.test(w) ? "Company" : /mismo|vp|president/.test(w) ? "MISMO" : "Nobody (closed)"; by[g] = (by[g] || 0) + 1; }));
             html = pkHero({ title: "Lifecycle", say: "Every state a certification can be in, who has the move, and where it may go next. The system enforces this table, so the board and the rules cannot drift apart." })
                 + pkBoard([
-                    { lab: "States", n: ks.length, k: "#74bfeb", sub: "from Draft to Certified" },
-                    { lab: "The Assessor's Move", n: by.Assessor || 0, k: "#9b8cff", sub: "recorded in the Assessor Portal" },
-                    { lab: "The Company's Move", n: by.Company || 0, k: "#e0a83c", sub: "on its own pages and emails" },
-                    { lab: "MISMO's Move", n: by.MISMO || 0, k: "#3ccb7f", sub: "on the Action Queue" }
+                    { lab: "States", n: ks.length, k: "#74bfeb", attr: 'data-pklcwho="all"', sub: "from Draft to Certified" },
+                    { lab: "The Assessor's Move", n: by.Assessor || 0, k: "#9b8cff", attr: 'data-pklcwho="assessor"', sub: "recorded in the Assessor Portal" },
+                    { lab: "The Company's Move", n: by.Company || 0, k: "#e0a83c", attr: 'data-pklcwho="company"', sub: "on its own pages and emails" },
+                    { lab: "MISMO's Move", n: by.MISMO || 0, k: "#3ccb7f", attr: 'data-pklcwho="mismo"', sub: "on the Action Queue" }
                 ]);
         } else if (view === "forms") {
             var live = document.querySelectorAll("#fq-live .fq-row, #fq-live tbody tr, #fq-live .fqrow").length;
@@ -10062,6 +10182,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         host.innerHTML = html;
         pkAnimate(host);
+        if (view === "programs") pkProgPick();
     }
     function pkProg(t) { try { return typeof PROG !== "undefined" && PROG ? progName(t) : t; } catch (e) { return t; } }
     function pkMoney(n) { return n >= 1e6 ? "$" + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1e4 ? "$" + Math.round(n / 1e3) + "K" : money0(n); }
@@ -10274,6 +10395,230 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             requestAnimationFrame(step);
         }));
     }
+    /* ══ Renewals, inside (1 Nov 2026, Jonna: "renewals still looks old ... 10x interactive"). The next six
+       months as a live calendar: one column a month, every renewal a card with its day, fee and where its
+       invoice stands; program buttons, a search, and Calendar / List. The notices going out are a strip of
+       days. Each card opens the renewal (or the notice) on the right. ══ */
+    var pkRn = pkRn || { prog: "all", mode: "cal", q: "", month: null };
+    function pkRnStatus(r) {
+        if (r.hold) return [ "On Hold", "hold" ];
+        var inv = r.invoice, q = r.quote;
+        if (inv && (inv.paid || inv.paidOn)) return [ "Paid", "paid" ];
+        if (quoteRaised(q) || inv) return [ "Invoice Sent", "sent" ];
+        if (r.dueIn != null && r.dueIn <= 0) return [ "Invoice Due", "due" ];
+        if (r.dueIn != null && r.dueIn <= 14) return [ "Invoice in " + r.dueIn + "d", "soon" ];
+        return [ "Invoice by " + fmt(r.quoteBy).replace(/, \d{4}$/, ""), "later" ];
+    }
+    function pkRenewCal() {
+        var host = $("pk-rn-cal");
+        if (!host) return;
+        if (!pkRn) pkRn = { prog: "all", mode: "cal", q: "", month: null };
+        var rows = renewalRows().filter((function(r) { var d = parseDay(r.cert.anniversary); if (!d) return false; r._n = daysBetween(TODAY, d); return r._n >= 0 && r._n <= 183; }));
+        var progs = {};
+        rows.forEach((function(r) { progs[r.cert.program] = (progs[r.cert.program] || 0) + 1; }));
+        var list = rows.filter((function(r) {
+            if (pkRn.prog !== "all" && r.cert.program !== pkRn.prog) return false;
+            if (pkRn.q && ((r.cert.org + " " + (r.cert.product || "")).toLowerCase().indexOf(pkRn.q.toLowerCase()) < 0)) return false;
+            return true;
+        })).sort((function(a, b) { return a._n - b._n || a.cert.org.localeCompare(b.cert.org); }));
+        var MO = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+        function card(r) {
+            var st = pkRnStatus(r), d = parseDay(r.cert.anniversary);
+            return '<button type="button" class="pk-rc s-' + st[1] + '" data-pkrn="' + esc(r.key) + '" title="Open the renewal">'
+                + '<span class="pk-rd"><b>' + d.getDate() + "</b><small>" + MO[d.getMonth()].slice(0, 3) + "</small></span>"
+                + cmono(r.cert.org) + '<span class="pk-rb"><b>' + esc(r.cert.org) + "</b><small>" + esc(r.cert.program) + (r.cert.product ? " · " + esc(r.cert.product) : "") + "</small>"
+                + '<span class="pk-rs"><span class="pk-st s-' + st[1] + '">' + esc(st[0]) + "</span>" + (r.expected != null ? "<em>" + esc(money0(r.expected)) + "</em>" : '<em class="bad">price not set</em>') + "</span></span>"
+                + '<span class="pk-rn">' + (r._n === 0 ? "today" : r._n + "d") + "</span></button>";
+        }
+        var cols = [];
+        for (var i = 0; i < 7; i++) { var y = TODAY.getFullYear() + Math.floor((TODAY.getMonth() + i) / 12), m = (TODAY.getMonth() + i) % 12; cols.push({ y: y, m: m, items: [] }); }
+        list.forEach((function(r) { var d = parseDay(r.cert.anniversary); cols.forEach((function(c) { if (c.y === d.getFullYear() && c.m === d.getMonth()) c.items.push(r); })); }));
+        /* the rest of this month may hold nothing: start with the first month that has a renewal */
+        if (!cols[0].items.length) cols.shift(); else cols.pop();
+        var tools = '<div class="pk-rtool"><input type="search" class="pc-input" data-pkrnq placeholder="Find a company" value="' + esc(pkRn.q) + '">'
+            + '<div class="tq-kinds"><button type="button" class="tq-k' + (pkRn.prog === "all" ? " on" : "") + '" data-pkrnp="all">All <b>' + rows.length + "</b></button>"
+            + Object.keys(progs).sort().map((function(p) { return '<button type="button" class="tq-k' + (pkRn.prog === p ? " on" : "") + '" data-pkrnp="' + esc(p) + '">' + esc(p) + " <b>" + progs[p] + "</b></button>"; })).join("") + "</div>"
+            + '<div class="segbar pk-rmode"><button type="button" class="seg' + (pkRn.mode === "cal" ? " on" : "") + '" data-pkrnm="cal">Calendar</button><button type="button" class="seg' + (pkRn.mode === "list" ? " on" : "") + '" data-pkrnm="list">List</button></div></div>'
+            + '<div class="pk-rleg"><span class="s-due">Invoice due</span><span class="s-soon">Invoice within 14 days</span><span class="s-later">Invoice later</span><span class="s-sent">Invoice sent</span><span class="s-paid">Paid</span><span class="s-hold">On hold</span></div>';
+        var body;
+        if (!list.length) body = '<div class="empty">No renewal matches. <button type="button" class="lc-btn ghost" data-pkrnp="all">Show Every Program</button></div>';
+        else if (pkRn.mode === "list") body = '<div class="pk-rlist">' + list.map(card).join("") + "</div>";
+        else body = '<div class="pk-rcal">' + cols.map((function(c) {
+            var fee = c.items.reduce((function(t, r) { return t + (r.expected || 0); }), 0);
+            return '<div class="pk-rcol' + (c.items.length ? "" : " empty") + '"><div class="pk-rch"><b>' + MO[c.m] + "</b><span>" + c.items.length + " renewal" + (c.items.length === 1 ? "" : "s") + (fee ? " · " + pkMoney(fee) : "") + "</span></div>"
+                + (c.items.length ? c.items.map(card).join("") : '<div class="pk-rnone">Nothing renews</div>') + "</div>";
+        })).join("") + "</div>";
+        host.innerHTML = tools + body;
+    }
+    function pkNoticeStrip() {
+        var host = $("pk-nt-strip");
+        if (!host) return;
+        var due = [];
+        try { due = noticeDue(); } catch (e) {}
+        if (!due.length) { host.innerHTML = '<div class="empty">No notices go out in this window. Choose a longer window above.</div>'; return; }
+        var days = {}, order = [];
+        due.forEach((function(r) { if (!days[r.sendOn]) { days[r.sendOn] = []; order.push(r.sendOn); } days[r.sendOn].push(r); }));
+        order.sort();
+        host.innerHTML = '<div class="pk-ntd">' + order.map((function(d) {
+            var n = daysBetween(TODAY, parseDay(d));
+            return '<div class="pk-ntday' + (n <= 0 ? " now" : "") + '"><div class="pk-ntdh"><b>' + (n <= 0 ? "Today" : n === 1 ? "Tomorrow" : esc(new Date(parseDay(d)).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }))) + "</b><span>" + days[d].length + "</span></div>"
+                + days[d].map((function(r) {
+                    return '<button type="button" class="pk-nt' + (r.to.length ? "" : " nomail") + '" data-pknt="' + esc(r.key) + '">' + cmono(r.cert.org) + '<span><b>' + esc(r.cert.org) + "</b><small>Notice " + esc(r.notice) + " · " + esc(r.cert.program) + "</small><i>" + esc(r.subject) + "</i>"
+                        + '<em>' + (r.to.length ? r.to.length + " recipient" + (r.to.length === 1 ? "" : "s") : "no email on file") + "</em></span></button>";
+                })).join("") + "</div>";
+        })).join("") + "</div>";
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkrn],[data-pkrnp],[data-pkrnm],[data-pknt]") : null;
+        if (!t) return;
+        if (t.hasAttribute("data-pkrn")) { openRenewal(t.getAttribute("data-pkrn")); return; }
+        if (t.hasAttribute("data-pknt")) { panel = { mode: "notice", key: t.getAttribute("data-pknt") }; renderPanel(); return; }
+        if (t.hasAttribute("data-pkrnp")) pkRn.prog = t.getAttribute("data-pkrnp");
+        if (t.hasAttribute("data-pkrnm")) pkRn.mode = t.getAttribute("data-pkrnm");
+        pkRenewCal();
+    }));
+    document.addEventListener("input", (function(e) {
+        if (!e.target || !e.target.hasAttribute || !e.target.hasAttribute("data-pkrnq")) return;
+        pkRn.q = e.target.value;
+        var pos = e.target.selectionStart;
+        pkRenewCal();
+        var i = document.querySelector("[data-pkrnq]");
+        if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} }
+    }));
+    /* ══ New Certifications, inside Certified Counts (1 Nov 2026). Buttons instead of dropdowns, a chart of
+       the years by program (choose a year to see it), and a wall of cards by month, each opening the
+       certification. ══ */
+    var pkNc = pkNc || { kind: "initial", per: "summit", prog: "", year: "" };
+    function pkNewCerts() {
+        var host = $("pk-nc");
+        if (!host) return;
+        if (!pkNc) pkNc = { kind: "initial", per: "summit", prog: "", year: "" };
+        var ev = [];
+        (D.certifications || []).forEach((function(c) {
+            (c.cycleHistory || []).forEach((function(cy) { if (cy.completedOn) ev.push({ c: c, org: c.org, program: c.program, product: c.product, kind: cy.kind === "initial" ? "initial" : "renewal", n: cy.renewalNumber, on: cy.completedOn }); }));
+        }));
+        ev.sort((function(a, b) { return a.on < b.on ? 1 : a.on > b.on ? -1 : a.org.localeCompare(b.org); }));
+        var S = (D.summits && D.summits.summits || []).filter((function(x) { return x.endsOn <= D.asOf; })).sort((function(a, b) { return a.endsOn < b.endsOn ? 1 : -1; }));
+        var yr = String(TODAY.getFullYear());
+        var pers = [];
+        if (S[0]) pers.push([ "summit", "Since " + S[0].name, S[0].endsOn, null ]);
+        pers.push([ "year", "This Year", yr + "-01-00", null ], [ "last", "Last Year", String(+yr - 1) + "-01-00", String(+yr - 1) + "-12-32" ], [ "all", "All Time", null, null ]);
+        var P = pers.filter((function(x) { return x[0] === pkNc.per; }))[0] || pers[0];
+        var base = ev.filter((function(e) { return (pkNc.kind === "all" || e.kind === pkNc.kind); }));
+        var inPer = base.filter((function(e) { return (!P[2] || e.on > P[2]) && (!P[3] || e.on < P[3]); }));
+        if (!inPer.length && pkNc.per !== "all") {   /* never an empty wall: widen to the next period that has some */
+            for (var k = 0; k < pers.length; k++) { var Q = pers[k]; var hit = base.filter((function(e) { return (!Q[2] || e.on > Q[2]) && (!Q[3] || e.on < Q[3]); })); if (hit.length) { P = Q; pkNc.per = Q[0]; inPer = hit; break; } }
+        }
+        var list = inPer.filter((function(e) { return (!pkNc.prog || e.program === pkNc.prog) && (!pkNc.year || e.on.slice(0, 4) === pkNc.year); }));
+        var progs = {};
+        inPer.forEach((function(e) { progs[e.program] = (progs[e.program] || 0) + 1; }));
+        var pc = function(t) { return (PROG.filter((function(p) { return p.type === t; }))[0] || {}).colour || "var(--c1)"; };
+        /* the years chart: first-time (or the chosen kind) by program, last seven years */
+        var years = [];
+        for (var y = +yr - 6; y <= +yr; y++) years.push(String(y));
+        var byY = {}, maxY = 1;
+        years.forEach((function(y) { byY[y] = {}; }));
+        base.forEach((function(e) { var y = e.on.slice(0, 4); if (!byY[y]) return; byY[y][e.program] = (byY[y][e.program] || 0) + 1; }));
+        years.forEach((function(y) { var t = 0; for (var p in byY[y]) t += byY[y][p]; byY[y]._t = t; maxY = Math.max(maxY, t); }));
+        var chart = '<div class="pk-ncy">' + years.map((function(y) {
+            var segs = Object.keys(byY[y]).filter((function(p) { return p !== "_t"; })).sort();
+            return '<button type="button" class="pk-ncyb' + (pkNc.year === y ? " on" : "") + '" data-pkncy="' + y + '" title="' + esc(segs.map((function(p) { return p + ": " + byY[y][p]; })).join(", ") || "none") + '">'
+                + '<span class="pk-ncyt"><b>' + (byY[y]._t || "") + "</b></span><span class=\"pk-ncys\" style=\"height:" + Math.round((byY[y]._t || 0) / maxY * 100) + '%">'
+                + segs.map((function(p) { return '<i style="flex:' + byY[y][p] + ";background:" + pc(p) + '"></i>'; })).join("") + "</span><small>" + y + "</small></button>";
+        })).join("") + "</div>";
+        var MO = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+        var months = [], seen = {};
+        list.forEach((function(e) { var m = e.on.slice(0, 7); if (!seen[m]) { seen[m] = []; months.push(m); } seen[m].push(e); }));
+        var wall = months.map((function(m) {
+            return '<div class="pk-ncm"><div class="pk-ncmh"><b>' + MO[+m.slice(5, 7) - 1] + " " + m.slice(0, 4) + '</b><span class="pk-n">' + seen[m].length + "</span></div><div class=\"pk-ncg\">"
+                + seen[m].map((function(e) {
+                    return '<button type="button" class="pk-ncc" data-pkcert="' + esc(certKey(e.c)) + '" style="--k:' + pc(e.program) + '">' + cmono(e.org) + '<span><b>' + esc(e.org) + "</b><small>" + esc(e.product || pkProg(e.program)) + "</small>"
+                        + '<span class="pk-ncct"><span class="tag" style="background:color-mix(in srgb,' + pc(e.program) + ' 20%,transparent)">' + esc(e.program) + "</span>" + (e.kind === "renewal" ? '<span class="tag">Renewal' + (e.n ? " " + e.n : "") + "</span>" : '<span class="tag good">First Time</span>') + "<em>" + esc(fmt(e.on).replace(/, \d{4}$/, "")) + "</em></span></span></button>";
+                })).join("") + "</div></div>";
+        })).join("");
+        host.innerHTML = '<div class="pk-nctool"><div class="segbar">' + pers.map((function(x) { return '<button type="button" class="seg' + (P[0] === x[0] ? " on" : "") + '" data-pkncper="' + x[0] + '">' + esc(x[1]) + "</button>"; })).join("") + "</div>"
+            + '<div class="segbar">' + [ [ "initial", "First-Time" ], [ "renewal", "Renewals" ], [ "all", "Both" ] ].map((function(x) { return '<button type="button" class="seg' + (pkNc.kind === x[0] ? " on" : "") + '" data-pknck="' + x[0] + '">' + x[1] + "</button>"; })).join("") + "</div></div>"
+            + '<div class="tq-kinds pk-ncp"><button type="button" class="tq-k' + (!pkNc.prog ? " on" : "") + '" data-pkncp="">All Programs <b>' + inPer.length + "</b></button>"
+            + Object.keys(progs).sort().map((function(p) { return '<button type="button" class="tq-k' + (pkNc.prog === p ? " on" : "") + '" data-pkncp="' + esc(p) + '" style="--k:' + pc(p) + '">' + esc(p) + " <b>" + progs[p] + "</b></button>"; })).join("") + "</div>"
+            + '<div class="pk-ncsum"><div class="pk-ncbig"><b>' + list.length + "</b><span>" + (pkNc.kind === "renewal" ? "renewals" : pkNc.kind === "all" ? "certifications completed" : "first-time certifications") + " " + (pkNc.year ? "in " + pkNc.year : esc(P[1].charAt(0).toLowerCase() + P[1].slice(1))) + (pkNc.prog ? ", " + esc(pkProg(pkNc.prog)) : "") + "</span>"
+            + (pkNc.year || pkNc.prog ? '<button type="button" class="lc-btn ghost" data-pkncclear="1">Show All</button>' : "") + '</div><div class="pk-ncchart"><div class="pk-ncch">' + (pkNc.kind === "renewal" ? "Renewals" : pkNc.kind === "all" ? "Completed" : "First-Time") + " by Year <span>choose a year</span></div>" + chart + "</div></div>"
+            + (wall || '<div class="empty">Nothing in this view.</div>');
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkncper],[data-pknck],[data-pkncp],[data-pkncy],[data-pkncclear]") : null;
+        if (!t) return;
+        if (t.hasAttribute("data-pkncper")) { pkNc.per = t.getAttribute("data-pkncper"); pkNc.year = ""; }
+        if (t.hasAttribute("data-pknck")) pkNc.kind = t.getAttribute("data-pknck");
+        if (t.hasAttribute("data-pkncp")) pkNc.prog = t.getAttribute("data-pkncp");
+        if (t.hasAttribute("data-pkncy")) { var y = t.getAttribute("data-pkncy"); pkNc.year = pkNc.year === y ? "" : y; if (pkNc.year) pkNc.per = "all"; }
+        if (t.hasAttribute("data-pkncclear")) { pkNc.year = ""; pkNc.prog = ""; }
+        pkNewCerts();
+    }));
+    /* ══ Lifecycle, interactive (1 Nov 2026): the seven stops as a map you can click, buttons for whose
+       move it is, every state as a card with how many certifications sit there now, and its next states
+       as buttons that take you to them. ══ */
+    var pkLc = pkLc || { stop: -1, who: "all", focus: "" };
+    function pkLcWho(s) { return s.terminal ? "closed" : s.ownedByAssessor ? "assessor" : s.ownedByCompany ? "company" : "mismo"; }
+    function pkLifecycle() {
+        var host = $("lcgrid");
+        if (!host) return;
+        if (!pkLc) pkLc = { stop: -1, who: "all", focus: "" };
+        var here = {};
+        (D.inFlight || []).forEach((function(f) { if (f && !fuClosed(f)) { var st = currentState(f); here[st] = (here[st] || 0) + 1; } }));
+        var stopOf = function(st) { for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return -1; };
+        var WHO = { mismo: [ "MISMO", "#74bfeb" ], company: [ "The Company", "#e0a83c" ], assessor: [ "The Assessor", "#9b8cff" ], closed: [ "Closed", "#9aa9b6" ] };
+        var map = '<div class="pk-lcmap"><button type="button" class="pk-lcs' + (pkLc.stop < 0 ? " on" : "") + '" data-pklcstop="-1"><b>All</b><small>' + D.states.length + " states</small></button>"
+            + CJ.map((function(c, i) {
+                var n = c.s.reduce((function(t, st) { return t + (here[st] || 0); }), 0);
+                return '<span class="pk-lcar"></span><button type="button" class="pk-lcs' + (pkLc.stop === i ? " on" : "") + '" data-pklcstop="' + i + '"><span class="pk-lcn">' + (i + 1) + "</span><b>" + esc(c.t) + "</b><small>" + esc(c.who) + "</small>" + (n ? "<em>" + n + " here now</em>" : "") + "</button>";
+            })).join("") + "</div>";
+        var cnt = { all: 0 };
+        D.states.forEach((function(s) { if (pkLc.stop >= 0 && stopOf(s.state) !== pkLc.stop) return; cnt.all++; var w = pkLcWho(s); cnt[w] = (cnt[w] || 0) + 1; }));
+        var who = '<div class="tq-kinds pk-lcw"><button type="button" class="tq-k' + (pkLc.who === "all" ? " on" : "") + '" data-pklcwho="all">Everyone <b>' + cnt.all + "</b></button>"
+            + Object.keys(WHO).map((function(k) { return '<button type="button" class="tq-k' + (pkLc.who === k ? " on" : "") + '" data-pklcwho="' + k + '" style="--k:' + WHO[k][1] + '">' + WHO[k][0] + "&rsquo;s Move <b>" + (cnt[k] || 0) + "</b></button>"; })).join("").replace("Closed&rsquo;s Move", "Closed") + "</div>";
+        var list = D.states.filter((function(s) { return (pkLc.stop < 0 || stopOf(s.state) === pkLc.stop) && (pkLc.who === "all" || pkLcWho(s) === pkLc.who); }));
+        host.innerHTML = map + who + '<div class="pk-lcg">' + (list.length ? list.map((function(s) {
+            var w = pkLcWho(s), n = here[s.state] || 0;
+            return '<div class="pk-lcc' + (pkLc.focus === s.state ? " focus" : "") + '" id="pklc-' + esc(s.state) + '" style="--k:' + WHO[w][1] + '"><div class="pk-lch"><b>' + esc(titleOfState(s.state)) + "</b>" + (n ? '<span class="pk-n warm">' + n + " here</span>" : "") + "</div>"
+                + '<div class="pk-lcm"><span class="pk-lcwho">' + WHO[w][0] + (w === "closed" ? "" : "&rsquo;s move") + "</span> · " + esc(s.status) + " · " + esc(s.phase) + "</div>"
+                + (s.next.length ? '<div class="pk-lcnx"><small>Can move to</small>' + s.next.map((function(t) { return '<button type="button" class="pk-lcto" data-pklcto="' + esc(t) + '">' + esc(titleOfState(t)) + "</button>"; })).join("") + "</div>" : '<div class="pk-lcnx"><small>The end of the road</small></div>') + "</div>";
+        })).join("") : '<div class="empty">No state matches. <button type="button" class="lc-btn ghost" data-pklcwho="all">Show Everyone</button></div>') + "</div>";
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pklcstop],[data-pklcwho],[data-pklcto]") : null;
+        if (!t) return;
+        if (t.hasAttribute("data-pklcstop")) { pkLc.stop = +t.getAttribute("data-pklcstop"); pkLc.focus = ""; }
+        if (t.hasAttribute("data-pklcwho")) pkLc.who = t.getAttribute("data-pklcwho");
+        if (t.hasAttribute("data-pklcto")) { pkLc.focus = t.getAttribute("data-pklcto"); pkLc.stop = -1; pkLc.who = "all"; }
+        pkLifecycle();
+        if (pkLc.focus) { var el = $("pklc-" + pkLc.focus); if (el) { var y = el.getBoundingClientRect().top + window.pageYOffset - 120; window.scrollTo({ top: y, behavior: "smooth" }); el.classList.remove("pk-flash"); void el.offsetWidth; el.classList.add("pk-flash"); } }
+    }));
+    /* Programs: one program at a time, chosen from buttons (1 Nov 2026) - each with its own colour and
+       status; the figure boxes above choose a group. */
+    var pkPg = pkPg || { code: "", st: "" };
+    function pkProgPick() {
+        var el = $("proglist");
+        if (!el || !D.programs) return;
+        if (!pkPg) pkPg = { code: "", st: "" };
+        var bar = $("pk-progpick");
+        if (!bar) { bar = document.createElement("div"); bar.id = "pk-progpick"; el.parentNode.insertBefore(bar, el); }
+        var P = D.programs, ST = { Live: [ "Certifying", "#3ccb7f" ], Configured: [ "Set Up", "#74bfeb" ], ToBeAuthored: [ "To Be Written", "#e0a83c" ] };
+        var shown = P.filter((function(p) { return !pkPg.st || p.status === pkPg.st; }));
+        if (!pkPg.code || !shown.some((function(p) { return p.code === pkPg.code; }))) pkPg.code = (shown[0] || P[0]).code;
+        bar.innerHTML = '<div class="pk-pgp">' + shown.map((function(p) {
+            var st = ST[p.status] || [ p.status, "#9aa9b6" ];
+            return '<button type="button" class="pk-pg' + (p.code === pkPg.code ? " on" : "") + '" data-pkpg="' + esc(p.code) + '" style="--k:' + st[1] + '"><b>' + esc(p.name) + "</b><small>" + esc(st[0]) + (p.certifications ? " · " + p.active + " active" : "") + "</small></button>";
+        })).join("") + (pkPg.st ? '<button type="button" class="pk-pg all" data-pkpgst="">Show Every Program</button>' : "") + "</div>";
+        Array.prototype.forEach.call(el.querySelectorAll(".prog"), (function(d) { d.style.display = d.id === "prog-" + pkPg.code ? "" : "none"; }));
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkpg],[data-pkpgst]") : null;
+        if (!t) return;
+        if (t.hasAttribute("data-pkpg")) pkPg.code = t.getAttribute("data-pkpg");
+        if (t.hasAttribute("data-pkpgst")) { var v = t.getAttribute("data-pkpgst"); pkPg.st = pkPg.st === v ? "" : v; pkPg.code = ""; }
+        pkProgPick();
+        try { pkSetupHero("programs"); } catch (x) {}
+    }));
     function renderAll() {
         renderInvoices();
         renderInvoicePip();
@@ -10577,7 +10922,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             } catch (e) {}
         }));
     })();
-    var PANEL_OPENERS = "#drawer, .rowbtn, .col, .card, .cnt-row, .drow, .erow, .qpick, " + ".hl-tile, .ss-item, .ss-results, .stat" + ", [data-tdopen], [data-tdcert], [data-tdrenewal], [data-tdorg], [data-tdinv], [data-tdstart], [data-pkcert], [data-pkrow], .cx-co, .pk-card";
+    var PANEL_OPENERS = "#drawer, .rowbtn, .col, .card, .cnt-row, .drow, .erow, .qpick, " + ".hl-tile, .ss-item, .ss-results, .stat" + ", [data-tdopen], [data-tdcert], [data-tdrenewal], [data-tdorg], [data-tdinv], [data-tdstart], [data-pkcert], [data-pkrow], .cx-co, .pk-card, [data-pkrn], [data-pknt], .pk-act";
     document.addEventListener("click", (function(e) {
         if (!panel) return;
         if (!e.target.isConnected) return;
@@ -14155,6 +14500,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return s.ownedByAssessor && !s.terminal;
     })).map(lcCard).join("");
     $("lcgrid").innerHTML = D.states.map(lcCard).join("");
+    try { pkLifecycle(); } catch (e) { if (window.console) console.error("Lifecycle:", e); }
     var orgFilters = {
         status: "",
         q: "",
@@ -14694,6 +15040,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }));
         }));
         try { renderCountsX(m); } catch (e) { if (window.console) console.error("The Register:", e); }
+        try { pkNewCerts(); } catch (e) { if (window.console) console.error("New Certifications:", e); }
         var everCount = D.certifications.length;
         $("cnt-foot").innerHTML = "<b>What is counted.</b> A live certification is one the records show as active — granted, " + "and not lapsed, superseded or cancelled. " + everCount + " are on record in total including " + 'every superseded and lapsed one, which is the "on record" figure. A company holding the same ' + "certification for two products counts twice, because that is how the certificates are issued." + (m.people ? " <b>AMSP and CMSP certify people</b>, and are kept in their own registers rather than " + "in MACTS, so they have no company behind them and no list to open — a renewal adds " + "a row to the same person, and each person is counted once. " + (m.stale ? "Their registers also carry an Active flag, which is set on <b>" + m.stale + "</b> more " + (m.stale === 1 ? "person" : "people") + " than the expiry dates " + "make live; the dates are used here, as they are everywhere else on this page." : "") : "");
         return m;
