@@ -2798,13 +2798,14 @@
   .tq-list.mine .td-item.wd-wide > .td-acts{display:flex !important; flex-wrap:wrap; gap:8px; justify-content:flex-start;}
   .tq-list.mine .td-item.wd-wide > .td-acts > *{width:auto !important; flex:0 0 auto; white-space:nowrap; min-width:max-content;}
   .wd{margin:12px 0 4px; border:1px solid var(--border); border-radius:8px; overflow:hidden;}
-  .wd-h, .wd-r{display:grid; grid-template-columns:150px minmax(0,1fr) minmax(0,1.3fr); gap:14px; padding:9px 14px; align-items:baseline;}
+  .wd-h, .wd-r{display:grid; grid-template-columns:120px minmax(0,.8fr) minmax(0,1.5fr); gap:14px; padding:9px 14px; align-items:baseline;}
   .wd-h{background:var(--surface-2); font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); padding-top:7px; padding-bottom:7px;}
   .wd-r{border-top:1px solid var(--rule); font-size:13px;}
   .wd-r b{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);}
   .wd-was{color:var(--ink-3); overflow-wrap:break-word; min-width:0;}
   .wd-no{color:var(--ink-3); opacity:.8;}
   .wd-now{color:var(--ink); font-weight:600; overflow-wrap:break-word; min-width:0;}
+  .wd-now .wd-tag{white-space:nowrap;}
   .wd-r.long .wd-was, .wd-r.long .wd-now{font-weight:400; font-size:12.5px; line-height:1.5;}
   .wd a{color:var(--navy-mid); text-decoration:none; border-bottom:1px solid var(--border-strong);}
   :root[data-theme="dark"] .wd a{color:var(--sky);}
@@ -7763,7 +7764,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         function show(k, v) {
             if (!v) return "";
             if (/page|url|site/i.test(k) && /^https?:\/\//i.test(v)) return '<a href="' + esc(v) + '" target="_blank" rel="noopener">' + esc(v.replace(/^https?:\/\//i, "").replace(/\/$/, "")) + "</a>";
-            return esc(v);
+            return esc(v).replace(/@/g, "@<wbr>");
         }
         return '<div class="wd"><div class="wd-h"><span></span><span>On mismo.org Now</span><span>They Sent</span></div>' + ch.fields.map((function(f) {
             var was = String(ch.w[f[0]] || "").trim(), now = String(ch.a.website[f[0]] || "").trim();
