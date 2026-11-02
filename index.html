@@ -3888,6 +3888,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         ORG_FIELDS.forEach((function(f) {
             if (e[f.k] !== undefined) out[f.k] = e[f.k];
         }));
+        /* No Aptify customer ID on record: use the one matched in Member 360's Aptify upload (Jonna,
+           2 Nov 2026: "i thought you were talking to member 360 for the aptify id and member information"). */
+        if (!out.aptify) { var m3 = memberOf(name); if (m3 && m3.aptify) { out.aptify = m3.aptify; out.aptifyFrom = "Member 360"; } }
         if (e.status) out.status = e.status;
         out.inactive = e.status === "inactive";
         out.statusReason = e.statusReason || null;
@@ -4305,6 +4308,69 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function surchargeApplies(program) {
         return surchargeAmount(program) > 0;
+    }
+    /* ---- Member 360: Aptify customer IDs and membership (2 Nov 2026) ----
+       Member 360 holds the weekly Aptify upload (relay project "member-360", document aptify/main:
+       companies by Aptify customer ID, membership terms by ID) and the names it has already matched
+       (sync/aliases). Each CMS company is matched by Aptify ID when it has one, else by its name,
+       legal name or other spellings. The result is kept in the CMS's own "membership" record
+       (data/db-membership.json, doc "latest") so every page and the jobs read the same answer.
+       It refreshes when Member 360 has a newer upload, at most once every six hours, and only for
+       someone who can read Member 360 and save in the CMS; everyone else reads the kept copy. */
+    var m360Busy = false, m360Done = false;
+    function m360Norm(s) {
+        return String(s || "").toLowerCase().replace(/&/g, " and ").replace(/\(.*?\)/g, " ").replace(/\b(d\/?b\/?a|dba)\b.*$/, " ")
+            .replace(/[^a-z0-9 ]/g, " ").replace(/\b(the|inc|llc|l l c|corp|corporation|company|co|ltd|limited|lp|llp|plc|group|holdings?)\b/g, " ").replace(/\s+/g, " ").trim();
+    }
+    function m360Sync() {
+        if (m360Busy || m360Done || !db || !canWrite || !window.CMS_CONFIG || !CMS_CONFIG.relay) return;
+        var kept = membership || {};
+        if (kept.checkedAt && Date.now() - Date.parse(kept.checkedAt) < 6 * 36e5) return;
+        var tok = "";
+        try { tok = window.ResourcesSession && ResourcesSession.token ? ResourcesSession.token() : JSON.parse(localStorage.getItem("resources:session") || "{}").token || ""; } catch (e) {}
+        if (!tok) return;
+        m360Busy = true; m360Done = true;
+        function get(name) {
+            return fetch(CMS_CONFIG.relay + "/member-360/data/" + encodeURIComponent(name), { headers: { Authorization: "Bearer " + tok } })
+                .then((function(r) { if (!r.ok) throw new Error("Member 360 answered " + r.status); return r.json(); })).then((function(j) { return j && j.data; }));
+        }
+        get("own-index").then((function(ix) {
+            var docs = ix && ix.docs || {};
+            if (!docs["aptify/main"]) throw new Error("no Aptify upload in Member 360");
+            return Promise.all([ get(docs["aptify/main"].file), docs["sync/aliases"] ? get(docs["sync/aliases"].file).catch((function() { return null; })) : null ]);
+        })).then((function(got) {
+            var apt = got[0] && (got[0].doc || got[0]) || {}, aliases = got[1] && got[1].doc && got[1].doc.map || {};
+            if (!apt.companies || !apt.terms) throw new Error("the Aptify upload has no companies");
+            var byName = {};
+            function add(n, id) { var k = m360Norm(n); if (!k || !id) return; (byName[k] = byName[k] || {})[String(id)] = 1; }
+            Object.keys(apt.companies).forEach((function(id) { add(apt.companies[id].n, id); }));
+            Object.keys(aliases).forEach((function(n) { add(n, String(aliases[n]).replace(/^c/, "")); }));
+            var today = isoDay(TODAY), fy = TODAY.getFullYear(), next1 = (fy + 1) + "-01-01";
+            var out = { source: "Member 360 (Aptify upload " + String(apt.uploadedAt || "").slice(0, 10) + ")", uploadedAt: apt.uploadedAt || null,
+                checkedAt: new Date().toISOString(), fy: fy, fyNext: fy + 1, companies: {} };
+            (D.organizations || []).forEach((function(o) {
+                var e = orgEdits[orgSlug(o.name)] || {}, own = e.aptify || o.aptify || null, id = null, how = null;
+                if (own) { id = String(own); how = "Aptify customer ID"; }
+                else {
+                    var ids = {};
+                    [ o.name, e.legalName || o.legalName ].concat(o.spellings || []).forEach((function(n) { var h = byName[m360Norm(n)]; if (h) Object.keys(h).forEach((function(i) { ids[i] = 1; })); }));
+                    var list = Object.keys(ids);
+                    if (list.length === 1) { id = list[0]; how = "company name"; }
+                }
+                if (!id) { out.companies[o.name] = { aptify: null, current: { member: false, state: "not found" }, next: { member: false } }; return; }
+                var terms = (apt.terms[id] || []).filter((function(t) { return t && t.s && t.e; }));
+                function at(day) { return terms.filter((function(t) { return t.s <= day && t.e >= day; })).sort((function(a, b) { return a.e < b.e ? 1 : -1; }))[0] || null; }
+                var cur = at(today), nx = at(next1), ever = terms.length;
+                out.companies[o.name] = { aptify: id, aptifyName: apt.companies[id] ? apt.companies[id].n : null, matchedOn: how,
+                    current: cur ? { member: true, level: cur.lv || null, through: cur.e, label: "Member" + (cur.lv ? " (" + cur.lv + ")" : "") + " through " + cur.e, state: "member" }
+                        : { member: false, state: ever ? "not renewed" : "no record", label: ever ? "Not a member (lapsed)" : "Not a member" },
+                    next: nx ? { member: true, level: nx.lv || null, through: nx.e } : { member: false } };
+            }));
+            membership = out;
+            renderAll();
+            return Promise.resolve(db.collection("membership").doc("latest").set(out)).catch(onWriteRefused);
+        }))["catch"]((function(e) { if (window.console) console.warn("Member 360:", e && e.message || e); }))
+          .then((function() { m360Busy = false; }));
     }
     function memberOf(org) {
         if (!membership || !membership.companies) return null;
@@ -11119,6 +11185,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }))[0];
                 membership = doc ? doc.data() : null;
                 renderAll();
+                m360Sync();
             }), (function() {}));
             d.collection("org-edits").onSnapshot((function(snap) {
                 var next = {};
