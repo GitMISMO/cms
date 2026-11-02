@@ -4319,7 +4319,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        (data/db-membership.json, doc "latest") so every page and the jobs read the same answer.
        It refreshes when Member 360 has a newer upload, at most once every six hours, and only for
        someone who can read Member 360 and save in the CMS; everyone else reads the kept copy. */
-    var m360Busy = false, m360Done = false;
+    var m360Busy = false, m360Done = false, M360_V = 2;   /* raise when the matching changes, so the kept copy is redone */
     function m360Norm(s) {
         return String(s || "").toLowerCase().replace(/&/g, " and ").replace(/\(.*?\)/g, " ").replace(/\b(d\/?b\/?a|dba)\b.*$/, " ")
             .replace(/[^a-z0-9 ]/g, " ").replace(/\b(the|inc|llc|l l c|corp|corporation|company|co|ltd|limited|lp|llp|plc|group|holdings?)\b/g, " ").replace(/\s+/g, " ").trim();
@@ -4330,7 +4330,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* fresh enough, unless an Aptify ID was typed on a company since (it is matched by that ID) */
         var changed = (D.organizations || []).some((function(o) { var e = orgEdits[orgSlug(o.name)] || {}, own = e.aptify || o.aptify, k = kept.companies && kept.companies[o.name];
             return own && (!k || String(k.aptify || "") !== String(own)); }));
-        if (kept.checkedAt && !changed && Date.now() - Date.parse(kept.checkedAt) < 6 * 36e5) return;
+        if (kept.checkedAt && kept.v === M360_V && !changed && Date.now() - Date.parse(kept.checkedAt) < 6 * 36e5) return;
         var tok = "";
         try { tok = window.ResourcesSession && ResourcesSession.token ? ResourcesSession.token() : JSON.parse(localStorage.getItem("resources:session") || "{}").token || ""; } catch (e) {}
         if (!tok) return;
@@ -4350,9 +4350,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             /* also without spaces, so "Decision-X" finds DecisionX (2 Nov 2026) */
             function add(n, id) { var k = m360Norm(n); if (!k || !id) return; [ k, k.replace(/ /g, "") ].forEach((function(kk) { (byName[kk] = byName[kk] || {})[String(id)] = 1; })); }
             Object.keys(apt.companies).forEach((function(id) { add(apt.companies[id].n, id); }));
+            /* a company that only appears on its membership terms (581 IDs, e.g. Decision-X's Sole membership) */
+            Object.keys(apt.terms).forEach((function(id) { (apt.terms[id] || []).forEach((function(t) { if (t && t.co) add(t.co, id); })); }));
             Object.keys(aliases).forEach((function(n) { add(n, String(aliases[n]).replace(/^c/, "")); }));
             var today = isoDay(TODAY), fy = TODAY.getFullYear(), next1 = (fy + 1) + "-01-01";
-            var out = { source: "Member 360 (Aptify upload " + String(apt.uploadedAt || "").slice(0, 10) + ")", uploadedAt: apt.uploadedAt || null,
+            var out = { v: M360_V, source: "Member 360 (Aptify upload " + String(apt.uploadedAt || "").slice(0, 10) + ")", uploadedAt: apt.uploadedAt || null,
                 checkedAt: new Date().toISOString(), fy: fy, fyNext: fy + 1, companies: {} };
             (D.organizations || []).forEach((function(o) {
                 var e = orgEdits[orgSlug(o.name)] || {}, own = e.aptify || o.aptify || null, id = null, how = null;
@@ -4367,7 +4369,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 var terms = (apt.terms[id] || []).filter((function(t) { return t && t.s && t.e; }));
                 function at(day) { return terms.filter((function(t) { return t.s <= day && t.e >= day; })).sort((function(a, b) { return a.e < b.e ? 1 : -1; }))[0] || null; }
                 var cur = at(today), nx = at(next1), ever = terms.length;
-                out.companies[o.name] = { aptify: id, aptifyName: apt.companies[id] ? apt.companies[id].n : null, matchedOn: how,
+                out.companies[o.name] = { aptify: id, aptifyName: apt.companies[id] ? apt.companies[id].n : ((apt.terms[id] || []).filter((function(t) { return t && t.co; }))[0] || {}).co || null, matchedOn: how,
                     current: cur ? { member: true, level: cur.lv || null, through: cur.e, label: "Member" + (cur.lv ? " (" + cur.lv + (cur.lv === "Sole" && cur.who ? ", " + cur.who : "") + ")" : "") + " through " + cur.e, state: "member" }
                         : { member: false, state: ever ? "not renewed" : "no record", label: ever ? "Not a member (lapsed)" : "Not a member" },
                     next: nx ? { member: true, level: nx.lv || null, through: nx.e } : { member: false } };
