@@ -4327,7 +4327,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function m360Sync() {
         if (m360Busy || m360Done || !db || !canWrite || !window.CMS_CONFIG || !CMS_CONFIG.relay) return;
         var kept = membership || {};
-        if (kept.checkedAt && Date.now() - Date.parse(kept.checkedAt) < 6 * 36e5) return;
+        /* fresh enough, unless an Aptify ID was typed on a company since (it is matched by that ID) */
+        var changed = (D.organizations || []).some((function(o) { var e = orgEdits[orgSlug(o.name)] || {}, own = e.aptify || o.aptify, k = kept.companies && kept.companies[o.name];
+            return own && (!k || String(k.aptify || "") !== String(own)); }));
+        if (kept.checkedAt && !changed && Date.now() - Date.parse(kept.checkedAt) < 6 * 36e5) return;
         var tok = "";
         try { tok = window.ResourcesSession && ResourcesSession.token ? ResourcesSession.token() : JSON.parse(localStorage.getItem("resources:session") || "{}").token || ""; } catch (e) {}
         if (!tok) return;
@@ -4344,7 +4347,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var apt = got[0] && (got[0].doc || got[0]) || {}, aliases = got[1] && got[1].doc && got[1].doc.map || {};
             if (!apt.companies || !apt.terms) throw new Error("the Aptify upload has no companies");
             var byName = {};
-            function add(n, id) { var k = m360Norm(n); if (!k || !id) return; (byName[k] = byName[k] || {})[String(id)] = 1; }
+            /* also without spaces, so "Decision-X" finds DecisionX (2 Nov 2026) */
+            function add(n, id) { var k = m360Norm(n); if (!k || !id) return; [ k, k.replace(/ /g, "") ].forEach((function(kk) { (byName[kk] = byName[kk] || {})[String(id)] = 1; })); }
             Object.keys(apt.companies).forEach((function(id) { add(apt.companies[id].n, id); }));
             Object.keys(aliases).forEach((function(n) { add(n, String(aliases[n]).replace(/^c/, "")); }));
             var today = isoDay(TODAY), fy = TODAY.getFullYear(), next1 = (fy + 1) + "-01-01";
@@ -4355,7 +4359,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 if (own) { id = String(own); how = "Aptify customer ID"; }
                 else {
                     var ids = {};
-                    [ o.name, e.legalName || o.legalName ].concat(o.spellings || []).forEach((function(n) { var h = byName[m360Norm(n)]; if (h) Object.keys(h).forEach((function(i) { ids[i] = 1; })); }));
+                    [ o.name, e.legalName || o.legalName ].concat(o.spellings || []).forEach((function(n) { var h = byName[m360Norm(n)] || byName[m360Norm(n).replace(/ /g, "")]; if (h) Object.keys(h).forEach((function(i) { ids[i] = 1; })); }));
                     var list = Object.keys(ids);
                     if (list.length === 1) { id = list[0]; how = "company name"; }
                 }
@@ -4364,7 +4368,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 function at(day) { return terms.filter((function(t) { return t.s <= day && t.e >= day; })).sort((function(a, b) { return a.e < b.e ? 1 : -1; }))[0] || null; }
                 var cur = at(today), nx = at(next1), ever = terms.length;
                 out.companies[o.name] = { aptify: id, aptifyName: apt.companies[id] ? apt.companies[id].n : null, matchedOn: how,
-                    current: cur ? { member: true, level: cur.lv || null, through: cur.e, label: "Member" + (cur.lv ? " (" + cur.lv + ")" : "") + " through " + cur.e, state: "member" }
+                    current: cur ? { member: true, level: cur.lv || null, through: cur.e, label: "Member" + (cur.lv ? " (" + cur.lv + (cur.lv === "Sole" && cur.who ? ", " + cur.who : "") + ")" : "") + " through " + cur.e, state: "member" }
                         : { member: false, state: ever ? "not renewed" : "no record", label: ever ? "Not a member (lapsed)" : "Not a member" },
                     next: nx ? { member: true, level: nx.lv || null, through: nx.e } : { member: false } };
             }));
