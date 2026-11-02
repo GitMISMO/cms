@@ -3890,7 +3890,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         /* No Aptify customer ID on record: use the one matched in Member 360's Aptify upload (Jonna,
            2 Nov 2026: "i thought you were talking to member 360 for the aptify id and member information"). */
-        if (!out.aptify) { var m3 = memberOf(name); if (m3 && m3.aptify) { out.aptify = m3.aptify; out.aptifyFrom = "Member 360"; } }
+        var m3 = memberOf(name);
+        if (!out.aptify && m3 && m3.aptify) { out.aptify = m3.aptify; out.aptifyFrom = "Member 360"; }
+        if (!out.membership && m3 && m3.current && m3.current.state !== "not found") { out.membership = m3.current.label || (m3.current.member ? "Member" : "Not a member"); out.membershipFrom = "Member 360"; }
         if (e.status) out.status = e.status;
         out.inactive = e.status === "inactive";
         out.statusReason = e.statusReason || null;
@@ -14894,7 +14896,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var miss = act.filter(pkOrgMissing), liveSet = {};
         (typeof certs !== "undefined" && certs || []).forEach((function(c) { if (c.live) liveSet[c.org] = 1; }));
         var holding = act.filter((function(o) { return liveSet[o.name]; })).length;
-        var noApt = act.filter((function(o) { return !o.aptify; }));
+        var noApt = act.filter((function(o) { return !o.aptify && !(orgOf(o.name) || {}).aptify; }));
         var say = miss.length ? tqEm(miss.length + (miss.length === 1 ? " active company is" : " active companies are")) + " missing an Aptify customer ID or anyone to email" + (noApt.length ? " (" + noApt.length + " with no Aptify ID)" : "") + ". Fill them in once here and every certification they hold reads them." : "Every active company has its details filled in. Select a company to change its contacts, signer or address.";
         var f = orgFilters;
         host.innerHTML = pkHero({ title: "Companies", say: say, acts: '<button class="lc-btn solid" type="button" data-pkclick="#view-records .phead [data-na=jump]">+ New Application</button>' })
