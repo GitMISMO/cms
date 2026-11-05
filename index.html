@@ -2704,6 +2704,159 @@
   @media(max-width:600px){
     .tqb.rv-b{grid-template-columns:1fr;}
   }
+  /* MISMO's portal drawn like the outside firms' Assessor Portal (Jonna, 5 Nov 2026) */
+   easy to understand the process, intuitive"). Squared shapes, figure boxes first, one page per
+   tab, nothing folded away. ══════════════════════════════════════════════════════════════════ */
+.as-wrap{padding:26px 30px 90px;max-width:1280px}
+.hq nav button[hidden]{display:none}
+.pv-mono{width:38px;height:38px;flex:0 0 38px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:14px;letter-spacing:.02em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.pv-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--surface-3);color:var(--ink-2);white-space:nowrap}
+.pv-tag.soft{background:transparent;border:1px solid var(--border);color:var(--ink-3)}
+.pv-tag.cal{background:rgba(116,191,235,.18);color:var(--navy-mid)}
+.fine{font-size:12.5px;color:var(--ink-3);line-height:1.55;margin:10px 0}
+.calm{border:1px dashed var(--border-strong);border-radius:8px;padding:22px;text-align:center;color:var(--ink-2);font-size:13.5px;background:var(--surface-2)}
+.calm b{color:var(--ink)}
+
+/* the hero */
+.hx{position:relative;overflow:hidden;border-radius:10px;padding:28px 28px 24px;margin-bottom:26px;color:#fff;
+  background:radial-gradient(1200px 300px at 100% -20%,rgba(116,191,235,.35),transparent 60%),
+    radial-gradient(600px 260px at -10% 120%,rgba(116,191,235,.18),transparent 60%),
+    linear-gradient(135deg,var(--navy-deep,#06202f) 0%,var(--navy,#0d314c) 55%,var(--navy-mid,#14486e) 100%);
+  box-shadow:0 10px 30px rgba(6,32,47,.25)}
+.hx:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.07;
+  background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px);
+  background-size:28px 28px;mask-image:linear-gradient(90deg,transparent,#000 60%)}
+.hx-top{position:relative;z-index:1}
+.hx-eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sky)}
+.hx-name{font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.02em;margin:6px 0 8px;color:#fff}
+.hx-say{font-size:16.5px;line-height:1.5;color:rgba(255,255,255,.88);margin:0 0 20px;max-width:900px}
+.hx-say em{font-style:normal;color:var(--sky);font-weight:700}
+.hx-say em.hl-late{color:#ffcf73}
+.hx-tiles{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.hx-tile{text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(116,191,235,.3);border-radius:8px;padding:14px 16px;
+  color:#fff;font:inherit;cursor:pointer;transition:transform .15s ease,background .15s ease,border-color .15s ease}
+.hx-tile:hover{background:rgba(255,255,255,.13);border-color:var(--sky);transform:translateY(-2px)}
+.hx-tile b{display:block;font-size:30px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.hx-tile span{display:block;font-size:12.5px;color:var(--sky);margin-top:4px;font-weight:600}
+.hx-tile small{display:block;font-size:11.5px;color:rgba(255,255,255,.62);margin-top:2px}
+.hx-tile.warn b{color:#ffcf73}
+.hx-tile.next b{font-size:22px;padding-top:6px}
+@media(max-width:900px){.hx-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.hx-name{font-size:24px}}
+
+/* sections of a page */
+.ov-sec{margin:0 0 30px}
+.ov-h{margin:0 0 12px}
+.ov-h h2,.pg-h h1{font-size:19px;font-weight:700;letter-spacing:-.012em;color:var(--ink);margin:0}
+.pg-h h1{font-size:24px}
+.ov-h p,.pg-h p{font-size:13px;color:var(--ink-3);margin:4px 0 0;line-height:1.5;max-width:900px}
+.pg-h{margin:0 0 18px}
+
+/* the next moves */
+.moves{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:14px}
+.move{display:flex;flex-direction:column;gap:12px;text-align:left;background:var(--surface);border:1px solid var(--border);
+  border-left:4px solid #e0a83c;border-radius:8px;padding:16px;font:inherit;color:var(--ink);cursor:pointer;
+  box-shadow:0 1px 2px rgba(6,32,47,.05);transition:transform .15s ease,box-shadow .15s ease}
+.move:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,32,47,.12)}
+.mv-top{display:flex;gap:11px;align-items:center}
+.mv-id{min-width:0}.mv-id b{display:block;font-size:15px}.mv-id i{display:block;font-style:normal;font-size:12px;color:var(--ink-3);margin-top:1px}
+.mv-k{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn)}
+.mv-do b{display:block;font-size:15px;margin-top:2px}
+.mv-foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.mv-go{margin-left:auto;display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:700;color:var(--navy-mid)}
+.mv-go svg,.er-go svg{width:14px;height:14px}
+
+/* the journey: stepper, mini stepper, map, bar */
+.jstep{display:flex;gap:0;margin:4px 0 16px}
+.js{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;min-width:0}
+.js:before{content:"";position:absolute;top:13px;left:-50%;right:50%;height:3px;background:var(--border)}
+.js:first-child:before{display:none}
+.js.past:before,.js.now:before{background:var(--good)}
+.jd{position:relative;z-index:1;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;background:var(--surface-3);color:var(--ink-3);border:2px solid var(--border)}
+.js.past .jd{background:var(--good);border-color:var(--good);color:#fff}
+.js.now .jd{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 0 0 4px rgba(116,191,235,.35)}
+.js.now.mine .jd{background:#e0a83c;border-color:#e0a83c;color:#2a1d05;box-shadow:0 0 0 4px rgba(224,168,60,.3)}
+.js b{font-size:11px;font-weight:600;color:var(--ink-3);line-height:1.25}
+.js.now b{color:var(--ink)}
+.jstep.mini{margin:0}.jstep.mini .jd{width:16px;height:16px;font-size:0;border-width:2px;border-radius:4px}
+.jstep.mini .js:before{top:7px;height:2px}.jstep.mini b{display:none}
+.jstep.mini .js.now b{display:block;font-size:10.5px;white-space:nowrap}
+.jmap{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px}
+.jm{flex:1 1 0;min-width:118px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;padding:14px 13px;font:inherit;color:var(--ink);cursor:pointer;transition:border-color .15s,transform .15s}
+.jm:hover{border-color:var(--sky);transform:translateY(-2px)}
+.jm.you{border-top:3px solid var(--sky)}
+.jm.hot{border-top-color:#e0a83c;box-shadow:0 0 0 1px rgba(224,168,60,.35) inset}
+.jm-n{font-size:28px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.jm-t{font-size:13px;font-weight:700;margin-top:6px}
+.jm-w{font-size:11px;color:var(--ink-3);line-height:1.35}
+.jm-me{font-size:10.5px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.jm-arrow{flex:0 0 14px;align-self:center;height:2px;background:var(--border-strong);position:relative}
+.jm-arrow:after{content:"";position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left-color:var(--border-strong)}
+.jb{display:flex;gap:3px;width:100%}
+.jb i{flex:1;height:6px;border-radius:2px;background:var(--surface-3)}
+.jb i.past{background:var(--good)}
+.jb i.now{background:var(--navy-mid)}
+.jb i.now.mine{background:#e0a83c}
+
+/* coming up */
+.agenda{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:10px}
+.ag{display:flex;align-items:center;gap:13px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;font:inherit;color:var(--ink);cursor:pointer}
+.ag:hover{border-color:var(--sky)}
+.dtile{flex:0 0 54px;display:flex;flex-direction:column;align-items:center;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.dtile i{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;width:100%;text-align:center;padding:2px 0}
+.dtile i:first-child{background:var(--navy);color:#fff}
+.dtile b{font-size:20px;line-height:1.2;font-weight:700}
+.ag-id{min-width:0;flex:1}.ag-id b{display:block;font-size:14px}.ag-id i{display:block;font-style:normal;font-size:12px;color:var(--ink-3)}
+.ag-when{font-size:12px;font-weight:700;color:var(--navy-mid);white-space:nowrap}
+
+/* engagements */
+.toolbar{display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
+.pv-seg{display:flex;gap:6px;flex-wrap:wrap}
+.pv-seg button{font:inherit;font-size:13px;padding:7px 12px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.pv-seg button b{font-variant-numeric:tabular-nums;color:var(--ink);margin-left:3px}
+.pv-seg button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.pv-seg button.on b{color:#fff}
+.pv-find{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--border-strong);border-radius:5px;background:var(--surface);color:var(--ink);width:260px;max-width:100%}
+.grp{margin:0 0 24px}
+.grp-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:0 0 8px;border-bottom:2px solid var(--border);margin-bottom:8px}
+.grp-h b{font-size:15px}
+.grp-h span{font-size:12px;font-weight:700;background:var(--surface-3);border-radius:3px;padding:1px 7px;color:var(--ink-2)}
+.grp-h i{font-style:normal;font-size:12.5px;color:var(--ink-3)}
+.grp-h.you{border-bottom-color:#e0a83c}.grp-h.mismo{border-bottom-color:var(--bad)}.grp-h.queue{border-bottom-color:var(--sky)}
+.ers{display:flex;flex-direction:column;gap:8px}
+.er{display:grid;grid-template-columns:38px minmax(0,1.5fr) minmax(0,.9fr) minmax(0,1.4fr) minmax(0,1.4fr) 18px;gap:14px;align-items:center;
+  text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font:inherit;color:var(--ink);cursor:pointer;
+  transition:border-color .15s,box-shadow .15s}
+.er:hover{border-color:var(--sky);box-shadow:0 6px 16px rgba(6,32,47,.08)}
+.er.mine{border-left:4px solid #e0a83c}
+.er-id b{display:block;font-size:14px}.er-id i,.er-jr i,.er-st i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:3px;overflow-wrap:anywhere}
+.er-pg{display:flex;gap:5px;flex-wrap:wrap}
+.er-st b{display:block;font-size:13px}
+.er-st.you b{color:var(--warn)}.er-st.bad b{color:var(--bad)}
+.er-go{color:var(--ink-3)}
+@media(max-width:900px){.er{grid-template-columns:38px 1fr 18px}.er-pg,.er-jr,.er-st{grid-column:2 / 3}}
+
+/* schedule */
+
+.vabar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 18px;margin:0 0 22px;background:#5B3FA6;color:#fff;border-radius:8px}
+.va-l{font-size:10px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#d9cdf7}
+.va-c{font-weight:700;font-size:14px}.va-r{font-size:12.5px;color:#e6defb}
+.va-ro{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:#ffcf73;color:#2a1d05;border-radius:3px;padding:3px 9px}
+.va-out{font:inherit;font-size:12.5px;font-weight:700;background:#fff;color:#3F2A7A;border:0;border-radius:5px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.hx-tiles.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1100px){.hx-tiles.five{grid-template-columns:repeat(6,minmax(0,1fr))}.hx-tiles.five .hx-tile{grid-column:span 2}.hx-tiles.five .hx-tile:nth-child(n+4){grid-column:span 3}}
+@media(max-width:600px){.hx-tiles,.hx-tiles.five{grid-template-columns:1fr 1fr}.hx-tiles.five .hx-tile,.hx-tiles.five .hx-tile:nth-child(n+4){grid-column:auto}.hx-tiles.five .hx-tile:last-child{grid-column:1 / -1}.hx{padding:22px 18px 18px}.va-ro{margin-left:0}}
+.er-money{display:block;font-size:11.5px;color:var(--ink-2);margin-top:3px}
+.er.coming{border-left:4px solid var(--sky)}
+:root[data-theme="dark"] .pv-tag.cal,:root[data-theme="dark"] .mv-go,:root[data-theme="dark"] .ag-when{color:var(--sky)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pv-tag.cal,:root:not([data-theme="light"]) .mv-go,:root:not([data-theme="light"]) .ag-when{color:var(--sky)}}
+body.as-firm #as-switchpanel, body.as-firm #pkh-assessors{display:none !important;}
+body.as-firm #mast-firm, body.as-firm #money-sync{display:none !important;}
+.va-out{margin-left:auto}
+
   button.pk-act{width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;}
   button.pk-act:hover{background:var(--surface-2, var(--surface)); border-color:var(--k);}
   button.pk-act:focus-visible{outline:2px solid var(--k); outline-offset:2px;}
@@ -2982,9 +3135,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
     </div>
     <nav class="sidenav" id="assessornav" hidden aria-label="Assessor sections">
-      <div class="navgroup" aria-labelledby="navlbl-my-work">
-        <div class="navlbl" id="navlbl-my-work">My Work</div>
-        <button class="navlink on" data-as="todo" type="button" title="What needs me"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 6 9.5l3.5-4"/><path d="M4 16.5 6 18.5l3.5-4"/><path d="M13 7.5h7M13 16.5h7"/></svg></span><span class="nl">To Do</span><span class="pip" id="pip-as-todo">0</span></button>
+      <div class="navgroup" aria-label="Sections">
+        <button class="navlink on" data-as="todo" type="button" title="Overview"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5v10h13v-10"/></svg></span><span class="nl">Overview</span><span class="pip" id="pip-as-todo" hidden>0</span></button>
+        <button class="navlink" data-as="open" type="button" title="Engagements"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4.5" width="16" height="15" rx="1.6"/><path d="M8 9h8M8 12.5h8M8 16h5"/></svg></span><span class="nl">Engagements</span></button>
       </div>
       <div class="navgroup" id="asnav-frame" aria-labelledby="navlbl-as-frame" hidden>
         <div class="navlbl" id="navlbl-as-frame">FRAME</div>
@@ -3118,8 +3271,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="as-banner"></div>
     </div>
 
+    <div id="pv-band" hidden></div>
     <div id="as-firm" hidden>
       <div id="as-todo"></div>
+      <div id="as-open"></div>
     <div id="as-scenarios">
     <div class="vhead"><div class="grow">
       <h1>FRAME Practical Exercises</h1>
@@ -7449,7 +7604,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        with the assessor fee on each line), the invoices recorded here, the renewal invoices raised from
        the Renewals page and the daily Aptify check - so a payment shows here as soon as any of those
        has it. The page re-reads them every minute while it is open. ══ */
-    var rv = rv || { per: "year" };
+    var rv = rv || { per: "" };
+    /* Fiscal years (Jonna, 5 Nov 2026: "filters for fiscal years"). The month the fiscal year starts:
+       1 = January, so FY2026 is January to December 2026. Change this one number if that is wrong. */
+    var RV_FY_START = 1;
+    function rvFy(iso) { var m = String(iso || "").match(/^(\d{4})-(\d{2})/); if (!m) return null; return +m[1] + (RV_FY_START > 1 && +m[2] >= RV_FY_START ? 1 : 0); }
     var RV_PREPAY = RV_PREPAY || { Draft: 1, DocumentsRequested: 1, AgreementSent: 1, AwaitingPayment: 1 };
     function rvLedger() {
         var out = [], byOrder = {};
@@ -7517,18 +7676,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function renderRevenue() {
         var host = $("rvlist"), hero = $("pkh-revenue");
         if (!host || !hero) return;
-        if (!rv) rv = { per: "year" };
+        if (!rv) rv = { per: "" };
         if (!RV_PREPAY) RV_PREPAY = { Draft: 1, DocumentsRequested: 1, AgreementSent: 1, AwaitingPayment: 1 };
         var yr = String(TODAY.getFullYear()), L = rvLedger();
-        var pers = [ [ "year", "This Year", yr ], [ "last", "Last Year", String(+yr - 1) ], [ "all", "All Time", "" ] ];
-        var P = pers.filter((function(x) { return x[0] === rv.per; }))[0] || pers[0];
-        var inP = L.filter((function(e) { return !P[2] || String(e.on || "").slice(0, 4) === P[2]; }));
+        var fyNow = rvFy(D.asOf) || +yr, fys = {};
+        L.forEach((function(e) { var f = rvFy(e.on); if (f) fys[f] = 1; }));
+        fys[fyNow] = 1;
+        var pers = Object.keys(fys).map(Number).sort((function(a, b) { return b - a; })).map((function(f) { return [ "fy" + f, "FY" + f, String(f) ]; })).concat([ [ "all", "All Time", "" ] ]);
+        var P = pers.filter((function(x) { return x[0] === rv.per; }))[0] || pers.filter((function(x) { return x[0] === "fy" + fyNow; }))[0] || pers[0];
+        var inP = L.filter((function(e) { return !P[2] || String(rvFy(e.on)) === P[2]; }));
         var sum = function(a, k) { return a.reduce((function(t, e) { return t + (e[k] || 0); }), 0); };
         var billed = sum(inP, "billed"), paid = sum(inP, "paid"), fees = sum(inP, "expense");
         var owedRows = L.filter((function(e) { return e.order && e.billed && e.paid < e.billed; })).sort((function(a, b) { return String(a.on || "9") < String(b.on || "9") ? -1 : 1; }));
         var aw = rvAwaiting(), awNo = aw.filter((function(x) { return !x.invoiced; })), awAmt = sum(aw.map((function(x) { return { a: x.amount || 0 }; })), "a");
         var owedAmt = owedRows.reduce((function(t, e) { return t + (e.billed - e.paid); }), 0);
-        var pct = billed ? Math.round(paid / billed * 100) : 0, per = P[0] === "all" ? "all time" : P[0] === "year" ? "this year" : "last year";
+        var pct = billed ? Math.round(paid / billed * 100) : 0, per = P[0] === "all" ? "all time" : "in " + P[1] + (+P[2] === fyNow ? " so far" : "");
         hero.innerHTML = pkHero({ eb: "As of " + fmt(D.asOf), title: "Revenue", say: "Certification fees invoiced and collected, what is paid out to assessors, and every company that has applied but not paid yet. It updates as soon as a payment is recorded here or the daily Aptify check finds it." })
             + pkBoard([
                 { lab: "Applied, Not Paid", n: aw.length, k: "#e0a83c", go: "#rv-await", sub: aw.length ? money0(awAmt) + " to come in · " + awNo.length + " not invoiced yet" : "everyone who applied has paid" },
@@ -7557,9 +7719,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join("");
         /* invoiced by month: this year or last year by month; all time by year */
         var buckets = [], MO3 = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
-        if (P[2]) { for (var mi = 0; mi < 12; mi++) buckets.push({ k: P[2] + "-" + ("0" + (mi + 1)).slice(-2), lab: MO3[mi] }); }
-        else { var ys = {}; L.forEach((function(e) { var y = String(e.on || "").slice(0, 4); if (y) ys[y] = 1; })); Object.keys(ys).sort().forEach((function(y) { buckets.push({ k: y, lab: y }); })); }
-        buckets.forEach((function(b) { var hit = inP.filter((function(e) { return String(e.on || "").indexOf(b.k) === 0; })); b.billed = sum(hit, "billed"); b.paid = sum(hit, "paid"); b.fees = sum(hit, "expense"); b.n = hit.length; }));
+        if (P[2]) { for (var mi = 0; mi < 12; mi++) { var mo = (RV_FY_START - 1 + mi) % 12, cy = +P[2] - (RV_FY_START > 1 && mo + 1 >= RV_FY_START ? 1 : 0); buckets.push({ k: cy + "-" + ("0" + (mo + 1)).slice(-2), lab: MO3[mo] }); } }
+        else { Object.keys(fys).sort().forEach((function(y) { buckets.push({ fy: y, lab: "FY" + y }); })); }
+        buckets.forEach((function(b) { var hit = inP.filter((function(e) { return b.fy ? String(rvFy(e.on)) === b.fy : String(e.on || "").indexOf(b.k) === 0; })); b.billed = sum(hit, "billed"); b.paid = sum(hit, "paid"); b.fees = sum(hit, "expense"); b.n = hit.length; }));
         var bMax = Math.max.apply(null, buckets.map((function(b) { return b.billed; })).concat([1]));
         var short = function(n) { return n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? "$" + Math.round(n / 1e3) + "K" : n ? "$" + Math.round(n) : ""; };
         var chart = '<div class="rv-chart">' + buckets.map((function(b) {
@@ -7576,7 +7738,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 aw.length ? head + awRows : '<div class="empty">Everyone who has applied has paid.</div>', { k: "#e0a83c" })
             + pkSec("rv-owed", "Invoiced, Not Paid", owedRows.length, "Invoices raised in Aptify that no payment has been found for yet, oldest first. These include renewals.",
                 owedRows.length ? '<div class="rv-head"><span></span><span>Company</span><span>Invoice</span><span>Still Owed</span><span>Since</span></div>' + owRows : '<div class="empty">Every invoice has been paid.</div>', { k: "#f08579" })
-            + pkSec("rv-month", P[2] ? "Invoiced by Month, " + P[2] : "Invoiced by Year", null, "By invoice date. Point at a bar to see what was collected and what went to assessors.", chart, { k: "#74bfeb" })
+            + pkSec("rv-month", P[2] ? "Invoiced by Month, " + P[1] : "Invoiced by Fiscal Year", null, "By invoice date. Point at a bar to see what was collected and what went to assessors.", chart, { k: "#74bfeb" })
             + pkSec("rv-prog", "By Program", pk.length, "What each program brought in " + per + ", and what it cost in assessor fees.", pk.length ? prog : '<div class="empty">Nothing invoiced ' + per + ".</div>", { k: "#5fb3c9" });
     }
     document.addEventListener("click", (function(e) {
@@ -12875,12 +13037,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var frameOwn = asFirm === "MISMO";
         var fg = $("asnav-frame");
         if (fg) fg.hidden = !on || !frameOwn;
-        if (asSection !== "todo" && asSection !== "scenarios") asSection = "todo";
+        if (asSection !== "todo" && asSection !== "open" && asSection !== "scenarios") asSection = "todo";
         if (asSection === "scenarios" && !frameOwn) asSection = "todo";
         Array.prototype.forEach.call(document.querySelectorAll("#assessornav [data-as]"), (function(b) {
             b.classList.toggle("on", b.dataset.as === asSection);
         }));
-        [ "as-todo", "as-scenarios" ].forEach((function(id) {
+        var band = $("pv-band");
+        if (band) {
+            band.hidden = !on;
+            band.innerHTML = on ? '<div class="vabar"><span class="va-l">Viewing As</span><span class="va-c">' + esc(firmBrand(asFirm).legalName || asFirm) + '</span><span class="va-r">' + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? "MISMO’s own audit team, in the same portal as the outside firms" : "an assessor’s screen") + '</span><button class="va-out" type="button" data-firm="">Back to My View</button></div>' : "";
+        }
+        if (name && on) { name.hidden = false; }
+        if (exit) exit.hidden = true;
+        if (who && on) who.textContent = "Programs & Operations";
+        if (mf && on) mf.hidden = true;
+        [ "as-todo", "as-open", "as-scenarios" ].forEach((function(id) {
             var el = $(id);
             if (el) el.hidden = !on || asOpen !== null || asSection !== id.slice(3);
         }));
@@ -13010,6 +13181,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var say = withMe.length ? em(withMe.length, true) + " engagement" + (withMe.length === 1 ? " is" : "s are") + " waiting on " + esc(asFirm) + " right now" : "Nothing is waiting on " + esc(asFirm) + " right now";
         say += ", out of " + em(mine.length) + " on the board. " + (asInQueue.length ? em(asInQueue.length) + " you have worked " + (asInQueue.length === 1 ? "is" : "are") + " waiting on somebody else. " : "") + (blocked.length ? em(blocked.length, true) + " cannot start until MISMO sends the certification script." : others.length ? em(others.length) + " " + (others.length === 1 ? "is" : "are") + " coming to you, not started yet." : asInQueue.length ? "" : "Nothing else is queued behind them.");
         var band = '<div class="headline">' + '<div class="hl-top"><div class="hl-date">' + esc(firmBrand(asFirm).legalName || asFirm) + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? " · MISMO’s own audit team" : " · assessor portal") + "</div>" + "</div>" + '<div class="hl-body">' + '<div class="hl-say">' + say + "</div>" + '<div class="hl-tiles">' + '<div class="hl-tile flat' + (withMe.length ? " warn" : "") + '"><b>' + withMe.length + "</b><span>With You</span><small>" + (withMe.length ? "your move" : "all clear") + "</small></div>" + '<div class="hl-tile flat"><b>' + asInQueue.length + "</b><span>In Your Queue</span><small>waiting on somebody else</small></div>" + '<div class="hl-tile flat"><b>' + others.length + "</b><span>Coming to You</span><small>not started yet</small></div>" + (asFirm === "MISMO" ? '<div class="hl-tile flat' + (ownOut < ownFrame.length ? " warn" : "") + '"><b>' + ownOut + "</b><span>Exercises Issued</span><small>" + (ownFrame.length ? ownOut < ownFrame.length ? ownFrame.length - ownOut + " still to send" : "all " + ownFrame.length + " sent" : "none assigned") + "</small></div>" + '<div class="hl-tile flat' + (ownBack < ownFrame.length ? " warn" : "") + '"><b>' + ownBack + "</b><span>Exercises Back</span><small>" + (ownFrame.length ? ownBack < ownFrame.length ? ownFrame.length - ownBack + " outstanding" : "all returned" : "none assigned") + "</small></div>" : '<div class="hl-tile flat' + (blocked.length ? " warn" : "") + '"><b>' + blocked.length + "</b><span>Waiting on MISMO</span><small>" + (blocked.length ? "script not sent" : "nothing blocked") + "</small></div>" + '<div class="hl-tile flat"><b>' + money(feeTotal) + "</b><span>Invoiced</span><small>across " + invoiced.length + " of " + mine.length + " engagements</small></div>") + "</div>" + "</div>" + "</div>";
+        if (firmRecord(asFirm) && firmRecord(asFirm).inHouse) { pvRender({ all: mine, withMe: withMe, blocked: blocked, inFlight: asInQueue, others: others }); return; }
         var todo = $("as-todo");
         if (todo) {
             todo.innerHTML = band + '<div class="panel">' + '<div class="phead"><div><h2>To Do</h2>' + '<p class="psub">Engagements where the next move is yours.' + (firmPrograms(asFirm).length ? " " + esc(asFirm) + " assesses " + esc(firmPrograms(asFirm).join(", ")) + "." : "") + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? " This is MISMO’s own audit team, working the same portal as an outside firm." : "") + "</p></div></div>" + engTable(withMe, "Nothing is waiting on you right now.") + (asInQueue.length ? '<div style="margin:22px 0 10px;padding-top:16px;border-top:1px solid var(--border)">' + '<h3 style="margin:0 0 4px;font-size:15px;font-weight:600">In Your Queue, Waiting on Someone Else</h3>' + '<p class="psub" style="margin:0">You have already worked these. They come back to you when the company, MISMO or the VP has moved.</p></div>' + engTable(asInQueue, "") : "") + "</div>" + (blocked.length ? '<div class="panel"><div class="phead"><div><h2>Waiting on MISMO</h2>' + '<p class="psub">The certification script has not reached you yet, so these cannot ' + "start.</p></div></div>" + engTable(blocked, "") + "</div>" : "") + (others.length ? '<div class="panel"><div class="phead"><div><h2>Coming to You</h2>' + '<p class="psub">Assigned to ' + esc(asFirm) + ", but waiting on somebody else first, and not started yet. " + "Nothing to do on these yet.</p></div></div>" + '<div class="etable"><div class="ehead coming"><span>Company</span><span>Program</span>' + "<span>Where It Is</span></div>" + others.map((function(f) {
@@ -13034,6 +13206,143 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             })).join("") + "</div>" : '<div class="empty">No assessor invoice is recorded on any open engagement.</div>') + "</div>";
         }
     }
+    /* ══ MISMO's portal, drawn the same way as the outside firms' Assessor Portal (Jonna, 5 Nov 2026:
+       "I just want Jonathan's to look like the others with the additional you've done for MISMO").
+       Overview and Engagements are the portal's own layout (assessors/index.html paneHome, paneOpen);
+       what is added for MISMO: the money line and plain-English stage on every row, Coming to You
+       rows that open the record, and the FRAME Practical Exercises tile and section. ══ */
+    var pvF = { f: "all", q: "" };
+    var PV_JOURNEY = [
+        { t: "Application", who: "Company & MISMO", you: false, s: [ "Draft", "DocumentsRequested", "AgreementSent", "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ] },
+        { t: "Booking", who: "Company picks, you confirm", you: true, s: [ "AwaitingDemoSelection", "AwaitingReviewSelection", "PreAssessmentDiscussion", "DemoProposed" ] },
+        { t: "Demonstration", who: "You", you: true, s: [ "DemoScheduled", "ReviewScheduled" ] },
+        { t: "Evidence", who: "Company sends, you review", you: true, s: [ "AwaitingArtifacts", "ArtifactReview" ] },
+        { t: "Results", who: "You submit, MISMO decides", you: true, s: [ "PrelimResultsSubmitted", "PrelimQueryOpen", "AppealOpen" ] },
+        { t: "Remediation", who: "Company fixes, you verify", you: true, s: [ "RemediationOpen", "RemediationEscalated", "RemediationSubmitted", "RemediationQueryOpen" ] },
+        { t: "Certified", who: "MISMO", you: false, s: [ "ApprovedPendingLicense", "LicenseSent", "Certified" ] }
+    ];
+    function pvStop(f) { var st = currentState(f); for (var i = 0; i < PV_JOURNEY.length; i++) if (PV_JOURNEY[i].s.indexOf(st) >= 0) return i; return 0; }
+    function pvMine(f) { return !!(f.waiting && f.waiting.indexOf("Assessor") >= 0); }
+    var PV_MONO = [ "#14486e", "#0f7b5c", "#7a4fb3", "#b5651d", "#1f6f8b", "#a23e5c", "#4c6a1e", "#3d5a99" ];
+    function pvMono(name) {
+        var w = String(name || "?").replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);
+        var t = (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || "?").slice(0, 1)).toUpperCase();
+        var h = 0; for (var i = 0; i < String(name).length; i++) h = (h * 31 + String(name).charCodeAt(i)) >>> 0;
+        return '<span class="pv-mono" style="background:' + PV_MONO[h % PV_MONO.length] + '">' + esc(t) + "</span>";
+    }
+    function pvBar(f) {
+        var at = pvStop(f), m = pvMine(f);
+        return '<span class="jb">' + PV_JOURNEY.map((function(j, i) { return '<i class="' + (i < at ? "past" : i === at ? (m ? "now mine" : "now") : "") + '" title="' + esc(j.t) + '"></i>'; })).join("") + "</span>";
+    }
+    function pvStepper(f) {
+        var at = pvStop(f), m = pvMine(f);
+        return '<div class="jstep mini">' + PV_JOURNEY.map((function(j, i) { return '<div class="js ' + (i < at ? "past" : i === at ? (m ? "now mine" : "now") : "next") + '"><span class="jd">' + (i < at ? "&#10003;" : i + 1) + "</span><b>" + esc(j.t) + "</b></div>"; })).join("") + "</div>";
+    }
+    function pvDay(f) { var d = demoOf(f); return d ? String(d).slice(0, 10) : null; }
+    function pvUntil(iso) { var d = parseDay(iso); if (!d) return null; var t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((d - t) / 864e5); }
+    function pvWhen(n) { return n == null ? "" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : n > 1 ? "In " + n + " days" : -n + " days ago"; }
+    function pvDateTile(iso) {
+        var d = parseDay(iso); if (!d) return "";
+        return '<span class="dtile"><i>' + d.toLocaleDateString("en-US", { weekday: "short" }) + "</i><b>" + d.getDate() + "</b><i>" + d.toLocaleDateString("en-US", { month: "short" }) + "</i></span>";
+    }
+    function pvOpenAttr(f, coming) { return coming ? 'data-pkrow="' + f.row + '" title="Open the record"' : 'data-eng="' + f.row + '" title="Open the engagement"'; }
+    function pvRow(f, g) {
+        var mine = g === "you", coming = g === "coming", d = pvDay(f);
+        if (d && d < D.asOf) d = null;
+        var st = currentState(f);
+        return '<button class="er' + (mine ? " mine" : "") + (coming ? " coming" : "") + '" type="button" ' + pvOpenAttr(f, coming) + ' data-hay="' + esc(String((f.org || "") + " " + (f.product || "") + " " + (f.program || "")).toLowerCase()) + '">'
+            + pvMono(f.org)
+            + '<span class="er-id"><b>' + esc(f.org || "") + "</b><i>" + esc(f.product || pkProg(f.program) || "") + "</i></span>"
+            + '<span class="er-pg"><span class="pv-tag">' + esc(f.program || "") + '</span><span class="pv-tag soft">' + esc(kindLabel(f)) + "</span></span>"
+            + '<span class="er-jr">' + pvBar(f) + "<i>" + esc(PV_JOURNEY[pvStop(f)].t) + " · " + esc(titleOfState(st)) + "</i></span>"
+            + '<span class="er-st' + (mine ? " you" : scriptOutstanding(f) ? " bad" : "") + '"><b>' + esc(mine ? (TQ_NEXT[st] || "Your move") : scriptOutstanding(f) ? "Waiting on MISMO: certification script" : pendingLabel(f)) + "</b>"
+            + "<i>" + (d ? esc(fmt(d)) + " · " + esc(pvWhen(pvUntil(d))) : f.age != null ? esc(f.age) + " days at this step" : "") + "</i>"
+            + '<span class="er-money">' + esc(moneyLine(f)) + "</span></span>"
+            + '<span class="er-go">›</span></button>';
+    }
+    function pvRender(B) {
+        var shown = B.withMe.concat(B.blocked.filter((function(f) { return B.withMe.indexOf(f) < 0; })), B.inFlight, B.others);
+        var az = function(a, b) { return String(a.org).localeCompare(String(b.org)) || String(a.program).localeCompare(String(b.program)); };
+        [ B.withMe, B.blocked, B.inFlight, B.others ].forEach((function(l) { l.sort(az); }));
+        var pip = $("pip-as-todo"); if (pip) pip.hidden = true;
+        var name = firmBrand(asFirm).legalName || asFirm;
+        var demos = shown.filter((function(f) { var d = pvDay(f); return d && d >= D.asOf; })).sort((function(a, b) { return pvDay(a) < pvDay(b) ? -1 : 1; }));
+        var next = demos[0];
+        var ex = asFirm === "MISMO" && typeof scenRows === "function" ? scenRows() : [], exTodo = ex.filter((function(r) { return scenState(r).k === "todo"; })).length + (typeof scenUnassigned === "function" ? scenUnassigned().length : 0);
+        function em(n, late) { return "<em" + (late ? ' class="hl-late"' : "") + ">" + n + "</em>"; }
+        function tile(n, k, sub, warn, go) { return '<button class="hx-tile' + (warn ? " warn" : "") + '" type="button" data-pvgo="' + go + '"><b>' + n + "</b><span>" + esc(k) + "</span><small>" + esc(sub) + "</small></button>"; }
+        var h = new Date().getHours();
+        var say = B.withMe.length ? em(B.withMe.length, true) + (B.withMe.length === 1 ? " engagement needs" : " engagements need") + " you right now" : "You are all caught up";
+        say += (shown.length ? ", out of " + em(shown.length) + " on your board." : ".") + (next ? " Your next demonstration is " + esc(next.org) + ", " + esc(pvWhen(pvUntil(pvDay(next))).toLowerCase()) + "." : "");
+        var hero = '<section class="hx"><div class="hx-top"><span class="hx-eyebrow">' + (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + " · " + esc(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })) + "</span>"
+            + '<h1 class="hx-name">' + esc(name) + '</h1><p class="hx-say">' + say + "</p></div>"
+            + '<div class="hx-tiles' + (asFirm === "MISMO" ? " five" : "") + '">'
+            + tile(B.withMe.length, "With You", B.withMe.length ? "your move" : "all clear", !!B.withMe.length, "open:you")
+            + tile(B.inFlight.length, "In Your Queue", "worked, waiting on others", false, "open:queue")
+            + tile(B.others.length, "Coming to You", "not started yet", false, "open:coming")
+            + (next ? '<button class="hx-tile next" type="button" data-eng="' + next.row + '"><b>' + esc(pvWhen(pvUntil(pvDay(next)))) + "</b><span>Next Demonstration</span><small>" + esc(next.org) + " · " + esc(fmt(pvDay(next))) + "</small></button>"
+                : tile(demos.length, "Demonstrations Booked", "none coming up", false, "open:all"))
+            + (asFirm === "MISMO" ? tile(exTodo, "Practical Exercises", exTodo ? "to assign or send" : "nothing to send", !!exTodo, "scenarios") : "")
+            + "</div></section>";
+        var out = hero + '<section class="ov-sec"><div class="ov-h"><h2>Your Next Moves</h2><p>Everything waiting on ' + esc(asFirm) + ", with the step to take. Open one to record it.</p></div>";
+        out += B.withMe.length ? '<div class="moves">' + B.withMe.map((function(f) {
+            var st = currentState(f), d = pvDay(f);
+            return '<button class="move" type="button" data-eng="' + f.row + '"><span class="mv-top">' + pvMono(f.org) + '<span class="mv-id"><b>' + esc(f.org) + "</b><i>" + esc(f.program || "") + " · " + esc(kindLabel(f)) + (f.product ? " · " + esc(f.product) : "") + "</i></span></span>"
+                + pvStepper(f) + '<span class="mv-do"><span class="mv-k">Next Step</span><b>' + esc(TQ_NEXT[st] || titleOfState(st)) + "</b></span>"
+                + '<span class="mv-foot">' + (d ? '<span class="pv-tag cal">' + esc(fmt(d)) + "</span>" : "") + '<span class="pv-tag">' + esc(titleOfState(st)) + '</span><span class="mv-go">Open ›</span></span></button>';
+        })).join("") + "</div>" : '<div class="calm"><b>Nothing is waiting on you.</b> New work arrives here the moment a company books, sends its evidence, or MISMO asks you something.</div>';
+        out += "</section>";
+        var counts = PV_JOURNEY.map((function() { return { n: 0, mine: 0 }; }));
+        shown.forEach((function(f) { var i = pvStop(f); counts[i].n++; if (pvMine(f)) counts[i].mine++; }));
+        out += '<section class="ov-sec"><div class="ov-h"><h2>The Certification Journey</h2><p>Every engagement passes through the same seven stops. The highlighted ones are where you act; the numbers are your engagements at each stop. Select a stop to list them.</p></div><div class="jmap">'
+            + PV_JOURNEY.map((function(j, i) {
+                return '<button class="jm' + (j.you ? " you" : "") + (counts[i].mine ? " hot" : "") + '" type="button" data-pvgo="open:stop' + i + '"><span class="jm-n">' + counts[i].n + '</span><span class="jm-t">' + esc(j.t) + '</span><span class="jm-w">' + esc(j.who) + "</span>" + (counts[i].mine ? '<span class="jm-me">' + counts[i].mine + " with you</span>" : "") + "</button>";
+            })).join('<span class="jm-arrow" aria-hidden="true"></span>') + "</div></section>";
+        out += '<section class="ov-sec"><div class="ov-h"><h2>Coming Up</h2><p>Booked demonstrations and reviews, soonest first.</p></div>'
+            + (demos.length ? '<div class="agenda">' + demos.slice(0, 6).map((function(f) {
+                return '<button class="ag" type="button" data-eng="' + f.row + '">' + pvDateTile(pvDay(f)) + '<span class="ag-id"><b>' + esc(f.org) + "</b><i>" + esc(f.program || "") + " · " + esc(kindLabel(f)) + '</i></span><span class="ag-when">' + esc(pvWhen(pvUntil(pvDay(f)))) + "</span></button>";
+            })).join("") + "</div>" : '<div class="calm">Nothing booked yet.</div>') + "</section>";
+        var todo = $("as-todo"); if (todo) todo.innerHTML = out;
+        /* Engagements */
+        var groups = [ [ "you", "With You", "The next move is yours.", B.withMe ], [ "mismo", "Waiting on MISMO", "The certification script has not been sent, so these cannot start yet.", B.blocked.filter((function(f) { return B.withMe.indexOf(f) < 0; })) ],
+            [ "queue", "In Your Queue", "You have worked these. They come back to you when the company or MISMO moves.", B.inFlight ], [ "coming", "Coming to You", "Assigned to you, waiting on the company or MISMO first. Nothing to do yet. Select one to open its record: where it is and what has been paid.", B.others ] ];
+        if (!pvF) pvF = { f: "all", q: "" };
+        var stop = /^stop(\d)$/.test(pvF.f) ? +pvF.f.slice(4) : null;
+        var chips = [ [ "all", "All", shown.length ] ].concat(groups.filter((function(g) { return g[3].length; })).map((function(g) { return [ g[0], g[1], g[3].length ]; })));
+        var eo = '<div class="pg-h"><div><h1>Engagements</h1><p>Every certification assigned to ' + esc(asFirm) + (firmPrograms(asFirm).length ? " (" + esc(firmPrograms(asFirm).join(", ")) + ")" : "") + ", A to Z. Select one to open it.</p></div></div>"
+            + '<div class="toolbar"><div class="pv-seg">' + chips.map((function(c) { return '<button type="button" class="' + (pvF.f === c[0] ? "on" : "") + '" data-pvf="' + c[0] + '">' + esc(c[1]) + " <b>" + c[2] + "</b></button>"; })).join("")
+            + (stop != null ? '<button type="button" class="on" data-pvf="all">' + esc(PV_JOURNEY[stop].t) + " &times;</button>" : "") + "</div>"
+            + '<input type="search" class="pv-find" data-pvq placeholder="Find a company" aria-label="Find a company" value="' + esc(pvF.q) + '"></div>';
+        var body = "";
+        groups.forEach((function(g) {
+            var rows = g[3].filter((function(f) { return stop == null || pvStop(f) === stop; }));
+            if (!rows.length) return;
+            if (pvF.f !== "all" && stop == null && pvF.f !== g[0]) return;
+            body += '<div class="grp"><div class="grp-h ' + g[0] + '"><b>' + esc(g[1]) + "</b><span>" + rows.length + "</span><i>" + esc(g[2]) + '</i></div><div class="ers">' + rows.map((function(f) { return pvRow(f, g[0]); })).join("") + "</div></div>";
+        }));
+        var op = $("as-open"); if (op) { op.innerHTML = eo + (body || '<div class="calm">Nothing here right now.</div>') + '<div class="calm" id="pv-none" hidden>No company matches that search.</div>'; pvFind(); }
+    }
+    function pvFind() {
+        var q = String((pvF && pvF.q) || "").trim().toLowerCase(), any = false;
+        Array.prototype.forEach.call(document.querySelectorAll("#as-open .er[data-hay]"), (function(r) { var hit = !q || r.getAttribute("data-hay").indexOf(q) >= 0; r.hidden = !hit; if (hit) any = true; }));
+        Array.prototype.forEach.call(document.querySelectorAll("#as-open .grp"), (function(g) { g.hidden = !g.querySelector(".er:not([hidden])"); }));
+        var n = $("pv-none"); if (n) n.hidden = any || !q;
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pvgo],[data-pvf]") : null;
+        if (!t) return;
+        if (t.hasAttribute("data-pvf")) { pvF.f = t.getAttribute("data-pvf"); renderFirmPortal(); return; }
+        var go = t.getAttribute("data-pvgo");
+        if (go === "scenarios") asSection = "scenarios";
+        else { asSection = "open"; pvF.f = go.split(":")[1] || "all"; pvF.q = ""; }
+        asOpen = null;
+        renderAssessorSwitch();
+        window.scrollTo(0, 0);
+    }));
+    document.addEventListener("input", (function(e) {
+        if (!e.target || !e.target.hasAttribute || !e.target.hasAttribute("data-pvq")) return;
+        pvF.q = e.target.value; pvFind();
+    }));
     function renderEngagement() {
         var el = $("as-engagement");
         if (!el) return;
@@ -13075,7 +13384,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         };
         var docked = !!origTarget(f);
         document.body.classList.toggle("on-dock", docked);
-        el.innerHTML = (docked ? '<div class="dockwrap"><div class="dockmain">' : "") + '<div class="panel">' + '<button class="dback" type="button" data-eng-back="1">← Back to my to do</button>' + '<div class="phead"><div>' + "<h2>" + esc(f.org) + (f.product ? " · " + esc(f.product) : "") + "</h2>" + '<p class="psub">' + esc(f.program) + " · " + esc(f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + esc(titleOfState(currentState(f))) + "</p>" + "</div></div>" + engReport(f, answered) + "</div>" + (f.program === "Consultant" ? submissionPanel(f) + scorecardPanel(f) : "") + (f.program === "FRAME" ? framePanel(f) + attachmentPanel(f) + interviewPanel(f) + frVerdictPanel(f, frameResult(f.org)) : "") + (scriptOutstanding(f) ? '<div class="panel"><div class="note bad" style="margin:0;">' + "<b>Waiting on MISMO.</b> The certification script for this renewal has not been " + "completed and sent yet. It carries the provider’s own questionnaire and " + "attestation answers, which is what the demo is read against.</div></div>" : "") + engActions(f) + (assessedOutside(f) ? uploadPanel(f) : "") + (f.program === "Consultant" || f.program === "FRAME" ? "" : '<div class="panel">' + '<div class="phead"><div>' + "<h2>" + (assessedOutside(f) ? "What the Assessment Found" : "Score the Instrument") + "</h2>" + '<p class="psub">' + (!assessedOutside(f) ? "" : scriptReadable(f) ? "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>, marked from the file brought in above. Nothing here has to be filled " + "in by hand — but anything read wrongly can be corrected here, and the " + "correction is recorded as one. " : "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>. The report itself is uploaded above; the recommendation is set here, " + "line by line, because a prose report is not something the system can read a " + "mark out of. ") + (assessedOutside(f) ? "" : sc ? "Working to <b>" + esc(sc.title) + "</b>, read out of the assessor workbook " + "rather than retyped. Every item carries the criterion MISMO applies and " + "the evidence required. " : items.length ? "No certification script exists for " + esc(f.program) + " yet, so these " + "are the questions " + (items[0] && items[0].fromForm ? "on the questionnaire" : "on file") + " and nothing more — " + "no criterion, no required evidence. " : "") + "The preliminary result follows from the marks — it is never typed.</p>" + "</div></div>" + '<div class="prelim ' + p.state + '">' + '<div><span class="pl-lab">Preliminary Result</span>' + '<span class="pl-val">' + esc(p.label) + "</span></div>" + '<div class="pl-prog"><span style="width:' + (p.total ? (p.scored / p.total * 100).toFixed(1) : 0) + '%"></span></div>' + '<div class="pl-n">' + p.scored + " of " + p.total + " scored</div>" + "</div>" + (items.length ? sections.map((function(sec) {
+        el.innerHTML = (docked ? '<div class="dockwrap"><div class="dockmain">' : "") + '<div class="panel">' + '<button class="dback" type="button" data-eng-back="1">← Back</button>' + '<div class="phead"><div>' + "<h2>" + esc(f.org) + (f.product ? " · " + esc(f.product) : "") + "</h2>" + '<p class="psub">' + esc(f.program) + " · " + esc(f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + esc(titleOfState(currentState(f))) + "</p>" + "</div></div>" + engReport(f, answered) + "</div>" + (f.program === "Consultant" ? submissionPanel(f) + scorecardPanel(f) : "") + (f.program === "FRAME" ? framePanel(f) + attachmentPanel(f) + interviewPanel(f) + frVerdictPanel(f, frameResult(f.org)) : "") + (scriptOutstanding(f) ? '<div class="panel"><div class="note bad" style="margin:0;">' + "<b>Waiting on MISMO.</b> The certification script for this renewal has not been " + "completed and sent yet. It carries the provider’s own questionnaire and " + "attestation answers, which is what the demo is read against.</div></div>" : "") + engActions(f) + (assessedOutside(f) ? uploadPanel(f) : "") + (f.program === "Consultant" || f.program === "FRAME" ? "" : '<div class="panel">' + '<div class="phead"><div>' + "<h2>" + (assessedOutside(f) ? "What the Assessment Found" : "Score the Instrument") + "</h2>" + '<p class="psub">' + (!assessedOutside(f) ? "" : scriptReadable(f) ? "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>, marked from the file brought in above. Nothing here has to be filled " + "in by hand — but anything read wrongly can be corrected here, and the " + "correction is recorded as one. " : "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>. The report itself is uploaded above; the recommendation is set here, " + "line by line, because a prose report is not something the system can read a " + "mark out of. ") + (assessedOutside(f) ? "" : sc ? "Working to <b>" + esc(sc.title) + "</b>, read out of the assessor workbook " + "rather than retyped. Every item carries the criterion MISMO applies and " + "the evidence required. " : items.length ? "No certification script exists for " + esc(f.program) + " yet, so these " + "are the questions " + (items[0] && items[0].fromForm ? "on the questionnaire" : "on file") + " and nothing more — " + "no criterion, no required evidence. " : "") + "The preliminary result follows from the marks — it is never typed.</p>" + "</div></div>" + '<div class="prelim ' + p.state + '">' + '<div><span class="pl-lab">Preliminary Result</span>' + '<span class="pl-val">' + esc(p.label) + "</span></div>" + '<div class="pl-prog"><span style="width:' + (p.total ? (p.scored / p.total * 100).toFixed(1) : 0) + '%"></span></div>' + '<div class="pl-n">' + p.scored + " of " + p.total + " scored</div>" + "</div>" + (items.length ? sections.map((function(sec) {
             return '<div class="ins-sec"><h3>' + esc(SECTION_LABEL[sec.name] || sec.name) + "</h3>" + sec.items.map((function(it) {
                 return itemRow(f, it);
             })).join("") + "</div>";
