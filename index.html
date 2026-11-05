@@ -3999,6 +3999,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var newApp = null;
     var invEdit = {};
     var finance = null;
+    /* Orders looked up in Aptify itself (total, balance, quotation or order), saved in db-aptify-orders as
+       docs.latest {checkedAt, by, orders{<order>: {total, balance, type, orderDate}}}. MISMO Money's feed never
+       carries ACH, wire or credit-memo payments, so this is what makes Revenue match Aptify (5 Nov 2026). */
+    var aptifyOrders = null;
+    function aptifyOrder(order) { var o = order != null && typeof orderIdOf === "function" ? orderIdOf(order) : order; return o && aptifyOrders && aptifyOrders.orders ? aptifyOrders.orders[String(o)] || null : null; }
     var SCRIPT_RESULTS = D.certScripts && D.certScripts.results || [ "Pass", "Fail", "Waiting on Artifact", "Remediated" ];
     function certKey(c) {
         return [ c.org, c.program, c.product || "" ].join("|");
@@ -5435,6 +5440,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function moneyLine(f) {
         var i = null, exp = null;
         try { i = invoiceOf(f); } catch (e) {}
+        var ap = i && i.orderId ? aptifyOrder(i.orderId) : null;
+        if (ap && i) i = Object.assign({}, i, { paid: ap.balance <= 0.005, amount: i.amount != null ? i.amount : ap.total, invoicedOn: i.invoicedOn || ap.orderDate });
         if (i && i.amount != null) return (i.paid ? "Paid " + money0(i.amount) + (i.paidOn ? " on " + fmt(i.paidOn) : "") : "Invoiced " + money0(i.amount) + (i.invoicedOn ? " on " + fmt(i.invoicedOn) : "") + ", not paid yet");
         if (i && i.orderId) return i.paid ? "Paid (order " + i.orderId + ")" : "Invoiced (order " + i.orderId + "), not paid yet";
         try { exp = expectedFor({ program: f.program, kind: f.kind || "initial", size: f.size || null, org: f.org }); } catch (e) {}
@@ -7650,6 +7657,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             byOrder[order] = e;
         }));
         out.forEach((function(e) { if (e.order && e.paid < e.billed) { var fp = fsPaid(e.order); if (fp) e.paid = e.billed; } }));
+        /* Aptify's own figures win: balance 0 is paid in full; a balance still owed is unpaid by that much */
+        var AO = aptifyOrders && aptifyOrders.orders || {};
+        out.forEach((function(e) {
+            var a = e.order ? AO[String(e.order)] : null;
+            if (!a) return;
+            e.aptify = a;
+            if (a.balance <= 0.005) e.paid = e.billed;
+            else if (a.total) e.paid = Math.max(0, Math.min(e.billed, e.billed - a.balance * (e.billed / a.total)));
+            if (a.type === "Quotation" && a.orderDate) e.on = a.orderDate;
+        }));
         return out;
     }
     function rvOpenAttr(e) {
@@ -7665,7 +7682,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (typeof tdProspect === "function" && tdProspect(f.org)) return;
             var i = null; try { i = invoiceOf(f); } catch (e) {}
             var order = i && i.orderId ? orderIdOf(i.orderId) : null;
-            var paid = !!(i && i.paid) || settled(f) || !!(order && fsPaid(order));
+            var ap = aptifyOrder(order);
+            var paid = ap ? ap.balance <= 0.005 : !!(i && i.paid) || settled(f) || !!(order && fsPaid(order));
             if (paid) return;
             var pre = !!RV_PREPAY[st] && (f.kind || "initial") === "initial";
             if (!pre && !(i && (i.orderId || i.amount))) return;
@@ -7715,7 +7733,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var days = e.on ? Math.max(0, Math.round((TODAY - parseDay(e.on)) / 864e5)) : null;
             return '<button type="button" class="rv-row"' + rvOpenAttr(e) + ' title="Open ' + esc(e.org) + '" style="--k:#f08579">' + cmono(e.org)
                 + '<span class="rv-w"><b>' + esc(e.org) + "</b><small>" + esc(pkProg(e.program)) + (e.product ? " · " + esc(e.product) : "") + (e.kind === "renewal" ? " · Renewal" : "") + "</small></span>"
-                + '<span class="rv-s">Order ' + esc(e.order) + (e.on ? ", invoiced " + esc(fmt(e.on)) : "") + (e.paid ? "<br>" + money0(e.paid) + " paid so far" : "") + "</span>"
+                + '<span class="rv-s">' + (e.aptify && e.aptify.type === "Quotation" ? "Quotation " : "Order ") + esc(e.order) + (e.on ? ", invoiced " + esc(fmt(e.on)) : "") + (e.paid ? "<br>" + money0(e.paid) + " paid so far" : "") + "</span>"
                 + '<span class="rv-a">' + money0(e.billed - e.paid) + "</span>"
                 + '<span class="rv-d">' + (days != null ? days + " day" + (days === 1 ? "" : "s") : "—") + "</span></button>";
         })).join("");
@@ -7738,7 +7756,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<span class="t">Total</span><span class="n t">' + money0(billed) + '</span><span class="n t">' + money0(paid) + '</span><span class="n t x">' + money0(fees) + '</span><span class="n t x">' + money0(billed - fees) + "</span></div>";
         host.innerHTML = tools + pkSec("rv-await", "Applied, Not Paid Yet", aw.length, "Every company with an open application or an invoice out that has not been paid. Select one to open its record: where it is, what we are waiting on, and the invoice.",
                 aw.length ? head + awRows : '<div class="empty">Everyone who has applied has paid.</div>', { k: "#e0a83c" })
-            + pkSec("rv-owed", "Invoiced, Not Paid", owedRows.length, "Invoices raised in Aptify that no payment has been found for yet, oldest first. These include renewals.",
+            + pkSec("rv-owed", "Invoiced, Not Paid", owedRows.length, "Invoices raised in Aptify that are not paid, oldest first. These include renewals." + (aptifyOrders && aptifyOrders.checkedAt ? " Checked order by order against Aptify on " + esc(fmt(String(aptifyOrders.checkedAt).slice(0, 10))) + "; a payment recorded since then shows here as soon as the CMS or the daily check has it." : ""),
                 owedRows.length ? '<div class="rv-head"><span></span><span>Company</span><span>Invoice</span><span>Still Owed</span><span>Since</span></div>' + owRows : '<div class="empty">Every invoice has been paid.</div>', { k: "#f08579" })
             + pkSec("rv-month", P[2] ? "Invoiced by Month, " + P[1] : "Invoiced by Fiscal Year", null, "By invoice date. Point at a bar to see what was collected and what went to assessors.", chart, { k: "#74bfeb" })
             + pkSec("rv-prog", "By Program", pk.length, "What each program brought in " + per + ", and what it cost in assessor fees.", pk.length ? prog : '<div class="empty">Nothing invoiced ' + per + ".</div>", { k: "#5fb3c9" });
@@ -11676,6 +11694,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 orgEdits = next;
                 recompute();
                 renderAll();
+            }), (function() {}));
+            d.collection("aptify-orders").onSnapshot((function(snap) {
+                var doc = (snap.docs || []).filter((function(x) { return x.id === "latest"; }))[0];
+                aptifyOrders = doc ? doc.data() : null;
+                renderInvoices();
             }), (function() {}));
             d.collection("finance").onSnapshot((function(snap) {
                 var doc = (snap.docs || []).filter((function(x) {
