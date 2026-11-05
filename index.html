@@ -4895,7 +4895,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var TD_SYSTEM = [ "RenewalPrep", "ApprovedPendingLicense" ];
     var tdFold = { waiting: false, prospects: false, stages: false };
     var TD_FU_ASSESSOR = [ "RemediationOpen", "RemediationEscalated", "AwaitingArtifacts", "PreAssessmentDiscussion", "DemoProposed", "DemoScheduled", "ArtifactReview", "PrelimQueryOpen", "RemediationQueryOpen" ];
-    function tdAssessorOf(f) { var c = certFor(f); return (c && c.assessor) || f.assessor || ""; }
+    /* The cycle's own saved assessor counts too (5 Nov 2026: Pensato.ai, a CMS-added application,
+       kept coming back to Assign an Assessor until its saved choice caught up on the next refresh). */
+    function tdAssessorOf(f) { var c = certFor(f), mv = (typeof moves !== "undefined" && moves) || {}, m = mv[f.row] || mv[String(f.row)]; return (c && c.assessor) || f.assessor || (m && m.assessor) || ""; }
     function tdFuKind(f, x) {
         var st = currentState(f), a = tdAssessorOf(f);
         if (/invoice|unpaid|payment/i.test(x.reason || "") || st === "AwaitingPayment") return "fu-invoice";
@@ -5046,7 +5048,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var x = followUpOf(f);
             if (x) { if (fuDue(x)) todo[tdFuKind(f, x)].push(f); else wait.later.push(f); return; }
             if (scriptOutstanding(f)) { todo.script.push(f); return; }
-            if (!(c && c.assessor) && !f.assessor) { todo.assessor.push(f); return; }
+            if (!tdAssessorOf(f)) { todo.assessor.push(f); return; }
             if (TD_JONATHAN.indexOf(st) >= 0) { wait.jonathan.push(f); return; }
             if (TD_SYSTEM.indexOf(st) >= 0) { wait.system.push(f); return; }
             var w = String((STATE[st] || {}).waiting || f.waiting || "");
@@ -11054,6 +11056,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }));
                 renderPipe();
                 renderQueueCounts();
+                if (typeof renderTodo === "function") renderTodo();
             }), (function() {
                 banner();
             }));
