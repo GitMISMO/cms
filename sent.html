@@ -164,6 +164,8 @@ html.embed body{background:transparent}
   background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--k);border-radius:8px;box-shadow:0 1px 2px rgba(6,32,47,.04);
   transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease}
 .mail:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(6,32,47,.1)}
+button.mail{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+button.mail:focus-visible{outline:2px solid var(--k);outline-offset:2px}
 .mail .t{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:10px}
 .mail .cmono{margin-top:1px}
 .mail .w{min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -384,7 +386,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (m.held) chips.appendChild(h('span', { class: 'chip warn', text: 'Held for Review' }));
     /* certifications@mismo.org is on every email to a company or an assessor, so only a miss is called out */
     if (!m.copied && m.kind !== 'license' && !m.held) chips.appendChild(h('span', { class: 'chip', text: 'certifications@ Not Copied' }));
-    return h('div', { class: 'mail' + (m.held ? ' held' : ''), id: 'm-' + m.i, style: '--k:' + (m.held ? '#f08579' : KCOL[m.kind]) },
+    /* Jonathan, 5 Nov 2026: a row opens what the email was about (the cycle, the renewal or the company) */
+    var go = EMBED && (m.org && m.org !== 'MISMO');
+    return h(go ? 'button' : 'div', { type: go ? 'button' : null, class: 'mail' + (m.held ? ' held' : '') + (go ? ' go' : ''), id: 'm-' + m.i, 'data-open': go ? String(m.i) : null,
+      title: go ? (m.person ? 'Open CMSP & AMSP' : 'Open ' + m.org) : null, style: '--k:' + (m.held ? '#f08579' : KCOL[m.kind]) },
       h('span', { class: 't', text: timeOf(m.at) }), cmono(m.org || 'MISMO'),
       h('span', { class: 'w' }, hd, h('span', { class: 's', text: m.subject }), to, chips.childNodes.length ? chips : null),
       h('span', { class: 'x', text: m.extra || '' }));
@@ -439,6 +444,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (t.hasAttribute('data-w')) { F.w = t.getAttribute('data-w'); render(); }
   });
   $('q').addEventListener('input', function () { F.q = $('q').value; render(); });
+  $('list').addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-open]') : null; if (!b) return;
+    var m = ALL.filter(function (x) { return String(x.i) === b.getAttribute('data-open'); })[0]; if (!m) return;
+    try { window.parent.postMessage({ sentOpen: m.person ? { individual: m.org } : { row: m.row, key: m.key, org: m.org, program: m.program, product: m.product } }, location.origin); } catch (err) {}
+  });
   $('eb').textContent = todayLabel();
   renderFilters();
 
@@ -446,18 +456,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var rn = res[0].docs || {}, st = res[1].docs || {}, ml = res[2].docs || {}, ind = (res[3] || {}).docs || {};
     /* CMSP and AMSP (27 Oct 2026): .github/scripts/individual.js keeps its own log */
     Object.keys(ind).forEach(function (id) { var d = ind[id]; if (!d || !d.sentAt) return; var to = addresses(d.sentTo);
-      ALL.push({ kind: 'individual', at: new Date(d.sentAt), org: d.name || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
+      ALL.push({ kind: 'individual', person: true, at: new Date(d.sentAt), org: d.name || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
         held: !!d.held, copied: to.some(function (a) { return /certifications@mismo\.org/i.test(a); }), label: d.program || 'CMSP / AMSP',
         extra: (d.attachments || []).length ? 'Certificate Attached' : null }); });
     Object.keys(rn).forEach(function (id) { var d = rn[id]; if (!d || !d.sentAt) return; var to = addresses(d.sentTo);
-      ALL.push({ kind: 'renewal', at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
+      ALL.push({ kind: 'renewal', key: d.key || null, product: d.product || null, at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
         held: !!d.heldBack, copied: to.some(function (a) { return /certifications@mismo\.org/i.test(a); }), label: NAMES[d.notice] || ('Notice ' + d.notice), extra: d.dueOn ? 'Due ' + shortIso(d.dueOn) : null }); });
     Object.keys(st).forEach(function (id) { var d = st[id]; if (!d || !d.sentAt) return; var to = addresses(d.sentTo);
-      ALL.push({ kind: 'stage', at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
+      ALL.push({ kind: 'stage', row: d.row != null ? d.row : null, product: d.product || null, at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: d.subject || '', to: to, would: d.wouldHaveGoneTo || [],
         held: !!d.held, copied: to.some(function (a) { return /certifications@mismo\.org/i.test(a); }), label: d.kind === 'followUp' ? 'Reminder' : d.releaseOf ? 'Released After Review' : 'Stage Email',
         extra: d.reminders ? 'Reminder ' + d.reminders : null }); });
     Object.keys(ml).forEach(function (id) { var d = ml[id]; if (!d || !d.sentAt || !d.envelopeId) return;
-      ALL.push({ kind: 'license', at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: 'Mark License Agreement sent through DocuSign',
+      ALL.push({ kind: 'license', row: d.row != null ? d.row : null, product: d.product || null, at: new Date(d.sentAt), org: d.org || '', program: d.program || '', subject: 'Mark License Agreement sent through DocuSign',
         to: d.signer && d.signer.email ? [d.signer.email] : [], would: [], held: false, copied: false, label: 'Mark License', signed: d.status === 'signed',
         extra: d.status === 'signed' ? 'Signed ' + shortIso(d.signedAt) : cap(d.status) }); });
     ALL = ALL.filter(function (m) { return !isNaN(m.at); }).sort(function (a, b) { return b.at - a.at; });

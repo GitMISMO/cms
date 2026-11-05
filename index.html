@@ -2666,6 +2666,47 @@
   .pk-day{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin:22px 0 8px; padding-bottom:6px; border-bottom:1px solid var(--rule);}
   .pk-act{display:grid; grid-template-columns:70px 32px minmax(0,1fr) auto; gap:12px; align-items:center; padding:9px 12px; margin-bottom:6px;
     border:1px solid var(--border); border-left:3px solid var(--k); border-radius:8px; background:var(--surface);}
+  /* Revenue (5 Nov 2026) */
+  .rv-tool{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:18px 0 4px;}
+  .rv-row{display:grid; grid-template-columns:32px minmax(0,1.4fr) minmax(0,1.3fr) 110px 90px; gap:12px; align-items:center; width:100%; text-align:left; font:inherit; color:inherit;
+    padding:10px 12px; margin-bottom:6px; border:1px solid var(--border); border-left:3px solid var(--k, var(--sky)); border-radius:8px; background:var(--surface); cursor:pointer;}
+  .rv-row:hover{background:var(--surface-2); border-color:var(--k, var(--sky));}
+  .rv-row:focus-visible{outline:2px solid var(--k, var(--sky)); outline-offset:2px;}
+  .rv-row .cmono{width:32px; height:32px; flex:0 0 32px; font-size:12px;}
+  .rv-w{min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .rv-w b{font-size:13.5px;}
+  .rv-w small{font-size:12px; color:var(--ink-3);}
+  .rv-s{font-size:13px; color:var(--ink-2); line-height:1.4;}
+  .rv-a{font-size:14px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .rv-d{font-size:12px; color:var(--ink-3); text-align:right; white-space:nowrap;}
+  .rv-head{display:grid; grid-template-columns:32px minmax(0,1.4fr) minmax(0,1.3fr) 110px 90px; gap:12px; padding:0 12px 6px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);}
+  .rv-head span:nth-child(4), .rv-head span:nth-child(5){text-align:right;}
+  .rv-chart{display:flex; align-items:flex-end; gap:6px; height:170px; padding:8px 0 0; border-bottom:1px solid var(--rule);}
+  .rv-m{flex:1 1 0; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; background:none; border:0; padding:0; font:inherit; color:inherit; cursor:default;}
+  .rv-m .rv-bar{width:100%; max-width:34px; display:flex; flex-direction:column; justify-content:flex-end; flex:1 1 auto;}
+  .rv-m .rv-bar i{display:block; width:100%; background:var(--sky); border-radius:4px 4px 0 0; min-height:0;}
+  .rv-m b{font-size:11px; font-weight:600; color:var(--ink-2); font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .rv-m small{font-size:11px; color:var(--ink-3); padding-bottom:6px;}
+  .rv-prog{display:grid; grid-template-columns:minmax(0,1.2fr) repeat(4, minmax(70px, .6fr)); gap:4px 12px; font-size:13px; align-items:center;}
+  .rv-prog > span{padding:7px 0; border-bottom:1px solid var(--rule); font-variant-numeric:tabular-nums;}
+  .rv-prog > span.h{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);}
+  .rv-prog > span.n{text-align:right; white-space:nowrap;}
+  .rv-prog > span.t{font-weight:700;}
+  @media(max-width:760px){
+    .rv-row{grid-template-columns:32px minmax(0,1fr) auto;}
+    .rv-row .rv-s{grid-column:2 / 4; grid-row:2;}
+    .rv-row .rv-d{grid-column:2 / 4; grid-row:3; text-align:left;}
+    .rv-head{display:none;}
+    .rv-m b{font-size:9.5px;}
+    .rv-prog{grid-template-columns:minmax(0,1fr) repeat(2, auto);}
+    .rv-prog > span.x{display:none;}
+  }
+  @media(max-width:600px){
+    .tqb.rv-b{grid-template-columns:1fr;}
+  }
+  button.pk-act{width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;}
+  button.pk-act:hover{background:var(--surface-2, var(--surface)); border-color:var(--k);}
+  button.pk-act:focus-visible{outline:2px solid var(--k); outline-offset:2px;}
   .pk-act .cmono{width:32px; height:32px; flex:0 0 32px; font-size:12px;}
   .pk-at{font-size:12px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap;}
   .pk-aw{min-width:0; display:flex; flex-direction:column; gap:2px;}
@@ -2958,6 +2999,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
       <div class="navgroup" aria-labelledby="navlbl-money">
         <div class="navlbl" id="navlbl-money">Money</div>
+        <button class="navlink" data-view="revenue" type="button" title="Revenue and Expenses, and Who Still Needs to Pay"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20.5h16"/><path d="M7 17V11M12 17V6M17 17v-8"/></svg></span><span class="nl">Revenue</span></button>
         <button class="navlink" data-view="invoices" type="button" title="Invoices and What Is Outstanding"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.5h12v19l-3-2-3 2-3-2-3 2Z"/><path d="M9.5 8h5M9.5 12h5"/></svg></span><span class="nl">Invoices</span><span class="pip" id="pip-inv">0</span></button>
         <button class="navlink" data-view="pricing" type="button" title="Certification Pricing"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2v17.6"/><path d="M16.2 7.2c-.6-1.4-2.2-2.2-4.2-2.2-2.4 0-4 1.1-4 2.9 0 4 8.2 2.2 8.2 6.3 0 1.9-1.8 3-4.2 3-2.2 0-3.9-.9-4.4-2.5"/></svg></span><span class="nl">Pricing</span></button>
         <button class="navlink" data-view="renewals" type="button" title="Renewal Quotations"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.8 4.2v4.6h-4.6"/></svg></span><span class="nl">Renewals</span><span class="pip" id="pip-renewals">0</span></button>
@@ -3004,6 +3046,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   </section>
 
   <!-- ================= INVOICES ================= -->
+  <section class="view" id="view-revenue">
+    <div id="pkh-revenue"></div>
+    <div id="rvlist"></div>
+  </section>
+
   <section class="view" id="view-invoices">
     <div class="vhead pk-gone"><div class="grow">
       <h1>Invoices</h1>
@@ -4081,7 +4128,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         function whoOf(rows) {
             var seen = [];
             rows.forEach((function(f) {
-                var w = f.waiting || "Unassigned";
+                var w = whoLabel(f.waiting || "Unassigned");
                 if (seen.indexOf(w) < 0) seen.push(w);
             }));
             if (!seen.length) return "";
@@ -4220,8 +4267,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 kind: "cycles",
                 rows: rows,
                 tone: "",
-                title: only ? titleOfState(only) : "Waiting on " + w,
-                who: w === "MISMO" || w === "Mismo" ? "VP decision" : w,
+                title: only ? pendingLabel(only) : "Waiting on " + whoLabel(w),
+                who: w === "MISMO" || w === "Mismo" ? "VP decision" : whoLabel(w),
                 sectioned: !only,
                 sub: "Open cycles where the next move is theirs. Select one to record it." + (heldBack && !saidHeldBack ? " " + heldBack + " other" + (heldBack === 1 ? " is" : "s are") + " not listed here because those companies already appear on a card above." : "")
             });
@@ -4801,7 +4848,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return parts;
         }
         g.rows.forEach((function(f) {
-            var k = f.waiting || "Unassigned";
+            var k = whoLabel(f.waiting || "Unassigned");
             if (!(k in by)) {
                 by[k] = 0;
                 order.push(k);
@@ -4886,7 +4933,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (g.kind === "chases") {
             return "<b>First:</b> " + esc(who) + (r.what ? " — " + esc(r.what) : "");
         }
-        return "<b>First:</b> " + esc(who) + (r.age != null ? " — open " + r.age + " days" : "") + (r.waiting ? ", with " + esc(r.waiting) : "");
+        return "<b>First:</b> " + esc(who) + (r.age != null ? " — open " + r.age + " days" : "") + (r.waiting ? ", with " + esc(whoLabel(r.waiting)) : "");
     }
 
     /* ---- Action Queue to-do list and Prospects (26 Oct 2026): see patches/todo_queue.py ---- */
@@ -4897,7 +4944,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var TD_FU_ASSESSOR = [ "RemediationOpen", "RemediationEscalated", "AwaitingArtifacts", "PreAssessmentDiscussion", "DemoProposed", "DemoScheduled", "ArtifactReview", "PrelimQueryOpen", "RemediationQueryOpen" ];
     /* The cycle's own saved assessor counts too (5 Nov 2026: Pensato.ai, a CMS-added application,
        kept coming back to Assign an Assessor until its saved choice caught up on the next refresh). */
-    function tdAssessorOf(f) { var c = certFor(f), mv = (typeof moves !== "undefined" && moves) || {}, m = mv[f.row] || mv[String(f.row)]; return (c && c.assessor) || f.assessor || (m && m.assessor) || ""; }
+    function tdAssessorOf(f) { var c = certFor(f), mv = (typeof moves !== "undefined" && moves) || {}, m = mv[f.row] || mv[String(f.row)]; return (c && c.assessor) || f.assessor || (m && m.assessor) || (typeof cycleAssessor === "function" ? cycleAssessor(f) : "") || ""; }
     function tdFuKind(f, x) {
         var st = currentState(f), a = tdAssessorOf(f);
         if (/invoice|unpaid|payment/i.test(x.reason || "") || st === "AwaitingPayment") return "fu-invoice";
@@ -4965,7 +5012,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tdStageRow(f) {
         var st = currentState(f), w = String((STATE[st] || {}).waiting || f.waiting || ""), x = followUpOf(f);
         return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(titleOfState(st))
-            + (tdDays(f) ? " \u00b7 " + tdDays(f) : "") + (w ? " \u00b7 with " + esc(w) : "") + (fuHeld(f) ? " \u00b7 On Hold" : x ? " \u00b7 on Follow Up" : "") + "</span></button>";
+            + (tdDays(f) ? " \u00b7 " + tdDays(f) : "") + (w ? " \u00b7 " + esc(pendingLabel(f)) : "") + (fuHeld(f) ? " \u00b7 On Hold" : x ? " \u00b7 on Follow Up" : "") + "</span></button>";
     }
     var TD_PREPAY = [ "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "DocumentsRequested", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ];
     var tdLoading = {};
@@ -5208,6 +5255,32 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "hold", "On Hold", "Paused by MISMO. Nothing chases these until the hold is released on the record." ],
         [ "prospects", "Prospects", "Not going through certification, so nothing chases them. Start Application brings one back." ]
     ];
+    /* Plain English for where a certification is waiting (Jonathan, 5 Nov 2026: "Company + President"
+       is hard to explain - "Pending Certification Agreement", "Pending Certification Fee Payment"). */
+    var PENDING = {
+        Draft: "Pending Application", DocumentsRequested: "Pending Application Documents", AgreementSent: "Pending Certification Agreement",
+        AwaitingPayment: "Pending Certification Fee Payment", ScopeReviewAssessor: "Pending Scope Review by the Assessor", ScopeReviewVp: "Pending Scope Decision by MISMO",
+        ScopeReviewCompany: "Pending Scope Agreement by the Company", RenewalPrep: "Pending Renewal Notice", RenewalNoticed: "Pending Renewal Confirmation",
+        UpdatesUnderReview: "Pending Review of Renewal Updates", AttestationSent: "Pending Renewal Attestation", AwaitingReviewSelection: "Pending Review Date Selection",
+        AwaitingDemoSelection: "Pending Demonstration Date Selection", PreAssessmentDiscussion: "Pending Pre-Assessment Call", DemoProposed: "Pending Demonstration Date Confirmation",
+        DemoScheduled: "Demonstration Scheduled", ReviewScheduled: "Review Scheduled", AwaitingArtifacts: "Pending Evidence from the Company", ArtifactReview: "Pending Evidence Review",
+        PrelimResultsSubmitted: "Pending Decision on the Results", PrelimQueryOpen: "Pending Answer on the Results", RemediationOpen: "Pending Fixes from the Company",
+        RemediationEscalated: "Pending Fixes (Escalated)", RemediationSubmitted: "Pending Review of the Fixes", RemediationQueryOpen: "Pending Answer on the Fixes",
+        ApprovedPendingLicense: "Pending Mark License Agreement", LicenseSent: "Pending Mark License Signature", AppealOpen: "Pending Appeal Decision",
+        OnHold: "On Hold", Certified: "Certified", NotCertified: "Not Certified", Canceled: "Canceled", ApplicationExpired: "Application Expired"
+    };
+    var WHO_PLAIN = { "Company + President": "Company and MISMO Signatures", "Company + Assessor": "Company and Assessor", "MISMO + Company": "Company Payment", "VP": "MISMO VP", "": "Nobody" };
+    function whoLabel(w) { w = String(w == null ? "" : w); return WHO_PLAIN.hasOwnProperty(w) ? WHO_PLAIN[w] : w; }
+    function pendingLabel(f) { var st = typeof f === "string" ? f : currentState(f); return PENDING[st] || (typeof titleOfState === "function" ? titleOfState(st) : st); }
+    /* What the company was invoiced and whether it is paid - MISMO's own view only. */
+    function moneyLine(f) {
+        var i = null, exp = null;
+        try { i = invoiceOf(f); } catch (e) {}
+        if (i && i.amount != null) return (i.paid ? "Paid " + money0(i.amount) + (i.paidOn ? " on " + fmt(i.paidOn) : "") : "Invoiced " + money0(i.amount) + (i.invoicedOn ? " on " + fmt(i.invoicedOn) : "") + ", not paid yet");
+        if (i && i.orderId) return i.paid ? "Paid (order " + i.orderId + ")" : "Invoiced (order " + i.orderId + "), not paid yet";
+        try { exp = expectedFor({ program: f.program, kind: f.kind || "initial", size: f.size || null, org: f.org }); } catch (e) {}
+        return "Not invoiced yet" + (exp != null ? " · fee " + money0(exp) : "");
+    }
     var TQ_NEXT = {
         RenewalPrep: "Renewal notice goes out", RenewalNoticed: "Answer the renewal notice", ScopeReviewAssessor: "Review the scope",
         ScopeReviewVp: "Decide the scope", ScopeReviewCompany: "Agree the scope", AgreementSent: "Sign the agreement",
@@ -5482,7 +5555,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         CJ.forEach((function(j, i) {
             L["stop" + i] = open.filter((function(f) { return cjStop(f) === i; })).map((function(f) {
                 var x = tqWaitItem("stop", f), w = String((STATE[currentState(f)] || {}).waiting || f.waiting || "");
-                x.extra = fuHeld(f) ? "On hold" : w ? "With " + w.replace("Company + President", "the company").replace(/^Company$/, "the company") : x.stage;
+                x.extra = fuHeld(f) ? "On hold" : w ? pendingLabel(f) : x.stage;
                 return x;
             }));
         }));
@@ -6488,7 +6561,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }));
                 $("d-body").innerHTML = order.map((function(st) {
                     var w = bySt[st][0] && bySt[st][0].waiting || "";
-                    return '<div class="qhead" style="margin:16px 0 8px;"><h3>' + esc(titleOfState(st)) + "</h3>" + (w ? '<span class="who">waiting on ' + esc(w) + "</span>" : "") + '<span class="cnt">' + bySt[st].length + "</span></div>" + bySt[st].map(rowHtml).join("");
+                    return '<div class="qhead" style="margin:16px 0 8px;"><h3>' + esc(titleOfState(st)) + "</h3>" + (w ? '<span class="who">' + esc(pendingLabel(st)) + "</span>" : "") + '<span class="cnt">' + bySt[st].length + "</span></div>" + bySt[st].map(rowHtml).join("");
                 })).join("");
             } else {
                 $("d-body").innerHTML = qset.rows.map(rowHtml).join("");
@@ -6540,7 +6613,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             $("d-body").innerHTML = switcher + (set.rows.length ? set.rows.map((function(r) {
                 if (set.kind === "cycles") {
                     var st = currentState(r);
-                    return '<button class="drow' + (serious(r.flags) ? " flag" : "") + (moves[r.row] ? " moved" : "") + '" type="button" data-open="' + r.row + '">' + '<span class="dr-co">' + esc(r.org) + "</span>" + '<span class="dr-meta">' + esc(r.program) + (r.product ? " · " + esc(r.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(r)) + " · " + esc(titleOfState(st)) + " · waiting on " + esc(STATE[st] && STATE[st].waiting || "nobody") + "</span>" + "</button>";
+                    return '<button class="drow' + (serious(r.flags) ? " flag" : "") + (moves[r.row] ? " moved" : "") + '" type="button" data-open="' + r.row + '">' + '<span class="dr-co">' + esc(r.org) + "</span>" + '<span class="dr-meta">' + esc(r.program) + (r.product ? " · " + esc(r.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(r)) + " · " + esc(pendingLabel(st)) + "</span>" + "</button>";
                 }
                 return '<button class="drow' + (r.graceExhausted ? " flag" : "") + '" type="button" data-key="' + esc(certKey(r)) + '">' + '<span class="dr-co">' + esc(r.org) + "</span>" + '<span class="dr-meta">' + esc(r.program) + (r.product ? " · " + esc(r.product) : "") + "</span>" + '<span class="dr-sub">' + (r.anniversary ? "Anniversary " + esc(fmt(r.anniversary)) + (r.headline ? " · " + esc(r.headline) : "") : "No anniversary recorded, so nothing can be chased") + "</span>" + "</button>";
             })).join("") : '<div class="empty">Nothing in this group.</div>');
@@ -6624,7 +6697,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             })).join("") + "</ul>" + "</div>" + '<p class="pc-note">Sent as <b>' + esc(sp.sourceFile || "") + "</b>, which already " + "carries the shared brief as its first page.</p>" + "</div>" + function() {
                 var em = scenEmail(sr);
                 return '<div class="dsect"><h4>The Email to Send</h4>' + '<div class="scen-mail">' + '<div class="scen-mail-h"><span>To</span><b>' + esc(em.to || "no address on their questionnaire") + "</b></div>" + '<div class="scen-mail-h"><span>Subject</span><b>' + esc(em.subject) + "</b></div>" + '<pre class="scen-mail-b">' + esc(em.body) + "</pre>" + "</div>" + '<button class="lc-btn full" type="button" data-scenmail="1">Copy This Email</button>' + '<p class="pc-note">Attach <b>' + esc(sp.sourceFile || "") + "</b>. The contact is " + "the one " + esc(sr.a.org) + " gave on question 3 of its own questionnaire.</p>" + "</div>";
-            }() + '<div class="dsect"><h4>Why This One</h4>' + '<p class="scen-why">' + esc(sr.a.why || "") + "</p>" + (sr.f ? '<p class="pc-note">On the board: ' + esc(sr.f.stateLabel || sr.f.state || "") + " · waiting on " + esc(sr.f.waiting || "nobody") + ".</p>" : "") + "</div>";
+            }() + '<div class="dsect"><h4>Why This One</h4>' + '<p class="scen-why">' + esc(sr.a.why || "") + "</p>" + (sr.f ? '<p class="pc-note">On the board: ' + esc(sr.f.stateLabel || sr.f.state || "") + " · " + esc(pendingLabel(sr.f)) + ".</p>" : "") + "</div>";
             Array.prototype.forEach.call($("d-body").querySelectorAll("[data-scenact]"), (function(b) {
                 b.addEventListener("click", (function() {
                     scenAct(sr.a.row, b.dataset.scenact);
@@ -6707,7 +6780,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var openHTML = open.length ? '<div class="co-open">' + open.map((function(f) {
                 var st = currentState(f), def = STATE[st] || {}, d = fuDaysInState(f), mine = cjMismo(f);
                 return '<button type="button" class="co-o' + (mine ? " mine" : "") + '" data-pkrow="' + f.row + '"><span class="co-ot"><b>' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</b><small>" + esc(kindLabel(f)) + "</small></span>"
-                    + '<span class="co-os">' + esc(TQ_NEXT[st] || titleOfState(st)) + "<small>" + (mine ? "Your move" : "Waiting on " + esc(def.waiting || f.waiting || "nobody")) + (d != null ? " · " + d + (d === 1 ? " day" : " days") : "") + "</small></span>" + cjBar(f) + "</button>";
+                    + '<span class="co-os">' + esc(TQ_NEXT[st] || titleOfState(st)) + "<small>" + (mine ? "Your move" : esc(pendingLabel(f))) + (d != null ? " · " + d + (d === 1 ? " day" : " days") : "") + "</small></span>" + cjBar(f) + "</button>";
             })).join("") + "</div>" : '<div class="co-none">Nothing open right now.' + (soonest ? " Next up: " + esc(soonest.program) + " renews " + esc(fmt(soonest.anniversary)) + (nDays != null ? ", in " + nDays + " days." : ".") : "") + "</div>";
             var actHTML = mineAct.length ? '<div class="co-act">' + mineAct.map((function(x) {
                 var what = x.kind === "edit" ? "Edited — " + (x.note || "") : x.from && x.to && x.from !== x.to ? titleOfState(x.from) + " → " + titleOfState(x.to) : x.note || "Note added";
@@ -6794,7 +6867,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             $("d-sub").textContent = items.length + (items.length === 1 ? " in progress" : " in progress") + " · " + (OWNER[panel.phase] || "");
             $("d-body").innerHTML = items.length ? items.map((function(f) {
                 var st = currentState(f);
-                return '<button class="drow' + (serious(f.flags) ? " flag" : "") + (moves[f.row] ? " moved" : "") + '" type="button" data-open="' + f.row + '">' + '<span class="dr-co">' + esc(f.org) + "</span>" + '<span class="dr-meta">' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(f)) + " · " + esc(titleOfState(st)) + " · waiting on " + esc(STATE[st] && STATE[st].waiting || "nobody") + (f.assessor ? " · " + esc(f.assessor) : "") + "</span>" + "</button>";
+                return '<button class="drow' + (serious(f.flags) ? " flag" : "") + (moves[f.row] ? " moved" : "") + '" type="button" data-open="' + f.row + '">' + '<span class="dr-co">' + esc(f.org) + "</span>" + '<span class="dr-meta">' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(f)) + " · " + esc(pendingLabel(st)) + (f.assessor ? " · " + esc(f.assessor) : "") + "</span>" + "</button>";
             })).join("") : '<div class="empty">Nothing is in this phase.</div>';
             Array.prototype.forEach.call($("d-body").querySelectorAll("[data-open]"), (function(b) {
                 b.addEventListener("click", (function() {
@@ -6852,7 +6925,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }));
             function frow(f) {
                 var st = currentState(f);
-                return '<button class="drow' + (waitingOnAssessor(f) ? "" : " noop") + (scriptOutstanding(f) ? " flag" : "") + (moves[f.row] ? " moved" : "") + '" type="button" data-firmrow="' + f.row + '">' + '<span class="dr-co">' + esc(f.org) + "</span>" + '<span class="dr-meta">' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(f)) + " · " + esc(titleOfState(st)) + (f.age != null ? " · open " + f.age + " days" : "") + "</span>" + '<span class="dr-sub">' + esc(f.phase) + " · waiting on " + esc(f.waiting) + "</span>" + (demoOf(f) ? '<span class="dr-sub">Demo ' + esc(fmt(demoOf(f))) + "</span>" : "") + (scriptOutstanding(f) ? '<span class="dr-sub bad">Certification script not sent.</span>' : "") + "</button>";
+                return '<button class="drow' + (waitingOnAssessor(f) ? "" : " noop") + (scriptOutstanding(f) ? " flag" : "") + (moves[f.row] ? " moved" : "") + '" type="button" data-firmrow="' + f.row + '">' + '<span class="dr-co">' + esc(f.org) + "</span>" + '<span class="dr-meta">' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</span>" + '<span class="dr-sub">' + esc(kindLabel(f)) + " · " + esc(titleOfState(st)) + (f.age != null ? " · open " + f.age + " days" : "") + "</span>" + '<span class="dr-sub">' + esc(f.phase) + " · " + esc(pendingLabel(st)) + "</span>" + (demoOf(f) ? '<span class="dr-sub">Demo ' + esc(fmt(demoOf(f))) + "</span>" : "") + (scriptOutstanding(f) ? '<span class="dr-sub bad">Certification script not sent.</span>' : "") + "</button>";
             }
             function fsect(t, rows) {
                 return rows.length ? '<div class="pc-lab">' + esc(t) + " (" + rows.length + ")</div>" + rows.map(frow).join("") : "";
@@ -7369,7 +7442,149 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         pip.className = "pip" + (!(over.length + needN) ? " quiet" : bad.length ? " bad" : "");
         pip.title = !over.length ? unpaid.length ? unpaid.length + " unpaid, none chaseable yet" : "Nothing outstanding" : bad.length ? bad.length + " more than " + PIP_LATE_DAYS + " days past the week allowed" : over.length + " overdue, none past " + PIP_LATE_DAYS + " days";
     }
+    /* ══ Revenue (Jonathan, 5 Nov 2026: "a revenue expense place that shows this in realtime", who has
+       applied but still needs to pay, and what each one paid). Built from the money list (MISMO Money,
+       with the assessor fee on each line), the invoices recorded here, the renewal invoices raised from
+       the Renewals page and the daily Aptify check - so a payment shows here as soon as any of those
+       has it. The page re-reads them every minute while it is open. ══ */
+    var rv = rv || { per: "year" };
+    var RV_PREPAY = RV_PREPAY || { Draft: 1, DocumentsRequested: 1, AgreementSent: 1, AwaitingPayment: 1 };
+    function rvLedger() {
+        var out = [], byOrder = {};
+        function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
+        (D.money || []).forEach((function(x) {
+            var billed = num(x.cost), paidAmt = typeof x.paid === "number" ? x.paid : x.paid ? billed : 0, order = orderIdOf(x.invoiceNumber) || null;
+            var e = { src: "money", row: x.row != null ? x.row : null, org: x.org, program: x.program, product: x.product || null, kind: x.kind || "initial", on: x.date || null,
+                billed: billed, expense: num(x.expense), paid: paidAmt, order: order };
+            out.push(e);
+            if (order) byOrder[order] = e;
+        }));
+        function live(order, amount, paid, f) {
+            var e = order ? byOrder[order] : null;
+            if (e) { if (paid && e.paid < e.billed) e.paid = e.billed || num(amount); return; }
+            return true;
+        }
+        try {
+            allInvoices().forEach((function(i) {
+                var order = i.orderId ? orderIdOf(i.orderId) : null, fp = order ? fsPaid(order) : null, paid = !!(i.paid || fp);
+                if (!order && !i.amount) return;
+                if (!live(order, i.amount, paid)) return;
+                var f = byRow(i.row) || {};
+                var e = { src: "live", row: i.row, org: i.org, program: i.program, product: i.product, kind: i.kind || "initial", on: i.invoicedOn || null,
+                    billed: num(i.amount), expense: num(f.expense), paid: paid ? num(i.amount) : 0, order: order };
+                out.push(e);
+                if (order) byOrder[order] = e;
+            }));
+        } catch (err) {}
+        Object.keys(quotes || {}).forEach((function(k) {
+            var q = quotes[k], order = q && q.number ? orderIdOf(q.number) : null;
+            if (!order) return;
+            var fp = fsPaid(order);
+            if (!live(order, q.amount, !!fp)) return;
+            var e = { src: "quote", key: k, row: null, org: q.org, program: q.program, product: q.product || null, kind: "renewal", on: String(q.raisedAt || "").slice(0, 10) || null,
+                billed: num(q.amount), expense: 0, paid: fp ? num((fp.amount || fp.invoiced) || q.amount) : 0, order: order };
+            out.push(e);
+            byOrder[order] = e;
+        }));
+        out.forEach((function(e) { if (e.order && e.paid < e.billed) { var fp = fsPaid(e.order); if (fp) e.paid = e.billed; } }));
+        return out;
+    }
+    function rvOpenAttr(e) {
+        var a = pkOpenAttr({ row: e.row, key: e.key, org: e.org, program: e.program, product: e.product });
+        return a;
+    }
+    function rvAwaiting() {
+        var out = [];
+        (D.inFlight || []).forEach((function(f) {
+            if (!f) return;
+            var st = currentState(f), def = STATE[st] || {};
+            if (def.terminal || st === "OnHold") return;
+            if (typeof tdProspect === "function" && tdProspect(f.org)) return;
+            var i = null; try { i = invoiceOf(f); } catch (e) {}
+            var order = i && i.orderId ? orderIdOf(i.orderId) : null;
+            var paid = !!(i && i.paid) || settled(f) || !!(order && fsPaid(order));
+            if (paid) return;
+            var pre = !!RV_PREPAY[st] && (f.kind || "initial") === "initial";
+            if (!pre && !(i && (i.orderId || i.amount))) return;
+            var amt = i && i.amount != null ? i.amount : null, exp = null;
+            if (amt == null) { try { exp = expectedFor({ program: f.program, kind: f.kind || "initial", size: f.size || null, org: f.org }); } catch (e) {} }
+            out.push({ f: f, st: st, invoiced: !!(i && (i.orderId || i.amount)), amount: amt != null ? amt : exp, estimate: amt == null, on: i && i.invoicedOn || null, age: f.age });
+        }));
+        return out.sort((function(a, b) { return (b.age || 0) - (a.age || 0) || a.f.org.localeCompare(b.f.org); }));
+    }
+    function renderRevenue() {
+        var host = $("rvlist"), hero = $("pkh-revenue");
+        if (!host || !hero) return;
+        if (!rv) rv = { per: "year" };
+        if (!RV_PREPAY) RV_PREPAY = { Draft: 1, DocumentsRequested: 1, AgreementSent: 1, AwaitingPayment: 1 };
+        var yr = String(TODAY.getFullYear()), L = rvLedger();
+        var pers = [ [ "year", "This Year", yr ], [ "last", "Last Year", String(+yr - 1) ], [ "all", "All Time", "" ] ];
+        var P = pers.filter((function(x) { return x[0] === rv.per; }))[0] || pers[0];
+        var inP = L.filter((function(e) { return !P[2] || String(e.on || "").slice(0, 4) === P[2]; }));
+        var sum = function(a, k) { return a.reduce((function(t, e) { return t + (e[k] || 0); }), 0); };
+        var billed = sum(inP, "billed"), paid = sum(inP, "paid"), fees = sum(inP, "expense");
+        var owedRows = L.filter((function(e) { return e.order && e.billed && e.paid < e.billed; })).sort((function(a, b) { return String(a.on || "9") < String(b.on || "9") ? -1 : 1; }));
+        var aw = rvAwaiting(), awNo = aw.filter((function(x) { return !x.invoiced; })), awAmt = sum(aw.map((function(x) { return { a: x.amount || 0 }; })), "a");
+        var owedAmt = owedRows.reduce((function(t, e) { return t + (e.billed - e.paid); }), 0);
+        var pct = billed ? Math.round(paid / billed * 100) : 0, per = P[0] === "all" ? "all time" : P[0] === "year" ? "this year" : "last year";
+        hero.innerHTML = pkHero({ eb: "As of " + fmt(D.asOf), title: "Revenue", say: "Certification fees invoiced and collected, what is paid out to assessors, and every company that has applied but not paid yet. It updates as soon as a payment is recorded here or the daily Aptify check finds it." })
+            + pkBoard([
+                { lab: "Applied, Not Paid", n: aw.length, k: "#e0a83c", go: "#rv-await", sub: aw.length ? money0(awAmt) + " to come in · " + awNo.length + " not invoiced yet" : "everyone who applied has paid" },
+                { lab: "Invoiced, Not Paid", n: money0(owedAmt), money: true, k: "#f08579", go: "#rv-owed", sub: owedRows.length + " invoice" + (owedRows.length === 1 ? "" : "s") + " in Aptify waiting for payment" },
+                { lab: "Collected", n: money0(paid), money: true, k: "#3ccb7f", sub: pct + "% of the " + money0(billed) + " invoiced " + per, body: '<span class="tqt-meter"><i style="width:' + pct + '%"></i></span>' },
+                { lab: "Net After Assessor Fees", n: money0(billed - fees), money: true, k: "#5fb3c9", sub: money0(fees) + " of the " + money0(billed) + " invoiced went to assessors " + per }
+            ], "rv-b");
+        try { pkAnimate(hero); } catch (e) {}
+        var tools = '<div class="rv-tool"><div class="segbar">' + pers.map((function(x) { return '<button type="button" class="seg' + (P[0] === x[0] ? " on" : "") + '" data-rvper="' + x[0] + '">' + esc(x[1]) + "</button>"; })).join("") + "</div></div>";
+        var head = '<div class="rv-head"><span></span><span>Company</span><span>Where It Is</span><span>Amount</span><span>Waiting</span></div>';
+        var awRows = aw.map((function(x) {
+            var f = x.f;
+            return '<button type="button" class="rv-row" data-pkrow="' + f.row + '" title="Open the record" style="--k:' + (x.invoiced ? "#f08579" : "#e0a83c") + '">' + cmono(f.org)
+                + '<span class="rv-w"><b>' + esc(f.org) + "</b><small>" + esc(pkProg(f.program)) + (f.product ? " · " + esc(f.product) : "") + (f.kind === "renewal" ? " · Renewal" : "") + "</small></span>"
+                + '<span class="rv-s">' + esc(pendingLabel(x.st)) + "<br>" + esc(moneyLine(f)) + "</span>"
+                + '<span class="rv-a">' + (x.amount != null ? money0(x.amount) : "—") + (x.estimate && x.amount != null ? '<br><small style="font-weight:400;color:var(--ink-3)">fee, not invoiced</small>' : "") + "</span>"
+                + '<span class="rv-d">' + (x.age != null ? x.age + " day" + (x.age === 1 ? "" : "s") : "—") + "</span></button>";
+        })).join("");
+        var owRows = owedRows.map((function(e) {
+            var days = e.on ? Math.max(0, Math.round((TODAY - parseDay(e.on)) / 864e5)) : null;
+            return '<button type="button" class="rv-row"' + rvOpenAttr(e) + ' title="Open ' + esc(e.org) + '" style="--k:#f08579">' + cmono(e.org)
+                + '<span class="rv-w"><b>' + esc(e.org) + "</b><small>" + esc(pkProg(e.program)) + (e.product ? " · " + esc(e.product) : "") + (e.kind === "renewal" ? " · Renewal" : "") + "</small></span>"
+                + '<span class="rv-s">Order ' + esc(e.order) + (e.on ? ", invoiced " + esc(fmt(e.on)) : "") + (e.paid ? "<br>" + money0(e.paid) + " paid so far" : "") + "</span>"
+                + '<span class="rv-a">' + money0(e.billed - e.paid) + "</span>"
+                + '<span class="rv-d">' + (days != null ? days + " day" + (days === 1 ? "" : "s") : "—") + "</span></button>";
+        })).join("");
+        /* invoiced by month: this year or last year by month; all time by year */
+        var buckets = [], MO3 = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+        if (P[2]) { for (var mi = 0; mi < 12; mi++) buckets.push({ k: P[2] + "-" + ("0" + (mi + 1)).slice(-2), lab: MO3[mi] }); }
+        else { var ys = {}; L.forEach((function(e) { var y = String(e.on || "").slice(0, 4); if (y) ys[y] = 1; })); Object.keys(ys).sort().forEach((function(y) { buckets.push({ k: y, lab: y }); })); }
+        buckets.forEach((function(b) { var hit = inP.filter((function(e) { return String(e.on || "").indexOf(b.k) === 0; })); b.billed = sum(hit, "billed"); b.paid = sum(hit, "paid"); b.fees = sum(hit, "expense"); b.n = hit.length; }));
+        var bMax = Math.max.apply(null, buckets.map((function(b) { return b.billed; })).concat([1]));
+        var short = function(n) { return n >= 1e6 ? "$" + (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? "$" + Math.round(n / 1e3) + "K" : n ? "$" + Math.round(n) : ""; };
+        var chart = '<div class="rv-chart">' + buckets.map((function(b) {
+            return '<div class="rv-m" title="' + esc(b.lab + ": " + money0(b.billed) + " invoiced on " + b.n + " invoice" + (b.n === 1 ? "" : "s") + ", " + money0(b.paid) + " collected, " + money0(b.fees) + " assessor fees") + '"><b>' + short(b.billed) + '</b><span class="rv-bar"><i style="height:' + (b.billed ? Math.max(3, Math.round(b.billed / bMax * 100)) : 0) + '%"></i></span><small>' + esc(b.lab) + "</small></div>";
+        })).join("") + "</div>";
+        /* by program */
+        var byP = {};
+        inP.forEach((function(e) { var k = pkProg(e.program) || "Other"; var r = byP[k] = byP[k] || { billed: 0, paid: 0, fees: 0 }; r.billed += e.billed; r.paid += e.paid; r.fees += e.expense; }));
+        var pk = Object.keys(byP).sort((function(a, b) { return byP[b].billed - byP[a].billed; }));
+        var prog = '<div class="rv-prog"><span class="h">Program</span><span class="h n">Invoiced</span><span class="h n">Collected</span><span class="h n x">Assessor Fees</span><span class="h n x">Net</span>'
+            + pk.map((function(k) { var r = byP[k]; return "<span>" + esc(k) + '</span><span class="n">' + money0(r.billed) + '</span><span class="n">' + money0(r.paid) + '</span><span class="n x">' + money0(r.fees) + '</span><span class="n x">' + money0(r.billed - r.fees) + "</span>"; })).join("")
+            + '<span class="t">Total</span><span class="n t">' + money0(billed) + '</span><span class="n t">' + money0(paid) + '</span><span class="n t x">' + money0(fees) + '</span><span class="n t x">' + money0(billed - fees) + "</span></div>";
+        host.innerHTML = tools + pkSec("rv-await", "Applied, Not Paid Yet", aw.length, "Every company with an open application or an invoice out that has not been paid. Select one to open its record: where it is, what we are waiting on, and the invoice.",
+                aw.length ? head + awRows : '<div class="empty">Everyone who has applied has paid.</div>', { k: "#e0a83c" })
+            + pkSec("rv-owed", "Invoiced, Not Paid", owedRows.length, "Invoices raised in Aptify that no payment has been found for yet, oldest first. These include renewals.",
+                owedRows.length ? '<div class="rv-head"><span></span><span>Company</span><span>Invoice</span><span>Still Owed</span><span>Since</span></div>' + owRows : '<div class="empty">Every invoice has been paid.</div>', { k: "#f08579" })
+            + pkSec("rv-month", P[2] ? "Invoiced by Month, " + P[2] : "Invoiced by Year", null, "By invoice date. Point at a bar to see what was collected and what went to assessors.", chart, { k: "#74bfeb" })
+            + pkSec("rv-prog", "By Program", pk.length, "What each program brought in " + per + ", and what it cost in assessor fees.", pk.length ? prog : '<div class="empty">Nothing invoiced ' + per + ".</div>", { k: "#5fb3c9" });
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-rvper]") : null;
+        if (!t) return;
+        rv.per = t.getAttribute("data-rvper");
+        renderRevenue();
+    }));
     function renderInvoices() {
+        try { if (typeof renderRevenue === "function") renderRevenue(); } catch (e) { if (window.console) console.error("Revenue:", e); }
         var el = $("invlist");
         if (!el) return;
         var sets = invSets();
@@ -7830,7 +8045,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function dNext(f) {
         var st = currentState(f), def = STATE[st] || {}, who = def.waiting || f.waiting || "nobody", mine = cjMismo(f);
         var next = TQ_NEXT[st] || titleOfState(st);
-        return '<div class="dnext' + (mine ? " mine" : "") + (serious(f.flags) ? " flag" : "") + '">' + '<span class="dn-k">' + (mine ? "Your move" : "Waiting on " + esc(who)) + "</span>" + "<b>" + esc(next) + "</b>" + "<i>" + esc(titleOfState(st)) + " · " + esc(phaseOf(st)) + (f.age != null ? " · open " + esc(f.age) + " days" : "") + "</i>" + (serious(f.flags) ? '<em>' + esc(f.flags[0]) + "</em>" : "") + "</div>";
+        return '<div class="dnext' + (mine ? " mine" : "") + (serious(f.flags) ? " flag" : "") + '">' + '<span class="dn-k">' + (mine ? "Your move" : esc(pendingLabel(f))) + "</span>" + "<b>" + esc(next) + "</b>" + "<i>" + esc(titleOfState(st)) + " · " + esc(phaseOf(st)) + (f.age != null ? " · open " + esc(f.age) + " days" : "") + "</i>" + (serious(f.flags) ? '<em>' + esc(f.flags[0]) + "</em>" : "") + "</div>";
     }
     function cardParts(f) {
         var st = currentState(f), def = STATE[st] || {
@@ -8829,9 +9044,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function engActions(f) {
         var st = STATE[currentState(f)] || {};
         var next = assessorNext(f);
-        var head = '<div class="panel" id="eng-acts">' + '<div class="phead"><div><h2>Update This Engagement</h2>' + '<p class="psub">Record what has happened. The assessment itself is still worked ' + "outside the system for now — this is where its progress is kept, so MISMO is not " + "chasing you for it by email.</p></div></div>" + '<div class="eng-now"><span class="en-lab">Stage</span>' + '<span class="en-val">' + esc(titleOfState(currentState(f))) + "</span>" + '<span class="en-who">' + (st.waiting ? "waiting on " + esc(st.waiting) : "closed") + "</span></div>";
+        var head = '<div class="panel" id="eng-acts">' + '<div class="phead"><div><h2>Update This Engagement</h2>' + '<p class="psub">Record what has happened. The assessment itself is still worked ' + "outside the system for now — this is where its progress is kept, so MISMO is not " + "chasing you for it by email.</p></div></div>" + '<div class="eng-now"><span class="en-lab">Stage</span>' + '<span class="en-val">' + esc(titleOfState(currentState(f))) + "</span>" + '<span class="en-who">' + (st.waiting ? esc(pendingLabel(f)) : "closed") + "</span></div>";
         if (!next.length) {
-            return head + '<div class="pc-note"><b>Nothing for you to do here.</b> ' + (st.waiting && st.waiting.indexOf("Assessor") < 0 ? "It is with " + esc(st.waiting) + ". " : "") + (ENG_WAITING_ON[currentState(f)] || "It will come back to you when they have moved it.") + "</div></div>";
+            return head + '<div class="pc-note"><b>Nothing for you to do here.</b> ' + (st.waiting && st.waiting.indexOf("Assessor") < 0 ? "It is with " + esc(whoLabel(st.waiting)) + ". " : "") + (ENG_WAITING_ON[currentState(f)] || "It will come back to you when they have moved it.") + "</div></div>";
         }
         var expected = ENG_EXPECTED[currentState(f)];
         var ordinary = next.filter((function(t) {
@@ -9178,7 +9393,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (na) {
             na.hidden = !waiting.length;
             na.innerHTML = waiting.length ? '<h2 class="sect-t">Waiting for an Exercise</h2>' + '<p class="sect-s">FRAME applicants on the board with no practical exercise against ' + "them. Assigning one picks the exercise held by the fewest companies, so the set " + "stays spread — right now that is <b>" + esc(sug ? sug.product.name : "none") + "</b>" + (sug ? ", which " + (sug.held === 0 ? "nobody holds" : sug.held === 1 ? "one company holds" : sug.held + " companies hold") : "") + ". Nothing is sent by this; it only records who gets what.</p>" + '<div class="cards">' + waiting.map((function(f) {
-                return '<div class="card flat">' + "<h3>" + esc(f.org) + "</h3>" + "<p>" + esc(f.stateLabel || titleOfState(currentState(f))) + " · waiting on " + esc(f.waiting || "nobody") + ". No exercise has been assigned.</p>" + '<div class="cfoot"><button class="lc-btn full" type="button" ' + 'data-scenassign="' + f.row + '">Assign a Scenario</button></div>' + "</div>";
+                return '<div class="card flat">' + "<h3>" + esc(f.org) + "</h3>" + "<p>" + esc(f.stateLabel || titleOfState(currentState(f))) + " · " + esc(pendingLabel(f)) + ". No exercise has been assigned.</p>" + '<div class="cfoot"><button class="lc-btn full" type="button" ' + 'data-scenassign="' + f.row + '">Assign a Scenario</button></div>' + "</div>";
             })).join("") + "</div>" : "";
             Array.prototype.forEach.call(na.querySelectorAll("[data-scenassign]"), (function(b) {
                 b.addEventListener("click", (function() {
@@ -9319,6 +9534,39 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (a.from === a.to || !a.to) return "note";
         return "move";
     }
+    /* Jonathan, 5 Nov 2026: Activity rows open what they are about - the cycle when it is still open,
+       otherwise the certification (a renewal), otherwise the company. */
+    function pkTarget(a) {
+        try {
+            if (a.row != null && a.row !== "" && byRow(+a.row)) return [ "row", +a.row ];
+            var pool = typeof certs !== "undefined" && certs ? certs : D.certifications || [];
+            var c = a.key ? pool.filter((function(x) { return certKey(x) === a.key; })) : [];
+            if (!c.length) c = pool.filter((function(x) { return x.org === a.org && x.program === a.program && (!a.product || (x.product || "") === a.product); }));
+            c.sort((function(x, y) { return (y.live ? 1 : 0) - (x.live ? 1 : 0); }));
+            if (c[0]) return [ "cert", certKey(c[0]) ];
+            if (a.org) return [ "org", a.org ];
+        } catch (e) {}
+        return null;
+    }
+    function pkOpenAttr(a) {
+        var t = pkTarget(a);
+        return !t ? "" : t[0] === "row" ? ' data-pkrow="' + t[1] + '"' : t[0] === "cert" ? ' data-pkcert="' + esc(t[1]) + '"' : ' data-pkorg="' + esc(t[1]) + '"';
+    }
+    function pkOpen(a) {
+        var t = pkTarget(a);
+        if (!t) return false;
+        if (t[0] === "row") openPanelRecord(t[1], null, null);
+        else if (t[0] === "cert") openPanelCert(t[1], null);
+        else if (typeof openPanelOrg === "function") openPanelOrg(t[1]);
+        return true;
+    }
+    /* Sent Emails (sent.html, shown inside the CMS) asks for a row to be opened */
+    window.addEventListener("message", (function(e) {
+        if (e.origin !== location.origin || !e.data || !e.data.sentOpen) return;
+        var o = e.data.sentOpen;
+        if (o.individual) { if (window.__showView) window.__showView("individual"); window.scrollTo(0, 0); return; }
+        pkOpen(o);
+    }));
     var PK_ACTK = { move: [ "Stage Moves", "#74bfeb" ], note: [ "Notes", "#e0a83c" ], edit: [ "Edits", "#c9a2ff" ], money: [ "Money", "#3ccb7f" ] };
     function renderActivity() {
         var el = $("activitylist");
@@ -9362,7 +9610,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             a = Object.assign({}, a, { note: a.note ? String(a.note).replace(/\s*\((via|recorded by) Claude\)/gi, "") : a.note, by: aby });
             var what = a.kind === "edit" ? "Edited — " + esc(a.note || "") : a.kind === "undo-edit" ? "Edit undone — " + esc(a.note || "") : a.kind === "undo" ? "Undone — back to " + esc(titleOfState(a.to)) : a.from === a.to || !a.to ? esc(a.note || "Note added") : esc(titleOfState(a.from)) + " → <b>" + esc(titleOfState(a.to)) + "</b>" + (a.note ? " · " + esc(a.note) : "");
             if (a.reason) what += " · " + esc(a.reason);
-            return head + '<div class="pk-act" style="--k:' + PK_ACTK[k][1] + '"><span class="pk-at">' + esc(dt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })) + "</span>" + cmono(a.org || "?") + '<span class="pk-aw"><span class="pk-ah"><b>' + esc(a.org || "") + "</b>" + (a.program ? '<span class="tag">' + esc(a.program) + "</span>" : "") + '<span class="pk-ak">' + PK_ACTK[k][0].replace(/s$/, "") + "</span></span><span class=\"pk-ad\">" + what + '</span></span><span class="pk-by">' + esc(a.by || "") + "</span></div>";
+            var oa = pkOpenAttr(a);
+            return head + "<" + (oa ? 'button type="button" title="Open ' + esc(a.org || "it") + '"' + oa : "div") + ' class="pk-act" style="--k:' + PK_ACTK[k][1] + '"><span class="pk-at">' + esc(dt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })) + "</span>" + cmono(a.org || "?") + '<span class="pk-aw"><span class="pk-ah"><b>' + esc(a.org || "") + "</b>" + (a.program ? '<span class="tag">' + esc(a.program) + "</span>" : "") + '<span class="pk-ak">' + PK_ACTK[k][0].replace(/s$/, "") + "</span></span><span class=\"pk-ad\">" + what + '</span></span><span class="pk-by">' + esc(a.by || "") + "</span></" + (oa ? "button" : "div") + ">";
         })).join("");
         el.innerHTML = activity.length ? tools + (rows || '<div class="empty">Nothing matches.</div>') + (list.length > shown.length ? '<p class="pc-note">Showing the newest ' + shown.length + " of " + list.length + ". Search to find older ones.</p>" : "") : '<div class="empty">Nothing recorded yet.</div>';
     }
@@ -10562,7 +10811,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function pkProg(t) { try { return typeof PROG !== "undefined" && PROG ? progName(t) : t; } catch (e) { return t; } }
     function pkMoney(n) { return n >= 1e6 ? "$" + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1e4 ? "$" + Math.round(n / 1e3) + "K" : money0(n); }
     document.addEventListener("click", (function(e) {
-        var oc = e.target && e.target.closest ? e.target.closest("[data-pkcert],[data-pkrow]") : null;
+        var oc = e.target && e.target.closest ? e.target.closest("[data-pkcert],[data-pkrow],[data-pkorg]") : null;
+        if (oc && oc.hasAttribute("data-pkorg")) { if (typeof openPanelOrg === "function") openPanelOrg(oc.getAttribute("data-pkorg")); return; }
         if (oc) { if (oc.hasAttribute("data-pkcert")) openPanelCert(oc.getAttribute("data-pkcert"), null); else openPanelRecord(+oc.getAttribute("data-pkrow"), null, null); return; }
         var pc = e.target && e.target.closest ? e.target.closest("[data-pkclick]") : null;
         if (pc) { var real = document.querySelector(pc.getAttribute("data-pkclick")); if (real && real !== pc) real.click(); return; }
@@ -10674,6 +10924,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var out = [];
         (D.certifications || []).forEach((function(c) {
             (c.cycleHistory || []).forEach((function(cy) { if (cy.completedOn) out.push({ org: c.org, program: c.program, kind: cy.kind, on: cy.completedOn }); }));
+            /* FRAME and the other programs certified outside MACTS carry one completion, not a cycle history */
+            if (!(c.cycleHistory || []).length && c.fromPipeline && c.completedOn) out.push({ org: c.org, program: c.program, kind: c.kind || "initial", on: c.completedOn });
         }));
         return out.sort((function(a, b) { return a.on < b.on ? 1 : a.on > b.on ? -1 : 0; }));
     }
@@ -10871,6 +11123,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var ev = [];
         (D.certifications || []).forEach((function(c) {
             (c.cycleHistory || []).forEach((function(cy) { if (cy.completedOn) ev.push({ c: c, org: c.org, program: c.program, product: c.product, kind: cy.kind === "initial" ? "initial" : "renewal", n: cy.renewalNumber, on: cy.completedOn }); }));
+            if (!(c.cycleHistory || []).length && c.fromPipeline && c.completedOn) ev.push({ c: c, org: c.org, program: c.program, product: c.product, kind: c.kind === "renewal" ? "renewal" : "initial", n: c.completedRenewals || 0, on: c.completedOn });
         }));
         ev.sort((function(a, b) { return a.on < b.on ? 1 : a.on > b.on ? -1 : a.org.localeCompare(b.org); }));
         var S = (D.summits && D.summits.summits || []).filter((function(x) { return x.endsOn <= D.asOf; })).sort((function(a, b) { return a.endsOn < b.endsOn ? 1 : -1; }));
@@ -11299,7 +11552,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             } catch (e) {}
         }));
     })();
-    var PANEL_OPENERS = "#drawer, .rowbtn, .col, .card, .cnt-row, .drow, .erow, .qpick, " + ".hl-tile, .ss-item, .ss-results, .stat" + ", [data-tdopen], [data-tdcert], [data-tdrenewal], [data-tdorg], [data-tdinv], [data-tdstart], [data-pkcert], [data-pkrow], .cx-co, .pk-card, [data-pkrn], [data-pknt], .pk-act";
+    var PANEL_OPENERS = "#drawer, .rowbtn, .col, .card, .cnt-row, .drow, .erow, .qpick, " + ".hl-tile, .ss-item, .ss-results, .stat" + ", [data-tdopen], [data-tdcert], [data-tdrenewal], [data-tdorg], [data-tdinv], [data-tdstart], [data-pkcert], [data-pkrow], .cx-co, .pk-card, [data-pkrn], [data-pknt], .pk-act, [data-pkorg]";
     document.addEventListener("click", (function(e) {
         if (!panel) return;
         if (!e.target.isConnected) return;
@@ -12274,9 +12527,25 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             renderEngagement();
         }));
     }
+    /* Who assesses a cycle: the one on the record, else the one assigned on the Action Queue, else - for a
+       program MISMO assesses itself (FRAME, Certified Consultant, AI Governance) - MISMO's own audit team.
+       Jonathan, 5 Nov 2026: Pensato.ai and Ignite (FRAME applications started in the CMS, no assessor on
+       the record) were on the Action Queue but missing from the MISMO portal. */
+    function inHouseFirm() {
+        var f = ((D.assessorFirms || {}).firms || []).filter((function(x) { return x.inHouse; }))[0];
+        return f ? f.name : null;
+    }
+    function cycleAssessor(f) {
+        if (!f) return "";
+        if (f.assessor) return f.assessor;
+        var mv = (typeof moves !== "undefined" && moves) || {}, m = mv[f.row] || mv[String(f.row)];
+        if (m && m.assessor) return m.assessor;
+        var p = (D.programs || []).filter((function(x) { return x.mactsType === f.program || x.code === f.program || x.name === f.program; }))[0];
+        return p && p.assessedOutside === false ? inHouseFirm() || "" : "";
+    }
     function firmCycles(firm) {
         return (D.inFlight || []).filter((function(f) {
-            return f.assessor === firm;
+            return cycleAssessor(f) === firm;
         }));
     }
     function scriptFor(program, kind) {
@@ -12593,7 +12862,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function engRow(f, opts) {
         var p = prelimOf(f);
         var mine = f.waiting && f.waiting.indexOf("Assessor") >= 0;
-        return '<button class="erow' + (mine ? " mine" : "") + '" type="button" data-eng="' + f.row + '">' + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(f.kind === "initial" ? "Initial" : "Renewal") + "</span></span>" + '<span class="e-st">' + esc(titleOfState(currentState(f))) + '<span class="e-sub">' + (demoOf(f) ? esc(fmt(demoOf(f))) : mine ? "with you" : "waiting on " + esc(f.waiting)) + "</span></span>" + (f.program === "Consultant" ? '<span class="e-sc num">' + function() {
+        return '<button class="erow' + (mine ? " mine" : "") + '" type="button" data-eng="' + f.row + '">' + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(f.kind === "initial" ? "Initial" : "Renewal") + "</span></span>" + '<span class="e-st">' + esc(titleOfState(currentState(f))) + '<span class="e-sub">' + (demoOf(f) ? esc(fmt(demoOf(f))) : mine ? "with you" : esc(pendingLabel(f))) + "</span></span>" + (f.program === "Consultant" ? '<span class="e-sc num">' + function() {
             var sc = consultantScore(f.org);
             return sc ? (sc.company.Total || 0).toLocaleString("en-US") : "—";
         }() + '<span class="e-sub">points</span></span>' : f.program === "FRAME" ? function() {
@@ -12615,7 +12884,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (f.kind === "renewal" && SCRIPT_PROGRAMS[f.program]) {
             scriptCell = scriptPrep[f.row] && scriptPrep[f.row].preparedOn ? cell("Cert Script", "Sent", esc(fmt(scriptPrep[f.row].preparedOn))) : scriptDone(f) ? cell("Cert Script", "Received", "With you") : cell("Cert Script", "Not sent", "Waiting on MISMO", "bad");
         }
-        return report([ cell("Stage", esc(titleOfState(currentState(f))), f.waiting ? "Waiting on " + esc(f.waiting) : ""), cell("Open", f.age != null ? f.age + " <i>days</i>" : "—", f.age != null && f.age > 180 ? "Long running" : ""), demoOf(f) ? cell("Demo", esc(fmt(demoOf(f))), "Scheduled") : "", f.program === "Consultant" ? function() {
+        return report([ cell("Stage", esc(titleOfState(currentState(f))), esc(pendingLabel(f))), cell("Open", f.age != null ? f.age + " <i>days</i>" : "—", f.age != null && f.age > 180 ? "Long running" : ""), demoOf(f) ? cell("Demo", esc(fmt(demoOf(f))), "Scheduled") : "", f.program === "Consultant" ? function() {
             var s2 = consultantScore(f.org);
             return cell("Points", s2 ? (s2.company.Total || 0).toLocaleString("en-US") : "—", "Scored on points, not pass or fail");
         }() : f.program === "FRAME" ? function() {
@@ -12707,9 +12976,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var band = '<div class="headline">' + '<div class="hl-top"><div class="hl-date">' + esc(firmBrand(asFirm).legalName || asFirm) + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? " · MISMO’s own audit team" : " · assessor portal") + "</div>" + "</div>" + '<div class="hl-body">' + '<div class="hl-say">' + say + "</div>" + '<div class="hl-tiles">' + '<div class="hl-tile flat' + (withMe.length ? " warn" : "") + '"><b>' + withMe.length + "</b><span>With You</span><small>" + (withMe.length ? "your move" : "all clear") + "</small></div>" + '<div class="hl-tile flat"><b>' + asInQueue.length + "</b><span>In Your Queue</span><small>waiting on somebody else</small></div>" + '<div class="hl-tile flat"><b>' + others.length + "</b><span>Coming to You</span><small>not started yet</small></div>" + (asFirm === "MISMO" ? '<div class="hl-tile flat' + (ownOut < ownFrame.length ? " warn" : "") + '"><b>' + ownOut + "</b><span>Exercises Issued</span><small>" + (ownFrame.length ? ownOut < ownFrame.length ? ownFrame.length - ownOut + " still to send" : "all " + ownFrame.length + " sent" : "none assigned") + "</small></div>" + '<div class="hl-tile flat' + (ownBack < ownFrame.length ? " warn" : "") + '"><b>' + ownBack + "</b><span>Exercises Back</span><small>" + (ownFrame.length ? ownBack < ownFrame.length ? ownFrame.length - ownBack + " outstanding" : "all returned" : "none assigned") + "</small></div>" : '<div class="hl-tile flat' + (blocked.length ? " warn" : "") + '"><b>' + blocked.length + "</b><span>Waiting on MISMO</span><small>" + (blocked.length ? "script not sent" : "nothing blocked") + "</small></div>" + '<div class="hl-tile flat"><b>' + money(feeTotal) + "</b><span>Invoiced</span><small>across " + invoiced.length + " of " + mine.length + " engagements</small></div>") + "</div>" + "</div>" + "</div>";
         var todo = $("as-todo");
         if (todo) {
-            todo.innerHTML = band + '<div class="panel">' + '<div class="phead"><div><h2>To Do</h2>' + '<p class="psub">Engagements where the next move is yours.' + (firmPrograms(asFirm).length ? " " + esc(asFirm) + " assesses " + esc(firmPrograms(asFirm).join(", ")) + "." : "") + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? " This is MISMO’s own audit team, working the same portal as an outside firm." : "") + "</p></div></div>" + engTable(withMe, "Nothing is waiting on you right now.") + (asInQueue.length ? '<div style="margin:22px 0 10px;padding-top:16px;border-top:1px solid var(--border)">' + '<h3 style="margin:0 0 4px;font-size:15px;font-weight:600">In Your Queue, Waiting on Someone Else</h3>' + '<p class="psub" style="margin:0">You have already worked these. They come back to you when the company, MISMO or the VP has moved.</p></div>' + engTable(asInQueue, "") : "") + "</div>" + (blocked.length ? '<div class="panel"><div class="phead"><div><h2>Waiting on MISMO</h2>' + '<p class="psub">The certification script has not reached you yet, so these cannot ' + "start.</p></div></div>" + engTable(blocked, "") + "</div>" : "") + (others.length ? '<div class="panel"><div class="phead"><div><h2>Coming to You</h2>' + '<p class="psub">Assigned to ' + esc(asFirm) + ", but waiting on somebody else first, and not started yet. " + "Nothing to do on these yet.</p></div></div>" + '<div class="etable"><div class="ehead coming"><span>Company</span><span>Program</span>' + "<span>Waiting On</span></div>" + others.map((function(f) {
-                var fr = frameResult(f.org);
-                return "<" + (fr ? 'button class="erow coming" type="button" data-eng="' + f.row + '"' : 'div class="erow coming flat"') + ">" + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(kindLabel(f)) + "</span></span>" + '<span class="e-st">' + (doneForFirm(f) ? "Your invoice" : esc(f.waiting)) + '<span class="e-sub' + (doneForFirm(f) ? " bad" : "") + '">' + (doneForFirm(f) ? "Approved — you have not invoiced for it" : esc(titleOfState(currentState(f)))) + "</span></span>" + (fr ? '<span class="e-go">Questionnaire in — read it</span>' : "") + "</" + (fr ? "button" : "div") + ">";
+            todo.innerHTML = band + '<div class="panel">' + '<div class="phead"><div><h2>To Do</h2>' + '<p class="psub">Engagements where the next move is yours.' + (firmPrograms(asFirm).length ? " " + esc(asFirm) + " assesses " + esc(firmPrograms(asFirm).join(", ")) + "." : "") + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? " This is MISMO’s own audit team, working the same portal as an outside firm." : "") + "</p></div></div>" + engTable(withMe, "Nothing is waiting on you right now.") + (asInQueue.length ? '<div style="margin:22px 0 10px;padding-top:16px;border-top:1px solid var(--border)">' + '<h3 style="margin:0 0 4px;font-size:15px;font-weight:600">In Your Queue, Waiting on Someone Else</h3>' + '<p class="psub" style="margin:0">You have already worked these. They come back to you when the company, MISMO or the VP has moved.</p></div>' + engTable(asInQueue, "") : "") + "</div>" + (blocked.length ? '<div class="panel"><div class="phead"><div><h2>Waiting on MISMO</h2>' + '<p class="psub">The certification script has not reached you yet, so these cannot ' + "start.</p></div></div>" + engTable(blocked, "") + "</div>" : "") + (others.length ? '<div class="panel"><div class="phead"><div><h2>Coming to You</h2>' + '<p class="psub">Assigned to ' + esc(asFirm) + ", but waiting on somebody else first, and not started yet. " + "Nothing to do on these yet.</p></div></div>" + '<div class="etable"><div class="ehead coming"><span>Company</span><span>Program</span>' + "<span>Where It Is</span></div>" + others.map((function(f) {
+                var fr = frameResult(f.org), own = !!(firmRecord(asFirm) && firmRecord(asFirm).inHouse);
+                /* MISMO's own view (Jonathan, 5 Nov 2026): every row opens the record, and says what it is
+                   waiting on and what the company has paid. Outside firms never see the money. */
+                var open = own ? 'button class="erow coming" type="button" data-pkrow="' + f.row + '" title="Open the record"' : fr ? 'button class="erow coming" type="button" data-eng="' + f.row + '"' : 'div class="erow coming flat"';
+                var tag = own || fr ? "button" : "div";
+                return "<" + open + ">" + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(kindLabel(f)) + "</span></span>" + '<span class="e-st">' + (doneForFirm(f) ? "Your invoice" : esc(pendingLabel(f))) + '<span class="e-sub' + (doneForFirm(f) ? " bad" : "") + '">' + (doneForFirm(f) ? "Approved — you have not invoiced for it" : own ? esc(moneyLine(f)) : esc(titleOfState(currentState(f)))) + "</span></span>" + (fr && !own ? '<span class="e-go">Questionnaire in — read it</span>' : "") + "</" + tag + ">";
             })).join("") + "</div></div>" : "");
         }
         var fees = $("as-fees");
@@ -14884,7 +15157,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function lcCard(s) {
         var cls = s.terminal ? "terminal" : s.ownedByAssessor ? "assessor" : s.ownedByCompany ? "company" : "mismo";
-        return '<div class="lc ' + cls + '"><div class="lcname">' + esc(titleOfState(s.state)) + "</div>" + '<div class="lcproj">' + esc(s.status) + " · " + esc(s.phase) + (s.waiting ? " · " + esc(s.waiting) : " · nobody waiting") + "</div>" + (s.next.length ? '<div class="lcnext"><b>Can move to</b><br>' + s.next.map((function(t) {
+        return '<div class="lc ' + cls + '"><div class="lcname">' + esc(titleOfState(s.state)) + "</div>" + '<div class="lcproj">' + esc(s.status) + " · " + esc(s.phase) + (s.waiting ? " · with " + esc(whoLabel(s.waiting)) : " · nobody waiting") + "</div>" + (s.next.length ? '<div class="lcnext"><b>Can move to</b><br>' + s.next.map((function(t) {
             return esc(titleOfState(t));
         })).join(", ") + "</div>" : '<div class="lcnext"><b>Closed state</b></div>') + "</div>";
     }
@@ -15122,6 +15395,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         document.body.classList.toggle("on-invoices", view === "invoices");
         document.body.classList.toggle("on-scenarios", view === "assessors");
         try { pkSetupHero(view); } catch (e) { if (window.console) console.error("Page hero:", e); }
+        if (view === "revenue") { try { renderRevenue(); } catch (e) { if (window.console) console.error("Revenue:", e); } }
         if (onPhone()) setNavOpen(false);
         if (scroll !== false) window.scrollTo(0, 0);
     }
@@ -15289,6 +15563,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 code: p.code,
                 name: p.name,
                 colour: "var(--c" + i++ + ")"
+            });
+        }));
+        /* Programs run outside MACTS (FRAME) are recorded under their own code. Jonathan, 5 Nov 2026: six
+           FRAME are certified but were missing from Certified Counts, because only MACTS programs were listed.
+           Added after the MACTS ones so their colours do not move. */
+        (D.programs || []).forEach((function(p) {
+            if (p.mactsType || !p.code || out.some((function(o) { return o.type === p.code; }))) return;
+            if (!(D.certifications || []).some((function(c) { return c.program === p.code; }))) return;
+            out.push({
+                type: p.code,
+                code: p.code,
+                name: p.name,
+                colour: "var(--c" + ((i++ - 1) % 6 + 1) + ")"
             });
         }));
         return out;
