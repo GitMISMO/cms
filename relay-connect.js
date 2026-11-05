@@ -235,7 +235,7 @@
        (Jonna, 27 Oct 2026). Migration is gone from the nav: MACTS is fully moved over. */
     /* CMSP & AMSP (27 Oct 2026): MISMO's individual certifications, off the CMSP and AMSP Master Smartsheets. */
     { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual'] },
-    { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'counts'] },
+    { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'revenue', 'counts'] },
     { label: 'Tracking', items: ['activity', 'emails'] },
     { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', 'playbook'] },
     { label: 'Help', items: ['help'] }

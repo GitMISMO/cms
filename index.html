@@ -3140,6 +3140,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
     <div class="box" id="scen-assign" hidden></div>
 
+    <div class="box" id="scen-done" hidden></div>
+
     <div class="box" id="scen-defects"></div>
   
     </div>
@@ -9195,42 +9197,63 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             product: p
         } : null;
     }
-    function scenRows() {
+    /* Practical exercises are matched to applicants by company, not by row (Jonna, 5 Nov 2026: "the
+       practical exercises are not right, you know who is certified and who is not"). The exercise list
+       was drawn up when TReX, Falcon, Actualize, Teraverde and Crittora were applicants; their row
+       numbers have since been reused by Brody Gapp and Epoch Manna, and all five are now certified.
+       An exercise counts only while the company has an open FRAME cycle; a company already FRAME
+       certified is listed under Already Certified instead. */
+    function scenSlug(o) { return String(o || "").toLowerCase().replace(/\b(llc|inc|ltd|co|corp)\b\.?/g, "").replace(/[^a-z0-9]+/g, ""); }
+    function scenOpen() {
+        var by = {};
+        frameApplicants().forEach((function(f) {
+            var st = currentState(f);
+            if ((STATE[st] || {}).terminal) return;
+            by[scenSlug(f.org)] = f;
+        }));
+        return by;
+    }
+    function scenCertified() {
+        var pool = typeof certs !== "undefined" && certs ? certs : D.certifications || [], seen = {}, out = [];
+        pool.forEach((function(c) {
+            if (c.program !== "FRAME" || !c.live || seen[scenSlug(c.org)]) return;
+            seen[scenSlug(c.org)] = 1;
+            out.push(c);
+        }));
+        return out.sort((function(a, b) { return a.org.localeCompare(b.org); }));
+    }
+    function scenAll() {
         var d = scenData();
         if (!d) return [];
-        var list = (d.assignment || []).slice();
-        var have = {};
-        list.forEach((function(a) {
-            have[a.row] = a;
-        }));
+        var by = {}, order = [];
+        (d.assignment || []).forEach((function(a) { var k = scenSlug(a.org); if (!by[k]) order.push(k); by[k] = Object.assign({}, a); }));
         Object.keys(scenAssign).forEach((function(k) {
             var x = scenAssign[k];
             if (!x || x.product == null) return;
-            if (have[x.row]) {
-                have[x.row].product = x.product;
-                have[x.row].why = x.why || have[x.row].why;
-            } else list.push({
-                org: x.org,
-                product: x.product,
-                row: x.row,
-                why: x.why,
-                assignedHere: true
-            });
+            var s = scenSlug(x.org);
+            if (by[s]) { by[s].product = x.product; by[s].why = x.why || by[s].why; by[s].row = x.row; }
+            else { order.push(s); by[s] = { org: x.org, product: x.product, row: x.row, why: x.why, assignedHere: true }; }
         }));
-        return list.map((function(a) {
+        return order.map((function(k) { return by[k]; }));
+    }
+    function scenRows() {
+        var d = scenData();
+        if (!d) return [];
+        var open = scenOpen();
+        return scenAll().map((function(a0) {
+            var f = open[scenSlug(a0.org)];
+            if (!f) return null;
+            var a = Object.assign({}, a0, { row: f.row });
             var p = (d.products || []).filter((function(x) {
                 return x.n === a.product;
             }))[0] || null;
-            var f = byRow(a.row) || ((D.pipelines || []).filter((function(x) {
-                return x.row === a.row;
-            }))[0] || null);
             return {
                 a: a,
                 p: p,
                 f: f,
-                log: scenLog[a.row] || null
+                log: scenLog[f.row] || null
             };
-        }));
+        })).filter(Boolean);
     }
     function frameApplicants() {
         var seen = {}, out = [];
@@ -9242,12 +9265,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return out;
     }
     function scenUnassigned() {
-        var has = {};
+        var has = {}, done = {};
         scenRows().forEach((function(r) {
-            has[r.a.row] = true;
+            has[scenSlug(r.a.org)] = true;
         }));
+        scenCertified().forEach((function(c) { done[scenSlug(c.org)] = true; }));
         return frameApplicants().filter((function(f) {
-            return !has[f.row];
+            return !has[scenSlug(f.org)] && !(STATE[currentState(f)] || {}).terminal && !done[scenSlug(f.org)];
         }));
     }
     function scenSuggest() {
@@ -9357,12 +9381,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         function em(n, late) {
             return "<em" + (late ? ' class="hl-late"' : "") + ">" + n + "</em>";
         }
-        var say = em(rows.length) + " applicant" + (rows.length === 1 ? " has" : "s have") + " an exercise, drawn from " + em((d.products || []).length) + " scenarios. " + (sent === 0 ? "None have been sent yet." : sent < rows.length ? em(rows.length - sent, true) + " of them " + (rows.length - sent === 1 ? "has" : "have") + " still to go out." : back === rows.length ? "All of them are back." : em(rows.length - back) + " still to come back.");
+        var waitN = scenUnassigned().length, certN = scenCertified().length;
+        var say = (rows.length ? em(rows.length) + " applicant" + (rows.length === 1 ? " has" : "s have") + " an exercise. " + (sent === 0 ? "None have been sent yet." : sent < rows.length ? em(rows.length - sent, true) + " of them " + (rows.length - sent === 1 ? "has" : "have") + " still to go out." : back === rows.length ? "All of them are back." : em(rows.length - back) + " still to come back.") : "No open applicant has an exercise yet.")
+            + (waitN ? " " + em(waitN, true) + " applicant" + (waitN === 1 ? " is" : "s are") + " waiting for one." : "")
+            + (certN ? " " + em(certN) + " compan" + (certN === 1 ? "y is" : "ies are") + " already FRAME certified." : "");
         var dt = $("scen-date");
         if (dt) dt.textContent = "Completed before each applicant's interview";
         var hb = $("scen-hl-body");
         if (hb) hb.innerHTML = '<div class="hl-say">' + say + "</div>" + '<div class="hl-tiles">' + '<div class="hl-tile flat"><b>' + rows.length + "</b><span>Applicants</span>" + "<small>one exercise each</small></div>" + '<div class="hl-tile flat"><b>' + (d.products || []).length + "</b><span>Scenarios</span>" + "<small>" + (shared.length ? esc(shared.join(", ")) + " is shared" : "one each, none shared") + "</small></div>" + '<div class="hl-tile flat' + (sent < rows.length ? " warn" : "") + '"><b>' + sent + "</b><span>Issued</span><small>" + (sent < rows.length ? rows.length - sent + " still to send" : "all sent") + "</small></div>" + '<div class="hl-tile flat' + (back < rows.length ? " warn" : "") + '"><b>' + back + "</b><span>Returned</span><small>" + (back < rows.length ? rows.length - back + " outstanding" : "all back") + "</small></div>" + "</div>";
-        host.innerHTML = rows.map((function(r) {
+        host.innerHTML = rows.length ? "" : '<div class="empty">No open applicant has an exercise yet. Assign one from Waiting for an Exercise below.</div>';
+        if (rows.length) host.innerHTML = rows.map((function(r) {
             var st = scenState(r);
             var on = panel && panel.mode === "scen" && panel.row === r.a.row;
             var p = r.p || {};
@@ -9403,6 +9431,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (f) scenAutoAssign(f);
                 }));
             }));
+        }
+        var dn = $("scen-done"), done = scenCertified();
+        if (dn) {
+            dn.hidden = !done.length;
+            dn.innerHTML = done.length ? '<h2 class="sect-t">Already Certified</h2><p class="sect-s">FRAME Advisory Partners certified already. Nothing to send them; select one to open the certification.</p><div class="cards fit">'
+                + done.map((function(c) {
+                    return '<button class="card" type="button" data-pkcert="' + esc(certKey(c)) + '"><h3>' + esc(c.org) + '<span class="arr">›</span></h3><p>Certified' + (c.completedOn || c.originalCertifiedOn ? " " + esc(fmt(c.completedOn || c.originalCertifiedOn)) : "") + (c.anniversary ? " · renews " + esc(fmt(c.anniversary)) : "") + "</p></button>";
+                })).join("") + "</div>" : "";
         }
         var br = $("scen-brief"), b = d.brief || {};
         if (br) br.innerHTML = '<div class="scen-doc">' + '<h3 class="scen-h1">' + esc(b.title || "") + "</h3>" + '<div class="scen-h2">' + esc(b.heading || "") + "</div>" + (b.intro || []).map((function(x) {
@@ -16324,5 +16360,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-10-27d"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-05a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>
