@@ -2855,6 +2855,8 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pv-tag.cal,:root:not([data-theme="light"]) .mv-go,:root:not([data-theme="light"]) .ag-when{color:var(--sky)}}
 body.as-firm #as-switchpanel, body.as-firm #pkh-assessors{display:none !important;}
 body.as-firm #mast-firm, body.as-firm #money-sync{display:none !important;}
+#mast-exit{white-space:nowrap; flex:0 0 auto;}
+@media(max-width:600px){body.as-firm #mast-name{display:none !important;}}
 .va-out{margin-left:auto}
 
   button.pk-act{width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;}
@@ -3116,7 +3118,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <span class="mast-name" id="mast-name">Certification Management</span>
   <span class="mast-right">
     <span class="eyebrow" id="mast-who">Programs &amp; Operations</span>
-    <button class="mast-exit" id="mast-exit" type="button" hidden>Leave this view</button> <span id="rs-account"></span>
+    <button class="mast-exit" id="mast-exit" type="button" hidden>Back to the CMS</button> <span id="rs-account"></span>
   </span>
 </header>
 
@@ -13042,13 +13044,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         Array.prototype.forEach.call(document.querySelectorAll("#assessornav [data-as]"), (function(b) {
             b.classList.toggle("on", b.dataset.as === asSection);
         }));
+        /* MISMO's own portal is not "viewing as" anyone: the people who open it (Jonathan, Jonna) are MISMO's
+           audit team, so no purple bar - a Back to the CMS button in the top bar instead (Jonna, 5 Nov 2026). */
+        var ownPortal = on && !!(firmRecord(asFirm) && firmRecord(asFirm).inHouse);
         var band = $("pv-band");
         if (band) {
-            band.hidden = !on;
+            band.hidden = !on || ownPortal;
             band.innerHTML = on ? '<div class="vabar"><span class="va-l">Viewing As</span><span class="va-c">' + esc(firmBrand(asFirm).legalName || asFirm) + '</span><span class="va-r">' + (firmRecord(asFirm) && firmRecord(asFirm).inHouse ? "MISMO’s own audit team, in the same portal as the outside firms" : "an assessor’s screen") + '</span><button class="va-out" type="button" data-firm="">Back to My View</button></div>' : "";
         }
         if (name && on) { name.hidden = false; }
-        if (exit) exit.hidden = true;
+        if (exit) { exit.hidden = !ownPortal; exit.textContent = "Back to the CMS"; }
         if (who && on) who.textContent = "Programs & Operations";
         if (mf && on) mf.hidden = true;
         [ "as-todo", "as-open", "as-scenarios" ].forEach((function(id) {
