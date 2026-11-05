@@ -9428,7 +9428,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         return out;
     }
-    function scenUnassigned() {
+    /* An applicant is ready for the questionnaire and practical exercise once it has paid: past the
+       agreement and the fee (Jonna, 5 Nov 2026: "this should only be a thing after they've paid and we're
+       ready to send the questionnaire"). */
+    var SCEN_NOT_YET = [ "Draft", "DocumentsRequested", "AgreementSent", "AwaitingPayment" ];
+    function scenReady(f) {
+        var st = currentState(f);
+        if (SCEN_NOT_YET.indexOf(st) < 0) return true;
+        if (st !== "AwaitingPayment") return false;
+        var i = null; try { i = invoiceOf(f); } catch (e) {}
+        return !!((i && i.paid) || settled(f) || (i && i.orderId && fsPaid(orderIdOf(i.orderId))));
+    }
+    function scenNotReady() { return scenOpenUnassigned().filter((function(f) { return !scenReady(f); })); }
+    function scenUnassigned() { return scenOpenUnassigned().filter(scenReady); }
+    function scenOpenUnassigned() {
         var has = {}, done = {};
         scenRows().forEach((function(r) {
             has[scenSlug(r.a.org)] = true;
@@ -9553,7 +9566,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (dt) dt.textContent = "Completed before each applicant's interview";
         var hb = $("scen-hl-body");
         if (hb) hb.innerHTML = '<div class="hl-say">' + say + "</div>" + '<div class="hl-tiles">' + '<div class="hl-tile flat"><b>' + rows.length + "</b><span>Applicants</span>" + "<small>one exercise each</small></div>" + '<div class="hl-tile flat"><b>' + (d.products || []).length + "</b><span>Scenarios</span>" + "<small>" + (shared.length ? esc(shared.join(", ")) + " is shared" : "one each, none shared") + "</small></div>" + '<div class="hl-tile flat' + (sent < rows.length ? " warn" : "") + '"><b>' + sent + "</b><span>Issued</span><small>" + (sent < rows.length ? rows.length - sent + " still to send" : "all sent") + "</small></div>" + '<div class="hl-tile flat' + (back < rows.length ? " warn" : "") + '"><b>' + back + "</b><span>Returned</span><small>" + (back < rows.length ? rows.length - back + " outstanding" : "all back") + "</small></div>" + "</div>";
-        host.innerHTML = rows.length ? "" : '<div class="empty">No open applicant has an exercise yet. Assign one from Waiting for an Exercise below.</div>';
+        host.innerHTML = rows.length ? "" : '<div class="empty">No open applicant has an exercise yet. Each applicant gets one once it has paid.</div>';
         if (rows.length) host.innerHTML = rows.map((function(r) {
             var st = scenState(r);
             var on = panel && panel.mode === "scen" && panel.row === r.a.row;
@@ -9583,10 +9596,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var waiting = scenUnassigned(), sug = scenSuggest();
         var na = $("scen-assign");
         if (na) {
-            na.hidden = !waiting.length;
-            na.innerHTML = waiting.length ? '<h2 class="sect-t">Waiting for an Exercise</h2>' + '<p class="sect-s">FRAME applicants on the board with no practical exercise against ' + "them. Assigning one picks the exercise held by the fewest companies, so the set " + "stays spread — right now that is <b>" + esc(sug ? sug.product.name : "none") + "</b>" + (sug ? ", which " + (sug.held === 0 ? "nobody holds" : sug.held === 1 ? "one company holds" : sug.held + " companies hold") : "") + ". Nothing is sent by this; it only records who gets what.</p>" + '<div class="cards">' + waiting.map((function(f) {
+            var notYet = scenNotReady();
+            na.hidden = !waiting.length && !notYet.length;
+            var nyNote = notYet.length ? '<p class="sect-s" style="margin-top:' + (waiting.length ? "16px" : "0") + '"><b>Not ready yet:</b> ' + notYet.map((function(f) { return esc(f.org) + " (" + esc(pendingLabel(f)) + ")"; })).join(", ") + ". Each one comes here once it has paid and the questionnaire and exercise can go out.</p>" : "";
+            na.innerHTML = !waiting.length ? '<h2 class="sect-t">Waiting for an Exercise</h2><p class="sect-s">Nobody is ready for an exercise yet.</p>' + nyNote : "";
+            if (waiting.length) na.innerHTML =  '<h2 class="sect-t">Waiting for an Exercise</h2>' + '<p class="sect-s">FRAME applicants on the board with no practical exercise against ' + "them. Assigning one picks the exercise held by the fewest companies, so the set " + "stays spread — right now that is <b>" + esc(sug ? sug.product.name : "none") + "</b>" + (sug ? ", which " + (sug.held === 0 ? "nobody holds" : sug.held === 1 ? "one company holds" : sug.held + " companies hold") : "") + ". Nothing is sent by this; it only records who gets what.</p>" + '<div class="cards">' + waiting.map((function(f) {
                 return '<div class="card flat">' + "<h3>" + esc(f.org) + "</h3>" + "<p>" + esc(f.stateLabel || titleOfState(currentState(f))) + " · " + esc(pendingLabel(f)) + ". No exercise has been assigned.</p>" + '<div class="cfoot"><button class="lc-btn full" type="button" ' + 'data-scenassign="' + f.row + '">Assign a Scenario</button></div>' + "</div>";
-            })).join("") + "</div>" : "";
+            })).join("") + "</div>" + nyNote;
             Array.prototype.forEach.call(na.querySelectorAll("[data-scenassign]"), (function(b) {
                 b.addEventListener("click", (function() {
                     var f = frameApplicants().filter((function(x) {
