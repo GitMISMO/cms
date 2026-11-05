@@ -7638,6 +7638,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             allInvoices().forEach((function(i) {
                 var order = i.orderId ? orderIdOf(i.orderId) : null, fp = order ? fsPaid(order) : null, paid = !!(i.paid || fp);
                 if (!order && !i.amount) return;
+                /* a canceled cycle's invoice is not revenue (Teraverde's Product application, row -1, replaced by
+                   AI Governance: Jonna, 5 Nov 2026 - the difference is being refunded, see Refunds to Make) */
+                if (i.state === "Canceled") return;
                 if (!live(order, i.amount, paid)) return;
                 var f = byRow(i.row) || {};
                 var e = { src: "live", row: i.row, org: i.org, program: i.program, product: i.product, kind: i.kind || "initial", on: i.invoicedOn || null,
@@ -7754,8 +7757,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var prog = '<div class="rv-prog"><span class="h">Program</span><span class="h n">Invoiced</span><span class="h n">Collected</span><span class="h n x">Assessor Fees</span><span class="h n x">Net</span>'
             + pk.map((function(k) { var r = byP[k]; return "<span>" + esc(k) + '</span><span class="n">' + money0(r.billed) + '</span><span class="n">' + money0(r.paid) + '</span><span class="n x">' + money0(r.fees) + '</span><span class="n x">' + money0(r.billed - r.fees) + "</span>"; })).join("")
             + '<span class="t">Total</span><span class="n t">' + money0(billed) + '</span><span class="n t">' + money0(paid) + '</span><span class="n t x">' + money0(fees) + '</span><span class="n t x">' + money0(billed - fees) + "</span></div>";
+        var refunds = (aptifyOrders && aptifyOrders.refunds || []).filter((function(x) { return x && !x.done; }));
+        var refundSec = refunds.length ? pkSec("rv-refund", "Refunds to Make", refunds.length, "Money MISMO is giving back. Select one to open the company.", refunds.map((function(x) {
+            return '<button type="button" class="rv-row" data-pkorg="' + esc(x.org) + '" title="Open ' + esc(x.org) + '" style="--k:#9b8cff">' + cmono(x.org) + '<span class="rv-w"><b>' + esc(x.org) + "</b><small>" + esc(x.what || "") + '</small></span><span class="rv-s">' + esc(x.note || "") + (x.order ? "<br>Order " + esc(x.order) : "") + '</span><span class="rv-a">' + money0(x.amount || 0) + '</span><span class="rv-d">' + (x.on ? esc(fmt(x.on)) : "") + "</span></button>";
+        })).join(""), { k: "#9b8cff" }) : "";
         host.innerHTML = tools + pkSec("rv-await", "Applied, Not Paid Yet", aw.length, "Every company with an open application or an invoice out that has not been paid. Select one to open its record: where it is, what we are waiting on, and the invoice.",
                 aw.length ? head + awRows : '<div class="empty">Everyone who has applied has paid.</div>', { k: "#e0a83c" })
+            + refundSec
             + pkSec("rv-owed", "Invoiced, Not Paid", owedRows.length, "Invoices raised in Aptify that are not paid, oldest first. These include renewals." + (aptifyOrders && aptifyOrders.checkedAt ? " Checked order by order against Aptify on " + esc(fmt(String(aptifyOrders.checkedAt).slice(0, 10))) + "; a payment recorded since then shows here as soon as the CMS or the daily check has it." : ""),
                 owedRows.length ? '<div class="rv-head"><span></span><span>Company</span><span>Invoice</span><span>Still Owed</span><span>Since</span></div>' + owRows : '<div class="empty">Every invoice has been paid.</div>', { k: "#f08579" })
             + pkSec("rv-month", P[2] ? "Invoiced by Month, " + P[1] : "Invoiced by Fiscal Year", null, "By invoice date. Point at a bar to see what was collected and what went to assessors.", chart, { k: "#74bfeb" })
