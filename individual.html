@@ -662,6 +662,32 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       .then(function (ok) { if (ok !== false && done) toast(done); render(); return ok; }).catch(function (e) { toast(e.message, true); });
   }
 
+  /* ---- a form that sat open (November 5, 2026) ----
+     A form shows the record as it was when it was opened, and saving used to write every field in it, so a
+     change someone else saved while it was open went back (and was written again on top of theirs when the
+     relay said they had saved first). Now only the fields changed in the form are written; the rest keep
+     what is saved now. If someone else changed one of the same fields, the person saving is asked once
+     which to keep. memo keeps the answer when the save is tried again. */
+  function sameField(x, y) { return String(x == null ? '' : x).trim() === String(y == null ? '' : y).trim(); }
+  function formChanges(vals, opened, now, labels, memo) {
+    var out = {}, both = [];
+    Object.keys(labels).forEach(function (k) {
+      if (sameField(vals[k], opened[k])) return;
+      if (!sameField(now[k], opened[k]) && !sameField(now[k], vals[k])) both.push(k);
+      out[k] = vals[k];
+    });
+    var ask = both.filter(function (k) { return !(k in memo); });
+    if (ask.length) {
+      var show = function (v) { v = String(v == null ? '' : v).trim(); return v === '' ? '(blank)' : v.length > 80 ? v.slice(0, 80) + '\u2026' : v; };
+      var yours = window.confirm('While you had this open, someone else saved a different value in the same ' + (ask.length === 1 ? 'field' : 'fields') + ':\n\n' +
+        ask.map(function (k) { return '\u2022 ' + labels[k] + ' \u2014 theirs: ' + show(now[k]) + '   \u00b7   yours: ' + show(vals[k]); }).join('\n') +
+        '\n\nOK keeps yours. Cancel keeps theirs for ' + (ask.length === 1 ? 'this field' : 'these fields') + ' \u2014 your other changes still save.');
+      ask.forEach(function (k) { memo[k] = yours; });
+    }
+    both.forEach(function (k) { if (!memo[k]) delete out[k]; });
+    return out;
+  }
+
   /* ---- an inline form under a card ---- */
   function ask(host, opts) {
     var box = host.querySelector('.ask'); if (box) box.remove();
@@ -942,7 +968,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     top.appendChild(h('div', { class: 'btnrow' }, h('button', { class: 'btn ghost', type: 'button', text: 'Edit Details', disabled: !canWrite, onclick: function () {
       ask(top, { fields: [{ key: 'first', label: 'First Name', value: p.first, required: true }, { key: 'last', label: 'Last Name', value: p.last, required: true }, { key: 'title', label: 'Title', value: p.title }, { key: 'company', label: 'Company', value: p.company }, { key: 'email', label: 'Email', type: 'email', value: p.email },
         { key: 'hide', label: 'Public List', type: 'select', options: [['show', 'Listed when active'], ['hide', 'Not listed']], value: p.hidePublic ? 'hide' : 'show' }], button: 'Save',
-        onsave: function (v) { return savePerson(openPid, function (x) { if (v.email && norm(v.email) !== norm(x.email) && x.email) (x.formerEmails = x.formerEmails || []).push(norm(x.email)); x.first = v.first; x.last = v.last; x.title = v.title; x.company = v.company; x.email = norm(v.email); if (v.hide === 'hide') x.hidePublic = true; else delete x.hidePublic; (x.changes = x.changes || []).push({ at: new Date().toISOString(), by: me.name }); }, 'Saved.'); } });
+        onsave: function (v) {
+          /* only the fields changed here are written (November 5, 2026) */
+          var was = { first: p.first, last: p.last, title: p.title, company: p.company, email: p.email, hide: p.hidePublic ? 'hide' : 'show' }, memo = {};
+          var LAB = { first: 'First Name', last: 'Last Name', title: 'Title', company: 'Company', email: 'Email', hide: 'Public List' };
+          return savePerson(openPid, function (x) {
+            var ch = formChanges(v, was, { first: x.first, last: x.last, title: x.title, company: x.company, email: x.email, hide: x.hidePublic ? 'hide' : 'show' }, LAB, memo);
+            if (!Object.keys(ch).length) return false;
+            if ('email' in ch && ch.email && norm(ch.email) !== norm(x.email) && x.email) (x.formerEmails = x.formerEmails || []).push(norm(x.email));
+            ['first', 'last', 'title', 'company'].forEach(function (k) { if (k in ch) x[k] = ch[k]; });
+            if ('email' in ch) x.email = norm(ch.email);
+            if ('hide' in ch) { if (ch.hide === 'hide') x.hidePublic = true; else delete x.hidePublic; }
+            (x.changes = x.changes || []).push({ at: new Date().toISOString(), by: me.name });
+          }, 'Saved.');
+        } });
     } }), h('button', { class: 'btn ghost', type: 'button', text: 'Add an Application or Renewal by Hand', disabled: !canWrite, onclick: function () { addByHand(top); } })));
     /* their own progress page (27 Oct 2026): the same link every email to them carries */
     if (p.progressToken) {
@@ -971,7 +1010,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       } }));
       if (c.certDate) row.appendChild(h('button', { class: 'btn ghost', type: 'button', text: 'Correct the Dates', disabled: !canWrite, onclick: function () {
         ask(body, { intro: 'For correcting a record. No email is sent; a new certificate is made if there was one.', fields: [{ key: 'cert', label: 'Certification Date', type: 'date', value: c.certDate, required: true }, { key: 'exp', label: 'Valid Through', type: 'date', value: c.expiry, required: true }, { key: 'reason', label: 'Reason', type: 'textarea', required: true }], button: 'Save',
-          onsave: function (v) { return saveCycle(c.id, function (x) { history(x, 'Dates corrected from ' + x.certDate + ' / ' + x.expiry + ' to ' + v.cert + ' / ' + v.exp + ': ' + v.reason); x.certDate = v.cert; x.expiry = v.exp; if (x.certificate) x.certificateRequested = { at: new Date().toISOString(), by: me.name }; }, 'Dates corrected.'); } });
+          onsave: function (v) {
+            var was = { cert: c.certDate, exp: c.expiry }, memo = {};   /* only the dates changed here (November 5, 2026) */
+            return saveCycle(c.id, function (x) {
+              var ch = formChanges(v, was, { cert: x.certDate, exp: x.expiry }, { cert: 'Certification Date', exp: 'Valid Through' }, memo);
+              if (!('cert' in ch) && !('exp' in ch)) return false;
+              var nc = 'cert' in ch ? ch.cert : x.certDate, ne = 'exp' in ch ? ch.exp : x.expiry;
+              history(x, 'Dates corrected from ' + x.certDate + ' / ' + x.expiry + ' to ' + nc + ' / ' + ne + ': ' + v.reason); x.certDate = nc; x.expiry = ne; if (x.certificate) x.certificateRequested = { at: new Date().toISOString(), by: me.name };
+            }, 'Dates corrected.');
+          } });
       } }));
       body.appendChild(row);
       if ((c.history || []).length) { body.appendChild(h('div', { class: 'histh', text: 'History (' + c.history.length + ')' })); body.appendChild(h('ul', { class: 'histl' }, c.history.slice().reverse().map(function (x) { return h('li', null, h('span', { text: longDate(easternDate(x.at)) }), h('div', { text: plain(x.by) + ': ' + plain(x.what) })); }))); }
@@ -1273,7 +1320,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       } }));
       row.appendChild(h('button', { class: 'btn ghost', type: 'button', text: 'Edit the Wording', disabled: !canWrite, onclick: function () {
         ask(b, { fields: [{ key: 'subject', label: 'Subject', value: e.subject || t.subject, required: true }, { key: 'body', label: 'Message', type: 'textarea', value: e.body || t.body, required: true }], button: 'Save the Wording',
-          onsave: function (v) { return writeColl('db-ind-templates', function (docs) { docs[t.id] = Object.assign({}, docs[t.id] || {}, { subject: v.subject, body: v.body, editedBy: me.name, editedAt: new Date().toISOString() }); }).then(function () { toast('Saved.'); render(); }); } });
+          onsave: function (v) {
+            var was = { subject: e.subject || t.subject, body: e.body || t.body }, memo = {};   /* only what was changed here (November 5, 2026) */
+            return writeColl('db-ind-templates', function (docs) {
+              var d0 = docs[t.id] || {}, ch = formChanges(v, was, { subject: d0.subject || t.subject, body: d0.body || t.body }, { subject: 'Subject', body: 'Message' }, memo);
+              if (!Object.keys(ch).length) return false;
+              docs[t.id] = Object.assign({}, d0, ch, { editedBy: me.name, editedAt: new Date().toISOString() });
+            }).then(function () { toast('Saved.'); render(); });
+          } });
       } }));
     }
     var next = T.filter(function (x) { return !x.internalOnly && !isOk(x) && x.id !== t.id; })[0];

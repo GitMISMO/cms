@@ -104,7 +104,9 @@ then looked perfect and silently could not save. That is what the build is for.
 - **Edits**: each collection the page writes (`cycle-state`, `invoices`, `org-edits`,
   `scores`, `activity`, ...) is `data/db-<collection>.json` in `cms-data`, saved through the
   relay with the version it read; if someone saved in between, the change is re-applied on top
-  of theirs.
+  of theirs. Since November 5, 2026 only what a save actually changed is written (merged into the
+  newest copy each time it is tried), so a record that sat open never undoes a teammate's change;
+  when both people changed the same field, the person saving is asked which to keep.
 - **Access**: Edit may save; View opens read-only and the page shows its own view-only notice.
 
 The build carries these four hooks into every `index.html`, and **refuses to write the file if
@@ -197,7 +199,12 @@ patch stops the build if its anchors are missing, so a rebuild cannot silently d
   Certification Applications/MACTS Documents and indexed in `data/macts-documents.json`
   (optional, read by `relay-connect.js`).
 
-`index.html` as committed has all seven applied.
+- `zz_merge_saves.py` (November 5, 2026): the page's half of saving without overwriting anyone. A
+  half-edited invoice saves only the fields changed in it; company details and the website card ask
+  when someone else changed the same field; and the page names the records its open panel shows, so
+  `relay-connect.js` can say in the panel when someone else saves one of them.
+
+`index.html` as committed has all of them applied.
 
 My Approvals, the Email Playbook and Help (`help.html`) open inside the CMS as views
 (`page.html?embed=1`, with `embed.js`), so the nav is always there; each still works on its own.

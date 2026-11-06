@@ -100,9 +100,142 @@
     return Promise.all(jobs).then(function () { D.publicPreview = false; return D; });
   }
 
+  /* ---------- saving without overwriting anyone (November 5, 2026) ----------
+     The page saves a whole record each time (a cycle's stage, an invoice, a company's edits), built from
+     what this browser last loaded. The page only re-reads every minute, and not at all while the tab is
+     in the background, so that copy can be hours old. Saving used to write it exactly as it was, and when
+     the relay said someone else had saved first, the same old copy was written again on top of theirs.
+     So a teammate's change could be quietly undone: a cycle they had approved went back a stage, an
+     invoice they had marked paid went back to unpaid.
+
+     Now each save remembers what the page had for that record before the change ("seen"), and writes
+     only what was actually changed here, merged into the newest copy at the moment it is written, every
+     time it is tried. Everything else keeps its newest value. A list both people added to keeps both
+     people's items. If both people changed the same field, the person saving is asked which to keep. A
+     record someone else removed is not brought back unless the person saving says so, and the open
+     record panel says when someone else saves the record it is showing. The files and fields are
+     exactly as before: only what is written into them changed. */
+  function stable(v) {
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') return '{' + Object.keys(v).filter(function (k) { return v[k] !== undefined; }).sort().map(function (k) { return JSON.stringify(k) + ':' + stable(v[k]); }).join(',') + '}';
+    return JSON.stringify(v);
+  }
+  /* blank, null and missing are the same; 5 and "5" are the same */
+  function normVal(v) {
+    if (v === undefined || v === null || v === '') return '';
+    if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+    if (typeof v === 'string') return v;
+    return stable(v);
+  }
+  function sameVal(x, y) { return normVal(x) === normVal(y); }
+  function plainObj(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+  var META = { by: 1, at: 1, updatedAt: 1, updatedBy: 1, updatedByName: 1 };   /* who saved last: never a clash */
+  /* a list both people changed: what was taken out here goes, what was added here is added, theirs stays */
+  function mergeList(cur, mine, base) {
+    cur = Array.isArray(cur) ? cur : []; mine = Array.isArray(mine) ? mine : []; base = Array.isArray(base) ? base : [];
+    var had = {}, keep = {}, have = {};
+    base.forEach(function (x) { had[stable(x)] = 1; });
+    mine.forEach(function (x) { keep[stable(x)] = 1; });
+    var out = cur.filter(function (x) { return !(had[stable(x)] && !keep[stable(x)]); });
+    out.forEach(function (x) { have[stable(x)] = 1; });
+    mine.forEach(function (x) { var k = stable(x); if (!had[k] && !have[k]) { out.push(clone(x)); have[k] = 1; } });
+    return out;
+  }
+  /* cur: the copy stored now. mine: what this page is saving. base: what this page had before its change.
+     A field not changed here keeps cur's value. clashes collects the fields both people changed; keep says
+     whose value each one takes once the person has been asked ('mine' or 'theirs'). */
+  function mergeDoc(cur, mine, base, path, clashes, keep) {
+    var out = plainObj(cur) ? clone(cur) : {}, keys = {};
+    mine = plainObj(mine) ? mine : {}; base = plainObj(base) ? base : {};
+    Object.keys(mine).concat(Object.keys(base)).forEach(function (k) { keys[k] = 1; });
+    Object.keys(keys).forEach(function (k) {
+      var m = mine[k], b = base[k], c = out[k], p = path ? path + '.' + k : k;
+      if (sameVal(m, b)) return;                                         /* not changed here: the newest value stands */
+      if (plainObj(m) && (plainObj(b) || b == null) && (plainObj(c) || c == null)) { out[k] = mergeDoc(c, m, b || {}, p, clashes, keep); return; }   /* field by field inside it */
+      if (!sameVal(c, b) && !sameVal(c, m)) {                            /* someone else changed it too, differently */
+        if (Array.isArray(m) && (Array.isArray(b) || b == null)) { out[k] = mergeList(c, m, b); return; }
+        if (!META[k]) {
+          if (!keep[p]) clashes.push({ path: p, theirs: c, mine: m });
+          if (keep[p] !== 'mine') return;
+        }
+      }
+      if (m === undefined) delete out[k]; else out[k] = clone(m);
+    });
+    return out;
+  }
+  function recName(doc) {
+    var o = doc && (doc.org || doc.name || doc.company || doc.firm);
+    return o ? String(o) + (doc.program ? ' (' + doc.program + ')' : '') : 'this record';
+  }
+  function fieldName(p) {
+    return String(p).split('.').map(function (k) {
+      return k.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, function (c) { return c.toUpperCase(); });
+    }).join(' › ');
+  }
+  function showVal(v) { var t = normVal(v); return t === '' ? '(blank)' : t.length > 80 ? t.slice(0, 80) + '…' : t; }
+  /* Records the page works out for itself and nobody edits (the Member 360 match, redone every six hours
+     by whoever opens the CMS) are written whole, as before: the newest working-out is the right one. */
+  var WHOLE = { membership: 1 };
+  /* the whole change for one record, onto the copy stored now; false when there is nothing to write */
+  function mergeInto(d, id, body, base, had, keep) {
+    var cur = d[id];
+    if (!had || !plainObj(body) || (base === undefined && cur === undefined)) { d[id] = clone(body); return true; }   /* a new record, or a collection this page never read: as before */
+    if (cur === undefined) {
+      /* someone else removed it after this page loaded it */
+      var changedHere = Object.keys(Object.assign({}, base, body)).filter(function (k) { return !META[k] && !sameVal(body[k], base[k]); });
+      if (!changedHere.length) return false;                           /* nothing of this page's own to save on it */
+      if (keep['*removed'] === undefined) keep['*removed'] = window.confirm('While you had ' + recName(base) + ' open, someone else removed it.\n\nOK saves it again with your change. Cancel leaves it removed.') ? 'mine' : 'theirs';
+      if (keep['*removed'] !== 'mine') return false;
+      d[id] = clone(body); return true;
+    }
+    var clashes = [], out = mergeDoc(cur, body, base || {}, '', clashes, keep);
+    if (clashes.length) {
+      var yours = window.confirm('While you had ' + recName(cur) + ' open, someone else saved a different value in the same ' + (clashes.length === 1 ? 'field' : 'fields') + ':\n\n' +
+        clashes.map(function (x) { return '• ' + fieldName(x.path) + ' — theirs: ' + showVal(x.theirs) + '   ·   yours: ' + showVal(x.mine); }).join('\n') +
+        '\n\nOK keeps yours. Cancel keeps theirs for ' + (clashes.length === 1 ? 'this field' : 'these fields') + ' — your other changes still save.');
+      clashes.forEach(function (x) { keep[x.path] = yours ? 'mine' : 'theirs'; });
+      out = mergeDoc(cur, body, base || {}, '', [], keep);
+    }
+    if (stable(out) === stable(cur)) return false;
+    d[id] = out; return true;
+  }
+  /* The open record panel says so when someone else saves what it is showing. index.html names the
+     records its panel shows (window.__cmsPanelDocs); without that, nothing is shown. */
+  var staleFor = null;
+  function staleCheck(name, ids) {
+    try {
+      if (!ids.length || typeof window.__cmsPanelDocs !== 'function') return;
+      var drawer = document.getElementById('drawer');
+      if (!drawer || !drawer.classList.contains('on')) return;
+      var shown = window.__cmsPanelDocs() || [];
+      if (!ids.some(function (id) { return shown.indexOf(name + '/' + id) >= 0; })) return;
+      var box = document.getElementById('rc-stale');
+      if (!box) {
+        box = document.createElement('div'); box.id = 'rc-stale'; box.setAttribute('role', 'status');
+        box.style.cssText = 'margin:8px 20px 0;padding:9px 12px;border-radius:6px;font-size:13px;line-height:1.4;border-left:3px solid var(--warn,#a2701a);background:var(--surface-2,#f6fafd);color:var(--ink,#0d314c)';
+        var head = drawer.querySelector('.dhead');
+        if (head && head.parentNode) head.parentNode.insertBefore(box, head.nextSibling); else drawer.insertBefore(box, drawer.firstChild);
+      }
+      box.textContent = 'Someone else just saved this record. Saving keeps their changes and adds yours.';
+      box.style.display = '';
+      staleFor = stable(shown);
+    } catch (e) { if (window.console) console.error('Stale notice:', e); }
+  }
+  setInterval(function () {   /* the notice goes when the panel closes or shows another record */
+    var box = document.getElementById('rc-stale');
+    if (!box || box.style.display === 'none') return;
+    var drawer = document.getElementById('drawer'), shown = null;
+    try { shown = typeof window.__cmsPanelDocs === 'function' ? stable(window.__cmsPanelDocs() || []) : null; } catch (e) {}
+    if (!drawer || !drawer.classList.contains('on') || shown !== staleFor) box.style.display = 'none';
+  }, 1500);
+
   /* ---------- "db": the page's edit collections, one private file each ---------- */
   var COLL = {};
-  function coll(name) { return COLL[name] || (COLL[name] = { name: name, docs: {}, sha: null, loaded: null, subs: [], queue: Promise.resolve() }); }
+  /* seen: each record as this page last had it (what it was given, plus its own saves); given: whether
+     this page has been handed the collection at all (November 5, 2026) */
+  function coll(name) { return COLL[name] || (COLL[name] = { name: name, docs: {}, sha: null, loaded: null, subs: [], queue: Promise.resolve(), seen: {}, given: false, pending: {} }); }
+  function given(c) { c.seen = clone(c.docs) || {}; c.given = true; }
+  function seenOf(c, id) { return c.given && c.seen[id] !== undefined ? clone(c.seen[id]) : undefined; }
   function fileOf(name) { return 'db-' + String(name).replace(/[^A-Za-z0-9_-]/g, '_'); }
   function fetchColl(c) {
     return call('GET', '/data/' + fileOf(c.name)).then(function (r) {
@@ -121,12 +254,21 @@
     var docs = ids.map(function (id) { var v = c.docs[id]; return { id: id, exists: true, data: function () { return clone(v); } }; });
     return { docs: docs, size: docs.length, empty: !docs.length, forEach: function (f) { docs.forEach(f); } };
   }
-  function notify(c) { var s = snapshot(c); c.subs.slice().forEach(function (sub) { try { sub.next(s); } catch (e) { if (window.console) console.error(e); } }); }
-  /* one write at a time per collection; on a conflict, re-read and apply the change again on top of what is there */
+  function notify(c) {
+    /* the records that changed from what this page had, other than its own saves still on their way */
+    var was = c.seen, ids = c.given ? Object.keys(Object.assign({}, was, c.docs)).filter(function (id) { return !c.pending[id] && !sameVal(was[id], c.docs[id]); }) : [];
+    given(c);
+    var s = snapshot(c); c.subs.slice().forEach(function (sub) { try { sub.next(s); } catch (e) { if (window.console) console.error(e); } });
+    staleCheck(c.name, ids);
+  }
+  /* one write at a time per collection; on a conflict, re-read and apply the change again on top of what is there.
+     A change that finds nothing to write (it returns false) writes nothing, and the page is shown what is
+     stored (November 5, 2026). */
   function write(name, change) {
     var c = coll(name);
     function attempt(tries) {
-      var next = clone(c.docs) || {}; change(next);
+      var next = clone(c.docs) || {};
+      if (change(next) === false) { notify(c); return Promise.resolve(); }   /* the page shows what is stored, not what it guessed */
       return call('PUT', '/data/' + fileOf(name), { content: { docs: next }, sha: c.sha }).then(function (r) {
         if (r.status === 200) { c.docs = next; c.sha = r.json.sha || c.sha; notify(c); return; }
         if (r.status === 409 && tries < 4) return fetchColl(c).then(function () { return attempt(tries + 1); });
@@ -138,24 +280,51 @@
     c.queue = c.queue.then(run, run);
     return c.queue;
   }
-  /* other people's changes: re-read what this page is watching every minute while it is open and visible */
-  setInterval(function () {
+  /* other people's changes: re-read what this page is watching every minute while it is open and visible,
+     and straight away when the tab is looked at again (November 5, 2026: a tab left in the background for
+     hours showed hours-old records for up to a minute after coming back) */
+  function refresh() {
     if (document.hidden) return;
     Object.keys(COLL).forEach(function (n) { var c = COLL[n]; if (!c.subs.length) return; var was = c.sha;
       c.queue = c.queue.then(function () { return fetchColl(c).then(function () { if (c.sha !== was) notify(c); }); }).catch(function () {}); });
-  }, 60000);
+  }
+  setInterval(refresh, 60000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
+  /* A save: what this page had before (seen) is taken now, when the page asks, and the change is merged
+     into the stored copy each time it is tried. keep remembers the person's answers across retries. */
+  function saveDoc(name, id, body) {
+    var c = coll(name), base = seenOf(c, id), had = c.given, keep = {};
+    if (had) { if (body === undefined || body === null) delete c.seen[id]; else c.seen[id] = clone(body); }
+    c.pending[id] = (c.pending[id] || 0) + 1;
+    var done = function () { if (!--c.pending[id]) delete c.pending[id]; };
+    var p = write(name, function (d) { return mergeInto(d, id, body, base, had && !WHOLE[name], keep); });
+    p.then(done, done);
+    return p;
+  }
+  function removeDoc(name, id) {
+    var c = coll(name), base = seenOf(c, id), had = c.given, keep = {};
+    if (had) delete c.seen[id];
+    return write(name, function (d) {
+      if (d[id] === undefined) return false;                              /* already gone */
+      if (had && !sameVal(d[id], base)) {                                  /* someone else changed it after this page loaded it */
+        if (keep.remove === undefined) keep.remove = window.confirm('Someone else changed ' + recName(d[id]) + ' after this page last loaded it.\n\nOK removes it anyway. Cancel keeps their version.');
+        if (!keep.remove) return false;
+      }
+      delete d[id];
+    });
+  }
   function docRef(name, id) {
     var c = coll(name);
     return {
       id: id,
-      set: function (body) { return write(name, function (d) { d[id] = clone(body); }); },
-      replace: function (body) { return write(name, function (d) { d[id] = clone(body); }); },
-      update: function (body) { return write(name, function (d) { d[id] = Object.assign({}, d[id] || {}, clone(body)); }); },
-      'delete': function () { return write(name, function (d) { delete d[id]; }); },
-      get: function () { return load(c).then(function () { var v = c.docs[id]; return { id: id, exists: v !== undefined, data: function () { return clone(v); } }; }); },
+      set: function (body) { return saveDoc(name, id, body); },
+      replace: function (body) { return saveDoc(name, id, body); },
+      update: function (body) { return write(name, function (d) { d[id] = Object.assign({}, d[id] || {}, clone(body)); }); },   /* already field by field */
+      'delete': function () { return removeDoc(name, id); },
+      get: function () { return load(c).then(function () { if (!c.given) given(c); var v = c.docs[id]; return { id: id, exists: v !== undefined, data: function () { return clone(v); } }; }); },
       onSnapshot: function (next, error) {
         var sub = { next: function () { var v = c.docs[id]; next({ id: id, exists: v !== undefined, data: function () { return clone(v); } }); } };
-        c.subs.push(sub); load(c).then(function () { sub.next(); }, function (e) { if (error) error(e); });
+        c.subs.push(sub); load(c).then(function () { if (!c.given) given(c); sub.next(); }, function (e) { if (error) error(e); });
         return function () { c.subs = c.subs.filter(function (x) { return x !== sub; }); };
       }
     };
@@ -165,10 +334,10 @@
     return {
       orderBy: function (field, dir) { return query(name, Object.assign({}, opts, { order: [field, dir || 'asc'] })); },
       limit: function (n) { return query(name, Object.assign({}, opts, { limit: n })); },
-      get: function () { return load(c).then(function () { return snapshot(c, opts); }); },
+      get: function () { return load(c).then(function () { if (!c.given) given(c); return snapshot(c, opts); }); },
       onSnapshot: function (next, error) {
         var sub = { next: function (s) { next(opts.order || opts.limit != null ? snapshot(c, opts) : s); } }; c.subs.push(sub);
-        load(c).then(function () { next(snapshot(c, opts)); }, function (e) { if (error) error(e); });
+        load(c).then(function () { if (!c.given) given(c); next(snapshot(c, opts)); }, function (e) { if (error) error(e); });
         return function () { c.subs = c.subs.filter(function (x) { return x !== sub; }); };
       }
     };

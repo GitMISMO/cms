@@ -353,10 +353,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       var d = r.json.data || {}; COLL[file] = { docs: d.docs || {}, sha: r.json.sha || null }; return COLL[file];
     });
   }
-  function writeDoc(file, id, body) {   /* body null deletes */
+  /* body null deletes. body may also be a function: handed the copy stored now (each time the save is
+     tried), it returns what to store, or false to store nothing (November 5, 2026). */
+  function writeDoc(file, id, body) {
     function attempt(tries) {
       var c = COLL[file] || { docs: {}, sha: null }, next = JSON.parse(JSON.stringify(c.docs || {}));
-      if (body === null) delete next[id]; else next[id] = body;
+      var b = typeof body === 'function' ? body(next[id]) : body;
+      if (b === false) return Promise.resolve(false);
+      if (b === null) delete next[id]; else next[id] = b;
       return call('PUT', '/data/' + file, { content: { docs: next }, sha: c.sha }).then(function (r) {
         if (r.status === 200) { COLL[file] = { docs: next, sha: r.json.sha || c.sha }; return; }
         if (r.status === 409 && tries < 4) return readColl(file).then(function () { return attempt(tries + 1); });
@@ -534,8 +538,33 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     save.addEventListener('click', function () {
       if (!si.value.trim() || !bi.value.trim()) { toast('An email needs a subject line and a body.', true); return; }
       save.disabled = true;
-      var body = { title: ti.value.trim(), subject: si.value.trim(), body: bi.value.replace(/\s+$/, ''), updatedAt: new Date().toISOString(), updatedBy: me.email, updatedByName: me.name };
-      writeDoc('db-stage-templates', t.id, body).then(function () { TPL[t.id] = body; toast((t.title || t.id) + ' wording saved. It is used from the next email on.'); render(t.id); })
+      /* November 5, 2026: the wording can sit open while someone else saves the same email. Only the
+         parts changed here (heading, subject, body) are saved; the rest keep what is saved now. If
+         someone else changed the same part meanwhile, the person saving is asked which to keep. */
+      var mine = { title: ti.value.trim(), subject: si.value.trim(), body: bi.value.replace(/\s+$/, '') }, was = cur, memo = {}, body = null;
+      var LAB = { title: 'Heading', subject: 'Subject Line', body: 'Email Body' };
+      var same = function (x, y) { return String(x == null ? '' : x).replace(/\s+$/, '').trim() === String(y == null ? '' : y).replace(/\s+$/, '').trim(); };
+      writeDoc('db-stage-templates', t.id, function (stored) {
+        var now = { title: (stored && stored.title) || t.title || '', subject: (stored && stored.subject) || t.subject || '', body: (stored && stored.body) || t.body || '' };
+        var out = { title: now.title, subject: now.subject, body: now.body }, ask = [], changed = 0;
+        Object.keys(LAB).forEach(function (k) {
+          if (same(mine[k], was[k])) return;
+          changed++;
+          if (!same(now[k], was[k]) && !same(now[k], mine[k]) && !(k in memo)) ask.push(k);
+          out[k] = mine[k];
+        });
+        if (!changed) return false;
+        if (ask.length) {
+          var yours = confirm('While you had this email open, someone else saved different wording in the same ' + (ask.length === 1 ? 'part' : 'parts') + ': ' +
+            ask.map(function (k) { return LAB[k]; }).join(', ') + '.\n\nOK keeps yours. Cancel keeps theirs for ' + (ask.length === 1 ? 'that part' : 'those parts') + ' \u2014 your other changes still save.');
+          ask.forEach(function (k) { memo[k] = yours; });
+        }
+        Object.keys(memo).forEach(function (k) { if (!memo[k]) out[k] = now[k]; });
+        body = Object.assign({}, stored || {}, out, { updatedAt: new Date().toISOString(), updatedBy: me.email, updatedByName: me.name });
+        return body;
+      }).then(function (ok) {
+        if (ok === false) { toast('Nothing was changed.'); save.disabled = false; return; }
+        TPL[t.id] = body; toast((t.title || t.id) + ' wording saved. It is used from the next email on.'); render(t.id); })
         .catch(function (err) { toast(err.message, true); save.disabled = false; });
     });
     if (restore) restore.addEventListener('click', function () {
