@@ -5253,12 +5253,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         Object.keys(licenses || {}).forEach((function(k) {
             var L = licenses[k];
-            if (!L || L.status !== "needs_contact") return;
+            if (!L || (L.status !== "needs_contact" && L.status !== "check")) return;
             var c = certs.filter((function(x) { return certKey(x) === k; }))[0];
             if (!c || tdProspect(c.org)) return;
             var f = openCycleFor(k);
             if (f) taken[f.row] = 1;
-            todo.license.push({ c: c, f: f });
+            todo.license.push({ c: c, f: f, st: L.status });
         }));
         var seen = {};
         (D.inFlight || []).forEach((function(f) {
@@ -5357,8 +5357,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (key === "license") {
             var lc = x.c;
             return '<div class="td-item">' + '<div class="td-main"><button class="td-org" type="button" data-tdcert="' + esc(certKey(lc)) + '">' + esc(lc.org) + "</button>"
-                + '<div class="td-meta">' + esc(lc.program) + (lc.product ? " · " + esc(lc.product) : "") + " · approved, Mark License Agreement ready to send</div></div>"
-                + (canWrite ? '<div class="td-lic">' + licActionsHTML(lc, "needs_contact") + "</div>" : "") + "</div>";
+                + '<div class="td-meta">' + esc(lc.program) + (lc.product ? " · " + esc(lc.product) : "") + (x.st === "check" ? " · Mark License send unclear: check DocuSign for an envelope before sending it again" : " · approved, Mark License Agreement ready to send") + "</div></div>"
+                + (canWrite ? '<div class="td-lic">' + licActionsHTML(lc, x.st || "needs_contact") + "</div>" : "") + "</div>";
         }
         if (key === "expiry") {
             var ec = x;
@@ -14799,7 +14799,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         signed: "Executed",
         declined: "Declined",
         voided: "Voided",
-        needs_contact: "Needs an email"
+        needs_contact: "Needs an email",
+        check: "Check DocuSign"
     };
     var LIC_WHY = {
         not_sent: "Nobody has sent it. The certification stands either way — the licence " + "is only needed if the company wants to use the service mark.",
@@ -14809,7 +14810,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         signed: "Executed.",
         declined: "The signer declined. Nothing about the certification changes.",
         voided: "The envelope was voided before it was signed.",
-        needs_contact: "The certification was approved and this is ready to go, but there is " + "no email address on the company record to send it to. Add one below and it " + "goes straight out."
+        needs_contact: "The certification was approved and this is ready to go, but there is " + "no email address on the company record to send it to. Add one below and it " + "goes straight out.",
+        check: "A send was started but no clear answer came back from DocuSign, so it was not sent again. " + "Look in DocuSign for an envelope to the signer. If there is none, send it again below."
     };
     function licOf(c) {
         var k = certKey(c);
@@ -15032,7 +15034,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function licActionsHTML(c, st) {
         var k = certKey(c);
         var org = orgOf(c.org) || {};
-        if (st === "not_sent" || st === "declined" || st === "voided" || st === "needs_contact") {
+        if (st === "not_sent" || st === "declined" || st === "voided" || st === "needs_contact" || st === "check") {
             return '<div class="lic-send">' + '<div class="pc-lab">Send It for Signature</div>' + '<div class="grid2">' + '<div class="fld"><label>Signer’s Name</label>' + '<input class="pc-input" type="text" data-lic="name" data-k="' + esc(k) + '" value="' + esc(org.signer || "") + '" placeholder="Who signs for ' + esc(c.org) + '"></div>' + '<div class="fld"><label>Signer’s Email</label>' + '<input class="pc-input" type="email" data-lic="email" data-k="' + esc(k) + '" value="' + esc(org.contactEmail || "") + '" placeholder="name@company.com"></div>' + '<div class="fld"><label>Their Title</label>' + '<input class="pc-input" type="text" data-lic="title" data-k="' + esc(k) + '" value=""></div>' + "</div>" + '<p class="em-n">MISMO holds business contact details only. If the name or address ' + "above is not right, correct it on the company record rather than here — that is " + "the copy everything else reads.</p>" + '<button class="lc-btn" type="button" data-licsend="' + esc(k) + '">Send for Signature</button>' + "</div>";
         }
         /* Jonna, 31 Oct 2026: "shouldn't everything be automatic?" It is, for anything sent through
