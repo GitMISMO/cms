@@ -2497,6 +2497,8 @@
      cards of rows with a company monogram, search and a count; nothing is folded inside a tab. ══ */
   #asof{display:none;}
   .view > .vhead.pk-gone, .pk-gone{display:none !important;}
+  #d-title:focus{outline:none;} #d-title:focus-visible{outline:2px solid var(--sky,#74bfeb); outline-offset:3px; border-radius:4px;}
+  .pk-actmore{display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; margin:14px 0 4px;}
   .pk-hero{margin-bottom:16px;}
   .pk-hero .tqh-hi p{max-width:none;}
   .tqh.pk-hero{grid-template-columns:minmax(0,1fr);}
@@ -3173,7 +3175,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div class="navgroup" aria-labelledby="navlbl-system">
         <div class="navlbl" id="navlbl-system">System</div>
         <button class="navlink" data-view="activity" type="button" title="Activity"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12.5h3.6l2.3-6.4 3.6 12 2.4-7 1.6 3h4.5"/></svg></span><span class="nl">Activity</span></button>
-        <button class="navlink" data-view="load" type="button" title="Migration"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v10"/><path d="m8.2 10 3.8 3.8L15.8 10"/><path d="M3.5 15.2v3.3a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-3.3"/></svg></span><span class="nl">Migration</span></button>
       </div>
     </nav>
     <div class="side-foot">
@@ -3218,10 +3219,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <p class="psub">One set of instructions covering every renewal in Needs an Invoice, ready to copy. The standing part is yours to edit &mdash; change it once and this browser remembers it.</p>
       </div></div>
       <div class="pc-lab">Standing Instructions</div>
-      <textarea class="pc-input rn-ta" id="rn-standing" rows="10" spellcheck="false"></textarea>
+      <textarea class="pc-input rn-ta" id="rn-standing" rows="10" spellcheck="false" aria-label="Standing Instructions"></textarea>
       <div class="na-acts"><button class="lc-btn ghost" type="button" id="rn-reset">Reset to Default</button></div>
       <div class="pc-lab" style="margin-top:18px;">What Gets Copied</div>
-      <textarea class="pc-input rn-ta" id="rn-prompt" rows="16" spellcheck="false" readonly></textarea>
+      <textarea class="pc-input rn-ta" id="rn-prompt" rows="16" spellcheck="false" readonly aria-label="What Gets Copied"></textarea>
     </div>
 
   </section>
@@ -3247,10 +3248,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
 
       <div class="filters">
-        <select id="f-program"><option value="">All Programs</option></select>
-        <select id="f-status" hidden><option value="">All Statuses</option></select>
-        <select id="f-orgstatus"><option value="">All Statuses</option></select>
-        <input type="search" id="f-search" placeholder="Company name">
+        <select id="f-program" aria-label="Program"><option value="">All Programs</option></select>
+        <select id="f-status" hidden aria-label="Status"><option value="">All Statuses</option></select>
+        <select id="f-orgstatus" aria-label="Company status"><option value="">All Statuses</option></select>
+        <input type="search" id="f-search" placeholder="Company name" aria-label="Find a company">
       </div>
 
       <div class="rowlist" id="certlist" hidden></div>
@@ -3328,24 +3329,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <section class="view" id="view-counts">
     <!-- The program at a glance and the phase board (moved off the foot of the Action Queue, Jonna 30 Oct 2026) -->
 
-    <div class="headline" id="headline">
-      <div class="hl-top">
-        <div class="hl-date" id="hl-date"></div>
-      </div>
-      <div class="hl-body" id="hl-body"></div>
-    </div>
-
-    <div class="box">
-      <h2 class="sect-t" id="work-title">Open Work by Phase</h2>
-      <p class="sect-s" id="work-sub">Every open certification, counted by the phase it is at. Select a phase to list what is in it.</p>
 
 
-      <div class="lastchange" id="lastchange"></div>
-      <div id="queue" hidden></div>
-      <div class="cards tight" id="pipe"></div>
-    </div>
-
-    <div id="licenselist" hidden></div>
 
 
     <div id="cntx"></div>
@@ -3374,14 +3359,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
           those are the announcements.</p>
       </div></div>
       <div class="filters">
-        <select id="nc-since"></select>
-        <select id="nc-kind">
+        <select id="nc-since" aria-label="Since"></select>
+        <select id="nc-kind" aria-label="Kind">
           <option value="initial">First-Time Certifications</option>
           <option value="renewal">Renewals</option>
           <option value="all">Both</option>
         </select>
-        <select id="nc-year"><option value="">All Years</option></select>
-        <select id="nc-program"><option value="">All Programs</option></select>
+        <select id="nc-year" aria-label="Year"><option value="">All Years</option></select>
+        <select id="nc-program" aria-label="Program"><option value="">All Programs</option></select>
       </div>
       <div class="note" id="nc-caveat"></div>
       <div id="pk-nc"></div>
@@ -3500,15 +3485,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="rn-held"></div>
     </div>
 
-    <div class="panel pk-gone">
-      <div class="phead"><div>
-        <h2>Invoiced Already</h2>
-        <p class="psub">Due in the same window, but an invoice already exists for the renewal, so
-          there is nothing to raise. MACTS keeps a certification&rsquo;s invoices on the cycle rows
-          beneath it rather than on the certification itself, which is why these can look missing.</p>
-      </div></div>
-      <div id="rn-invoiced"></div>
-    </div>
 
     <div class="panel" id="pk-rn-ahead">
       <div class="phead"><div>
@@ -3516,17 +3492,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <p class="psub">Every renewal by the month it falls in, with where its invoice stands. Choose a card to open the renewal; each one moves to Needs an Invoice on the Invoices page two weeks before its invoice is due.</p>
       </div></div>
       <div id="pk-rn-cal"></div>
-      <div id="rn-ahead"></div>
     </div>
 
-    <div class="panel pk-gone">
-      <div class="phead"><div>
-        <h2>Already Raised</h2>
-        <p class="psub">Quotations recorded as raised in Aptify. Open one to correct the number or
-          put it back on the list.</p>
-      </div></div>
-      <div id="rn-done"></div>
-    </div>
 
     <div class="panel" id="pk-rn-notices">
       <div class="phead"><div>
@@ -3546,19 +3513,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
       <div id="nt-caveat"></div>
       <div id="pk-nt-strip"></div>
-      <div id="nt-list"></div>
     </div>
 
-    <div class="panel pk-gone">
-      <div class="phead"><div>
-        <h2>What Has Gone Out</h2>
-        <p class="psub">Every notice the system has sent, newest first. While notices are still
-        being held back for checking, this shows who each one <em>would</em> have reached.</p>
-      </div>
-        <div class="fld rn-act"><span class="na-hint" id="nl-count"></span></div>
-      </div>
-      <div id="nl-list"></div>
-    </div>
   </section>
 
   <!-- ================= FORMS ================= -->
@@ -3638,53 +3594,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div class="lcgrid" id="lcgrid"></div>
     </div>
 
-    <div class="panel pk-gone">
-      <div class="phead"><div>
-        <h2>The Assessor Portal, Configured</h2>
-        <p class="psub">Confirmed as the goal. This is the place assessors sign in and
-          <b>carry out the assessment</b> &mdash; not a roster MISMO keeps about them. Blueprint &sect;6.3.</p>
-      </div></div>
-      <div class="lcgrid">
-        <div class="lc assessor">
-          <div class="lcname">Score the Instrument</div>
-          <div class="lcproj">The assessment itself, done in the system</div>
-          <div class="lcnext">The pinned instrument as a working surface &mdash; each item with its question,
-            acceptance criterion, required evidence, reviewer guidance, the provider&rsquo;s own answer and
-            last cycle&rsquo;s result beside it. Pass, fail, N/A or not tested, with comments and evidence
-            attached. The preliminary result is computed from the items, never typed.</div>
-        </div>
-        <div class="lc assessor">
-          <div class="lcname">Run the Engagement</div>
-          <div class="lcproj">Demos, artifacts, remediation</div>
-          <div class="lcnext">Publish demo slots and accept or reschedule requests, upload the recording,
-            request and accept artifacts against the checklist, answer decision threads with the Product
-            Manager, set remediation targets and close findings with evidence, enter the assessor invoice.</div>
-        </div>
-        <div class="lc assessor">
-          <div class="lcname">See Only Their Own Work</div>
-          <div class="lcproj">Enforced in code, not policy</div>
-          <div class="lcnext">Engagements assigned to their firm, and the same company&rsquo;s earlier
-            engagements in that program. Nothing about other companies, other firms&rsquo; engagements,
-            fees charged to the company, or MISMO&rsquo;s internal notes.</div>
-        </div>
-        <div class="lc mismo">
-          <div class="lcname">See the Key for Their Own Engagement</div>
-          <div class="lcproj">Settled September 2026</div>
-          <div class="lcnext">An assessor on an eVault engagement may see the key for the suite issued
-            on that engagement &mdash; which is what already happens, since the reviewed SMART Doc
-            results come back from the assessor. The grant is per engagement, not per suite: it gives
-            them nothing on another provider being tested on the same suite. The company being
-            certified never sees the key at all.</div>
-        </div>
-      </div>
-    </div>
 
-    <div class="panel pk-gone">
-      <h2>States the Assessor Owns Today</h2>
-      <p class="psub">Recording work in any of these moves the cycle on and updates Status, Phase and
-        Waiting-On everywhere else at the same time. That is the interconnection: one state, three views.</p>
-      <div class="lcgrid" id="assessorstates"></div>
-    </div>
   </section>
 
   <!-- ================= ACTIVITY ================= -->
@@ -3700,17 +3610,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     </div>
   </section>
 
-  <!-- ================= MIGRATION ================= -->
-  <section class="view" id="view-load">
-    <div class="panel">
-      <div class="phead"><div>
-        <h2>Migration Reconciliation</h2>
-        <p class="psub">What came out of the MACTS export. Every row is either loaded or rejected with a
-          stated reason; nothing is dropped silently.</p>
-      </div></div>
-      <div id="loadsummary"></div>
-    </div>
-  </section>
 
 </div>
 </main>
@@ -3721,11 +3620,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 <button class="lc-btn board-exit" id="board-exit" type="button">Exit Display Board</button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Record panel">
+<aside class="drawer" id="drawer" role="dialog" aria-modal="false" aria-labelledby="d-title" aria-hidden="true" inert>
   <div class="dhead">
     <span class="dmono" id="d-mono"></span>
     <div class="dhead-t">
-      <h3 id="d-title">—</h3>
+      <h3 id="d-title" tabindex="-1">—</h3>
       <div class="dsub" id="d-sub">—</div>
       <div class="dchips" id="d-chips"></div>
     </div>
@@ -5785,7 +5684,38 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tqProspectRow(x) {
         return '<div class="tq-prow" data-tqhay="' + esc(String(x.org).toLowerCase()) + '">' + tdProspectRow(x.org) + "</div>";
     }
+    /* Lighter refresh (8 Nov 2026). The four heaviest redraws (the Action Queue, Invoices, Renewals and the
+       renewal notices) took about three quarters of every full redraw, and a full redraw ran about ten times
+       while the page opened. Each now redraws only while its screen is showing; otherwise it is marked and
+       redrawn the moment any screen is shown, or before a button on one screen works another's controls.
+       Menu badges and the open panel are always kept current. */
+    var lazyDirty = {};
+    function lazyShown(views) {
+        if (document.body.classList.contains("board")) return false;
+        for (var i = 0; i < views.length; i++) { var v = $("view-" + views[i]); if (v && v.classList.contains("on")) return true; }
+        return false;
+    }
+    function lazyRun(key, views, fn) {
+        if (lazyShown(views)) { delete lazyDirty[key]; fn(); } else lazyDirty[key] = fn;
+    }
+    function lazyFlush() {
+        Object.keys(lazyDirty).forEach((function(k) {
+            var fn = lazyDirty[k]; delete lazyDirty[k];
+            try { fn(); } catch (e) { if (window.console) console.error("Redraw:", e); }
+        }));
+    }
+    window.__lazyFlush = lazyFlush;
+    /* several changes arriving together (as they do while the page opens) make one redraw, not one each */
+    var renderSoonTimer = 0;
+    function renderSoon() {
+        if (renderSoonTimer) return;
+        renderSoonTimer = setTimeout((function() { renderSoonTimer = 0; renderAll(); }), 40);
+    }
     function renderTodo() {
+        if (typeof tdSubscribe === "function") tdSubscribe();   /* the queue's own records load even while it is not showing */
+        lazyRun("todo", [ "queue", "invoices" ], renderTodoNow);
+    }
+    function renderTodoNow() {
         var host = $("todo");
         if (!host) return;
         var ae = document.activeElement;
@@ -6084,15 +6014,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }), true);
     function renderQueue() {
         renderTodo();
-        var gs = queueGroups();
-        $("queue").innerHTML = gs.length ? '<div class="cards tight">' + gs.map((function(g) {
+        var gs = $("queue") ? queueGroups() : [];
+        if ($("queue")) $("queue").innerHTML = gs.length ? '<div class="cards tight">' + gs.map((function(g) {
             var on = panel && panel.mode === "queue" && panel.group === g.key;
             var n = g.rows.length;
             var unit = g.kind === "certs" ? n === 1 ? "certification" : "certifications" : g.kind === "chases" ? n === 1 ? "to follow up" : "to follow up" : n === 1 ? "cycle" : "cycles";
             var parts = queueParts(g);
             return '<button class="card' + (on ? " on" : "") + (g.tone ? " q-" + g.tone : "") + '" type="button" data-qgroup="' + esc(g.key) + '" ' + 'title="' + esc(g.sub || "List the " + n + " behind this figure") + '">' + "<h3>" + esc(g.title) + '<span class="arr">›</span></h3>' + '<div class="cfoot">' + '<div class="numrow">' + '<div class="big">' + n + " <small>" + esc(unit) + "</small></div>" + '<div class="meta">' + queueChips(g) + "</div>" + "</div>" + "</div></button>";
         })).join("") + "</div>" : '<div class="empty">Nothing is waiting.</div>';
-        Array.prototype.forEach.call($("queue").querySelectorAll("[data-qgroup]"), (function(b) {
+        if ($("queue")) Array.prototype.forEach.call($("queue").querySelectorAll("[data-qgroup]"), (function(b) {
             b.addEventListener("click", (function() {
                 var k = b.dataset.qgroup;
                 if (panel && panel.mode === "queue" && panel.group === k) closePanel(); else openPanelQueue(k);
@@ -6676,7 +6606,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return '<div class="dsect pk-earlier pk-dfile"><h4>Documents on File <span class="pk-n">' + mine.length + "</span></h4>"
             + (many ? '<div class="pk-dtool"><div class="tq-kinds"><button type="button" class="tq-k on" data-pkdp="">All <b>' + mine.length + "</b></button>"
                 + porder.map((function(p) { return '<button type="button" class="tq-k" data-pkdp="' + esc(p) + '">' + esc(p === "Other" ? "Other" : pkProg(p)) + " <b>" + count(p) + "</b></button>"; })).join("") + "</div>"
-                + '<input type="search" class="pc-input" data-pkdq placeholder="Find a document"></div>' : "")
+                + '<input type="search" class="pc-input" data-pkdq placeholder="Find a document" aria-label="Find a document"></div>' : "")
             + porder.map((function(p) {
                 var cyc = Object.keys(progs[p]).sort((function(a, b) { return rank(b === "Other Documents" ? "" : b) - rank(a === "Other Documents" ? "" : a); }));
                 return '<div class="pk-dprog" data-pkdprog="' + esc(p) + '"><div class="pk-dph"><b>' + esc(p === "Other" ? "Other Documents" : pkProg(p)) + "</b><span>" + count(p) + " document" + (count(p) === 1 ? "" : "s") + " across " + cyc.length + " cycle" + (cyc.length === 1 ? "" : "s") + "</span></div>"
@@ -6706,19 +6636,63 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         Array.prototype.forEach.call(box.querySelectorAll(".pk-dd"), (function(a) { a.style.display = !q || a.getAttribute("data-pkdhay").indexOf(q) >= 0 ? "" : "none"; }));
         Array.prototype.forEach.call(box.querySelectorAll(".pk-dcyc"), (function(r) { r.style.display = r.querySelector('.pk-dd:not([style*="none"])') ? "" : "none"; }));
     }));
+    /* The side panel as a dialog (8 Nov 2026): opening a record moves the keyboard to its title, and closing
+       it returns the keyboard to the button that opened it (found again by its data- attribute when the list
+       behind was redrawn meanwhile). A redraw of the same record leaves the keyboard where it is. */
+    var panelLastId = null, panelOpener = null;
+    function panelIdent() {
+        return panel ? [ panel.mode, panel.key || "", panel.row != null ? panel.row : "", panel.name || "", panel.group || "", panel.which || "" ].join("|") : null;
+    }
+    function panelFind(o) {
+        if (!o) return null;
+        if (document.contains(o.el) && o.el.offsetParent) return o.el;
+        var sels = [ o.near, o.sel ];
+        for (var k = 0; k < sels.length; k++) {
+            if (!sels[k]) continue;
+            var all = document.querySelectorAll(sels[k]);
+            for (var i = 0; i < all.length; i++) if (all[i].offsetParent && !all[i].closest("#drawer")) return all[i];
+        }
+        return null;
+    }
+    function panelFocus(drawer, wasOn) {
+        var id = panelIdent();
+        if (wasOn && id === panelLastId) return;
+        if (!wasOn) {
+            var ae = document.activeElement, sel = null;
+            if (ae && ae !== document.body && !drawer.contains(ae)) {
+                for (var i = 0; i < ae.attributes.length; i++) { var at = ae.attributes[i]; if (/^data-/.test(at.name) && at.value) { try { sel = "[" + at.name + '="' + (window.CSS && CSS.escape ? CSS.escape(at.value) : at.value) + '"]'; } catch (x) {} break; } }
+                var cls = (ae.className && typeof ae.className === "string" ? ae.className.split(" ")[0] : "");
+                panelOpener = { el: ae, sel: sel, near: sel && /^[\w-]+$/.test(cls) ? "." + cls + sel : null };
+            } else panelOpener = null;
+        }
+        panelLastId = id;
+        setTimeout((function() { var t = $("d-title"); if (t && panel && panelIdent() === id) { try { t.focus({ preventScroll: true }); } catch (x) { t.focus(); } } }), 0);
+    }
+    function panelUnfocus(wasOn) {
+        if (!wasOn) return;
+        panelLastId = null;
+        var back = panelFind(panelOpener); panelOpener = null;
+        var drawer = $("drawer"), ae = document.activeElement;
+        if (back && (!ae || ae === document.body || (drawer && drawer.contains(ae)))) { try { back.focus({ preventScroll: true }); } catch (x) { back.focus(); } }
+    }
     function renderPanel() {
         markSelectedRow();
         var drawer = $("drawer");
+        var panelWasOn = !!drawer && drawer.classList.contains("on");
         /* the company record opens wide: it holds a whole company (2 Nov 2026) */
         if (drawer) drawer.classList.toggle("co-wide", !!panel && panel.mode === "org");
         if (!panel) {
             drawer.classList.remove("on");
             drawer.setAttribute("aria-hidden", "true");
             document.body.classList.remove("panel-open");
+            panelUnfocus(panelWasOn);
+            drawer.inert = true;   /* nothing in a closed panel can take the keyboard */
             return;
         }
         drawer.classList.add("on");
         drawer.setAttribute("aria-hidden", "false");
+        drawer.inert = false;
+        panelFocus(drawer, panelWasOn);
         dHero(null);
         if ($("d-body")) $("d-body").scrollTop = 0;
         document.body.classList.add("panel-open");
@@ -7075,32 +7049,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }));
             return;
         }
-        if (panel.mode === "mig") {
-            var set = migSet(panel.which);
-            $("d-title").textContent = set.title;
-            $("d-sub").textContent = set.sub;
-            $("d-body").innerHTML = set.rows.length ? (set.note ? '<div class="pc-note" style="margin-bottom:12px;">' + set.note + "</div>" : "") + set.rows.map(migRow).join("") : '<div class="empty">Nothing here.</div>';
-            Array.prototype.forEach.call($("d-body").querySelectorAll("[data-migopen]"), (function(b) {
-                b.addEventListener("click", (function() {
-                    var f = byRow(+b.dataset.migopen);
-                    if (f) openPanelRecord(f.row, phaseOf(currentState(f)), {
-                        kind: "mig",
-                        which: panel.which,
-                        name: "Migration"
-                    });
-                }));
-            }));
-            Array.prototype.forEach.call($("d-body").querySelectorAll("[data-migcert]"), (function(b) {
-                b.addEventListener("click", (function() {
-                    openPanelCert(b.dataset.migcert, {
-                        kind: "mig",
-                        which: panel.which,
-                        name: "Migration"
-                    });
-                }));
-            }));
-            return;
-        }
         if (panel.mode === "firm") {
             var fa = (D.assessors || []).filter((function(x) {
                 return x.name === panel.firm;
@@ -7231,7 +7179,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             wireHistory($("d-body"));
             wireCompany($("d-body"));
             if ($("d-back")) $("d-back").addEventListener("click", (function() {
-                if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "org") openPanelOrg(panel.back.name); else if (panel.back && panel.back.kind === "mig") openPanelMig(panel.back.which); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else if (panel.back) openPanelCerts(panel.back.program, panel.back.name); else if (panel.row) openPanelRecord(panel.row, panel.phase); else openPanelList(panel.phase);
+                if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "org") openPanelOrg(panel.back.name); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else if (panel.back) openPanelCerts(panel.back.program, panel.back.name); else if (panel.row) openPanelRecord(panel.row, panel.phase); else openPanelList(panel.phase);
             }));
             return;
         }
@@ -7248,7 +7196,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + cjStepper(f) + dNext(f) + dTabs("rec:" + f.row, [ [ "overview", "Overview", "", parts.overview ], [ "money", "Money", inv0 && inv0.paid === false ? "unpaid" : "", parts.money, "warn" ], [ "cert", "The Certification", "", parts.cert ], [ "company", "The Company", empt0 ? empt0 + " empty" : "", parts.company, "warn" ] ]);
         wireHistory($("d-body"));
         if ($("d-back")) $("d-back").addEventListener("click", (function() {
-            if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else if (panel.back && panel.back.kind === "mig") openPanelMig(panel.back.which); else openPanelList(panel.phase);
+            if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else openPanelList(panel.phase);
         }));
         wireRecordControls($("d-body"));
     }
@@ -7808,7 +7756,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         rv.per = t.getAttribute("data-rvper");
         renderRevenue();
     }));
-    function renderInvoices() {
+    function renderInvoices() { lazyRun("invoices", [ "invoices", "revenue" ], renderInvoicesNow); }
+    function renderInvoicesNow() {
         try { if (typeof renderRevenue === "function") renderRevenue(); } catch (e) { if (window.console) console.error("Revenue:", e); }
         var el = $("invlist");
         if (!el) return;
@@ -8706,6 +8655,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).join("");
     }
     function renderPipe() {
+        if (!$("pipe")) return;   /* the old phase board was removed 8 Nov 2026 */
         renderLastChange();
         var byPhase = {};
         BOARD_PHASES.forEach((function(p) {
@@ -9890,7 +9840,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function renderActivity() {
         var el = $("activitylist");
         if (!el) return;
-        if (!pkAct) pkAct = { kind: "all", q: "" };
+        if (!pkAct) pkAct = { kind: "all", q: "", n: 100 };
+        if (!pkAct.n) pkAct.n = 100;
         var now = Date.now(), dayMs = 864e5;
         var today = activity.filter((function(a) { return new Date(a.at).toDateString() === new Date().toDateString(); }));
         var week = activity.filter((function(a) { return now - new Date(a.at).getTime() < 7 * dayMs; }));
@@ -9919,9 +9870,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (pkAct.q && ((a.org || "") + " " + (a.program || "") + " " + (a.note || "") + " " + (a.by || "")).toLowerCase().indexOf(pkAct.q.toLowerCase()) < 0) return false;
             return true;
         }));
-        var tools = '<div class="pk-tool pk-acttool"><input type="search" class="pc-input" data-pkactq placeholder="Find a company, a person or a word" value="' + esc(pkAct.q) + '"><div class="tq-kinds">'
+        var tools = '<div class="pk-tool pk-acttool"><input type="search" class="pc-input" data-pkactq placeholder="Find a company, a person or a word" aria-label="Find in the activity" value="' + esc(pkAct.q) + '"><div class="tq-kinds">'
             + [ "all", "move", "note", "edit", "money" ].map((function(k) { return '<button type="button" class="tq-k' + (pkAct.kind === k ? " on" : "") + '" data-pkact="' + k + '">' + (k === "all" ? "All" : PK_ACTK[k][0]) + " <b>" + (cnt[k] || 0) + "</b></button>"; })).join("") + "</div></div>";
-        var lastDay = null, shown = list.slice(0, 400);
+        var lastDay = null, shown = list.slice(0, pkAct.n);
         var rows = shown.map((function(a) {
             var dt = new Date(a.at), ds = dt.toDateString(), head = "";
             if (ds !== lastDay) { lastDay = ds; var n = Math.round((new Date(new Date().toDateString()) - new Date(ds)) / dayMs); head = '<div class="pk-day">' + (n === 0 ? "Today" : n === 1 ? "Yesterday" : esc(dt.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }))) + "</div>"; }
@@ -9932,17 +9883,27 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var oa = pkOpenAttr(a);
             return head + "<" + (oa ? 'button type="button" title="Open ' + esc(a.org || "it") + '"' + oa : "div") + ' class="pk-act" style="--k:' + PK_ACTK[k][1] + '"><span class="pk-at">' + esc(dt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })) + "</span>" + cmono(a.org || "?") + '<span class="pk-aw"><span class="pk-ah"><b>' + esc(a.org || "") + "</b>" + (a.program ? '<span class="tag">' + esc(a.program) + "</span>" : "") + '<span class="pk-ak">' + PK_ACTK[k][0].replace(/s$/, "") + "</span></span><span class=\"pk-ad\">" + what + '</span></span><span class="pk-by">' + esc(a.by || "") + "</span></" + (oa ? "button" : "div") + ">";
         })).join("");
-        el.innerHTML = activity.length ? tools + (rows || '<div class="empty">Nothing matches.</div>') + (list.length > shown.length ? '<p class="pc-note">Showing the newest ' + shown.length + " of " + list.length + ". Search to find older ones.</p>" : "") : '<div class="empty">Nothing recorded yet.</div>';
+        el.innerHTML = activity.length ? tools + (rows || '<div class="empty">Nothing matches.</div>') + (list.length > shown.length ? '<div class="pk-actmore"><span class="pc-note">Showing the newest ' + shown.length + " of " + list.length + '.</span> <button type="button" class="lc-btn ghost" data-pkactmore>Show ' + Math.min(100, list.length - shown.length) + " More</button></div>" : "") : '<div class="empty">Nothing recorded yet.</div>';
     }
     document.addEventListener("click", (function(e) {
         var t = e.target && e.target.closest ? e.target.closest("[data-pkact]") : null;
         if (!t) return;
         pkAct.kind = t.getAttribute("data-pkact");
+        pkAct.n = 100;
         renderActivity();
+    }));
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-pkactmore]") : null;
+        if (!t) return;
+        var y = window.pageYOffset;
+        pkAct.n = (pkAct.n || 100) + 100;
+        renderActivity();
+        window.scrollTo(0, y);
     }));
     document.addEventListener("input", (function(e) {
         if (!e.target || !e.target.hasAttribute || !e.target.hasAttribute("data-pkactq")) return;
         pkAct.q = e.target.value;
+        pkAct.n = 100;
         var pos = e.target.selectionStart;
         renderActivity();
         var i = document.querySelector("[data-pkactq]");
@@ -10524,7 +10485,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             ]);
         pkAnimate(host);
     }
-    function renderRenewals() {
+    function renderRenewals() { lazyRun("renewals", [ "renewals", "invoices" ], renderRenewalsNow); }
+    function renderRenewalsNow() {
         try { pkRenewalsHero(); } catch (e) { if (window.console) console.error("Renewals hero:", e); }
         var box = $("rn-list");
         if (!box) return;
@@ -11035,13 +10997,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
     }
 
-    function renderNotices() {
-        var box = $("nt-list");
-        if (!box) return;
+    function renderNotices() { lazyRun("notices", [ "renewals" ], renderNoticesNow); }
+    function renderNoticesNow() {
+        var box = $("nt-list");   /* the old notice table was removed 8 Nov 2026; the strip shows them */
         var sel = $("nt-window");
         if (sel && String(noticeWindow) !== sel.value) sel.value = String(noticeWindow);
         if (!(D.notices && D.notices.notices && D.notices.notices.length)) {
-            box.innerHTML = '<div class="empty">The notice wording has not been loaded into this page yet.</div>';
+            if (box) box.innerHTML = '<div class="empty">The notice wording has not been loaded into this page yet.</div>';
             var c0 = $("nt-count");
             if (c0) c0.textContent = "";
             return;
@@ -11054,7 +11016,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         })).length;
         var cav = $("nt-caveat");
         if (cav) cav.innerHTML = noMail ? '<div class="qwatch">' + noMail + (noMail === 1 ? " of these has" : " of these have") + " no email address on the company record, so there is nowhere to send " + (noMail === 1 ? "it" : "them") + ". Add a contact email on the company record.</div>" : "";
-        box.innerHTML = due.length ? '<div class="etable"><div class="ehead notice">' + "<span>Company</span><span>Notice</span><span>Subject</span>" + '<span class="num">Sends</span><span>When</span></div>' + due.map(noticeRowHTML).join("") + "</div>" : '<div class="empty">No notice falls due in the next ' + noticeWindow + " days.</div>";
+        if (box) box.innerHTML = due.length ? '<div class="etable"><div class="ehead notice">' + "<span>Company</span><span>Notice</span><span>Subject</span>" + '<span class="num">Sends</span><span>When</span></div>' + due.map(noticeRowHTML).join("") + "</div>" : '<div class="empty">No notice falls due in the next ' + noticeWindow + " days.</div>";
         wireNotices();
         try { pkNoticeStrip(); } catch (e) { if (window.console) console.error("Notice strip:", e); }
     }
@@ -11177,7 +11139,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (oc && oc.hasAttribute("data-pkorg")) { if (typeof openPanelOrg === "function") openPanelOrg(oc.getAttribute("data-pkorg")); return; }
         if (oc) { if (oc.hasAttribute("data-pkcert")) openPanelCert(oc.getAttribute("data-pkcert"), null); else openPanelRecord(+oc.getAttribute("data-pkrow"), null, null); return; }
         var pc = e.target && e.target.closest ? e.target.closest("[data-pkclick]") : null;
-        if (pc) { var real = document.querySelector(pc.getAttribute("data-pkclick")); if (real && real !== pc) real.click(); return; }
+        if (pc) { lazyFlush(); var real = document.querySelector(pc.getAttribute("data-pkclick")); if (real && real !== pc) real.click(); return; }
         var t = e.target && e.target.closest ? e.target.closest("[data-pkgo]") : null;
         if (!t) return;
         var go = t.getAttribute("data-pkgo");
@@ -11225,6 +11187,29 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }));
         }));
     }
+    /* Every form field gets a name a screen reader can say (8 Nov 2026): fields drawn without one take it from
+       the label words beside them, else their placeholder, else what they are for. */
+    function a11yNameFields() {
+        Array.prototype.forEach.call(document.querySelectorAll("input:not([type=hidden]):not([aria-label]):not([aria-labelledby]), select:not([aria-label]):not([aria-labelledby]), textarea:not([aria-label]):not([aria-labelledby])"), (function(el) {
+            if ((el.labels && el.labels.length) || el.getAttribute("title")) return;
+            var name = "", box = el.closest(".fld, .pc-f, .pc-row, .co-f, .na-f");
+            var lab = box ? box.querySelector("label, .pc-lab, .lab, .fl") : null;
+            if (lab && !lab.contains(el)) name = lab.textContent;
+            if (!name) { var prev = el.previousElementSibling; if (prev && /^(LABEL|B|STRONG|SPAN|DIV)$/.test(prev.tagName) && (prev.textContent || "").length < 60) name = prev.textContent; }
+            if (!name) name = el.getAttribute("placeholder") || "";
+            if (!name && el.type === "file") name = /pdf/i.test(el.getAttribute("accept") || "") ? "Choose the PDF" : "Choose a file";
+            if (!name && el.type === "date") name = "Date";
+            if (!name) name = el.tagName === "SELECT" ? "Choose" : "Type here";
+            el.setAttribute("aria-label", String(name).replace(/\s+/g, " ").trim().slice(0, 80));
+        }));
+    }
+    (function a11yWatch() {
+        var due = null;
+        try {
+            new MutationObserver((function() { if (due) return; due = setTimeout((function() { due = null; a11yNameFields(); }), 60); })).observe(document.body, { childList: true, subtree: true });
+        } catch (e) {}
+        setTimeout(a11yNameFields, 0);
+    })();
     (function pkWatch() {
         var main = document.querySelector("main.main") || document.body, due = null;
         try {
@@ -11424,7 +11409,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         list.forEach((function(r) { var d = parseDay(r.cert.anniversary); cols.forEach((function(c) { if (c.y === d.getFullYear() && c.m === d.getMonth()) c.items.push(r); })); }));
         /* the rest of this month may hold nothing: start with the first month that has a renewal */
         if (!cols[0].items.length) cols.shift(); else cols.pop();
-        var tools = '<div class="pk-rtool"><input type="search" class="pc-input" data-pkrnq placeholder="Find a company" value="' + esc(pkRn.q) + '">'
+        var tools = '<div class="pk-rtool"><input type="search" class="pc-input" data-pkrnq placeholder="Find a company" aria-label="Find a company" value="' + esc(pkRn.q) + '">'
             + '<div class="tq-kinds"><button type="button" class="tq-k' + (pkRn.prog === "all" ? " on" : "") + '" data-pkrnp="all">All <b>' + rows.length + "</b></button>"
             + Object.keys(progs).sort().map((function(p) { return '<button type="button" class="tq-k' + (pkRn.prog === p ? " on" : "") + '" data-pkrnp="' + esc(p) + '">' + esc(p) + " <b>" + progs[p] + "</b></button>"; })).join("") + "</div>"
             + '<div class="segbar pk-rmode"><button type="button" class="seg' + (pkRn.mode === "cal" ? " on" : "") + '" data-pkrnm="cal">Calendar</button><button type="button" class="seg' + (pkRn.mode === "list" ? " on" : "") + '" data-pkrnm="list">List</button></div></div>'
@@ -11698,7 +11683,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body && body.key) next[body.key] = body;
                 }));
                 certEdits = next;
-                renderAll();
+                renderSoon();
             }), (function() {}));
             d.collection("pricing").onSnapshot((function(snap) {
                 var next = {};
@@ -11707,7 +11692,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body && body.code) next[body.code] = body;
                 }));
                 priceEdits = next;
-                renderAll();
+                renderSoon();
             }), (function() {}));
             d.collection("form-edits").onSnapshot((function(snap) {
                 var next = {};
@@ -11725,7 +11710,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body && body.row != null) next[body.row] = body;
                 }));
                 scriptPrep = next;
-                renderAll();
+                renderSoon();
                 renderAssessorSwitch();
             }), (function() {}));
             d.collection("frame-scores").onSnapshot((function(snap) {
@@ -11783,7 +11768,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }));
                 apps = next;
                 joinInFlight();
-                renderAll();
+                renderSoon();
                 renderAssessorSwitch();
             }), (function() {}));
             d.collection("invoices").onSnapshot((function(snap) {
@@ -11793,7 +11778,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body && body.row != null) next[body.row] = body;
                 }));
                 invoices = next;
-                renderAll();
+                renderSoon();
             }), (function() {}));
             d.collection("renewal-quotes").onSnapshot((function(snap) {
                 var next = {};
@@ -11802,15 +11787,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body && body.key) next[body.key] = body;
                 }));
                 quotes = next;
-                renderRenewals();
-                renderPanel();
+                renderSoon();   /* the Action Queue's invoice cards read quotations too (8 Nov 2026) */
             }), (function() {}));
             d.collection("membership").onSnapshot((function(snap) {
                 var doc = (snap.docs || []).filter((function(x) {
                     return x.id === "latest";
                 }))[0];
                 membership = doc ? doc.data() : null;
-                renderAll();
+                renderSoon();
                 m360Sync();
             }), (function() {}));
             d.collection("org-edits").onSnapshot((function(snap) {
@@ -11821,7 +11805,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }));
                 orgEdits = next;
                 recompute();
-                renderAll();
+                renderSoon();
             }), (function() {}));
             d.collection("aptify-orders").onSnapshot((function(snap) {
                 var doc = (snap.docs || []).filter((function(x) { return x.id === "latest"; }))[0];
@@ -11861,9 +11845,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     if (body && body.key) next[body.key] = body;
                 }));
                 licenses = next;
-                renderAll();
+                renderSoon();
             }), (function() {}));
-            d.collection("activity").orderBy("at", "desc").limit(80).onSnapshot((function(snap) {
+            d.collection("activity").orderBy("at", "desc").onSnapshot(   /* the whole log: search and Show More reach every entry (8 Nov 2026) */
+                (function(snap) {
                 activity = (snap.docs || []).map((function(doc) {
                     return doc.data();
                 })).filter((function(x) {
@@ -15677,7 +15662,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return esc(titleOfState(t));
         })).join(", ") + "</div>" : '<div class="lcnext"><b>Closed state</b></div>') + "</div>";
     }
-    $("assessorstates").innerHTML = D.states.filter((function(s) {
+    if ($("assessorstates")) $("assessorstates").innerHTML = D.states.filter((function(s) {
         return s.ownedByAssessor && !s.terminal;
     })).map(lcCard).join("");
     $("lcgrid").innerHTML = D.states.map(lcCard).join("");
@@ -15776,119 +15761,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderOrgs();
     }));
     renderOrgs();
-    var LEDGER = D.rowLedger || [];
-    var WARNINGS = D.warningList || [];
-    function migSet(which) {
-        var w = String(which || "");
-        if (w.indexOf("warn:") === 0) {
-            var code = w.slice(5);
-            var mine = WARNINGS.filter((function(x) {
-                return x.code === code;
-            }));
-            return {
-                title: titleCase(code),
-                kind: "warn",
-                rows: mine,
-                sub: mine.length + (mine.length === 1 ? " row" : " rows") + " · surfaced, not corrected",
-                note: "The migration reports these and changes nothing. Each one is a condition " + "the MACTS data was already in."
-            };
-        }
-        if (w === "rejected") {
-            return {
-                title: "Rejected Rows",
-                kind: "reject",
-                rows: D.rejections || [],
-                sub: (D.rejections || []).length + " of " + D.counts.rowsIn + " rows, each with a reason",
-                note: "A rejected row is one the migration would not guess at. Nothing was " + "silently dropped."
-            };
-        }
-        if (w === "loaded") {
-            var loaded = LEDGER.filter((function(x) {
-                return !x.rejected;
-            }));
-            return {
-                title: "Rows Loaded",
-                kind: "ledger",
-                rows: loaded,
-                sub: loaded.length + " of " + D.counts.rowsIn + " rows · what each became",
-                note: "45 rows carry a company and nothing else - those are the capitalised " + "parent rows. The rest became a certification, a cycle, or both."
-            };
-        }
-        if (w === "cycles") {
-            var cy = LEDGER.filter((function(x) {
-                return x.became.indexOf("cycle") >= 0;
-            }));
-            return {
-                title: "Initials and Renewals",
-                kind: "ledger",
-                rows: cy,
-                sub: D.counts.cycles + " cycles from " + cy.length + " rows · " + D.counts.milestones + " milestones",
-                note: "Every dated column on a row becomes a milestone, which is why there are " + "far more milestones than cycles."
-            };
-        }
-        if (w === "certifications") {
-            var fromMacts = certs.filter((function(c) {
-                return !c.outsideMacts;
-            }));
-            return {
-                title: "Certifications",
-                kind: "certs",
-                rows: fromMacts,
-                sub: D.counts.certifications + " certifications · " + live.filter((function(c) {
-                    return !c.outsideMacts;
-                })).length + " active",
-                note: "A certification follows the product, not the row. Several rows over " + "several years make one certification with a cycle each. Certifications " + "earned outside MACTS are not part of this load and are not listed here."
-            };
-        }
-        return {
-            title: "Rows In",
-            kind: "ledger",
-            rows: LEDGER,
-            sub: LEDGER.length + " rows from the export · what each became",
-            note: "Every row in the MACTS master, accounted for. " + D.counts.rowsLoaded + " loaded, " + D.counts.rejected + " rejected."
-        };
-    }
-    function migRow(r) {
-        if (r.Reason !== undefined) {
-            return '<div class="qcard bad"><div class="qtitle">Row ' + esc(r.row) + " · " + esc(r.Reason) + '</div><div class="qwhy">' + esc(r.Detail) + "</div></div>";
-        }
-        if (r.code !== undefined) {
-            return '<div class="qwatch"><b>' + (r.row != null ? "Row " + esc(r.row) : "No row") + "</b>" + (r.org ? " · " + esc(r.org) : "") + '<div class="qwhy">' + esc(r.detail) + "</div></div>";
-        }
-        if (r.org !== undefined && r.became === undefined) {
-            var k = certKey(r);
-            return '<button class="drow" type="button" data-migcert="' + esc(k) + '">' + '<span class="dr-co">' + esc(r.org) + "</span>" + '<span class="dr-meta">' + esc(r.program) + (r.product ? " · " + esc(r.product) : "") + "</span>" + '<span class="dr-sub">' + esc(r.status) + " · " + r.cycles + (r.cycles === 1 ? " cycle" : " cycles") + (r.anniversary ? " · anniversary " + esc(fmt(r.anniversary)) : "") + "</span>" + "</button>";
-        }
-        var open = byRow(r.row);
-        var key = r.org && r.program ? [ r.org, r.program, r.product || "" ].join("|") : null;
-        var hasCert = key && certs.some((function(c) {
-            return certKey(c) === key;
-        }));
-        var attr = open ? ' data-migopen="' + r.row + '"' : hasCert ? ' data-migcert="' + esc(key) + '"' : " disabled";
-        return '<button class="drow' + (r.rejected ? " flag" : "") + (open || hasCert ? "" : " noop") + '" type="button"' + attr + ">" + '<span class="dr-co">Row ' + esc(r.row) + (r.org ? " · " + esc(r.org) : "") + "</span>" + '<span class="dr-meta">' + esc(r.program || "—") + (r.product ? " · " + esc(r.product) : "") + "</span>" + '<span class="dr-sub">Became ' + esc(r.became) + (r.kind ? " · " + esc(r.kind === "initial" ? "Initial" : "Renewal") : "") + (r.state ? " · " + esc(titleOfState(r.state)) : "") + (r.milestones ? " · " + r.milestones + " milestones" : "") + "</span>" + (r.rejected ? '<span class="dr-sub bad">' + esc(r.rejected) + "</span>" : "") + "</button>";
-    }
-    function openPanelMig(which) {
-        panel = {
-            mode: "mig",
-            which: which,
-            row: null,
-            phase: null,
-            back: null
-        };
-        renderPanel();
-    }
-    $("loadsummary").innerHTML = '<div class="stats" style="margin-bottom:22px;">' + [ [ "Rows In", D.counts.rowsIn, "from the export", "rowsin" ], [ "Rows Loaded", D.counts.rowsLoaded, "none dropped", "loaded" ], [ "Rejected", D.counts.rejected, "each with a reason", "rejected" ], [ "Initials and Renewals", D.counts.cycles, D.counts.milestones + " milestones", "cycles" ], [ "Certifications", D.counts.certifications, D.counts.active + " active", "certifications" ] ].map((function(t) {
-        return '<button class="stat" type="button" data-mig="' + esc(t[3]) + '" ' + 'title="List the ' + esc(t[1]) + ' behind this figure">' + '<span class="lab">' + esc(t[0]) + '</span><span class="val">' + t[1] + '</span><span class="sub">' + esc(t[2]) + "</span></button>";
-    })).join("") + "</div>" + '<div class="dsect"><h4>Rejected Rows</h4>' + (D.rejections || []).map((function(r) {
-        return '<div class="qcard bad"><div class="qtitle">Row ' + esc(r.row) + " · " + esc(r.Reason) + '</div><div class="qwhy">' + esc(r.Detail) + "</div></div>";
-    })).join("") + "</div>" + '<div class="dsect"><h4>Legacy Conditions Surfaced, Not Corrected</h4>' + '<p class="qwhy" style="margin:0 0 10px;">Select one to see every row it is on.</p>' + D.warnings.map((function(w) {
-        return '<button class="qwatch qpick" type="button" data-mig="warn:' + esc(w.code) + '">' + "<b>" + esc(titleCase(w.code)) + "</b> · " + w.count + '<span class="qgo">Show the rows</span></button>';
-    })).join("") + "</div>";
-    Array.prototype.forEach.call($("loadsummary").querySelectorAll("[data-mig]"), (function(b) {
-        b.addEventListener("click", (function() {
-            openPanelMig(b.dataset.mig);
-        }));
-    }));
     (function mastHeight() {
         var mast = document.querySelector(".mast");
         if (!mast) return;
@@ -15906,6 +15778,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         Array.prototype.forEach.call(document.querySelectorAll(".view"), (function(v) {
             v.classList.toggle("on", v.id === "view-" + view);
         }));
+        lazyFlush();
         document.body.classList.toggle("on-counts", view === "counts");
         document.body.classList.toggle("on-queue", view === "queue");
         document.body.classList.toggle("on-invoices", view === "invoices");
@@ -16840,5 +16713,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-07a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-08a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>

@@ -301,7 +301,7 @@
     return callRetry('GET', '/data/' + fileOf(c.name)).then(function (r) {
       if (r.status !== 200) throw err(r.status === 403 ? 'permission_denied' : 'unavailable', r.json.error || String(r.status));
       var d = r.json.data; c.docs = (d && d.docs) || {}; c.sha = r.json.sha || null;
-      c.fails = 0; c.ok = true; solved('coll:' + c.name); return c;
+      c.fails = 0; c.ok = true; c.readAt = Date.now(); solved('coll:' + c.name); return c;
     }, function (e) { throw e; }).catch(function (e) {
       c.fails = (c.fails || 0) + 1;
       if (!c.ok) problem('coll:' + c.name, collLabel(c.name), 'load');
@@ -349,9 +349,17 @@
   /* other people's changes: re-read what this page is watching every minute while it is open and visible,
      and straight away when the tab is looked at again (November 5, 2026: a tab left in the background for
      hours showed hours-old records for up to a minute after coming back) */
+  /* The activity log is the one record that only grows. It is re-read every minute while the Activity screen
+     is showing, and every 5 minutes otherwise (November 8, 2026). */
+  var SLOW = { activity: 'view-activity' };
+  function slowSkip(c) {
+    var v = SLOW[c.name]; if (!v || !c.ok) return false;
+    var el = document.getElementById(v); if (el && el.classList.contains('on')) return false;
+    return Date.now() - (c.readAt || 0) < 5 * 60 * 1000;
+  }
   function refresh(force) {
     if (document.hidden && !force) return;
-    Object.keys(COLL).forEach(function (n) { var c = COLL[n]; if (!c.subs.length) return; var was = c.sha, first = !c.ok;
+    Object.keys(COLL).forEach(function (n) { var c = COLL[n]; if (!c.subs.length || (!force && slowSkip(c))) return; var was = c.sha, first = !c.ok;
       c.queue = c.queue.then(function () { return fetchColl(c).then(function () { if (c.sha !== was || first) later(c); }); }).catch(function () {}); });
   }
   /* Other people's changes redraw the page, and a redraw rebuilt the open panel, so a note being typed could
@@ -394,6 +402,12 @@
   setInterval(release, 2000);
   setInterval(refresh, 60000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
+  /* opening the Activity screen brings the log up to date at once if it was last read a while ago */
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-view="activity"]') : null; if (!b) return;
+    var c = COLL.activity; if (!c || !c.ok || Date.now() - (c.readAt || 0) < 60000) return;
+    setTimeout(function () { c.queue = c.queue.then(function () { var was = c.sha; return fetchColl(c).then(function () { if (c.sha !== was) later(c); }); }).catch(function () {}); }, 0);
+  });
   /* A save: what this page had before (seen) is taken now, when the page asks, and the change is merged
      into the stored copy each time it is tried. keep remembers the person's answers across retries. */
   function saveDoc(name, id, body) {
@@ -513,7 +527,7 @@
     { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', 'playbook'] },
     { label: 'Help', items: ['help'] }
   ];
-  var HIDDEN = ['load'];
+  var HIDDEN = [];   /* the Migration screen ('load') was removed, 8 Nov 2026 */
   var EMBEDS = {
     approvals: { src: 'approvals.html?embed=1', label: 'My Approvals', title: 'Results waiting for a VP decision',
       icon: '<path d="M12 3.2 19.5 6v5.6c0 4.5-3.1 8.1-7.5 9.2-4.4-1.1-7.5-4.7-7.5-9.2V6Z"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8"/>' },
