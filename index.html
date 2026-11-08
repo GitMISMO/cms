@@ -10213,6 +10213,33 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var t = renewalToken(key);
         return t ? RENEWAL_PAGE + "?r=" + t : null;
     }
+    /* A renewal page is open only while its renewal is going on (Jonna, 7 Nov 2026): from 120 days before
+       the anniversary, through a late renewal, until 60 days after the renewal is finished; also whenever
+       this renewal's invoice is raised. The same rule as build-renewal-pages.js in cms-data; MISMO can turn
+       a closed link back on for 30 days (renewal-quotes linkOpenUntil). */
+    var LINK_OPENS_BEFORE = 120, LINK_STAYS_AFTER = 60, LINK_REOPEN_DAYS = 30;
+    function isoPlus(iso, n) { var d = new Date(String(iso).slice(0, 10) + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+    function rnLinkState(key) {
+        var q = quotes[key] || {}, today = String(D.asOf || "").slice(0, 10);
+        var c = (certs || []).filter((function (x) { return certKey(x) === key; }))[0];
+        if (!c || !c.anniversary || !today) return { open: true };
+        var opensOn = isoPlus(c.anniversary, -LINK_OPENS_BEFORE);
+        var done = (c.cycleHistory || []).filter((function (h) { return h && h.state === "Certified" && h.completedOn; })).map((function (h) { return String(h.completedOn).slice(0, 10); })).sort().pop() || null;
+        var until = q.linkOpenUntil ? String(q.linkOpenUntil).slice(0, 10) : null;
+        if (until && until >= today) return { open: true, reopenedUntil: until };
+        if (today >= opensOn) return { open: true };
+        if (done && today <= isoPlus(done, LINK_STAYS_AFTER)) return { open: true, closesOn: isoPlus(done, LINK_STAYS_AFTER), opensOn: opensOn };
+        if (q.number && q.anniversary === c.anniversary) return { open: true };
+        return { open: false, opensOn: opensOn };
+    }
+    function reopenRenewalLink(key, then) {
+        if (!db || !canWrite) { toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn"); then(false); return; }
+        var q = quotes[key]; if (!q) { then(false); return; }
+        var body = {}; for (var k in q) body[k] = q[k];
+        body.linkOpenUntil = isoPlus(String(D.asOf).slice(0, 10), LINK_REOPEN_DAYS);
+        quotes[key] = body;
+        Promise.resolve(db.doc("renewal-quotes/" + key.replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).then((function () { then(true); }), (function (e) { onWriteRefused(e); then(false); }));
+    }
     /* The page sits beside the eight application forms, as a folder, the same as they do. */
     var RENEWAL_PAGE = "https://resources.mismo.org/forms/renewal/";
     function loadInvoice(key, then) {
@@ -10647,7 +10674,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var body = $("rn-inv-body");
         if (!body) return;
         var link = renewalLink(key);
-        var linkHTML = link ? '<div class="fld" style="margin-top:14px"><label>The Provider’s Renewal Page</label>' + '<div class="v mono" style="word-break:break-all;font-size:12px">' + esc(link) + "</div>" + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-rnlink="' + esc(key) + '">Copy the Link</button>' + (canWrite ? '<button class="lc-btn ghost" type="button" data-rnnew="' + esc(key) + '">New Link</button>' : "") + "</div>" + '<p class="pc-note" style="margin-top:6px">Anyone holding this link can open the renewal page. The invoice itself still asks for a code sent to the contact on file. If the link goes astray, New Link retires it.</p></div>' : '<div class="pc-note" style="margin-top:14px">This renewal has no link yet. One is made the first time an invoice is attached.</div>';
+        var linkHTML = link ? '<div class="fld" style="margin-top:14px"><label>The Provider’s Renewal Page</label>' + '<div class="v mono" style="word-break:break-all;font-size:12px">' + esc(link) + "</div>" + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-rnlink="' + esc(key) + '">Copy the Link</button>' + (canWrite ? '<button class="lc-btn ghost" type="button" data-rnnew="' + esc(key) + '">New Link</button>' : "") + "</div>" + '<p class="pc-note" style="margin-top:6px">Anyone holding this link can open the renewal page. The invoice itself still asks for a code sent to the contact on file. If the link goes astray, New Link retires it.</p>' + rnLinkNote(key) + '</div>' : '<div class="pc-note" style="margin-top:14px">This renewal has no link yet. One is made the first time an invoice is attached.</div>';
         if (!rec) {
             body.innerHTML = '<div class="rn-drop" data-rndrop="' + esc(key) + '">' + "<p>Drag the invoice PDF here</p>" + '<button class="lc-btn ghost" type="button" data-rnpick="' + esc(key) + '">Choose a File</button>' + '<input type="file" accept="application/pdf,.pdf" hidden data-rnfile="' + esc(key) + '"></div>' + linkHTML;
         } else {
@@ -10657,6 +10684,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     /* Was also called wireInvoice, which silently replaced the certification panel's own wireInvoice(scope),
        so the panel's Paid box and Save the Invoice did nothing (found 29 Oct 2026). */
+    function rnLinkNote(key) {
+        var st = rnLinkState(key);
+        if (!st.open) return '<div class="pc-note" style="margin-top:8px;border-left:3px solid var(--warn,#a2701a);padding-left:10px"><b>This link is closed.</b> It opens again by itself on ' + esc(fmt(st.opensOn)) + ', 120 days before the anniversary. The company sees only that the page is closed.' + (canWrite ? '<div class="na-acts" style="margin-top:8px"><button class="lc-btn" type="button" data-rnreopen="' + esc(key) + '">Turn the Link Back On for 30 Days</button></div>' : "") + "</div>";
+        if (st.reopenedUntil) return '<div class="pc-note" style="margin-top:8px">Turned back on until ' + esc(fmt(st.reopenedUntil)) + ".</div>";
+        if (st.closesOn) return '<div class="pc-note" style="margin-top:8px">This renewal is finished, so the link closes on ' + esc(fmt(st.closesOn)) + " and opens again on " + esc(fmt(st.opensOn)) + ".</div>";
+        return "";
+    }
     function wireRenewalInvoice(key, r) {
         var body = $("rn-inv-body");
         if (!body) return;
@@ -10729,6 +10763,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                         toast("Invoice removed.", "good");
                         paintInvoice(key, r, null);
                     }
+                }));
+            }));
+        }
+        var ro = body.querySelector("[data-rnreopen]");
+        if (ro && !ro.__w) {
+            ro.__w = 1;
+            ro.addEventListener("click", (function () {
+                reopenRenewalLink(key, (function (ok) {
+                    if (ok) { toast("The link is on again for 30 days. It can take a few minutes to open.", "good"); renderRenewalInvoice(key); }
                 }));
             }));
         }
