@@ -4578,7 +4578,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var apt = got[0] && (got[0].doc || got[0]) || {}, aliases = got[1] && got[1].doc && got[1].doc.map || {};
             if (!apt.companies || !apt.terms) throw new Error("the Aptify upload has no companies");
             var byName = {};
-            /* also without spaces, so "Decision-X" finds DecisionX (2 Nov 2026) */
+            /* also without spaces, so a hyphenated name finds its unhyphenated spelling (2 Nov 2026) */
             function add(n, id) { var k = m360Norm(n); if (!k || !id) return; [ k, k.replace(/ /g, "") ].forEach((function(kk) { (byName[kk] = byName[kk] || {})[String(id)] = 1; })); }
             Object.keys(apt.companies).forEach((function(id) { add(apt.companies[id].n, id); }));
             /* a company that only appears on its membership terms (581 IDs, e.g. Decision-X's Sole membership) */
@@ -5126,7 +5126,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var TD_SYSTEM = [ "RenewalPrep", "ApprovedPendingLicense" ];
     var tdFold = { waiting: false, prospects: false, stages: false };
     var TD_FU_ASSESSOR = [ "RemediationOpen", "RemediationEscalated", "AwaitingArtifacts", "PreAssessmentDiscussion", "DemoProposed", "DemoScheduled", "ArtifactReview", "PrelimQueryOpen", "RemediationQueryOpen" ];
-    /* The cycle's own saved assessor counts too (5 Nov 2026: Pensato.ai, a CMS-added application,
+    /* The cycle's own saved assessor counts too (5 Nov 2026: a CMS-added application
        kept coming back to Assign an Assessor until its saved choice caught up on the next refresh). */
     function tdAssessorOf(f) { var c = certFor(f), mv = (typeof moves !== "undefined" && moves) || {}, m = mv[f.row] || mv[String(f.row)]; return (c && c.assessor) || f.assessor || (m && m.assessor) || (typeof cycleAssessor === "function" ? cycleAssessor(f) : "") || ""; }
     function tdFuKind(f, x) {
@@ -5726,7 +5726,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var L = { all: mineAll, you: mineAll.filter(function(x) { return !isInv(x); }), invoice: mineAll.filter(isInv), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
         [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
         /* certifications paused before their renewal started (no open cycle to hold), the same ones the
-           Renewals page counts as On Hold (Jonna, 1 Nov 2026: the queue said 0 while nCino was paused) */
+           Renewals page counts as On Hold (1 Nov 2026: the queue said 0 while a renewal was paused) */
         try {
             var heldC = L.hold.map((function(x) { return certFor(x.f); }));
             renewalRows().forEach((function(r) {
@@ -7671,8 +7671,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             allInvoices().forEach((function(i) {
                 var order = i.orderId ? orderIdOf(i.orderId) : null, fp = order ? fsPaid(order) : null, paid = !!(i.paid || fp);
                 if (!order && !i.amount) return;
-                /* a canceled cycle's invoice is not revenue (Teraverde's Product application, row -1, replaced by
-                   AI Governance: Jonna, 5 Nov 2026 - the difference is being refunded, see Refunds to Make) */
+                /* a canceled cycle's invoice is not revenue (an application replaced by another
+                   program, 5 Nov 2026 - the difference is refunded, see Refunds to Make) */
                 if (i.state === "Canceled") return;
                 if (!live(order, i.amount, paid)) return;
                 var f = byRow(i.row) || {};
@@ -9230,7 +9230,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 }
                 /* a first application has no certification record yet: the assessor goes on the
                    cycle, the same way the Action Queue's Assign an Assessor does it (31 Oct 2026 test:
-                   this used to do nothing for DecisionX, Firstline and Stellar Innovations) */
+                   this used to do nothing for first applications with no certification record) */
                 var v = sel.value || null;
                 f.assessor = v;
                 moves[f.row] = Object.assign({ state: currentState(f) }, moves[f.row], { assessor: v });
@@ -9466,8 +9466,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     /* Practical exercises are matched to applicants by company, not by row (Jonna, 5 Nov 2026: "the
        practical exercises are not right, you know who is certified and who is not"). The exercise list
-       was drawn up when TReX, Falcon, Actualize, Teraverde and Crittora were applicants; their row
-       numbers have since been reused by Brody Gapp and Epoch Manna, and all five are now certified.
+       was drawn up when other companies were applicants; their row
+       numbers have since been reused, and those companies are now certified.
        An exercise counts only while the company has an open FRAME cycle; a company already FRAME
        certified is listed under Already Certified instead. */
     function scenSlug(o) { return String(o || "").toLowerCase().replace(/\b(llc|inc|ltd|co|corp)\b\.?/g, "").replace(/[^a-z0-9]+/g, ""); }
@@ -10005,8 +10005,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }));
         return MONEY_BY_CERT;
     }
-    /* This renewal's invoice (fixed 1 Nov 2026, stress test: the renewal calendar showed NotaryCam,
-       Proof, Remote Notarez and others as Paid from LAST cycle's invoice, which had gone out late
+    /* This renewal's invoice (fixed 1 Nov 2026, stress test: the renewal calendar showed several
+       renewals as Paid from LAST cycle's invoice, which had gone out late
        and so fell inside the year before the anniversary). When the CMS has this renewal's order
        number, only that order counts, paid when MISMO Money or the cycle's own record says so.
        Without one, only an invoice dated in the eight months before the anniversary counts. */
@@ -10656,7 +10656,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         wireRenewalInvoice(key, r);
     }
     /* Was also called wireInvoice, which silently replaced the certification panel's own wireInvoice(scope),
-       so the panel's Paid box and Save the Invoice did nothing (found 29 Oct 2026, Gateless). */
+       so the panel's Paid box and Save the Invoice did nothing (found 29 Oct 2026). */
     function wireRenewalInvoice(key, r) {
         var body = $("rn-inv-body");
         if (!body) return;
@@ -12850,7 +12850,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     /* Who assesses a cycle: the one on the record, else the one assigned on the Action Queue, else - for a
        program MISMO assesses itself (FRAME, Certified Consultant, AI Governance) - MISMO's own audit team.
-       Jonathan, 5 Nov 2026: Pensato.ai and Ignite (FRAME applications started in the CMS, no assessor on
+       5 Nov 2026: FRAME applications started in the CMS (no assessor on
        the record) were on the Action Queue but missing from the MISMO portal. */
     function inHouseFirm() {
         var f = ((D.assessorFirms || {}).firms || []).filter((function(x) { return x.inHouse; }))[0];

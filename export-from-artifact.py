@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """
+RETIRED 7 Nov 2026 - DO NOT RUN. The page is edited in this repository directly now; a build from the
+artifact would overwrite weeks of changes. Its public-data checks run on every change instead
+(tests/check-public.py, .github/workflows/checks.yml). Kept for reference.
+
 Build resources.mismo.org/cms/index.html from the "Artifact - CMS" page on claude.ai.
 
 Why this file exists
@@ -175,6 +179,7 @@ def public_bundle(raw):
 
 
 def main():
+    fail("retired 7 Nov 2026: edit index.html in the repository; see README, How this is updated")
     ap = argparse.ArgumentParser()
     ap.add_argument("artifact")
     ap.add_argument("-o", "--out", default="index.html")

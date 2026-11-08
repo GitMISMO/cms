@@ -22,8 +22,9 @@ GitHub Pages needs a public repository to serve a custom domain. So this reposit
 page's code and **no certification records**: no company MISMO assesses, no fee, no invoice,
 no assessment result, no email address, no assessor expense.
 
-That is not a convention anybody has to remember. `index.html` is built by
-**`export-from-artifact.py`** (in this repository, at the root), which works from an **allow
+That is not a convention anybody has to remember. `index.html` was built by
+**`export-from-artifact.py`** (retired 7 Nov 2026; its checks now run on every change, see
+"How this is updated"), which worked from an **allow
 list** — a key is published only if somebody has decided it should be, and anything new is
 left out until they do. Every record key is kept in the file but emptied, so the page still
 draws its own "nothing here" states instead of breaking.
@@ -120,23 +121,26 @@ any is missing**:
 
 ## How this is updated
 
-The page is built from **Artifact - CMS** on claude.ai, which is where the work happens:
+**This repository is the only source of the page (since 7 November 2026).** Change `index.html`,
+`relay-connect.js` and the pages beside them here, directly. The claude.ai artifact and
+`export-from-artifact.py` are retired: the page has been edited here since late October, so a build
+from the artifact would throw away weeks of work. The script and `patches/` are kept for reference
+only; do not run them.
 
-```
-python3 export-from-artifact.py ARTIFACT.html -o index.html
-```
+Every change is checked before anyone relies on it (`.github/workflows/checks.yml`, on every push):
 
-`ARTIFACT.html` is the artifact page as claude.ai serves it. The script needs `terser`
-(`npm install terser`); without it the comments are left in and it says so loudly rather than
-writing a file that looks finished.
+- `tests/check-scripts.js`: every script parses, and no function is defined twice in one scope
+  (the later one silently replaces the earlier one everywhere).
+- `tests/check-public.py`: what the export used to guard: no contact address, invoice number or
+  dollar figure, empty record keys, the four sign-in and save hooks, lowercase collection ids.
+- `tests/click-through.js`: opens every view and record panel with empty records, at desktop and
+  phone width, light and dark, and fails on any script error or a NaN on screen.
 
-Then commit `index.html` here, and the records separately in `cms-data`. **Order matters when
-the records bring a key the page has not seen before** — publish the page first, so it is
-ready for them. Doing it the other way round hides whatever the old page cannot render, with
-no error to show for it.
+The company-name check, and the full click-through with the real records, run in `cms-data`
+(private), because the company list cannot be written down here.
 
-`index.html` is built, never hand-edited here — an edit made in this repository is overwritten
-by the next build.
+Commit the page first and the records second when the records bring a key the page has not seen
+before, so the page is ready for them.
 
 ## Settings this page depends on
 
