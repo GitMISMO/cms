@@ -29,6 +29,52 @@
   var FILES = { pricing: 'pricing', notices: 'renewal-notices', companyContacts: 'company-contacts', certScripts: 'cert-scripts', assessorFirms: 'assessor-firms', consultantScorecard: 'consultant-scorecard',
     consultantSubmissions: 'consultant-submissions', applicantForms: 'applicant-forms', individualCerts: 'individual-certifications',
     summits: 'summits', frameResults: 'frame-results', frameScenarios: 'frame-scenarios', frameScoring: 'frame-scoring', frameSources: 'frame-sources' };
+  var FILE_LABEL = { pricing: 'the price list', notices: 'the renewal notice wording', companyContacts: 'the company contact book', certScripts: 'the certification scripts',
+    assessorFirms: 'the assessor firms', consultantScorecard: 'the Consultant scorecard', consultantSubmissions: 'the Consultant submissions', applicantForms: 'the application forms',
+    individualCerts: 'the CMSP and AMSP list', summits: 'the summits', frameResults: 'the FRAME results', frameScenarios: 'the FRAME exercises', frameScoring: 'the FRAME scoring', frameSources: 'the FRAME sources' };
+  var COLL_LABEL = { 'cycle-state': 'certification stages', invoices: 'invoices', activity: 'the Activity log', finance: 'payments', 'renewal-quotes': 'renewal invoices',
+    'cert-edits': 'certification details', 'org-edits': 'company details', 'mark-license': 'Mark Licenses', 'follow-ups': 'follow-ups', membership: 'memberships',
+    applications: 'applications', 'aptify-orders': 'Aptify orders', 'notice-log': 'renewal notices sent', 'stage-notice-log': 'stage emails sent', scores: 'scores',
+    'assessor-notes': 'assessor notes', 'assessor-nudges': 'assessor nudges', 'invoice-sends': 'invoice emails', 'script-prep': 'certification scripts', assessments: 'assessments' };
+  function collLabel(n) { return COLL_LABEL[n] || String(n).replace(/-/g, ' '); }
+
+  /* ---------- "some records did not load" (review, 7 Nov 2026) ----------
+     27 of the page's 28 record loads showed nothing when they failed, so a dropped connection looked like
+     empty or old records. Every failed load now shows here until it succeeds again (the page re-reads
+     every minute, so most clear by themselves). kind: 'base' = read once at the start (only a reload
+     brings it back); 'load' = never loaded; 'stale' = loaded, but has not refreshed for 3 minutes. */
+  var PROBLEMS = {};
+  function problem(key, label, kind) { PROBLEMS[key] = { label: label, kind: kind }; drawProblems(); }
+  function solved(key) { if (PROBLEMS[key]) { delete PROBLEMS[key]; drawProblems(); } }
+  function drawProblems() {
+    try {
+      var keys = Object.keys(PROBLEMS), box = document.getElementById('rc-problems');
+      if (!keys.length) { if (box) box.remove(); return; }
+      if (!document.body) return;
+      if (!box) {
+        box = document.createElement('div'); box.id = 'rc-problems'; box.setAttribute('role', 'alert');
+        box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:7000;width:min(640px,calc(100vw - 32px));box-sizing:border-box;' +
+          'padding:12px 14px;border-radius:8px;border-left:4px solid #b42318;background:#fdecea;color:#5c1410;font:14px/1.45 "Libre Franklin",system-ui,sans-serif;box-shadow:0 6px 24px rgba(13,49,76,.18)';
+        document.body.appendChild(box);
+      }
+      var base = keys.filter(function (k) { return PROBLEMS[k].kind === 'base'; }), load = keys.filter(function (k) { return PROBLEMS[k].kind === 'load'; }),
+          stale = keys.filter(function (k) { return PROBLEMS[k].kind === 'stale'; });
+      var names = function (ks) { return ks.map(function (k) { return PROBLEMS[k].label; }).join(', '); };
+      var lines = [];
+      if (base.length || load.length) lines.push('<b>Some records did not load:</b> ' + esc(names(base.concat(load))) + '. What you see may be missing them.');
+      if (stale.length) lines.push('<b>Not updated for a few minutes:</b> ' + esc(names(stale)) + '. Other people\u2019s changes may not show yet.');
+      box.innerHTML = lines.join('<br>') + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' +
+        (base.length ? '<button type="button" data-rc="reload" style="' + BTN + '">Reload the Page</button>' : '<button type="button" data-rc="retry" style="' + BTN + '">Try Again Now</button>') +
+        '<span style="align-self:center;font-size:12.5px;opacity:.85">' + (base.length ? 'Anything already saved is safe.' : 'This clears by itself once the connection is back.') + '</span></div>';
+    } catch (e) { if (window.console) console.error('Load notice:', e); }
+  }
+  var BTN = 'font:600 13px inherit;padding:6px 12px;border-radius:4px;border:1px solid #b42318;background:#fff;color:#5c1410;cursor:pointer';
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest && ev.target.closest('#rc-problems [data-rc]'); if (!b) return;
+    if (b.getAttribute('data-rc') === 'reload') location.reload(); else refresh(true);
+  });
+
   /* the page looks questionnaires up by program code; the eMortgage file names eClosing ECLOSING, the programs ECLOSE */
   var EMORTGAGE = { RON: 'RON', ECLOSE: 'ECLOSING', EVAULT: 'EVAULT' };
 
@@ -57,15 +103,27 @@
   var clone = function (v) { return v === undefined ? undefined : JSON.parse(JSON.stringify(v)); };
 
   /* ---------- the base records: read once, before the page starts ---------- */
+  /* A read that fails on a busy moment (no answer, or a server error) is tried twice more before it counts
+     as failed (review, 7 Nov 2026). A refusal (403) or a missing file (404) is not retried. */
+  function callRetry(method, path) {
+    function go(n) {
+      return call(method, path).then(function (r) {
+        if ((r.status >= 500 || r.status === 429) && n < 2) return wait(n).then(function () { return go(n + 1); });
+        return r;
+      }, function (e) { if (n < 2) return wait(n).then(function () { return go(n + 1); }); throw e; });
+    }
+    function wait(n) { return new Promise(function (ok) { setTimeout(ok, n ? 4000 : 1500); }); }
+    return go(0);
+  }
   function readData(name) {
-    return call('GET', '/data/' + name).then(function (r) {
+    return callRetry('GET', '/data/' + name).then(function (r) {
       if (r.status !== 200 || r.json.data == null) throw err('unavailable', 'data/' + name + '.json (' + (r.json.error || r.status) + ')');
       var d = r.json.data; delete d.savedBy; delete d.savedAt; return d;
     });
   }
   function loadRecords() {
     var D = JSON.parse(document.getElementById('cms-data').textContent);
-    var jobs = [call('GET', '/file/portal-data.json').then(function (r) {
+    var jobs = [callRetry('GET', '/file/portal-data.json').then(function (r) {
       if (r.status !== 200 || !r.json.content) throw err('unavailable', 'portal-data.json (' + (r.json.error || r.status) + ')');
       var P = JSON.parse(fromBase64(r.json.content));
       Object.keys(P).forEach(function (k) { D[k] = P[k]; });
@@ -84,7 +142,9 @@
       try { D.asOf = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
       catch (e) { var t = new Date(); D.asOf = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); }
     })];
-    Object.keys(FILES).forEach(function (k) { jobs.push(readData(FILES[k]).then(function (v) { D[k] = v; })); });
+    /* One of these failing used to stop the whole page for everyone (review, 6 Nov 2026). Now the page opens
+       with the rest, keeps the built-in copy of the one that failed, and says so at the foot of the screen. */
+    Object.keys(FILES).forEach(function (k) { jobs.push(readData(FILES[k]).then(function (v) { D[k] = v; }, function () { problem('file:' + FILES[k], FILE_LABEL[k] || FILES[k], 'base'); })); });
     /* past Mark License Agreements filed from the MACTS attachments; optional, so a missing index never stops the page */
     jobs.push(readData('mark-license-files').then(function (v) { D.markLicenseFiles = v; }, function () { D.markLicenseFiles = null; }));
     /* the MACTS Comments sheet, carried over 27 Oct 2026; optional the same way */
@@ -96,7 +156,7 @@
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });
       D.forms = forms;
-    }));
+    }, function () { problem('file:questionnaires', 'the questionnaires', 'base'); }));
     return Promise.all(jobs).then(function () { D.publicPreview = false; return D; });
   }
 
@@ -238,9 +298,15 @@
   function seenOf(c, id) { return c.given && c.seen[id] !== undefined ? clone(c.seen[id]) : undefined; }
   function fileOf(name) { return 'db-' + String(name).replace(/[^A-Za-z0-9_-]/g, '_'); }
   function fetchColl(c) {
-    return call('GET', '/data/' + fileOf(c.name)).then(function (r) {
+    return callRetry('GET', '/data/' + fileOf(c.name)).then(function (r) {
       if (r.status !== 200) throw err(r.status === 403 ? 'permission_denied' : 'unavailable', r.json.error || String(r.status));
-      var d = r.json.data; c.docs = (d && d.docs) || {}; c.sha = r.json.sha || null; return c;
+      var d = r.json.data; c.docs = (d && d.docs) || {}; c.sha = r.json.sha || null;
+      c.fails = 0; c.ok = true; solved('coll:' + c.name); return c;
+    }, function (e) { throw e; }).catch(function (e) {
+      c.fails = (c.fails || 0) + 1;
+      if (!c.ok) problem('coll:' + c.name, collLabel(c.name), 'load');
+      else if (c.fails >= 3) problem('coll:' + c.name, collLabel(c.name), 'stale');
+      throw e;
     });
   }
   function load(c) { return c.loaded || (c.loaded = fetchColl(c).catch(function (e) { c.loaded = null; throw e; })); }
@@ -283,11 +349,49 @@
   /* other people's changes: re-read what this page is watching every minute while it is open and visible,
      and straight away when the tab is looked at again (November 5, 2026: a tab left in the background for
      hours showed hours-old records for up to a minute after coming back) */
-  function refresh() {
-    if (document.hidden) return;
-    Object.keys(COLL).forEach(function (n) { var c = COLL[n]; if (!c.subs.length) return; var was = c.sha;
-      c.queue = c.queue.then(function () { return fetchColl(c).then(function () { if (c.sha !== was) notify(c); }); }).catch(function () {}); });
+  function refresh(force) {
+    if (document.hidden && !force) return;
+    Object.keys(COLL).forEach(function (n) { var c = COLL[n]; if (!c.subs.length) return; var was = c.sha, first = !c.ok;
+      c.queue = c.queue.then(function () { return fetchColl(c).then(function () { if (c.sha !== was || first) later(c); }); }).catch(function () {}); });
   }
+  /* Other people's changes redraw the page, and a redraw rebuilt the open panel, so a note being typed could
+     vanish when a colleague saved (review, 6 Nov 2026). While the panel has a field being typed in, or typing
+     not yet saved, their changes wait and show as soon as the field is left or the panel saves or closes.
+     The page's own saves are not held. */
+  var held = {};
+  function typing() {
+    var drawer = document.getElementById('drawer'), a = document.activeElement;
+    var isText = function (el) { return el && (el.tagName === 'TEXTAREA' || el.isContentEditable || (el.tagName === 'INPUT' && !/^(button|submit|checkbox|radio|file|range|color|reset|image|hidden)$/i.test(el.type || ''))); };
+    if (!drawer || !drawer.classList.contains('on')) return false;
+    if (isText(a) && drawer.contains(a)) return true;                                                 /* typing in the panel now */
+    var f = drawer.querySelectorAll('textarea, input');
+    for (var i = 0; i < f.length; i++) if (isText(f[i]) && f[i].value !== f[i].defaultValue) return true;   /* typed in the panel, not saved yet */
+    return false;
+  }
+  function later(c) {
+    if (!typing()) { delete held[c.name]; notify(c); return; }
+    held[c.name] = c; heldNote(true);
+  }
+  function release() {
+    var names = Object.keys(held); if (!names.length || typing()) return;
+    held = {}; heldNote(false);
+    names.forEach(function (n) { if (COLL[n]) notify(COLL[n]); });
+  }
+  function heldNote(on) {
+    try {
+      var box = document.getElementById('rc-held'), drawer = document.getElementById('drawer');
+      if (!on || !drawer || !drawer.classList.contains('on')) { if (box) box.remove(); return; }
+      if (!box) {
+        box = document.createElement('div'); box.id = 'rc-held'; box.setAttribute('role', 'status');
+        box.style.cssText = 'margin:8px 20px 0;padding:8px 12px;border-radius:6px;font-size:12.5px;line-height:1.4;border-left:3px solid var(--sky,#74bfeb);background:var(--surface-2,#f6fafd);color:var(--ink,#0d314c)';
+        var head = drawer.querySelector('.dhead');
+        if (head && head.parentNode) head.parentNode.insertBefore(box, head.nextSibling); else drawer.insertBefore(box, drawer.firstChild);
+      }
+      box.textContent = 'Someone else saved changes. They will show once you save or close this panel, so your typing is safe.';
+    } catch (e) {}
+  }
+  document.addEventListener('focusout', function () { setTimeout(release, 400); });
+  setInterval(release, 2000);
   setInterval(refresh, 60000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
   /* A save: what this page had before (seen) is taken now, when the page asks, and the change is merged
