@@ -5137,7 +5137,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return esc(f.program) + (f.product ? " · " + esc(f.product) : "") + " · " + esc(kindLabel(f).toLowerCase());
     }
     function tdModel() {
-        var todo = { website: [], invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [] };
+        var todo = { website: [], invoice: [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [], "hold-check": [] };
         var wait = { company: [], assessor: [], jonathan: [], system: [], later: [], hold: [] };
         if (!certs || typeof QUOTE_LEAD !== "number" || typeof LIC_SAID !== "object") return { todo: todo, wait: wait, prospects: [] };
         var taken = {};
@@ -5172,7 +5172,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (seen[f.row] || taken[f.row]) return;
             seen[f.row] = 1;
             if (!tdOpen(f)) return;
-            if (fuHeld(f)) { wait.hold.push(f); return; }
+            if (fuHeld(f)) { var hh = cycleHoldOf(f); if (hh && hh.until && daysBetween(hh.until, D.asOf) >= 0) todo["hold-check"].push(f); else wait.hold.push(f); return; }
             var st = currentState(f), c = certFor(f);
             if (welcomeDue(f)) { todo.welcome.push(f); return; }
             var x = followUpOf(f);
@@ -5220,7 +5220,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "fu-invoice", "Follow Up: Unpaid Invoice", "Invoiced and not paid. Chase the company, note what you did and pick the next date." ],
         [ "fu-demo", "Follow Up: Demo Not Booked", "Paid, but no demonstration date picked after the weekly reminders." ],
         [ "website", "Update Their mismo.org Listing", "They sent new details for mismo.org on their renewal page. Copy them to their listing on the website, then press Done: the Website Card keeps them." ],
-        [ "fu-quiet", "Follow Up: Gone Quiet", "Stuck before the assessment started. Chase them, or move them to Prospects if they are not going ahead." ]
+        [ "fu-quiet", "Follow Up: Gone Quiet", "Stuck before the assessment started. Chase them, or move them to Prospects if they are not going ahead." ],
+        [ "hold-check", "Check In: Hold Due to End", "On hold, and the date they expected to start again has come. Ask whether they are ready, then release the hold." ]
     ];
     function tdItem(key, inner, acts, bad) {
         return '<div class="td-item' + (bad ? " bad" : "") + '">' + inner + (acts ? '<div class="td-acts">' + acts + "</div>" : "") + "</div>";
@@ -5290,6 +5291,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (key === "assessor") {
             return tdItem(key, head, canWrite ? '<select class="pc-input td-sel" data-tdassessor="' + f.row + '" aria-label="Assessor for ' + esc(f.org) + '"><option value="">Choose the assessor…</option>'
                 + ASSESSORS.map((function(a) { return "<option>" + esc(a) + "</option>"; })).join("") + "</select>" : "");
+        }
+        if (key === "hold-check") {
+            var hx = cycleHoldOf(f) || {};
+            head = head.slice(0, -12) + '</div><div class="td-meta">On hold since ' + esc(fmt(String(hx.at || "").slice(0, 10))) + (hx.until ? " \u00b7 expected back " + esc(fmt(hx.until)) : "")
+                + (hx.by ? " \u00b7 " + esc(hx.by) : "") + "</div>" + (hx.reason ? '<div class="td-meta">' + esc(hx.reason) + "</div>" : "") + "</div>";
+            return tdItem(key, head, (canWrite ? tdBtn("Release the Hold", 'data-cunhold="' + f.row + '"') : "") + tdBtn("Open", 'data-tdopen="' + f.row + '"', true));
         }
         if (key === "welcome") return tdItem(key, head, canWrite ? tdBtn("Mark the Welcome Email Sent", 'data-tdwelcome="' + f.row + '"') + tdBtn("Open", 'data-tdopen="' + f.row + '"', true) : "", true);
         return tdItem(key, head, tdBtn("Open", 'data-tdopen="' + f.row + '"'));
@@ -5379,7 +5386,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         OnHold: "Nothing until the hold is released"
     };
     var TQ_KIND_TONE = { invoice: "money", attach: "money", "fu-invoice": "money", license: "sign", expiry: "late", assessor: "assess", "fu-assessor": "assess", script: "assess",
-        welcome: "co", "fu-demo": "co", "fu-quiet": "co", record: "sign", website: "co" };
+        welcome: "co", "fu-demo": "co", "fu-quiet": "co", record: "sign", website: "co", "hold-check": "co" };
     var tq = { view: "you", kind: "all", q: "", sort: {} };
     try { var tqSaved = JSON.parse(localStorage.getItem("cms-tq") || "null"); if (tqSaved) { tq.view = tqSaved.view || "you"; tq.sort = tqSaved.sort || {}; } } catch (e) {}
     function tqKeep() { try { localStorage.setItem("cms-tq", JSON.stringify({ view: tq.view, sort: tq.sort })); } catch (e) {} }
@@ -5584,7 +5591,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var st = currentState(f), next = TQ_NEXT[st] || titleOfState(st), extra = "";
         if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; }
         if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
-        if (view === "hold") { var hc = certFor(f), h = hc ? holdOf(hc) : null; next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : ""); extra = h && h.reason ? h.reason : ""; }
+        if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : ""; }
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; }
         return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: titleOfState(st) };
     }
@@ -6091,8 +6098,36 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (fuClosed(f)) return false;
         if (currentState(f) === "OnHold") return true;
         var c = certFor(f);
-        return !!(c && holdOf(c));
+        return !!((c && holdOf(c)) || holdOf(f));
     }
+    /* The hold on a cycle, wherever it was saved: on its certification, else on the cycle's own key
+       (an assessor's Put on Hold, 9 Nov 2026). */
+    function cycleHoldOf(f) {
+        var c = certFor(f);
+        return (c && holdOf(c)) || holdOf(f);
+    }
+    function cycleHoldTarget(f) {
+        var c = certFor(f);
+        return c && holdOf(c) ? c : f;
+    }
+    function cycleHoldNote(f) {
+        var h = fuClosed(f) ? null : cycleHoldOf(f);
+        if (!h) return "";
+        return '<div class="pc-note" style="margin:0 0 10px"><b>On hold since ' + esc(fmt(String(h.at || "").slice(0, 10))) + "</b>"
+            + (h.until ? ", expected back " + esc(fmt(h.until)) : "") + (h.by ? " \u00b7 " + esc(h.by) : "")
+            + (h.reason ? "<br>" + esc(h.reason) : "") + "<br>No emails, reminders or nudges go out while it is on hold. Releasing it picks up where it left off."
+            + (canWrite ? '<div style="margin-top:8px"><button class="lc-btn" type="button" data-cunhold="' + f.row + '">Release the Hold</button></div>' : "") + "</div>";
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-cunhold]") : null;
+        if (!t) return;
+        var f = byRow(+t.getAttribute("data-cunhold"));
+        if (!f || !cycleHoldOf(f)) return;
+        if (!window.confirm("Release this from hold?\n\n" + f.org + "\n" + f.program + (f.product ? " \u00b7 " + f.product : "")
+            + "\n\nReminders and emails pick it up again from where it is now.")) return;
+        setHold(cycleHoldTarget(f), null);
+        setTimeout((function() { renderTodo(); if (typeof renderPanel === "function") try { renderPanel(); } catch (x) {} }), 50);
+    }));
     function fuListEntry(f) {
         var s = slugName(f.org);
         var hit = (D.followUps || []).filter((function(x) { return slugName(x.org) === s; }))[0];
@@ -8270,7 +8305,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* Jonna, 31 Oct 2026: "make the company right details pane less confusing, more user
            friendly, give it a wow factor". One record, four tabs instead of one long scroll:
            Overview (where it is, what to do), Money, The Certification, The Company. */
-        var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
+        var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + cycleHoldNote(f) + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
         var whoHtml = '<div class="dcard"><div class="dcard-h"><b>Assessor and Notes</b></div>' + '<div class="pc-lab" style="margin-top:0">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
         })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea></div>";
@@ -10277,7 +10312,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return e.hold ? {
             reason: e.holdReason || "",
             by: e.holdBy || e.by || "someone",
-            at: e.holdAt || e.at || null
+            at: e.holdAt || e.at || null,
+            until: e.holdUntil || null,
+            firm: e.holdFirm || null
         } : null;
     }
 
@@ -10441,11 +10478,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             next.holdReason = reason;
             next.holdBy = me && me.name || "someone";
             next.holdAt = new Date().toISOString();
+            next.holdUntil = null;
+            next.holdFirm = null;
         } else {
             next.hold = false;
             next.holdReason = null;
             next.holdBy = null;
             next.holdAt = null;
+            next.holdUntil = null;
+            next.holdFirm = null;
         }
         certEdits[id] = next;
         certEdits[key] = next;
