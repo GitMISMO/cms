@@ -2283,6 +2283,9 @@
   .er-id i, .er-jr i, .er-st i{display:block; font-style:normal; font-size:11.5px; color:var(--ink-3); margin-top:3px; overflow-wrap:anywhere;}
   .er-pg{display:flex; gap:5px; flex-wrap:wrap;}
   .er-pg .tag{font-size:10.5px;}
+  .er-pg .rn-money{flex-basis:100%; font-style:normal; font-size:12px; color:var(--ink-3); line-height:1.35;}
+  #pk-rn-prog .tq-tools{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 0 12px;}
+  #pk-rn-prog .tq-tools .lc-btn{margin-left:auto;}
   .tag.soft{background:transparent; border:1px solid var(--border); color:var(--ink-3);}
   .er-jr .cjb{margin-top:0; max-width:none;}
   .er-st b{display:block; font-size:13px;}
@@ -3485,6 +3488,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="rn-held"></div>
     </div>
 
+
+    <!-- In Progress (Jonna, 17 Nov 2026: "if my boss asked me show me a list of all the in progress
+         renewals, where do i see that?"): every renewal under way, where it stands and whose move it is. -->
+    <div class="panel" id="pk-rn-progress">
+      <div class="phead"><div>
+        <h2>In Progress</h2>
+        <p class="psub">Every renewal under way, soonest anniversary first: where it stands, whose move it is, how long it has been there and where its invoice is. Choose one to open it.</p>
+      </div></div>
+      <div id="pk-rn-prog"></div>
+    </div>
 
     <div class="panel" id="pk-rn-ahead">
       <div class="phead"><div>
@@ -10518,17 +10531,79 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var side = pkSide("Renewing Next", held.length ? "on hold left out" : "", up.slice(0, 6).map((function(r) { return pkSideRow(fmt(r.cert.anniversary).replace(/, \d{4}$/, "") + " · " + r.cert.program, r.cert.org, 'data-pkcert="' + esc(r.key) + '"', r._n <= 30 ? "#e0a83c" : "#74bfeb"); })));
         host.innerHTML = pkHero({ title: "Renewals", say: say, side: side, acts: '<button class="lc-btn" type="button" data-pkgo="view:invoices">Invoices to Raise</button><button class="lc-btn" type="button" data-pkgo="view:emails">Notices Sent</button>' })
             + pkBoard([
+                (function() { var ip = rnProgRows(); return { lab: "In Progress", n: ip.length, k: "#9b8cff", go: "#pk-rn-progress", sub: ip.length ? ip.filter((function(r) { return r.who === "mismo" || r.who === "jonathan"; })).length + " waiting on MISMO" : "none under way",
+                    rows: ip.slice(0, 3).map((function(r) { return [ r.f.org, r.f.program, r.where ]; })) }; })(),
                 { lab: "Renewing in 30 Days", n: in30.length, k: "#e0a83c", go: "#pk-rn-ahead", sub: in30.length ? "anniversaries this month" : "none this month", rows: in30.slice(0, 3).map((function(r) { return [ r.cert.org, r.cert.program, r._n + "d" ]; })) },
                 { lab: "Renewing in 90 Days", n: in90.length, k: "#74bfeb", go: "#pk-rn-ahead", sub: "the next quarter",
                     body: '<span class="pk-months">' + bars.map((function(b) { return '<span title="' + b.m + ": " + b.n + '"><i style="height:' + (b.n ? Math.max(10, Math.round(b.n / bMax * 100)) : 0) + '%"></i><small>' + b.m + "</small></span>"; })).join("") + "</span>" },
                 { lab: "Notices Next " + noticeWindow + " Days", n: nd.length, k: "#3ccb7f", go: "#pk-rn-notices", sub: nd.length ? "sent by themselves, " + Object.keys(nNotice).length + " compan" + (Object.keys(nNotice).length === 1 ? "y" : "ies") : "nothing in the window" },
                 { lab: "On Hold", n: held.length, k: "#9aa9b6", go: held.length ? "#pk-rn-first" : "", sub: held.length ? "paused on purpose, still in sight" : "nothing paused", rows: held.slice(0, 2).map((function(r) { return [ r.cert.org, r.cert.program, "" ]; })) }
-            ]);
+            ], "n5");
         pkAnimate(host);
+    }
+    var rnProg = { who: "all", q: "" };
+    function rnProgRows() {
+        return (D.inFlight || []).filter((function(f) { return f && f.kind === "renewal" && tdOpen(f); })).map((function(f) {
+            var st = currentState(f), c = certFor(f), held = fuHeld(f), w = String((STATE[st] || {}).waiting || f.waiting || "");
+            var who = held ? "hold" : TD_JONATHAN.indexOf(st) >= 0 ? "jonathan" : TD_SYSTEM.indexOf(st) >= 0 ? "system"
+                : /assessor/i.test(w) ? "assessor" : /company/i.test(w) ? "company" : "mismo";
+            var money = ""; try { money = moneyLine(f) || ""; } catch (e) {}
+            return { f: f, c: c, st: st, who: who, days: fuDaysInState(f), anniv: (c && c.anniversary) || f.anniversary || "",
+                where: held ? "On hold" : pendingLabel(f), money: money };
+        })).sort((function(a, b) { return String(a.anniv || "9999").localeCompare(String(b.anniv || "9999")) || String(a.f.org).localeCompare(String(b.f.org)); }));
+    }
+    var RN_WHO = { all: "All", mismo: "Needs MISMO", jonathan: "With Jonathan", company: "With the Company", assessor: "With the Assessor", system: "Runs Itself", hold: "On Hold" };
+    var RN_WHO_SAY = { mismo: "MISMO's move", jonathan: "With Jonathan", company: "With the company", assessor: "With the assessor", system: "Runs itself", hold: "On hold" };
+    function pkRenewProgress() {
+        var host = $("pk-rn-prog");
+        if (!host) return;
+        var all = rnProgRows(), q = rnProg.q.trim().toLowerCase();
+        var rows = all.filter((function(r) { return (rnProg.who === "all" || r.who === rnProg.who)
+            && (!q || [ r.f.org, r.f.product, r.f.program, r.where, r.money ].join(" ").toLowerCase().indexOf(q) >= 0); }));
+        var counts = {};
+        all.forEach((function(r) { counts[r.who] = (counts[r.who] || 0) + 1; }));
+        var keep = document.activeElement && document.activeElement.id === "rn-prog-q";
+        host.innerHTML = '<div class="tq-tools"><input type="search" class="pc-input tq-search" id="rn-prog-q" placeholder="Find a company" aria-label="Find a company in progress" value="' + esc(rnProg.q) + '">'
+            + '<div class="tq-kinds">' + Object.keys(RN_WHO).filter((function(k) { return k === "all" || counts[k]; })).map((function(k) {
+                return '<button type="button" class="tq-k' + (rnProg.who === k ? " on" : "") + '" data-rnwho="' + k + '">' + esc(RN_WHO[k]) + " <b>" + (k === "all" ? all.length : counts[k]) + "</b></button>"; })).join("") + "</div>"
+            + '<button class="lc-btn" type="button" id="rn-prog-dl">Download for Excel</button></div>'
+            + (rows.length ? rows.map((function(r) {
+                var f = r.f, at = cjStop(f), late = r.days != null && r.days > PIP_LATE_DAYS;
+                return '<button class="tq-row er" type="button" data-pkrow="' + f.row + '">' + cmono(f.org)
+                    + '<span class="er-id"><b>' + esc(f.org) + "</b><i>" + esc(f.product || f.program) + "</i></span>"
+                    + '<span class="er-pg"><span class="tag">' + esc(f.program) + '</span><span class="tag soft">' + esc(kindLabel(f)) + "</span>"
+                    + (r.money ? '<i class="rn-money">' + esc(r.money) + "</i>" : "") + "</span>"
+                    + '<span class="er-jr">' + cjBar(f) + "<i>" + esc(CJ[at].t) + " \u00b7 " + esc(r.where) + "</i></span>"
+                    + '<span class="er-st' + (late ? " late" : "") + '"><b>' + esc(RN_WHO_SAY[r.who]) + "</b><i>" + esc((tqDaysTxt(r.days) ? tqDaysTxt(r.days) + " at this step" : "")
+                    + (r.anniv ? (r.days != null ? " \u00b7 " : "") + "anniversary " + fmt(r.anniv) : "")) + "</i></span>"
+                    + '<span class="er-go" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+                    + "</button>"; })).join("")
+                : '<p class="pc-note">' + (all.length ? "Nothing matches." : "No renewals are under way right now.") + "</p>");
+        if (keep) { var qi = $("rn-prog-q"); if (qi) { qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); } }
+        if (!host.__w) {
+            host.__w = 1;
+            host.addEventListener("input", (function(e) { if (e.target && e.target.id === "rn-prog-q") { rnProg.q = e.target.value; pkRenewProgress(); } }));
+            host.addEventListener("click", (function(e) {
+                var t = e.target && e.target.closest ? e.target.closest("[data-rnwho],#rn-prog-dl") : null;
+                if (!t) return;
+                if (t.id === "rn-prog-dl") { rnProgDownload(); return; }
+                rnProg.who = t.getAttribute("data-rnwho"); pkRenewProgress();
+            }));
+        }
+    }
+    function rnProgDownload() {
+        var cell = function(v) { var s = v == null ? "" : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+        var lines = [ [ "Company", "Product", "Program", "Renewal", "Anniversary", "Where It Stands", "Whose Move", "Days at This Step", "Invoice" ].join(",") ]
+            .concat(rnProgRows().map((function(r) { return [ r.f.org, r.f.product || "", r.f.program, kindLabel(r.f), r.anniv, r.where, RN_WHO_SAY[r.who], r.days, r.money ].map(cell).join(","); })));
+        var blob = new Blob([ "\ufeff" + lines.join("\r\n") ], { type: "text/csv;charset=utf-8" });
+        var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = "Renewals in Progress - " + fmt(String(TODAY.toISOString()).slice(0, 10)) + ".csv"; document.body.appendChild(a); a.click();
+        setTimeout((function() { URL.revokeObjectURL(a.href); a.remove(); }), 1000);
     }
     function renderRenewals() { lazyRun("renewals", [ "renewals", "invoices" ], renderRenewalsNow); }
     function renderRenewalsNow() {
         try { pkRenewalsHero(); } catch (e) { if (window.console) console.error("Renewals hero:", e); }
+        try { pkRenewProgress(); } catch (e) { if (window.console) console.error("Renewals in progress:", e); }
         var box = $("rn-list");
         if (!box) return;
         var sel = $("rn-window");
