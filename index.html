@@ -4523,6 +4523,50 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }))["catch"]((function(e) { if (window.console) console.warn("Member 360:", e && e.message || e); }))
           .then((function() { m360Busy = false; }));
     }
+    /* ---- Assessor invoices from Service Orders (Jonna, 18 Nov 2026: Accounting needs the assessor's invoice number
+       on Certification Completions) ----
+       Each assessor firm sends its invoices through Service Orders (relay project so-<firm>, file
+       invoices/<firm>.json), listing the certifications it bills in each invoice's "reviews" (CMS row, kind,
+       renewal number). The CMS keeps a read-only copy in its own record (data/db-assessor-invoices.json, doc
+       "latest") so the Certification Completions job can show the number beside each certification. Read with
+       the signed-in person's own access, at most every two hours; a firm this person cannot read keeps the
+       copy it had. Nothing in Service Orders is ever changed from here. */
+    var AS_INV_FIRMS = [ [ "Falcon", "falcon" ], [ "Actualize", "actualize" ], [ "Viant Eye", "vianteye" ] ];
+    var asInvKept = null, asInvBusy = false, asInvDone = false;
+    function asInvSync() {
+        if (asInvBusy || asInvDone || !db || !canWrite || !window.CMS_CONFIG || !CMS_CONFIG.relay) return;
+        if (asInvKept && asInvKept.checkedAt && Date.now() - Date.parse(asInvKept.checkedAt) < 2 * 36e5) return;
+        var tok = "";
+        try { tok = window.ResourcesSession && ResourcesSession.token ? ResourcesSession.token() : JSON.parse(localStorage.getItem("resources:session") || "{}").token || ""; } catch (e) {}
+        if (!tok) return;
+        asInvBusy = true; asInvDone = true;
+        var was = asInvKept && asInvKept.firms || {}, firms = {}, readAny = false;
+        function one(f) {
+            return fetch(CMS_CONFIG.relay + "/so-" + f[1] + "/file/" + encodeURIComponent("invoices/" + f[1] + ".json"), { headers: { Authorization: "Bearer " + tok } })
+                .then((function(r) {
+                    if (r.status === 404) { readAny = true; firms[f[0]] = { slug: f[1], invoices: [] }; return; }
+                    if (!r.ok) { if (was[f[0]]) firms[f[0]] = was[f[0]]; return; }
+                    return r.json().then((function(j) {
+                        var raw = j && j.content ? decodeURIComponent(escape(atob(String(j.content).replace(/\s/g, "")))) : null;
+                        var d = raw ? JSON.parse(raw) : (j && j.data) || {};
+                        readAny = true;
+                        firms[f[0]] = { slug: f[1], invoices: (d.invoices || []).filter((function(iv) { return iv && iv.number && iv.state !== "withdrawn"; })).map((function(iv) {
+                            return { number: String(iv.number), date: iv.date || null, period: iv.period || null, state: iv.state || null, total: iv.total != null ? iv.total : null,
+                                reviews: (iv.reviews || []).map((function(x) { return { row: x.row != null ? x.row : null, kind: x.kind || null, renewalNumber: x.renewalNumber || null,
+                                    org: x.org || null, program: x.program || null, product: x.product || null, fee: x.fee != null ? x.fee : null }; })) };
+                        })) };
+                    }));
+                }))["catch"]((function() { if (was[f[0]]) firms[f[0]] = was[f[0]]; }));
+        }
+        Promise.all(AS_INV_FIRMS.map(one)).then((function() {
+            if (!readAny) return;
+            if (asInvKept && JSON.stringify(asInvKept.firms || {}) === JSON.stringify(firms) && Date.now() - Date.parse(asInvKept.checkedAt || 0) < 24 * 36e5) return;
+            var out = { v: 1, source: "Service Orders (each assessor firm's invoices)", checkedAt: new Date().toISOString(), firms: firms };
+            asInvKept = out;
+            return Promise.resolve(db.collection("assessor-invoices").doc("latest").set(out)).catch(onWriteRefused);
+        }))["catch"]((function(e) { if (window.console) console.warn("Assessor invoices:", e && e.message || e); }))
+          .then((function() { asInvBusy = false; }));
+    }
     function memberOf(org) {
         if (!membership || !membership.companies) return null;
         return membership.companies[org] || null;
@@ -11923,6 +11967,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 recompute();
                 renderSoon();
             }), (function() {}));
+            d.collection("assessor-invoices").onSnapshot((function(snap) {
+                var doc = (snap.docs || []).filter((function(x) { return x.id === "latest"; }))[0];
+                asInvKept = doc ? doc.data() : null;
+                asInvSync();
+            }), (function() {}));
             d.collection("aptify-orders").onSnapshot((function(snap) {
                 var doc = (snap.docs || []).filter((function(x) { return x.id === "latest"; }))[0];
                 aptifyOrders = doc ? doc.data() : null;
@@ -16829,5 +16878,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-18a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-18b"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>

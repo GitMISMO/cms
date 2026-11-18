@@ -34,7 +34,7 @@
     individualCerts: 'the CMSP and AMSP list', summits: 'the summits', frameResults: 'the FRAME results', frameScenarios: 'the FRAME exercises', frameScoring: 'the FRAME scoring', frameSources: 'the FRAME sources' };
   var COLL_LABEL = { 'cycle-state': 'certification stages', invoices: 'invoices', activity: 'the Activity log', finance: 'payments', 'renewal-quotes': 'renewal invoices',
     'cert-edits': 'certification details', 'org-edits': 'company details', 'mark-license': 'Mark Licenses', 'follow-ups': 'follow-ups', membership: 'memberships',
-    applications: 'applications', 'aptify-orders': 'Aptify orders', 'notice-log': 'renewal notices sent', 'stage-notice-log': 'stage emails sent', scores: 'scores',
+    applications: 'applications', 'aptify-orders': 'Aptify orders', 'assessor-invoices': 'assessor invoices', 'notice-log': 'renewal notices sent', 'stage-notice-log': 'stage emails sent', scores: 'scores',
     'assessor-notes': 'assessor notes', 'assessor-nudges': 'assessor nudges', 'invoice-sends': 'invoice emails', 'script-prep': 'certification scripts', assessments: 'assessments' };
   function collLabel(n) { return COLL_LABEL[n] || String(n).replace(/-/g, ' '); }
 
