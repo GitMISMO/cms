@@ -521,7 +521,9 @@
     /* My Approvals, the Email Playbook and Help open inside the CMS, so the nav is always there
        (Jonna, 27 Oct 2026). Migration is gone from the nav: MACTS is fully moved over. */
     /* CMSP & AMSP (27 Oct 2026): MISMO's individual certifications, off the CMSP and AMSP Master Smartsheets. */
-    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual'] },
+    /* AI Governance Portal (Jonna, 18 Nov 2026): the company-facing portal being refined, under CMSP & AMSP;
+       its own page, opens in a new tab like Certification Completions. */
+    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual', '@aigov'] },
     /* Certification Completions (Jonna, 17 Nov 2026): Accounting's monthly report, its own page; opens in a new tab,
        the way Member 360 links to the Membership Desk. */
     { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'revenue', '@completions', 'counts'] },
@@ -629,7 +631,9 @@
     playbook: { href: 'playbook.html', label: 'Email Playbook', title: 'Every certification email and its wording',
       icon: '<path d="M4.5 4.5h6.2a2.3 2.3 0 0 1 2.3 2.3v13.7a2 2 0 0 0-2-2H4.5Z"/><path d="M19.5 4.5h-4.2A2.3 2.3 0 0 0 13 6.8v13.7a2 2 0 0 1 2-2h4.5Z"/>' },
     completions: { href: '/cert-completions/', newTab: true, label: 'Certification Completions', title: 'Certification Completions: Accounting\u2019s monthly report (opens in a new tab)',
-      icon: '<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="m14.5 16.2 1.4 1.4 2.6-2.8"/>' }
+      icon: '<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="m14.5 16.2 1.4 1.4 2.6-2.8"/>' },
+    aigov: { href: '/portal/ai-governance/', newTab: true, label: 'AI Governance Portal', title: 'AI Governance Portal: the company portal, draft (opens in a new tab)',
+      icon: '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 10h4v4h-4zM10 3.5V7M14 3.5V7M10 17v3.5M14 17v3.5M3.5 10H7M3.5 14H7M17 10h3.5M17 14h3.5"/>' }
   };
   function organizeNav() {
     try {
