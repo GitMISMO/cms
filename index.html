@@ -5118,8 +5118,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }), (function() {}));
             db.collection("stage-notice-log").onSnapshot((function(snap) {
                 var n = {};
-                (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "assessor-nudge") n[d.id] = v; }));
+                var r = {};
+                (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "assessor-nudge") n[d.id] = v; if (v && /^company-(payment|booking)-reminder$/.test(v.template || "")) r[d.id] = v; }));
                 tdNudgeSent = n;
+                tdRemSent = r;
+                renderTodo();
+            }), (function() {}));
+            db.collection("company-reminders").onSnapshot((function(snap) {
+                var n = {};
+                (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); }));
+                tdRems = n;
                 renderTodo();
             }), (function() {}));
         } catch (e) {}
@@ -5148,6 +5156,106 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {}
         toast(firm + " will be emailed about " + f.org + " on the next run.", "good");
         renderTodo();
+    }
+    /* Send a Reminder (Jonna, 19 Nov 2026: "for those who have applied for the first time but have not
+       paid their invoice yet, how do I follow up with them through the system"). On a Follow Up card:
+       a payment reminder, the invoice PDF attached, for an unpaid invoice; a booking reminder, with the
+       company's booking link, for a paid certification whose demonstration or interview is not booked.
+       Written to company-reminders; the Stage notices job sends it on its next run in business hours,
+       certifications@ copied. Not offered in a program MISMO has paused (stage-notices.json
+       pausedPrograms) or on hold; the job refuses those too. */
+    var tdRems = {}, tdRemSent = {}, tdRemWait = {};
+    var TD_REM = { payment: { label: "Payment Reminder", template: "company-payment-reminder" }, booking: { label: "Booking Reminder", template: "company-booking-reminder" } };
+    function tdPaused(f) { var p = D.pausedPrograms || []; return p.indexOf(f.program) >= 0; }
+    function tdRemKind(key, f) {
+        if (tdPaused(f) || fuHeld(f)) return null;
+        var st = currentState(f);
+        if (st === "AwaitingDemoSelection" && (key === "fu-demo" || key === "fu-quiet")) return "booking";
+        if ((key === "fu-invoice" || (key === "fu-quiet" && st === "AwaitingPayment")) && !fuPayment(f).paid) return "payment";
+        return null;
+    }
+    function tdRemOf(f, kind) {
+        var R = TD_REM[kind], asked = null, sent = null;
+        Object.keys(tdRems).forEach((function(k) { var v = tdRems[k]; if (v && v.kind === kind && String(v.row) === String(f.row) && (!asked || v.at > asked.at)) asked = v; }));
+        Object.keys(tdRemSent).forEach((function(k) { var v = tdRemSent[k]; if (v && v.template === R.template && String(v.row) === String(f.row) && (!sent || v.sentAt > sent.sentAt)) sent = v; }));
+        if (sent && (!asked || sent.sentAt >= asked.at)) return { text: R.label + (sent.held ? " held for review and sent to certifications@ " : " sent ") + fmt(String(sent.sentAt).slice(0, 10)), again: true };
+        if (asked) return { text: R.label + " asked for " + fmt(String(asked.at).slice(0, 10)) + " by " + (asked.by || "someone") + (asked.to && asked.to.length ? ", to " + asked.to.join(", ") : "") + "; it goes out on the next run in business hours", again: false };
+        return null;
+    }
+    /* who it goes to: the invoice contact for a payment reminder, the main contact for a booking reminder */
+    function tdRemTo(f, kind) {
+        if (kind === "payment") return aiDefaultTo(f);
+        var base = ORG_BY_SLUG[orgSlug(f.org)], o = base ? tdEffOrg(base) : (orgEdits[orgSlug(f.org)] || {});
+        if (o.contactEmail) return { name: o.contactName || "", email: o.contactEmail };
+        var b = companyContacts(f.org) || [], p = b.filter((function(x) { return x.notify && x.email; }))[0] || b.filter((function(x) { return x.email; }))[0];
+        if (p) return { name: p.name || "", email: p.email };
+        var ac = ((apps[f.row] || {}).contacts || []).filter((function(x) { return x && x.email; }))[0];
+        return ac ? { name: ac.name || "", email: ac.email } : { name: "", email: "" };
+    }
+    function tdRemind(row, kind) {
+        var f = byRow(row);
+        if (!f || !TD_REM[kind]) return;
+        if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
+        if (tdPaused(f)) { toast(f.program + " is paused, so no reminders go to its companies yet.", "warn"); return; }
+        if (kind === "payment" && appInv[row] === undefined) {
+            /* the invoice PDF kept on the certification is read first */
+            Promise.resolve(db.collection(appInvColl(row)).doc("pdf").get()).then((function(d) { appInv[row] = d && d.exists ? d.data() : null; tdRemind(row, kind); }), (function() { appInv[row] = null; tdRemind(row, kind); }));
+            return;
+        }
+        if (kind === "payment" && !appInv[row]) {
+            /* no PDF kept yet: choose it now, and the reminder carries on once it is saved */
+            tdRemWait[row] = 1;
+            var inp = document.querySelector('[data-tdremfile="' + row + '"]');
+            toast("Choose " + f.org + "’s invoice PDF, so it goes with the reminder.", "info");
+            if (inp) inp.click();
+            return;
+        }
+        var i = invoiceOf(f) || {}, rec = appInv[row] || null;
+        var orderId = i.orderId || (rec && rec.readNumber) || null;
+        if (kind === "payment" && !orderId) { toast("There is no Aptify order number on " + f.org + "’s record. Add it to the invoice, then press again.", "warn"); return; }
+        if (kind === "payment" && rec && rec.readNumber && orderIdOf(rec.readNumber) !== orderIdOf(orderId)) { toast("The invoice PDF kept for " + f.org + " is for order " + rec.readNumber + ", but the record says order " + orderId + ". Drop the right PDF on the record first.", "warn"); return; }
+        var d = tdRemTo(f, kind), email = d.email;
+        if (!email) {
+            email = window.prompt("There is no contact on file for " + f.org + ". Which email address should the " + TD_REM[kind].label.toLowerCase() + " go to?", "");
+            if (email == null) return;
+            email = (aiEmails(email)[0] || "");
+            if (!email) { toast("That is not an email address, so nothing was sent.", "warn"); return; }
+            d = { name: "", email: email };
+        }
+        var days = fuDaysInState(f), st = currentState(f);
+        var msg = kind === "payment"
+            ? "Email a payment reminder to " + email + " about " + f.org + "’s " + f.program + " certification invoice (Aptify order " + orderId + (i.amount != null ? ", " + money(i.amount) : "") + ")?\n\nThe invoice PDF is attached and certifications@mismo.org is copied."
+            : "Email a booking reminder to " + email + " about " + f.org + "’s " + f.program + " certification?\n\nIt thanks them for their payment and gives them their booking link" + (days != null ? " (they have been waiting " + days + " days)" : "") + ". certifications@mismo.org is copied.";
+        msg += " It goes out on the next run in business hours. Until its wording is approved on the Email Playbook page, it comes to certifications@mismo.org marked Held for Review instead.";
+        if (!window.confirm(msg)) return;
+        var at = (new Date).toISOString(), who = me && me.name || "someone";
+        var body = { row: f.row, org: f.org, program: f.program, product: f.product || null, kind: kind, state: st, days: days, to: [ email ], toName: d.name || null, at: at, by: who };
+        if (kind === "payment") { body.orderId = orderId; body.amount = i.amount != null ? i.amount : null; body.invoicedOn = i.invoicedOn || null; body.pdfCollection = appInvColl(f.row); body.pdfName = rec && rec.name || "invoice.pdf"; }
+        var id = String(f.row).replace(/[^0-9A-Za-z]/g, "m") + "-" + kind + "-" + at.replace(/[^0-9]/g, "").slice(0, 14);
+        tdRems[id] = body;
+        Promise.resolve(db.doc("company-reminders/" + id).set(body)).catch(onWriteRefused);
+        var entry = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "reminder", note: TD_REM[kind].label + " to be emailed to " + email + (kind === "payment" ? ", Aptify order " + orderId : ""), reason: null, at: at, by: who };
+        activity.unshift(entry);
+        try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {}
+        toast(f.org + " — the " + TD_REM[kind].label.toLowerCase() + " goes out on the next run in business hours.", "good");
+        renderTodo();
+    }
+    /* the invoice PDF chosen from a Send a Payment Reminder press: kept on the certification, then the reminder carries on */
+    function tdRemTakeFile(row, file) {
+        var f = byRow(row);
+        if (!f || !file) { delete tdRemWait[row]; return; }
+        aiReadFile(file, (function(rec, info) {
+            rec.row = f.row;
+            Promise.resolve(db.collection(appInvColl(f.row)).doc("pdf").set(rec)).then((function() {
+                appInv[f.row] = rec;
+                var dr = Object.assign({}, invoiceDraft(f)), ch = false;
+                if (info.number && !dr.orderId) { dr.orderId = info.number; ch = true; }
+                if (info.total != null && !dr.amount) { dr.amount = String(info.total); ch = true; }
+                if (ch && !dr.invoicedOn) dr.invoicedOn = isoDay(new Date);
+                if (ch) { invEdit[f.row] = dr; saveInvoice(f.row); }
+                if (tdRemWait[row]) { delete tdRemWait[row]; setTimeout((function() { tdRemind(f.row, "payment"); }), 300); }
+            }), onWriteRefused);
+        }));
     }
     function tdStageRow(f) {
         var st = currentState(f), w = String((STATE[st] || {}).waiting || f.waiting || ""), x = followUpOf(f);
@@ -5335,14 +5443,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var head = '<div class="td-main"><button class="td-org" type="button" data-tdopen="' + f.row + '">' + esc(f.org) + "</button>"
             + '<div class="td-meta">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "");
         if (key.indexOf("fu-") === 0) {
-            var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null;
+            var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null, rk = tdRemKind(key, f), rm = rk ? tdRemOf(f, rk) : null;
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the earlier follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
                 + (fuPaymentLine(f, fx.reason) ? '<div class="td-meta">' + esc(fuPaymentLine(f, fx.reason)) + "</div>" : "")
                 + (assessorNoteOf(f) ? '<div class="td-meta"><b>Assessor\u2019s note ' + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
                     + (assessorNoteOf(f).nextOn ? " \u00b7 next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") + "</div>" : "")
-                + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "") + "</div>";
+                + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "")
+                + (rm ? '<div class="td-meta"><b>' + esc(rm.text) + "</b></div>" : "")
+                + (!rk && tdPaused(f) ? '<div class="td-meta">' + esc(f.program) + " is paused, so no reminders go to the company yet.</div>" : "") + "</div>";
             return tdItem(key, head, canWrite ? (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
-                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor") + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
+                + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : "Send a " + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
+                    + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
+                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk) + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
         }
         head += "</div></div>";
         if (key === "assessor") {
@@ -6012,9 +6124,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             setTimeout((function() { if (tdPending) renderTodo(); }), 150);
         }));
         host.addEventListener("click", (function(e) {
-            var t = e.target && e.target.closest ? e.target.closest("[data-tdopen],[data-tdcert],[data-tdrenewal],[data-tdpick],[data-tdsent],[data-tdprospect],[data-tdwelcome],[data-tdstart],[data-tdorg],[data-tdnudge]") : null;
+            var t = e.target && e.target.closest ? e.target.closest("[data-tdopen],[data-tdcert],[data-tdrenewal],[data-tdpick],[data-tdsent],[data-tdprospect],[data-tdwelcome],[data-tdstart],[data-tdorg],[data-tdnudge],[data-tdremind]") : null;
             if (!t) return;
             if (t.hasAttribute("data-tdnudge")) { if (!t.disabled) tdNudge(+t.getAttribute("data-tdnudge")); return; }
+            if (t.hasAttribute("data-tdremind")) { var rp = t.getAttribute("data-tdremind").split("|"); if (!t.disabled) tdRemind(+rp[0], rp[1]); return; }
             if (t.hasAttribute("data-tdopen")) { openPanelRecord(+t.getAttribute("data-tdopen"), null, null); return; }
             if (t.hasAttribute("data-tdcert")) { openPanelCert(t.getAttribute("data-tdcert"), null); return; }
             if (t.hasAttribute("data-tdrenewal")) { openRenewal(t.getAttribute("data-tdrenewal")); return; }
@@ -6027,6 +6140,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         host.addEventListener("change", (function(e) {
             var t = e.target;
             if (t && t.hasAttribute && t.hasAttribute("data-tdfile")) { tdTakeFile(t.getAttribute("data-tdfile"), t.files && t.files[0]); t.value = ""; return; }
+            if (t && t.hasAttribute && t.hasAttribute("data-tdremfile")) { tdRemTakeFile(+t.getAttribute("data-tdremfile"), t.files && t.files[0]); t.value = ""; return; }
             if (t && t.hasAttribute && t.hasAttribute("data-tdassessor")) {
                 var f = byRow(+t.getAttribute("data-tdassessor")), c = f && certFor(f), v = t.value;
                 if (!f || !v) return;
@@ -16880,5 +16994,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-18b"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-19a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>

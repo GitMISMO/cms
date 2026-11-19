@@ -152,6 +152,9 @@
     jobs.push(readData('macts-documents').then(function (v) { D.mactsDocuments = v; }, function () { D.mactsDocuments = null; }));
     /* what each company sent for mismo.org on its renewal page (31 Oct 2026); optional the same way */
     jobs.push(readData('website-answers').then(function (v) { D.websiteAnswers = v; }, function () { D.websiteAnswers = null; }));
+    /* the programs MISMO has paused (data/stage-notices.json pausedPrograms): the Action Queue offers no
+       company reminders for them (19 Nov 2026); optional the same way, and the email job refuses them anyway */
+    jobs.push(readData('stage-notices').then(function (v) { D.pausedPrograms = (v && v.pausedPrograms) || []; }, function () { D.pausedPrograms = null; }));
     jobs.push(Promise.all([readData('frame-questionnaire'), readData('emortgage-questionnaires')]).then(function (r) {
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });

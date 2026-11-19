@@ -293,7 +293,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         <tr><td class="plain"><b>Expire or Keep?</b></td><td>Past its anniversary with no renewal opened. Open the record and decide.</td></tr>
         <tr><td class="plain"><b>Update Their mismo.org Listing</b></td><td>The company sent new details for its mismo.org listing on its renewal page (About Us and their website; mismo.org no longer lists a contact). The card shows what is listed and what they sent. Copy the Details, update their listing on the website, then press Done, Listing Updated: the certification's Website Card keeps the new details. Keep What Is Listed clears it without changing anything.</td></tr>
         <tr><td class="plain"><b>Record the Next Step</b></td><td>The move is MISMO's and nothing above covers it. Open it and record what happened.</td></tr>
-        <tr><td class="plain"><b>Follow Up</b> (four groups)</td><td><b>Assessor to Chase</b>: the company has gone quiet at a stage the assessor runs; Nudge the Assessor emails them how long it has been. <b>Unpaid Invoice</b>, <b>Demo Not Booked</b>, <b>Gone Quiet</b>: chase the company. On each: Note and Next Date (it comes back on that date), Back to Active (it is moving again), Move to Prospects (not going ahead).</td></tr>
+        <tr><td class="plain"><b>Follow Up</b> (four groups)</td><td><b>Assessor to Chase</b>: the company has gone quiet at a stage the assessor runs; Nudge the Assessor emails them how long it has been. <b>Unpaid Invoice</b>, <b>Demo Not Booked</b>, <b>Gone Quiet</b>: chase the company. Send a Payment Reminder (unpaid invoice) emails the company a reminder with the invoice PDF attached; Send a Booking Reminder (paid, not booked) emails it its booking link. Each goes on the next run in business hours with certifications@mismo.org copied, and not for a program MISMO has paused (AI Governance for now). On each: Note and Next Date (it comes back on that date), Back to Active (it is moving again), Move to Prospects (not going ahead).</td></tr>
       </table>
       <p><b>Prospects</b> are companies not going through certification; Start Application brings one back. The certification scripts are on <b>Forms</b>, below the application forms.</p>
       <p><b>Every page opens the same way</b>: a navy band saying what matters on that page, then figure boxes that are that page's own (no figure repeats another page). Select a box to jump to, or filter by, what it counts.</p>
@@ -373,6 +373,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <p class="live-note">Read live from the system.</p>
       <table id="t-assessors"><tr><td class="plain">Loading&hellip;</td></tr></table>
       <p>Assessors are reminded on their own when a demo date has passed with no outcome, and when artifacts have been with them two weeks with no result. Nudge the Assessor on the Action Queue sends a one-off email asking whether they have followed up with a company that has gone quiet.</p>
+      <p>Companies get a one-off reminder when someone presses Send a Payment Reminder (the invoice PDF goes with it; if none is kept on the record, the CMS asks for it) or Send a Booking Reminder on a Follow Up card. Until their wording is approved on the Email Playbook page, both come to certifications@mismo.org marked Held for Review; once approved, press the button again to send it for real.</p>
     </div>
   </article>
 
@@ -517,7 +518,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   var FU = { welcome: 'Weekly while no demo is booked', welcomeStalled: 'After the last booking reminder', remediation: 'After the remediation target date', remediationEscalate: '30 days after the target date',
     demoCheck: 'Demo date passed, nothing recorded', demoCheckStalled: 'Demo still not recorded after reminders', artifacts: 'Weekly while artifacts are outstanding', artifactsStalled: 'Artifacts still outstanding after reminders',
     reviewCheck: 'Two weeks with the assessor, no result', reviewCheckStalled: 'Still no result after reminders', remediationNudge: 'Remediation open, no target date', remediationNudgeStalled: 'Still no target date after reminders',
-    approvalWaiting: 'Every three days while the VP has a decision waiting', assessorNudge: 'When Nudge the Assessor is pressed' };
+    approvalWaiting: 'Every three days while the VP has a decision waiting', assessorNudge: 'When Nudge the Assessor is pressed', paymentReminder: 'When Send a Payment Reminder is pressed', bookingReminder: 'When Send a Booking Reminder is pressed' };
 
   /* The page's height for the CMS around it. The page's own content height is measured (not the
      window's), so a short topic after a long one lets the CMS shrink the frame again. Posted after

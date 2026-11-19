@@ -425,7 +425,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     'approval-waiting': "Reminds MISMO's VP that a decision is waiting, with a link to My Approvals.",
     'remediation-nudge': 'Reminds the company to send its remediation evidence when remediation is open with no target date.',
     'remediation-nudge-stalled-internal': 'Tells MISMO remediation has stalled with no target date after the reminders.',
-    'assessor-nudge': 'Asks the assessor whether they have followed up with a company that has gone quiet, when Nudge the Assessor is pressed on the Action Queue.'
+    'assessor-nudge': 'Asks the assessor whether they have followed up with a company that has gone quiet, when Nudge the Assessor is pressed on the Action Queue.',
+    'company-payment-reminder': 'Reminds the company its certification invoice is still open, with the invoice PDF attached, when Send a Payment Reminder is pressed on the Action Queue.',
+    'company-booking-reminder': 'Thanks the company for its payment and gives it its booking link, when Send a Booking Reminder is pressed on the Action Queue.'
   };
   var FIELDS = [
     ['Company', 'The company being certified'], ['First Name', 'First name of the company contact (there, if none is on file)'],
@@ -437,7 +439,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     ['Signer', 'The authorized signer on file'], ['Completion Line', 'The closing sentence for an initial or a renewal'],
     ['Target Date', 'The remediation target date (follow-ups only)'], ['Reminders', 'How many reminders have gone (follow-ups only)'],
     ['Since Date', 'The day the certification reached its current stage'], ['Stage', 'The stage it is at, in words'],
-    ['Portal Link', 'The Assessor Portal'], ['Approvals Link', "The VP's My Approvals page"], ['Booking Link', "The company's own booking page"]
+    ['Portal Link', 'The Assessor Portal'], ['Approvals Link', "The VP's My Approvals page"], ['Booking Link', "The company's own booking page"],
+    ['Booking Line', "The sentence with the company's booking link"], ['Prep Line', "The sentence with the program's preparation document, if it has one"],
+    ['Order Number', 'The Aptify order number (invoice emails)'], ['Amount', 'The invoice amount (invoice emails)'], ['Invoice Date', 'The date of the invoice (payment reminder)']
   ];
 
   var CFG = null, TPL = {}, TESTS = {}, canWrite = false, me = null, pollT = null;
@@ -446,6 +450,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var w = t.when || {}, f = CFG.followUps || {};
     if (w.followUp === 'welcome') return 'Every ' + (f.welcomeEveryDays || 7) + ' days while no date is agreed, up to ' + (f.welcomeMaxReminders || 4) + ' times';
     if (w.followUp === 'assessorNudge') return 'When someone presses Nudge the Assessor on the Action Queue';
+    if (w.followUp === 'paymentReminder') return 'When someone presses Send a Payment Reminder on the Action Queue';
+    if (w.followUp === 'bookingReminder') return 'When someone presses Send a Booking Reminder on the Action Queue';
     if (w.followUp === 'welcomeStalled') return 'After the last weekly reminder, if there is still no date';
     if (w.followUp === 'remediation') return (f.remediationAfterTargetDays || [1, 14]).join(' and ') + ' days after the remediation target date';
     if (w.followUp === 'remediationEscalate') return (f.remediationEscalateAfterTargetDays || 30) + ' days after the remediation target date';
