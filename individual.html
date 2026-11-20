@@ -483,6 +483,7 @@ html.embed .hbtn.cms{display:none}
 .pres{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
 .pres input{width:17px;height:17px;accent-color:var(--navy)}
 @media(max-width:700px){.pgm,.sumhead{grid-template-columns:1fr}.tabsep{display:none}}
+.hgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 0}.hcard{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px}.hcard > b{font-size:17px}.hlist{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--ink)}.hlist b{font-weight:600}@media(max-width:700px){.hgrid{grid-template-columns:1fr}}
 </style>
 </head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
@@ -1156,7 +1157,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   var TAB = 'all', QUERY = '', TODOF = 'all', PEOPLEF = 'all', RENF = '', RENQ = '', COMPF = 'all', EMAILSEL = null, ANIM = true, PROG = 'CMSP';
   try { TAB = sessionStorage.getItem('cms-individual:tab') || 'all'; PROG = sessionStorage.getItem('cms-individual:prog') || 'CMSP'; } catch (e) {}
   TAB = ({ todo: 'progress', people: 'everyone', expiring: 'current' })[TAB] || TAB;
-  if (['all', 'progress', 'current', 'expired', 'summit', 'comps', 'emails', 'everyone'].indexOf(TAB) < 0) TAB = 'all';
+  if (['all', 'progress', 'current', 'expired', 'summit', 'comps', 'emails', 'everyone', 'help'].indexOf(TAB) < 0) TAB = 'all';
   if (['CMSP', 'AMSP'].indexOf(PROG) < 0) PROG = 'CMSP';
   function expiringSoon() { var t = today(); var all = cycles(); return Object.keys(all).map(function (k) { return Object.assign({ id: k }, all[k]); }).filter(function (c) { return c.status === 'Active' && c.expiry && daysApart(t, c.expiry) <= 90; }).sort(function (a, b) { return a.expiry.localeCompare(b.expiry); }); }
   function lapsedList() { var all = cycles(); return Object.keys(all).map(function (k) { return Object.assign({ id: k }, all[k]); }).filter(function (c) { return c.status === 'Lapsed' || c.status === 'Expired'; }).sort(function (a, b) { return String(b.expiry).localeCompare(String(a.expiry)); }); }
@@ -1236,7 +1237,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var tab = function (t) { return h('button', { class: 'tab' + (TAB === t[0] ? ' on' : ''), type: 'button', role: 'tab', 'data-tab': t[0], 'aria-selected': TAB === t[0] ? 'true' : 'false', onclick: function () { setTab(t[0]); render(); } }, t[1], t[2] != null && t[2] !== '' ? h('span', { class: 'n' + (t[3] ? ' warn' : ''), text: String(t[2]) }) : null); };
     [['all', 'All', all], ['progress', 'In Progress', counted(pl), counted(pl.filter(function (c) { return stepOf(c).mine; })) > 0], ['current', 'Current', counted(cu)], ['expired', 'Expired', counted(ex)]].forEach(function (t) { T.appendChild(tab(t)); });
     T.appendChild(h('span', { class: 'tabsep', 'aria-hidden': 'true' }));
-    [['summit', 'Summit Awards', sn], ['comps', 'Champion Comps'], ['emails', 'Emails', tp.left || '', true], ['everyone', 'Everyone']].forEach(function (t) { T.appendChild(tab(t)); });
+    [['summit', 'Summit Awards', sn], ['comps', 'Champion Comps'], ['emails', 'Emails', tp.left || '', true], ['everyone', 'Everyone'], ['help', 'Help']].forEach(function (t) { T.appendChild(tab(t)); });
   }
   /* one card per pair of possibly-same people */
   function dupeLeads() { var arr = possibleDupes(), ps = people(); return arr.filter(function (k) { return !(ps[k].possibleSame || []).some(function (o) { return arr.indexOf(o) >= 0 && o < k; }); }); }
@@ -2006,9 +2007,51 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     return { start: start, close: close, isOpen: function () { return open; } };
   })();
   /* inside the CMS (a frame that grows to fit), a tour opens this page in a tab of its own */
-  function tourButton(which, label) {
-    if (EMBED) return h('a', { class: 'hbtn', href: '/cms/individual.html?tour=' + which, target: '_blank', rel: 'noopener', text: label });
-    return h('button', { class: 'hbtn', type: 'button', text: label, onclick: function () { tourEngine.start(which); } });
+  function tourButton(which, label, cls) {
+    if (EMBED) return h('a', { class: cls || 'hbtn', href: '/cms/individual.html?tour=' + which, target: '_blank', rel: 'noopener', text: label });
+    return h('button', { class: cls || 'hbtn', type: 'button', text: label, onclick: function () { tourEngine.start(which); } });
+  }
+  /* ---- Help (20 Nov 2026): the guided tours, what staff do here, what runs on its own, and the steps ---- */
+  function viewHelp(V) {
+    var cms = CFG.programs.CMSP || {}, ams = CFG.programs.AMSP || {}, cf = cms.fees || {}, af = ams.fees || {};
+    var $$ = function (n) { return n == null ? '' : '$' + n; };
+    var tours = h('div', { class: 'hgrid' });
+    [['CMSP', [['cmsp-new', 'Tour: New CMSP'], ['cmsp-renewal', 'Tour: CMSP Renewal']]], ['AMSP', [['new', 'Tour: New AMSP'], ['renewal', 'Tour: AMSP Renewal']]]].forEach(function (g) {
+      tours.appendChild(h('div', { class: 'hcard' }, h('b', { text: g[0] }), h('span', { class: 'small', text: (CFG.programs[g[0]] || {}).name || '' }),
+        h('span', { class: 'lbtns' }, g[1].map(function (t) { return tourButton(t[0], t[1], 'btn sm'); }))));
+    });
+    var b = block('sec-tours', 'Guided Tours', null, 'Each tour is read aloud with captions and walks a sample person through every step on this screen. Nothing in a tour is saved or emailed, and the real records come back when you close it.' + (EMBED ? ' Inside the Certification Management System, a tour opens this screen in a tab of its own.' : ''), null, '#74bfeb');
+    b.appendChild(tours); V.appendChild(b);
+    var steps = [
+      ['New CMSP', '100 points (at least 25 participation, up to 75 education) and a reference from a member of MISMO’s Leadership Team; the exam (75% or higher)', 'Enrollment ' + $$((cf.enrollment || {}).member) + ' / ' + $$((cf.enrollment || {}).nonMember) + ' ($100 less for current AMSPs); exam ' + $$((cf.exam || {}).member) + ' / ' + $$((cf.exam || {}).nonMember), 'Reference › Verify › Payment or Comp › Exam Access Opened › Record Exam Passed › certified on the pass date'],
+      ['CMSP Renewal', '25 points from the last 24 months, at least 15 participation', $$((cf.renewal || {}).member) + ' / ' + $$((cf.renewal || {}).nonMember), 'Verify › Fee or Comp › renewed'],
+      ['New AMSP', 'A pass on the MISMO Boot Camp exam (75% or higher)', $$((af.enrollment || {}).member) + ' / ' + $$((af.enrollment || {}).nonMember), 'Verify the Boot Camp Pass › Payment or Comp › certified'],
+      ['AMSP Renewal', '10 participation points from the last 24 months', $$((af.renewal || {}).member) + ' / ' + $$((af.renewal || {}).nonMember), 'Verify › Fee or Comp › renewed']];
+    b = block('sec-steps', 'The Steps', null, 'Fees are member / non-member. A Champion comp covers them: it is applied on its own at Verify when the company has one left this year.', null, '#4fc79b');
+    b.appendChild(h('div', { class: 'lwrap' }, h('table', { class: 'ltab' }, h('thead', null, h('tr', null, h('th', { text: 'Process' }), h('th', { text: 'Needs' }), h('th', { text: 'Fees' }), h('th', { text: 'Steps' }))),
+      h('tbody', null, steps.map(function (r) { return h('tr', null, h('td', null, h('b', { text: r[0] })), h('td', { class: 'small', text: r[1] }), h('td', { class: 'small', text: r[2] }), h('td', { class: 'small', text: r[3] })); })))));
+    V.appendChild(b);
+    function list(id, title, sub, items, k) { var bb = block(id, title, null, sub, null, k); bb.appendChild(h('ul', { class: 'hlist' }, items.map(function (x) { return h('li', null, h('b', { text: x[0] }), (x[1].charAt(0) === ':' ? '' : ' ') + x[1]); }))); V.appendChild(bb); }
+    list('sec-you', 'What You Do Here', 'Everything else follows on its own.', [
+      ['Verify', 'each application and renewal in In Progress: check the points, the reference (new CMSP) or the Boot Camp pass (new AMSP), then Verify.'],
+      ['Record Paid', 'when a fee shows as paid in Aptify, with the date and order number; or Apply a Comp if one was due and was not applied.'],
+      ['Exam Access Opened and Record Exam Passed', 'for a new CMSP, once TopClass access is open and once they pass.'],
+      ['Presented', 'ticks on Summit Awards once new CMSPs are presented on the Tuesday of a Summit.'],
+      ['Edit Details', 'on a person’s panel to fix a name or email; their certificate is made again with the change.'],
+      ['Withdraw', 'an application that will not go ahead, with a reason; no email is sent.']], '#e0a83c');
+    list('sec-auto', 'What Runs on Its Own', 'The Individual certifications job runs a minute or two after every save and form submission.', [
+      ['Emails', 'go out right away: receipts, Application Verified, exam access, congratulations, Renewal Successful. Renewal reminders go at 9:00 AM Eastern, 60, 45, 30, 15 and 5 days before expiry and on the day, and stop once a renewal is submitted.'],
+      ['Certificates', 'are made in the current design when someone is certified or renewed, and every Download gives that design.'],
+      ['Certification dates', ': a new CMSP is dated the day they passed the exam; a new AMSP the day the last step was done; a renewal finished on time the day after the old one expires.'],
+      ['Lapsing', ': a certification that expires with no renewal submitted becomes Lapsed and leaves the public lists.'],
+      ['The public lists', 'of current CMSPs and AMSPs on mismo.org update themselves.'],
+      ['Alerts', 'for new applications, references and lapses go to certifications@mismo.org.']], '#4fc79b');
+    list('sec-know', 'Good to Know', null, [
+      ['All', 'lists in progress first (highlighted), then current by soonest expiry (flagged inside 30 days; the same date goes by last name), then expired.'],
+      ['Nobody leaves In Progress', 'until the email with their certificate has gone out.'],
+      ['Summit Awards', 'lists new CMSPs certified from the Friday before the last Summit through the Thursday before the next, 11:59 PM Eastern.'],
+      ['Test and Sample', 'tags mark test records and tour samples; they are never counted and never on the public lists.'],
+      ['Downloads', ': one certificate, several as a zip (tick them, then Download Selected), all of them, or a list for Excel, on every tab.']], '#e87ba4');
   }
   /* inside the CMS: report the real height, so a shorter tab leaves no empty space under it */
   function postHeight() { if (!EMBED) return; try { window.parent.postMessage({ embedHeight: Math.ceil(document.body.getBoundingClientRect().height), page: 'individual' }, location.origin); } catch (e) {} }
@@ -2016,7 +2059,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   function render() {
     renderHero(); renderBoard(); renderTabs();
     var V = $('view'); V.textContent = '';
-    ({ all: viewAll, progress: viewProgress, current: viewCurrent, expired: viewExpired, summit: viewSummit, comps: viewComps, emails: viewEmails, everyone: viewPeople }[TAB] || viewAll)(V);
+    ({ all: viewAll, progress: viewProgress, current: viewCurrent, expired: viewExpired, summit: viewSummit, comps: viewComps, emails: viewEmails, everyone: viewPeople, help: viewHelp }[TAB] || viewAll)(V);
     if (openPid) paintPanel();
     setTimeout(postHeight, 60);
   }
