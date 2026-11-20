@@ -1690,8 +1690,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         ['If their company has a Champion comp left this year, it is applied here, and they are certified on the spot.', [['#cy-c-tour-new .ask']]],
         ['Otherwise they get the Application Verified email with the enrollment fee: $200 for members, $400 for non-members.', [['#cy-c-tour-new .ask']]]]],
       ['Payment or Comp', [
-        ['Now Jordan is at Step 2, Payment or Comp. It is their move, so their card moves under Waiting on Them.', [['.stp[data-step="new|pay"]'], ['#cy-c-tour-new']], 'do:new-verified,tab:AMSP|progress'],
-        ['When the fee shows as paid in Aptify, click Record Paid, and enter the date paid and the Aptify order number.', [['#cy-c-tour-new [data-act="paid"]']]],
+        ['Now Jordan is at Step 2, Payment or Comp, and their card moves under Waiting on Them.', [['.stp[data-step="new|pay"]'], ['#cy-c-tour-new']], 'do:new-verified,tab:AMSP|progress'],
+        ['The Application Verified email gave them a link to pay the enrollment fee on the MBA store. Paying there creates an order in Aptify.', [['#cy-c-tour-new .fees']]],
+        ['The system does not hear from Aptify, so checking it is our step. Click the Payment or Comp box any time to list everyone waiting to pay, then look each one up in Aptify.', [['.stp[data-step="new|pay"]']]],
+        ['When Jordan’s order shows as paid in full, click Record Paid in the Enrollment Fee box.', [['#cy-c-tour-new [data-act="paid"]']]],
+        ['A short form asks for the date paid and the Aptify order number. Clicking Record Paid there is the payment check, and it moves Jordan on.', [['#cy-c-tour-new .ask']], 'click:#cy-c-tour-new [data-act="paid"]'],
         ['If they should have had a comp that was not applied, click Apply a Comp instead.', [['#cy-c-tour-new [data-act="comp"]']]]]],
       ['Certified', [
         ['Recording the payment certifies them that moment. The certificate is made in the new design, and the congratulations email goes out with it within a few minutes.', [['#cy-c-tour-new']], 'do:new-certified,tab:AMSP|progress'],
@@ -1719,8 +1722,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         ['If they are short of points, the form asks why, and the reason stays on their record.', [['#cy-c-tour-ren [data-act="verify"]']]],
         ['A Champion comp is applied here if their company has one left, and they are renewed on the spot. Otherwise they get the Renewal Verified email with the fee: $75 for members, $150 for non-members.', [['#cy-c-tour-ren']]]]],
       ['Fee or Comp', [
-        ['Casey is now at Fee or Comp, waiting on them.', [['.stp[data-step="renewal|pay"]']], 'do:ren-verified,tab:AMSP|progress'],
-        ['When Aptify shows the fee paid, click Record Paid.', [['#cy-c-tour-ren [data-act="paid"]']]]]],
+        ['Casey is now at Fee or Comp, and their card moves under Waiting on Them.', [['.stp[data-step="renewal|pay"]'], ['#cy-c-tour-ren']], 'do:ren-verified,tab:AMSP|progress'],
+        ['The Renewal Verified email gave them a link to pay the renewal fee on the MBA store. Paying there creates an order in Aptify.', [['#cy-c-tour-ren .fees']]],
+        ['The system does not hear from Aptify, so checking it is our step. Click the Fee or Comp box to list everyone waiting to pay, then look each one up in Aptify.', [['.stp[data-step="renewal|pay"]']]],
+        ['When Casey’s order shows as paid in full, click Record Paid in the Renewal Fee box.', [['#cy-c-tour-ren [data-act="paid"]']]],
+        ['The form asks for the date paid and the Aptify order number. Clicking Record Paid there is the payment check, and it renews Casey.', [['#cy-c-tour-ren .ask']], 'click:#cy-c-tour-ren [data-act="paid"]']]],
       ['Renewed', [
         ['Recording the fee renews them. The new certificate and the Renewal Successful email go out within a few minutes.', [['#cy-c-tour-ren']], 'do:ren-certified,tab:AMSP|progress'],
         ['Because Casey renewed before the old AMSP ran out, the new two years start the day after it expires, so there is no gap.', [['#cy-c-tour-ren']]]]],
@@ -1747,9 +1753,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         ['If they are short of points, the form asks why, and the reason stays on their record.', [['#cy-c-tour-cnew [data-act="verify"]']]],
         ['A Champion comp is applied here if their company has one left. Otherwise they get the Application Verified email with the enrollment and exam fees.', [['#cy-c-tour-cnew']]]]],
       ['Payment or Comp', [
-        ['Riley is now at Step 3, Payment or Comp, waiting on them.', [['.stp[data-step="new|pay"]']], 'do:cn-verified,tab:CMSP|progress'],
+        ['Riley is now at Step 3, Payment or Comp, and their card moves under Waiting on Them.', [['.stp[data-step="new|pay"]'], ['#cy-c-tour-cnew']], 'do:cn-verified,tab:CMSP|progress'],
         ['Enrollment is $300 for members and $500 for non-members, $100 less for current AMSPs, and the exam is $200 or $400.', [['#cy-c-tour-cnew .fees']]],
-        ['Record each fee with Record Paid as it shows paid in Aptify.', [['#cy-c-tour-cnew [data-act="paid"]']]]]],
+        ['The Application Verified email gave them a link to each on the MBA store. They are two purchases, so two orders in Aptify.', [['#cy-c-tour-cnew .fees']]],
+        ['The system does not hear from Aptify, so checking it is our step. Click the Payment or Comp box to list everyone waiting to pay, then look each one up in Aptify.', [['.stp[data-step="new|pay"]']]],
+        ['When an order shows as paid in full, click Record Paid in that fee’s box: Enrollment Fee or Exam Fee.', [['#cy-c-tour-cnew [data-act="paid"]', 0], ['#cy-c-tour-cnew [data-act="paid"]', 1]]],
+        ['The form asks for the date paid and the Aptify order number. Clicking Record Paid there is the payment check. Do it for each fee.', [['#cy-c-tour-cnew .ask']], 'click:#cy-c-tour-cnew [data-act="paid"]']]],
       ['Exam Access', [
         ['With the fees in, Step 4 is MISMO’s move: open their exam access in TopClass.', [['.stp[data-step="new|access"]']], 'do:cn-paid,tab:CMSP|progress'],
         ['Then click Exam Access Opened and give the date. That sends the exam-access email with the TopClass Quick Guide attached. Access lasts a year.', [['#cy-c-tour-cnew [data-act="access"]']]]]],
@@ -1780,8 +1789,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         ['When the points are right, click Verify. If they are short, the form asks why.', [['#cy-c-tour-cren [data-act="verify"]']]],
         ['A Champion comp is applied here if their company has one left, and they are renewed on the spot. Otherwise they get the Renewal Verified email with the fee: $100 for members, $200 for non-members.', [['#cy-c-tour-cren']]]]],
       ['Fee or Comp', [
-        ['Taylor is now at Fee or Comp, waiting on them.', [['.stp[data-step="renewal|pay"]']], 'do:cr-verified,tab:CMSP|progress'],
-        ['When Aptify shows the fee paid, click Record Paid.', [['#cy-c-tour-cren [data-act="paid"]']]]]],
+        ['Taylor is now at Fee or Comp, and their card moves under Waiting on Them.', [['.stp[data-step="renewal|pay"]'], ['#cy-c-tour-cren']], 'do:cr-verified,tab:CMSP|progress'],
+        ['The Renewal Verified email gave them a link to pay the renewal fee on the MBA store. Paying there creates an order in Aptify.', [['#cy-c-tour-cren .fees']]],
+        ['The system does not hear from Aptify, so checking it is our step. Click the Fee or Comp box to list everyone waiting to pay, then look each one up in Aptify.', [['.stp[data-step="renewal|pay"]']]],
+        ['When Taylor’s order shows as paid in full, click Record Paid in the Renewal Fee box.', [['#cy-c-tour-cren [data-act="paid"]']]],
+        ['The form asks for the date paid and the Aptify order number. Clicking Record Paid there is the payment check, and it renews Taylor.', [['#cy-c-tour-cren .ask']], 'click:#cy-c-tour-cren [data-act="paid"]']]],
       ['Renewed', [
         ['Recording the fee renews them. The new certificate and the Renewal Successful email go out within a few minutes.', [['#cy-c-tour-cren']], 'do:cr-certified,tab:CMSP|progress'],
         ['Because Taylor renewed before the old CMSP ran out, the new two years start the day after it expires, so there is no gap.', [['#cy-c-tour-cren']]]]],
@@ -2034,7 +2046,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function list(id, title, sub, items, k) { var bb = block(id, title, null, sub, null, k); bb.appendChild(h('ul', { class: 'hlist' }, items.map(function (x) { return h('li', null, h('b', { text: x[0] }), (x[1].charAt(0) === ':' ? '' : ' ') + x[1]); }))); V.appendChild(bb); }
     list('sec-you', 'What You Do Here', 'Everything else follows on its own.', [
       ['Verify', 'each application and renewal in In Progress: check the points, the reference (new CMSP) or the Boot Camp pass (new AMSP), then Verify.'],
-      ['Record Paid', 'when a fee shows as paid in Aptify, with the date and order number; or Apply a Comp if one was due and was not applied.'],
+      ['Record Paid', 'once a fee shows as paid in Aptify: applicants pay on the MBA store through the link in their verified email, and the system does not hear from Aptify, so this check is ours. Click the Payment or Comp box in In Progress to list everyone waiting to pay; Record Paid is in each fee’s box on their card, and asks for the date paid and the Aptify order number. Or Apply a Comp if one was due and was not applied.'],
       ['Exam Access Opened and Record Exam Passed', 'for a new CMSP, once TopClass access is open and once they pass.'],
       ['Presented', 'ticks on Summit Awards once new CMSPs are presented on the Tuesday of a Summit.'],
       ['Edit Details', 'on a person’s panel to fix a name or email; their certificate is made again with the change.'],
