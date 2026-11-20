@@ -1354,7 +1354,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var isOk = function (t) { var e = edits[t.id] || {}; return e.approved != null ? e.approved : t.approved; };
     V.appendChild(h('div', { class: 'estat' + (live.emails ? ' on' : '') }, h('b', { text: live.emails ? 'Emails are on' + (live.emailsFrom ? ' (from ' + longDate(live.emailsFrom) + ')' : '') + '.' : 'Emails are off.' }),
       h('span', { text: live.reminders ? 'Renewal reminders are on' + (live.remindersFrom ? ' (from ' + longDate(live.remindersFrom) + ')' : '') + '.' : 'Renewal reminders are still sent the earlier way until the switch-over.' }),
-      h('span', { class: 'hint', text: 'Once emails are on, wording that is not approved goes to certifications@mismo.org marked Held for Review instead of to the person. Placeholders in {{double braces}} are filled in for each person. Emails wait for MISMO business hours (9:00 to 5:00 Eastern, working days).' })));
+      h('span', { class: 'hint', text: 'Once emails are on, wording that is not approved goes to certifications@mismo.org marked Held for Review instead of to the person. Placeholders in {{double braces}} are filled in for each person. Emails go out right away, a minute or two after the click or the submission; only renewal reminders wait for MISMO business hours (9:00 to 5:00 Eastern, working days).' })));
     if (!T.length) { V.appendChild(h('div', { class: 'empty', text: 'No email wording on record.' })); return; }
     if (!T.some(function (t) { return t.id === EMAILSEL; })) EMAILSEL = (T.filter(function (t) { return !t.internalOnly && !isOk(t); })[0] || T[0]).id;
     var idx = h('nav', { class: 'eidx', 'aria-label': 'Email wording' });
@@ -1432,7 +1432,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   /* where an open application or renewal stands, and whose move it is */
   function stepOf(c) {
     var ren = c.kind === 'renewal', cmspNew = c.program === 'CMSP' && !ren;
-    if (c.certDate) return { key: 'certify', label: 'Certificate on Its Way', who: 'Automatic', mine: false, note: 'Certified ' + shortDate(c.certDate) + '. The email with the certificate goes out in business hours.' };
+    if (c.certDate) return { key: 'certify', label: 'Certificate on Its Way', who: 'Automatic', mine: false, note: 'Certified ' + shortDate(c.certDate) + '. The email with the certificate goes out within a few minutes.' };
     if (c.status === 'InReview') {
       if (cmspNew && !(c.reference && c.reference.received)) return { key: 'reference', label: 'Reference', who: 'Their reference', mine: false, note: 'Applied ' + shortDate(c.submittedAt) + '. The reference form has not come in yet.' };
       return { key: 'verify', label: 'Verify', who: 'MISMO', mine: true, note: (ren ? 'Renewal submitted ' : 'Applied ') + shortDate(c.submittedAt) + '. Check the points' + (cmspNew ? ' and the reference' : (c.program === 'AMSP' && !ren ? ' and the Boot Camp pass' : '')) + ', then verify.' };
