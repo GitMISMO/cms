@@ -933,11 +933,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (c.program === 'CMSP' && c.kind === 'new') {
       var e = c.exam || {};
       var ex = h('div', { class: 'fee' }, h('div', { class: 't', text: 'CMSP Exam' }), h('div', { class: 'v', text: e.passedOn ? 'Passed ' + longDate(e.passedOn) : (e.accessFrom ? 'Access opened ' + longDate(e.accessFrom) + ', through ' + longDate(addDays(e.accessFrom, (prog(c).exam || {}).accessDays || 365)) : 'Not taken') }));
-      if (!e.accessFrom && !e.passedOn) ex.appendChild(h('button', { class: 'mini', type: 'button', text: 'Exam Access Opened', disabled: !canWrite, onclick: function () {
+      if (!e.accessFrom && !e.passedOn) ex.appendChild(h('button', { class: 'mini', type: 'button', 'data-act': 'access', text: 'Exam Access Opened', disabled: !canWrite, onclick: function () {
         ask(body, { intro: 'When the exam purchase is processed in Aptify and TopClass access opens. Sends the exam-access email (access lasts a year from this date).', fields: [{ key: 'on', label: 'Access Opened On', type: 'date', value: today(), required: true }], button: 'Send Exam Access',
           onsave: function (vv) { return saveCycle(c.id, function (x) { x.exam = Object.assign({}, x.exam || {}, { accessFrom: vv.on, accessAt: new Date().toISOString(), accessBy: me.name }); history(x, 'Exam access opened ' + longDate(vv.on) + '.'); }, 'Saved: the exam-access email follows.'); } });
       } }));
-      if (!e.passedOn) ex.appendChild(h('button', { class: 'mini', type: 'button', text: 'Record Exam Passed', disabled: !canWrite, style: 'margin-left:6px', onclick: function () {
+      if (!e.passedOn) ex.appendChild(h('button', { class: 'mini', type: 'button', 'data-act': 'pass', text: 'Record Exam Passed', disabled: !canWrite, style: 'margin-left:6px', onclick: function () {
         var warn = feesSettled(c) ? '' : 'The fees are not all recorded as paid; record them too, or the certification waits for them. ';
         ask(body, { intro: warn + 'The Certification Date is the exam pass date.', fields: [{ key: 'on', label: 'Passed On', type: 'date', value: today(), required: true }], button: 'Record the Pass', kind: 'good',
           onsave: function (vv) { var issued = false; return saveCycle(c.id, function (x) { x.exam = Object.assign({}, x.exam || {}, { passed: true, passedOn: vv.on, by: me.name }); history(x, 'Exam passed ' + longDate(vv.on) + '.'); issued = maybeIssue(x, today()); }, null).then(function (ok) { if (ok !== false) toast(issued ? 'Certified: the certificate and the congratulations email follow.' : 'Exam pass recorded.'); }); } });
@@ -1202,7 +1202,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (!live.emails || tp.left) acts.appendChild(h('button', { class: 'hbtn solid', type: 'button', text: 'Review the Email Wording →', onclick: function () { go('emails', tp.first || EMAILSEL); } }));
     acts.appendChild(h('button', { class: 'hbtn' + (live.emails && !tp.left ? ' solid' : ''), type: 'button', text: 'Open In Progress →', onclick: function () { go('todo', 'all'); } }));
     acts.appendChild(h('a', { class: 'hbtn cms', href: '/cms/', text: 'Open the Certification Management System' }));
-    acts.appendChild(tourButton('new', 'Tour: New AMSP')); acts.appendChild(tourButton('renewal', 'Tour: AMSP Renewal'));
+    if (PROG === 'CMSP') { acts.appendChild(tourButton('cmsp-new', 'Tour: New CMSP')); acts.appendChild(tourButton('cmsp-renewal', 'Tour: CMSP Renewal')); }
+    else { acts.appendChild(tourButton('new', 'Tour: New AMSP')); acts.appendChild(tourButton('renewal', 'Tour: AMSP Renewal')); }
     var side = h('div', { class: 'tqh-needs' }, h('div', { class: 'tqh-nh' }, 'Waiting on You', h('span', { text: items.length ? plural(items.length, 'item') : '' })));
     if (!items.length) side.appendChild(h('div', { class: 'tqh-nempty', text: 'Nothing waiting. New applications, renewals and references appear here as they arrive.' }));
     items.slice(0, 5).forEach(function (it) { side.appendChild(h('button', { class: 'tqh-need', type: 'button', style: '--k:' + it.k, onclick: function () { go('todo', it.f, it.id); } }, h('span', { text: it.lab }), h('b', { text: it.name }))); });
@@ -1619,7 +1620,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function card(c) {
       if (c.certDate) return h('div', { class: 'card ready', id: 'cy-' + c.id }, h('div', { class: 'chead' }, h('div', { class: 'who2' }, mono(nameOf(c)), h('div', null, h('h3', { text: nameOf(c) }), h('div', { class: 'what', text: stepOf(c).note }))), h('div', { class: 'right' }, isTest(c) ? tg(c.tour ? 'Sample' : 'Test', 'test') : null, h('button', { class: 'btn ghost sm', type: 'button', text: 'Open the Person', onclick: function () { openPerson(c.person); } }))));
       var el = c.status === 'InReview' ? reviewCard(c) : waitingCard(c);
-      if (isTest(c)) { var r = el.querySelector('.right'); if (r) r.insertBefore(tg('Test', 'test'), r.firstChild); }
+      if (isTest(c)) { var r = el.querySelector('.right'); if (r) r.insertBefore(tg(c.tour ? 'Sample' : 'Test', 'test'), r.firstChild); }
       return el;
     }
     if (!shown.length) V.appendChild(h('div', { class: 'empty' }, h('b', { text: STEPF ? 'No one is at that step.' : 'Nothing in progress.' }), STEPF ? '' : 'New ' + PROG + ' applications and renewals appear here as they arrive, and the program owner is emailed.'));
@@ -1646,7 +1647,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       var rows = ppl.map(function (c) {
         var box = h('input', { type: 'checkbox', 'aria-label': 'Presented: ' + nameOf(c), disabled: !canWrite || isTest(c) }); box.checked = !!c.presented;
         box.addEventListener('change', function () { var on = box.checked; saveCycle(c.id, function (x) { if (on) { x.presented = { summit: win.name, at: new Date().toISOString(), by: me.name }; history(x, 'Presented at the ' + win.name + '.'); } else { delete x.presented; history(x, 'Presented tick taken off.'); } }, on ? 'Marked presented.' : 'Presented tick taken off.'); });
-        return h('tr', null, h('td', { class: 'lck' }), h('td', null, rowName(c)), h('td', null, h('span', { class: 'tgs' }, isTest(c) ? tg('Test, Not Counted', 'test') : tg('New CMSP', 'info'))),
+        return h('tr', { 'data-cid': c.id }, h('td', { class: 'lck' }), h('td', null, rowName(c)), h('td', null, h('span', { class: 'tgs' }, isTest(c) ? tg((c.tour ? 'Sample' : 'Test') + ', Not Counted', 'test') : tg('New CMSP', 'info'))),
           h('td', { class: 'num' }, shortDate(c.certDate)), h('td', null, h('label', { class: 'pres' }, box, ' Presented')), h('td', { class: 'lact' }, certCell(c)));
       });
       if (!rows.length) rows = [h('tr', null, h('td', { colspan: '6', class: 'small', text: 'No new CMSPs on this list yet.' }))];
@@ -1724,7 +1725,68 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         ['Because Casey renewed before the old AMSP ran out, the new two years start the day after it expires, so there is no gap.', [['#cy-c-tour-ren']]]]],
       ['Current Again', [
         ['Casey is back in Current, valid for two more years, and stays on the public list.', [['tr[data-cid="c-tour-ren"]']], 'do:ren-sent,tab:AMSP|current'],
-        ['That is a renewal. Close the tour to go back to the real records.', [['tr[data-cid="c-tour-ren"]']]]]] ] } };
+        ['That is a renewal. Close the tour to go back to the real records.', [['tr[data-cid="c-tour-ren"]']]]]] ] },
+    'cmsp-new': { title: 'New CMSP', stops: [
+      ['Welcome', [
+        ['This tour walks through a new CMSP from application to certificate, using a sample applicant, Riley Sample.', [['#hero h1']], 'do:cn-applied,tab:CMSP|all'],
+        ['Nothing in the tour is saved or emailed, and the real records come back when you close it.', [['#hero h1']]]]],
+      ['The CMSP Card', [
+        ['Start with the CMSP card. It shows how many CMSPs are in progress, current and expired, and who owns the program.', [['#board .pgc', 0]]]]],
+      ['In Progress', [
+        ['Open In Progress. A new CMSP has six steps, the same path applicants see on the website.', [['.lanegrp', 0]], 'tab:CMSP|progress'],
+        ['Riley has applied, so they are at Step 1, Reference. That is their reference’s move.', [['.stp[data-step="new|reference"]']]]]],
+      ['The Reference', [
+        ['A new CMSP needs a reference from a member of MISMO’s Leadership Team. The applicant names them on the application, and the system emails them the reference form.', [['#cy-c-tour-cnew']]],
+        ['When the form comes back, it is joined to the application by itself. If it can’t find the application, it waits under References With No Application Matched for you to join it.', [['#cy-c-tour-cnew']]]]],
+      ['Check the Points', [
+        ['With the reference in, Riley moves to Step 2, Verify. That is MISMO’s move.', [['.stp[data-step="new|verify"]']], 'do:cn-referenced,tab:CMSP|progress'],
+        ['A new CMSP needs 100 points: at least 25 participation points, and up to 75 education points. Click Count It or Leave Out on each activity, and the totals update.', [['#cy-c-tour-cnew table']]]]],
+      ['Verify', [
+        ['When the points and the reference check out, click Verify.', [['#cy-c-tour-cnew [data-act="verify"]']]],
+        ['If they are short of points, the form asks why, and the reason stays on their record.', [['#cy-c-tour-cnew [data-act="verify"]']]],
+        ['A Champion comp is applied here if their company has one left. Otherwise they get the Application Verified email with the enrollment and exam fees.', [['#cy-c-tour-cnew']]]]],
+      ['Payment or Comp', [
+        ['Riley is now at Step 3, Payment or Comp, waiting on them.', [['.stp[data-step="new|pay"]']], 'do:cn-verified,tab:CMSP|progress'],
+        ['Enrollment is $300 for members and $500 for non-members, $100 less for current AMSPs, and the exam is $200 or $400.', [['#cy-c-tour-cnew .fees']]],
+        ['Record each fee with Record Paid as it shows paid in Aptify.', [['#cy-c-tour-cnew [data-act="paid"]']]]]],
+      ['Exam Access', [
+        ['With the fees in, Step 4 is MISMO’s move: open their exam access in TopClass.', [['.stp[data-step="new|access"]']], 'do:cn-paid,tab:CMSP|progress'],
+        ['Then click Exam Access Opened and give the date. That sends the exam-access email with the TopClass Quick Guide attached. Access lasts a year.', [['#cy-c-tour-cnew [data-act="access"]']]]]],
+      ['The Exam', [
+        ['Step 5 is theirs. The exam is 150 minutes and open book, and 75% or higher passes.', [['.stp[data-step="new|exam"]']], 'do:cn-access,tab:CMSP|progress'],
+        ['When the pass shows in TopClass, click Record Exam Passed and enter the date.', [['#cy-c-tour-cnew [data-act="pass"]']]]]],
+      ['Certified', [
+        ['Recording the pass certifies them, dated the day they passed. The certificate and congratulations email go out within a few minutes.', [['#cy-c-tour-cnew']], 'do:cn-certified,tab:CMSP|progress'],
+        ['Until the email has gone, they show here as Certificate on Its Way.', [['#cy-c-tour-cnew']]]]],
+      ['Current and the Summit', [
+        ['Then Riley moves to Current, and onto the public list of current CMSPs.', [['tr[data-cid="c-tour-cnew"]']], 'do:cn-sent,tab:CMSP|current'],
+        ['New CMSPs are also added to the Summit Awards list for the next Summit, where you tick them off once they are presented.', [['tr[data-cid="c-tour-cnew"]']], 'tab:CMSP|summit'],
+        ['That is a new CMSP. Close the tour to go back to the real records.', [['tr[data-cid="c-tour-cnew"]']]]]] ] },
+    'cmsp-renewal': { title: 'CMSP Renewal', stops: [
+      ['Welcome', [
+        ['This tour walks through a CMSP renewal, using a sample holder, Taylor Example.', [['#hero h1']], 'do:cr-due,tab:CMSP|current'],
+        ['Nothing in the tour is saved or emailed, and the real records come back when you close it.', [['#hero h1']]]]],
+      ['Coming Up for Renewal', [
+        ['Taylor’s CMSP expires in 20 days, so it is flagged in Current.', [['tr[data-cid="c-tour-taylor"]']]],
+        ['Reminders go out by themselves at 60, 45, 30, 15 and 5 days before, and on the day, each with a link to the renewal form.', [['tr[data-cid="c-tour-taylor"]']]]]],
+      ['The Renewal Arrives', [
+        ['When Taylor renews on the website, the renewal arrives in In Progress, in the Renewals row at Step 1, Verify.', [['.stp[data-step="renewal|verify"]']], 'do:cr-applied,tab:CMSP|progress'],
+        ['Their card is under MISMO’s Move.', [['#cy-c-tour-cren']]]]],
+      ['Check the Points', [
+        ['A CMSP renewal needs 25 points from the last 24 months, at least 15 of them participation.', [['#cy-c-tour-cren table']]],
+        ['Click Count It or Leave Out on each activity. Activity older than 24 months does not count unless you click Lift the 24-Month Window and give the reason.', [['#cy-c-tour-cren [data-act="window"]']]]]],
+      ['Verify', [
+        ['When the points are right, click Verify. If they are short, the form asks why.', [['#cy-c-tour-cren [data-act="verify"]']]],
+        ['A Champion comp is applied here if their company has one left, and they are renewed on the spot. Otherwise they get the Renewal Verified email with the fee: $100 for members, $200 for non-members.', [['#cy-c-tour-cren']]]]],
+      ['Fee or Comp', [
+        ['Taylor is now at Fee or Comp, waiting on them.', [['.stp[data-step="renewal|pay"]']], 'do:cr-verified,tab:CMSP|progress'],
+        ['When Aptify shows the fee paid, click Record Paid.', [['#cy-c-tour-cren [data-act="paid"]']]]]],
+      ['Renewed', [
+        ['Recording the fee renews them. The new certificate and the Renewal Successful email go out within a few minutes.', [['#cy-c-tour-cren']], 'do:cr-certified,tab:CMSP|progress'],
+        ['Because Taylor renewed before the old CMSP ran out, the new two years start the day after it expires, so there is no gap.', [['#cy-c-tour-cren']]]]],
+      ['Current Again', [
+        ['Taylor is back in Current, valid for two more years, and stays on the public list.', [['tr[data-cid="c-tour-cren"]']], 'do:cr-sent,tab:CMSP|current'],
+        ['That is a renewal. Close the tour to go back to the real records.', [['tr[data-cid="c-tour-cren"]']]]]] ] } };
 
   /* the sample records: made in the browser for the tour, never saved */
   function tourClear() {
@@ -1742,6 +1804,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     C['c-tour-casey'] = { person: 'p-tour-casey', program: 'AMSP', kind: 'new', seq: 1, status: 'Active', certDate: addDays(t, -710), expiry: addDays(t, 20), contact: casey, fees: { enrollment: { status: 'paid' } }, history: [], tour: true };
     var step = stage.split('-')[1], order = ['due', 'applied', 'verified', 'certified', 'sent'], at = order.indexOf(step);
     function finish(x, id) { x._id = id; if (maybeIssue(x, t)) { } delete x._id; }
+    if (stage.indexOf('cn-') === 0 || stage.indexOf('cr-') === 0) { tourCmsp(stage, t, now, finish); return; }
     if (stage.indexOf('new-') === 0) {
       var c = C['c-tour-new'] = { person: 'p-tour-jordan', program: 'AMSP', kind: 'new', seq: 1, submittedAt: addDays(t, -2) + 'T14:00:00Z', source: { type: 'form' }, status: 'InReview', contact: jordan, member: true,
         activities: [], attachments: [{ name: 'Boot Camp Exam Result.pdf', store: 'SharePoint' }], fees: { enrollment: { status: 'due' } }, bootCamp: { passedOn: addDays(t, -5), says: 'Yes', proof: 1 }, championAsk: 'No',
@@ -1759,6 +1822,44 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       if (at >= 2) { r.verified = { on: t, at: now, by: me.name, note: '' }; r.status = 'Verified'; history(r, 'Verified.'); }
       if (at >= 3) { r.fees.renewal = { status: 'paid', on: t, order: 'A7654321', by: me.name }; finish(r, 'c-tour-ren'); }
       if (at >= 4 && r.certDate) LOG.docs['certified|c-tour-ren|' + r.certDate] = { sentAt: now, tour: true };
+    }
+    tourCmsp(stage, t, now, finish);
+  }
+  /* the CMSP samples: Riley Sample applies; Taylor Example renews */
+  function tourCmsp(stage, t, now, finish) {
+    var P = COLL['db-ind-people'].docs, C = COLL['db-ind-cycles'].docs, pre = stage.split('-')[0], step = stage.split('-')[1];
+    if (pre !== 'cn' && pre !== 'cr') return;
+    var riley = { first: 'Riley', last: 'Sample', title: 'Senior Business Analyst', company: 'Example Bank', email: 'riley.sample@example.com', tour: true };
+    var taylor = { first: 'Taylor', last: 'Example', title: 'Data Architect', company: 'Sample Title Group', email: 'taylor.example@example.com', tour: true };
+    P['p-tour-riley'] = riley; P['p-tour-taylor'] = taylor;
+    C['c-tour-taylor'] = { person: 'p-tour-taylor', program: 'CMSP', kind: 'new', seq: 1, status: 'Active', certDate: addDays(t, -710), expiry: addDays(t, 20), contact: taylor, fees: { enrollment: { status: 'paid' }, exam: { status: 'paid' } }, history: [], tour: true };
+    if (pre === 'cn') {
+      var order = ['applied', 'referenced', 'verified', 'paid', 'access', 'certified', 'sent'], at = order.indexOf(step);
+      var c = C['c-tour-cnew'] = { person: 'p-tour-riley', program: 'CMSP', kind: 'new', seq: 1, submittedAt: addDays(t, -6) + 'T14:00:00Z', source: { type: 'form' }, status: 'InReview', contact: riley, member: true,
+        activities: [{ code: 'bootcamp', units: 1, when: addDays(t, -400), what: 'MISMO Boot Camp', source: 'form' }, { code: 'webinar', units: 5, when: addDays(t, -150), what: 'MISMO Monthly Webinars', source: 'form' },
+          { code: 'summit', units: 5, when: addDays(t, -60), what: 'MISMO Summits', source: 'form' }, { code: 'workgroup', units: 3, when: addDays(t, -90), what: 'Workgroups', source: 'form' },
+          { code: 'chair', units: 1, when: addDays(t, -200), what: 'Workgroup Chair', source: 'form' }, { code: 'summitpanel', units: 1, when: addDays(t, -60), what: 'Summit Panel', source: 'form' }],
+        attachments: [], fees: { enrollment: { status: 'due' }, exam: { status: 'due' } }, championAsk: 'No',
+        reference: { name: 'Pat Reference', position: 'Workgroup Chair', email: 'pat.reference@example.com', applicantSays: '', received: null },
+        history: [{ at: now, by: 'Riley Sample', what: 'Submitted on the online CMSP form.' }], tour: true };
+      refreshPoints(c);
+      if (at >= 1) c.reference.received = { by: 'Pat Reference', at: addDays(t, -1) + 'T15:00:00Z' };
+      if (at >= 2) { c.verified = { on: t, at: now, by: me.name, note: '' }; c.status = 'Verified'; history(c, 'Verified.'); }
+      if (at >= 3) { c.fees.enrollment = { status: 'paid', on: t, order: 'A2345678', by: me.name }; c.fees.exam = { status: 'paid', on: t, order: 'A2345679', by: me.name }; }
+      if (at >= 4) c.exam = { accessFrom: t, accessAt: now, accessBy: me.name };
+      if (at >= 5) { c.exam.passed = true; c.exam.passedOn = t; finish(c, 'c-tour-cnew'); }
+      if (at >= 6 && c.certDate) LOG.docs['certified|c-tour-cnew|' + c.certDate] = { sentAt: now, tour: true };
+    } else {
+      var order2 = ['due', 'applied', 'verified', 'certified', 'sent'], at2 = order2.indexOf(step);
+      if (at2 < 1) return;
+      var r = C['c-tour-cren'] = { person: 'p-tour-taylor', program: 'CMSP', kind: 'renewal', seq: 2, submittedAt: t + 'T14:00:00Z', source: { type: 'form' }, status: 'InReview', contact: taylor, member: true,
+        activities: [{ code: 'summit', units: 3, when: addDays(t, -60), what: 'MISMO Summits', source: 'form' }, { code: 'workgroup', units: 2, when: addDays(t, -120), what: 'Workgroups', source: 'form' },
+          { code: 'webinar', units: 4, when: addDays(t, -200), what: 'MISMO Monthly Webinars', source: 'form' }, { code: 'summit', units: 1, when: addDays(t, -900), what: 'MISMO Fall Summit', source: 'form' }],
+        attachments: [], fees: { renewal: { status: 'due' } }, championAsk: 'No', history: [{ at: now, by: 'Taylor Example', what: 'Submitted on the online CMSP form (renewal).' }], tour: true };
+      refreshPoints(r);
+      if (at2 >= 2) { r.verified = { on: t, at: now, by: me.name, note: '' }; r.status = 'Verified'; history(r, 'Verified.'); }
+      if (at2 >= 3) { r.fees.renewal = { status: 'paid', on: t, order: 'A8765432', by: me.name }; finish(r, 'c-tour-cren'); }
+      if (at2 >= 4 && r.certDate) LOG.docs['certified|c-tour-cren|' + r.certDate] = { sentAt: now, tour: true };
     }
   }
 
