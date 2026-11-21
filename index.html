@@ -5373,6 +5373,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var i = null; try { i = invoiceOf(f); } catch (e) {}
         return !(i && (i.orderId || i.amount != null));
     }
+    /* Already chased (Jonna, 21 Nov 2026: "needs you seems weird to have stuff i've already taken care of"): a reminder
+       or nudge asked for and not yet sent, or sent in the last 7 days, puts the card in Chase Later; it comes back to
+       Needs You a week after the email went, if the company still has not moved. */
+    var TD_CHASE_DAYS = 7;
+    function tdChasedRecently(f) {
+        var row = String(f.row), cut = new Date(Date.now() - TD_CHASE_DAYS * 864e5).toISOString(), hit = false;
+        function pend(asked, sent) {
+            Object.keys(asked).forEach((function(k) { var a = asked[k]; if (!a || String(a.row) !== row) return;
+                var gone = Object.keys(sent).some((function(j) { var s = sent[j]; return s && String(s.row) === row && String(s.sentAt || "") >= String(a.at || ""); }));
+                if (!gone) hit = true; }));
+            Object.keys(sent).forEach((function(j) { var s = sent[j]; if (s && String(s.row) === row && String(s.sentAt || "") >= cut) hit = true; }));
+        }
+        try { pend(tdRems || {}, tdRemSent || {}); pend(tdNudges || {}, tdNudgeSent || {}); } catch (e) {}
+        return hit;
+    }
     function tdModel() {
         var todo = { website: [], invoice: [], "app-invoice": [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [], "hold-check": [] };
         var wait = { company: [], assessor: [], jonathan: [], system: [], later: [], hold: [] };
@@ -5414,7 +5429,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (welcomeDue(f)) { todo.welcome.push(f); return; }
             if (tdNeedsAppInvoice(f)) { todo["app-invoice"].push(f); return; }
             var x = followUpOf(f);
-            if (x) { if (fuDue(x)) todo[tdFuKind(f, x)].push(f); else wait.later.push(f); return; }
+            if (x) { if (fuDue(x) && !tdChasedRecently(f)) todo[tdFuKind(f, x)].push(f); else wait.later.push(f); return; }
             if (scriptOutstanding(f)) { todo.script.push(f); return; }
             if (!tdAssessorOf(f)) { todo.assessor.push(f); return; }
             if (TD_JONATHAN.indexOf(st) >= 0) { wait.jonathan.push(f); return; }
@@ -5740,9 +5755,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var nextA = ann[0];
         var tiles = '<div class="tqb">'
             + (function() {
-                var yl = you.filter((function(x) { return x.kind !== "invoice" && x.kind !== "attach"; })), yN = yl.length, yLate = yl.filter((function(x) { return x.late; })).length;
+                var yl = you.filter((function(x) { return x.kind !== "invoice" && x.kind !== "attach" && x.kind !== "app-invoice"; })), yN = yl.length, yLate = yl.filter((function(x) { return x.late; })).length;
                 return tile("you", "Needs You", big(yN, yN === 1 ? "task" : "tasks") + '<span class="tqt-meter"><i style="width:' + (yN ? Math.round((yN - yLate) / yN * 100) : 100) + '%"></i></span>'
                 + '<span class="tqt-sub">' + (yLate ? yLate + " overdue · " : "") + (yN - yLate) + " on time · invoices are their own tile</span>" + '<span class="tqt-list">' + mini(yl, 3) + "</span>", { cls: "w2", pill: yLate ? yLate + " late" : "all on time", hot: !!yLate });
+            })()
+            /* Raise an Invoice as its own tile (Jonna, 1 Nov 2026), beside Needs You (21 Nov 2026) */
+            + (function() {
+                var ri = you.filter((function(x) { return x.kind === "invoice" || x.kind === "attach" || x.kind === "app-invoice"; })), rl = ri.filter((function(x) { return x.late; })).length;
+                return '<button type="button" class="tqt' + (tq.view === "invoice" ? " on" : "") + '" data-tqinvtile="1" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Raise an Invoice</span>' + (rl ? '<span class="tqt-pill hot">' + rl + " late</span>" : "") + "</span>" + big(ri.length)
+                    + '<span class="tqt-sub">' + (ri.length ? (rl ? rl + " late · " : "") + (ri.length - rl) + " on time" : "Nothing to raise") + "</span>"
+                    + (ri.length ? '<span class="tqt-list">' + mini(ri, 3) + "</span>" : "") + "</button>";
             })()
             /* Next Anniversary rotates through every company renewing in the next 30 days (or the next one,
                when none is that close), soonest first; dots pick one, hovering holds it still (Jonna, 1 Nov 2026) */
@@ -5773,12 +5795,6 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>", { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>", { cls: "sm" })
             + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>", { cls: "sm" })
-            /* Raise an Invoice as its own tile (Jonna, 1 Nov 2026): opens Needs You showing only the invoice cards */
-            + (function() {
-                var ri = you.filter((function(x) { return x.kind === "invoice" || x.kind === "attach" || x.kind === "app-invoice"; })), rl = ri.filter((function(x) { return x.late; })).length;
-                return '<button type="button" class="tqt sm' + (tq.view === "invoice" ? " on" : "") + '" data-tqinvtile="1" style="--k:#e0a83c"><span class="tqt-top"><span class="tqt-lab">Raise an Invoice</span>' + (rl ? '<span class="tqt-pill hot">' + rl + " late</span>" : "") + "</span>" + big(ri.length)
-                    + '<span class="tqt-sub">' + (ri.length ? esc(ri[0].org) + (ri.length > 1 ? " and " + (ri.length - 1) + " more" : "") : "Nothing to raise") + "</span></button>";
-            })()
             + "</div>";
         return hero + '<div class="tqw">' + week + "</div>" + tiles;
     }
