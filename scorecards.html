@@ -216,13 +216,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       return new TextDecoder("utf-8").decode(u);
     });
   }
-  function coll(name) { return call("GET", "/" + PROJECT + "/data/db-" + name + ".json").then(function (r) {
+  function coll(name) { return call("GET", "/" + PROJECT + "/data/db-" + name).then(function (r) {
     if (r.status === 404) return { docs: {}, sha: null }; if (r.status !== 200) throw new Error(name + " " + r.status);
     return { docs: (r.json.data || {}).docs || {}, sha: r.json.sha || null }; }); }
   function writeDoc(name, box, id, body) {
     function attempt(n) {
       var next = JSON.parse(JSON.stringify(box.docs || {})); if (body === null) delete next[id]; else next[id] = body;
-      return call("PUT", "/" + PROJECT + "/data/db-" + name + ".json", { content: { docs: next }, sha: box.sha }).then(function (r) {
+      return call("PUT", "/" + PROJECT + "/data/db-" + name, { content: { docs: next }, sha: box.sha }).then(function (r) {
         if (r.status === 200) { box.docs = next; box.sha = r.json.sha || box.sha; return true; }
         if (r.status === 409 && n < 4) return coll(name).then(function (c) { box.docs = c.docs; box.sha = c.sha; return attempt(n + 1); });
         if (r.status === 403) { canWrite = false; throw new Error("View only: not saved. Saving needs Edit access to the CMS."); }
