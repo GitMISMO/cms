@@ -5277,7 +5277,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var f = byRow(row), pn = tdPaidNext(f);
         if (!f || !pn) return;
         if (!window.confirm("Move " + f.org + "’s " + f.program + " application on to " + titleOfState(pn.to) + "?\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "") + " "
-            + (pn.to === "AwaitingDemoSelection" ? "The company is emailed its booking link." : "certifications@mismo.org is told it is ready for the review" + (f.program === "FRAME" ? ", and the FRAME practical exercise can be sent from MISMO’s assessor portal." : "."))
+            + (pn.to === "AwaitingDemoSelection" ? "The company is emailed its booking link." : "certifications@mismo.org is told it is ready for the review" + (f.program === "FRAME" ? ", and the company is emailed its own link to the FRAME questionnaire on the next run in business hours." : "."))
             + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
         attempt(f, pn.to);
         renderTodo();
@@ -5469,15 +5469,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="td-meta">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "");
         if (key.indexOf("fu-") === 0) {
             var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null, rk = tdRemKind(key, f), rm = rk ? tdRemOf(f, rk) : null, pn = tdPaidNext(f);
+            /* One short line on the card; the rest (payment check, notes, reminders, the pause) is on the record,
+               opened from the company name (Jonna, 21 Nov 2026: "too much text and creating weird blank space"). */
+            var tdShort = pn ? "Paid \u00b7 the next move is MISMO\u2019s"
+                : rm ? rm.text.split(" by ")[0].split(";")[0]
+                : nd ? nd.text.split(" by ")[0].split(";")[0]
+                : (fx.reason || "On the follow-up list");
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>"
-                + (pn ? '<div class="td-meta"><b>' + esc(pn.text) + "</b></div>"
-                    : '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the earlier follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>")
-                + (fuPaymentLine(f, fx.reason) ? '<div class="td-meta">' + esc(fuPaymentLine(f, fx.reason)) + "</div>" : "")
-                + (assessorNoteOf(f) ? '<div class="td-meta"><b>Assessor\u2019s note ' + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
-                    + (assessorNoteOf(f).nextOn ? " \u00b7 next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") + "</div>" : "")
-                + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "")
-                + (rm ? '<div class="td-meta"><b>' + esc(rm.text) + "</b></div>" : "")
-                + (tdPaused(f) ? '<div class="td-meta">' + esc(f.program) + (rk === "payment" ? " is paused: a payment reminder can go, but no other emails go to the company until it is rolled out.</div>" : " is paused, so no reminders go to the company yet.</div>") : "") + "</div>";
+                + '<div class="td-meta">' + (pn || rm || nd ? "<b>" + esc(tdShort) + "</b>" : esc(tdShort)) + "</div></div>";
             return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : "Send a " + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
@@ -6400,6 +6399,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         return before;
     }
+    /* what used to crowd the Action Queue card (21 Nov 2026): paid and waiting on MISMO, reminders and nudges asked
+       for or sent, and a paused program */
+    function fuMoreLines(f) {
+        var out = [], pn = tdPaidNext(f), nd = tdNudgeOf(f);
+        if (pn) out.push("<b>" + esc(pn.text) + "</b>");
+        [ "payment", "booking" ].forEach((function(k) { var r = tdRemOf(f, k); if (r) out.push("<b>" + esc(r.text) + "</b>"); }));
+        if (nd) out.push("<b>" + esc(nd.text) + "</b>");
+        if (tdPaused(f)) out.push(esc(f.program) + " is paused: a payment reminder can go, but no other emails go to the company until it is rolled out.");
+        return out.length ? "<br>" + out.join("<br>") : "";
+    }
     function followUpBlock(f) {
         if (fuClosed(f)) return "";
         var x = followUpOf(f);
@@ -6411,7 +6420,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 + (x.kind === "auto" ? " &middot; flagged automatically" : x.kind === "list" ? " &middot; from the earlier follow-up list" : (x.by ? " &middot; " + esc(x.by) : ""))
                 + (fuPaymentLine(f, x.reason) ? "<br>" + esc(fuPaymentLine(f, x.reason)) : "")
                 + (assessorNoteOf(f) ? "<br><b>Assessor\u2019s note " + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
-                    + (assessorNoteOf(f).nextOn ? " &middot; next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") : "") + "</div>"
+                    + (assessorNoteOf(f).nextOn ? " &middot; next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") : "")
+                + fuMoreLines(f) + "</div>"
                 + '<div class="na-acts" style="margin:8px 0 14px">'
                 + (canWrite ? '<button class="lc-btn" type="button" data-fuclear="' + f.row + '">Back to Active</button>'
                     + '<button class="lc-btn ghost" type="button" data-fuedit="' + f.row + '">Change the Reason or Date</button>' + '<button class="lc-btn ghost" type="button" data-tdprospect="' + f.row + '">Move to Prospects</button>' : "")
