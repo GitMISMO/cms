@@ -376,15 +376,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     keep(name, r);
   }
   /* save the result for the company's portal (only for companies certified or applying, only when it changed) */
-  function keep(name, r) {
-    if (!canWrite || !entryFor(name) || state.kind || state.asOf || state.size) return;
+  function keep(name, r, all) {
+    if (!canWrite || !entryFor(name) || (!all && (state.kind || state.asOf || state.size))) return Promise.resolve();
     var id = slug(name), was = SAVED.docs[id] || {}, body = { org: name, kind: r.kind, asOf: r.asOf, from: r.from, size: r.size, total: r.total, meetsAll: r.meetsAll,
       categories: r.categories, people: r.people.map(function (p) { return { name: p.name, points: p.points }; }),
       items: r.items.map(function (i) { return { cat: i.cat, name: i.name, pts: i.pts, person: i.person, detail: i.detail, source: i.source }; }) };
     var a = JSON.stringify(body), b = JSON.stringify(Object.assign({}, was, { savedAt: undefined, savedBy: undefined }));
-    if (a === JSON.stringify(JSON.parse(b))) return;
+    if (a === JSON.stringify(JSON.parse(b))) return Promise.resolve();
     body.savedAt = new Date().toISOString(); try { body.savedBy = window.ResourcesSession.user().name || null; } catch (e) {}
-    writeDoc("consultant-scores", SAVED, id, body)["catch"](function (e) { if (canWrite) console.warn("scorecard", e.message); });
+    return writeDoc("consultant-scores", SAVED, id, body)["catch"](function (e) { if (canWrite) console.warn("scorecard", e.message); });
+  }
+  /* on opening: bring every listed company's saved scorecard up to date (one save at a time), so each portal has its own */
+  function keepAll() {
+    var saveState = { kind: state.kind, asOf: state.asOf, size: state.size }; state.kind = state.asOf = state.size = null;
+    var list = APPS.map(function (a) { return a.org; }), chain = Promise.resolve();
+    list.forEach(function (n) { chain = chain.then(function () { return keep(n, compute(n), true); }); });
+    state.kind = saveState.kind; state.asOf = saveState.asOf; state.size = saveState.size;
+    return chain;
   }
   function editDoc(name, fn) {
     var id = slug(name), cur = JSON.parse(JSON.stringify(EDITS.docs[id] || { org: name, add: [], remove: [], items: [] }));
@@ -429,6 +437,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       var first = APPS.filter(function (a) { return a.certified; })[0] || APPS[0];
       var want = (location.hash.match(/co=([^&]+)/) || [])[1]; if (want) want = decodeURIComponent(want);
       $("stamp").textContent = "Read " + new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + ". Aptify report: " + (SRC.aptify ? SRC.aptify.length + " rows" : "not in yet") + ". Meeting Trackers: " + (SRC.feed ? "attendance feed" : "meetings only, until its attendance feed arrives") + ".";
+      setTimeout(keepAll, 1500);
       if (want) { if (!entryFor(want)) state.adhoc[want] = { name: want, adhoc: true }; pick(want); } else if (first) pick(first.org); else { drawList(); $("pane").innerHTML = '<div class="card"><div class="empty">Type a company name to score it.</div></div>'; }
     })["catch"](function (e) { console.error("scorecards", e); $("pane").innerHTML = '<div class="card"><div class="empty">The scorecards could not be loaded just now. Reload the page in a minute; if it keeps happening, email certifications@mismo.org.</div></div>'; });
   }
