@@ -57,6 +57,14 @@ main{max-width:1280px;margin:0 auto;padding:22px 22px 60px}
 :root[data-theme="dark"] .btn:not(.ghost){background:var(--sky);color:var(--navy-deep);border-color:var(--sky)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost){background:var(--sky);color:var(--navy-deep);border-color:var(--sky)}}
 .btn:hover{filter:brightness(1.07)}
+.switch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+.seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:6px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border:0;background:transparent;color:var(--ink-2);cursor:pointer}
+.seg button+button{border-left:1px solid var(--border-strong)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{background:var(--sky);color:var(--navy-deep)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{background:var(--sky);color:var(--navy-deep)}}
+.switch .lbl{font-size:13px;color:var(--ink-3)}
 .note{margin-top:18px;font-size:13px;color:var(--ink-3);line-height:1.5}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 14px;border-radius:6px;font-size:13.5px;z-index:30}
 html.embed .hqtop{display:none}
@@ -97,8 +105,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <section class="hero" aria-labelledby="h1">
     <div class="eyebrow">Certification Portals</div>
     <h1 id="h1">Every Certification's Portal, With Its Application</h1>
-    <p>Every new company applies, pays, then works in its own certification portal: Live means new applicants get one (each company opens its own from the link MISMO emails). Open the Example Portal shows it with a made-up company; nothing in an example is sent or uploaded, and Restore the Sample puts it back. The application links are the real forms.</p>
+    <p id="herop">Every new company applies, pays, then works in its own certification portal: Live means new applicants get one (each company opens its own from the link MISMO emails). Open the Example Portal shows it with a made-up company; nothing in an example is sent or uploaded, and Restore the Sample puts it back. The application links are the real forms.</p>
   </section>
+  <div class="switch"><div class="seg" role="group" aria-label="Which examples"><button type="button" data-mode="initial" aria-pressed="true">Initial Certification</button><button type="button" data-mode="renewal" aria-pressed="false">Renewal</button></div><span class="lbl" id="modelbl">Examples of the portal a new company works in.</span></div>
   <div class="grid" id="grid"></div>
   <p class="note">The samples are built from the live forms, so their questions are the questions companies are asked. RON, eClosing and eVault share one application: a company ticks the product types it wants certified. Certification scripts are built automatically for each engagement and are in the Assessor Portal.</p>
 </main>
@@ -133,13 +142,56 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       what: "Each applicant and holder has a private progress page: their steps, points, payments and renewal. The example shows both credentials.",
       steps: ["Progress and next step", "Points", "Fees", "Renewal"], apps: [["CMSP Application", "/forms/cmsp/"], ["AMSP Application", "/forms/amsp/"], ["CMSP Reference Form", "/forms/cmsp-reference/"]] }
   ];
+  /* The renewal examples (21 Nov 2026, Jonna: a switch between initial and renewal, for the example portals
+     only). Each opens the renewal page with a made-up company (forms/renewal/?demo=<program>); nothing is sent. */
+  var R = {
+    RON: { demo: "ron", steps: ["What is being renewed", "Application and questionnaire", "Certification script", "Who signs", "On mismo.org", "Attestation", "Send it back"],
+      what: "From its renewal notice, the company confirms what is being renewed, says whether its application and RON questionnaire still hold, updates its certification script answers, confirms who signs, checks its mismo.org listing, attests and sends it back. The invoice downloads with an emailed code." },
+    eC: { demo: "eclosing", steps: ["What is being renewed", "Application and questionnaire", "Certification script", "Who signs", "On mismo.org", "Attestation", "Send it back"],
+      what: "From its renewal notice, the company confirms the renewal, says whether its application and eClosing questionnaire still hold, updates its certification script answers, confirms who signs, checks its listing, attests and sends it back." },
+    eV: { demo: "evault", steps: ["What is being renewed", "Application and questionnaire", "Certification script", "Who signs", "On mismo.org", "Attestation", "Send it back"],
+      what: "From its renewal notice, the company confirms the renewal, says whether its application and eVault questionnaire still hold, updates its certification script answers, confirms who signs, checks its listing, attests and sends it back." },
+    PC: { demo: "product", steps: ["What is being renewed", "Application", "Who signs", "On mismo.org", "Attestation", "Send it back"],
+      what: "From its renewal notice, the company confirms the product being renewed, says whether its application still holds, confirms who signs, checks its listing, attests and sends it back." },
+    CC: { demo: "consultant", steps: ["What is being renewed", "Application", "Who signs", "On mismo.org", "Attestation", "Send it back"],
+      what: "From its renewal notice, the firm confirms the renewal, says whether its application still holds, confirms who signs, checks its listing, attests and sends it back." },
+    FR: { demo: "frame", steps: ["What is being renewed", "Application and questionnaire", "Who signs", "On mismo.org", "Attestation", "Send it back"],
+      what: "From its renewal notice, the firm confirms the renewal, says whether its application and FRAME questionnaire still hold, confirms who signs, checks its listing, attests and sends it back." },
+    AI: { none: "AI Governance has no renewals yet. Its renewal page comes a year after the first certifications." },
+    CM: { same: true, what: "Holders renew from the same progress page: points toward renewal, the renewal fee and the renewal itself. The example shows both credentials." }
+  };
+  var MODE = "initial";
+  try { if (localStorage.getItem("cms-portals-mode") === "renewal") MODE = "renewal"; } catch (e) {}
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  document.getElementById("grid").innerHTML = P.map(function (p) {
+  function cardRenewal(p) {
+    var r = R[p.b] || {};
+    var head = '<article class="card"><div class="top"><span class="badge" aria-hidden="true">' + esc(p.b) + '</span><div><h2>' + esc(p.name) + '</h2><div class="who">Renewal · ' + esc(p.who) + '</div></div><span class="tag' + (r.none ? "" : " live") + '">' + (r.none ? "No Renewals Yet" : "Live") + "</span></div>";
+    if (r.none) return head + "<p>" + esc(r.none) + "</p></article>";
+    var url = r.same ? p.portal : "/forms/renewal/?demo=" + r.demo;
+    return head + "<p>" + esc(r.what) + "</p>" + (r.steps ? '<div class="steps">' + r.steps.map(function (s) { return "<span>" + esc(s) + "</span>"; }).join("") + "</div>" : "") +
+      '<div class="sample">Example: ' + esc(r.same ? p.sample : "Northbeam Financial (made up)") + "</div>" +
+      '<div class="acts"><a class="btn" href="' + SITE + url + '" target="_blank" rel="noopener">Open the Example Renewal ↗</a></div></article>';
+  }
+  function draw() {
+    document.querySelectorAll("[data-mode]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-mode") === MODE ? "true" : "false"); });
+    document.getElementById("h1").textContent = MODE === "renewal" ? "Every Certification's Renewal Page" : "Every Certification's Portal, With Its Application";
+    document.getElementById("modelbl").textContent = MODE === "renewal" ? "Examples of the renewal page a certified company works in, from its renewal notice." : "Examples of the portal a new company works in.";
+    document.getElementById("herop").textContent = MODE === "renewal"
+      ? "Every certified company renews from its own renewal page, linked from its renewal notice. Open the Example Renewal shows it with a made-up company; nothing in an example is fetched or sent, and Restore the Example puts it back."
+      : "Every new company applies, pays, then works in its own certification portal: Live means new applicants get one (each company opens its own from the link MISMO emails). Open the Example Portal shows it with a made-up company; nothing in an example is sent or uploaded, and Restore the Sample puts it back. The application links are the real forms.";
+  document.getElementById("grid").innerHTML = MODE === "renewal" ? P.map(cardRenewal).join("") : P.map(function (p) {
     return '<article class="card"><div class="top"><span class="badge" aria-hidden="true">' + esc(p.b) + '</span><div><h2>' + esc(p.name) + '</h2><div class="who">' + esc(p.who) + '</div></div><span class="tag' + (p.live ? " live" : "") + '">' + esc(p.live ? "Live" : "Example Only") + "</span></div>" +
       "<p>" + esc(p.what) + '</p><div class="steps">' + p.steps.map(function (s) { return "<span>" + esc(s) + "</span>"; }).join("") + '</div><div class="sample">Example: ' + esc(p.sample) + "</div>" +
       '<div class="acts"><a class="btn" href="' + SITE + p.portal + '" target="_blank" rel="noopener">Open the Example Portal ↗</a>' +
       p.apps.map(function (a) { return '<span class="pair"><a class="btn ghost" href="' + SITE + a[1] + '" target="_blank" rel="noopener">Open the ' + esc(a[0]) + ' ↗</a><button class="btn ghost" type="button" data-copy="' + SITE + a[1] + '" title="Copy the link to the ' + esc(a[0]).toLowerCase() + '">Copy Link</button></span>'; }).join("") + "</div></article>";
   }).join("");
+  }
+  draw();
+  document.addEventListener("click", function (e) {
+    var m = e.target.closest("[data-mode]"); if (!m) return;
+    MODE = m.getAttribute("data-mode"); try { localStorage.setItem("cms-portals-mode", MODE); } catch (x) {}
+    draw();
+  });
   function toast(m) { var t = document.getElementById("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 2200); }
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-copy]"); if (!b) return;
