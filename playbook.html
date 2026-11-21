@@ -291,7 +291,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <div class="how">
     <div class="box" id="how-edit">
       <h2 class="sect-h">Editing and Testing</h2>
-      <p>Open an email, change the Heading, Subject Line or Email Body, then press Save Wording. The change is used for every send of that email from then on, and the card shows who last edited it and when. Restore Original Wording puts back the wording the email started with.</p>
+      <p>Open an email, change the Heading, Subject Line or Email Body, then press Save Wording. The change is used for every send of that email from then on, and the card shows who last edited it and when. Restore Original Wording puts back the wording the email started with. An email marked Held for Review goes only to certifications@mismo.org until you press Approve This Email; from the next run it goes to its real recipients.</p>
       <p>Send Me a Test sends that email to you alone, filled in with a real certification from the board as the sample, marked [Test] in the subject. It uses whatever is in the boxes at that moment, so you can change the wording, test it, and only save when you are happy. Nobody else receives it and nothing is recorded as sent. Tests go out at any hour; the real emails wait for business hours. A test normally arrives within two minutes, and the card shows when it has gone.</p>
       <p>Who gets each email and when it sends are set in the system itself; changing those is a change to the system, not to the wording.<span id="how-from"></span> Saving needs Edit access to the Certification Management System; with View access the page is read only.</p>
     </div>
@@ -332,7 +332,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     return el;
   }
   var toastT;
-  function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 6000 : 3500); }
+  /* Inside the CMS this page sits in a frame as tall as the page itself, so a message pinned to the frame's
+     bottom landed far below the screen and pressing a button looked like nothing happened (21 Nov 2026).
+     Pin it to the bottom of what is actually showing instead. */
+  function placeToast(t) {
+    t.style.top = ''; t.style.bottom = '';
+    try {
+      var fe = window.frameElement; if (!fe || !window.parent) return;
+      if (!placeToast.on) { placeToast.on = true; window.parent.addEventListener('scroll', function () { if (/\bon\b/.test(t.className)) placeToast(t); }, true); }
+      var r = fe.getBoundingClientRect(), vis = Math.min(window.innerHeight, window.parent.innerHeight - r.top);
+      t.style.bottom = 'auto'; t.style.top = Math.max(8, vis - (t.offsetHeight || 48) - 18) + 'px';
+    } catch (e) {}
+  }
+  function toast(msg, bad) { var t = $('toast'); t.textContent = msg; placeToast(t); t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function () { t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 6000 : 3500); }
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function when(iso) { if (!iso) return ''; var d = new Date(iso); if (isNaN(d)) return String(iso).slice(0, 10);
     return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' at ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
@@ -539,6 +551,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var save = h('button', { type: 'button', class: 'btn', disabled: dis, text: 'Save Wording' });
     var test = h('button', { type: 'button', class: 'btn ghost', disabled: dis, text: 'Send Me a Test' });
     var restore = e ? h('button', { type: 'button', class: 'btn ghost', disabled: dis, text: 'Restore Original Wording' }) : null;
+    /* Approve This Email (21 Nov 2026): a held email goes only to certifications@mismo.org until someone approves
+       its wording here. The approval is saved beside the wording; the email job then sends it for real. */
+    var approve = !t.approved && !t.disabled && !t.internalOnly ? h('button', { type: 'button', class: 'btn', disabled: dis, text: 'Approve This Email' }) : null;
+    if (approve) approve.addEventListener('click', function () {
+      var typed = { title: ti.value.trim(), subject: si.value.trim(), body: bi.value.replace(/\s+$/, '') };
+      if (typed.title !== String(cur.title).trim() || typed.subject !== String(cur.subject).trim() || typed.body !== String(cur.body).replace(/\s+$/, '')) {
+        toast('You have changed the wording. Press Save Wording first, then Approve This Email.', true); return;
+      }
+      if (!confirm('Approve "' + plainTitle(t.title || t.id) + '"?\n\nFrom the next run it goes to ' + goesTo(t).replace(/^T/, 't') + ' for real, instead of only to certifications@mismo.org. Anything held for it in the last 7 days goes out too, if the certification is still at that stage.')) return;
+      approve.disabled = true;
+      var stamp = { approved: true, approvedAt: new Date().toISOString(), approvedBy: me.email, approvedByName: me.name };
+      writeDoc('db-stage-templates', t.id, function (stored) { return stored && stored.approved === true ? false : Object.assign({}, stored || {}, stamp); })
+        .then(function () { t.approved = true; t.approvedAt = stamp.approvedAt; t.approvedByName = stamp.approvedByName; toast(plainTitle(t.title || t.id) + ' is approved. It sends for real from the next run.'); render(t.id); })
+        .catch(function (err) { toast(err.message, true); approve.disabled = false; });
+    });
     var who = h('span', { class: 'who', text: e && e.updatedAt ? 'Last edited ' + when(e.updatedAt) + (e.updatedByName || e.updatedBy ? ' by ' + (e.updatedByName || e.updatedBy) : '') : 'Original wording' });
     var stat = h('span', { id: 'test-' + t.id }); var s0 = testStatus(t.id); if (s0) stat.appendChild(s0);
     save.addEventListener('click', function () {
@@ -576,7 +603,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (restore) restore.addEventListener('click', function () {
       if (!confirm('Put back the original wording of "' + (t.title || t.id) + '"? Your edited wording will be removed.')) return;
       restore.disabled = true;
-      writeDoc('db-stage-templates', t.id, null).then(function () { delete TPL[t.id]; toast('Original wording restored.'); render(t.id); })
+      /* the approval stays: only the wording goes back */
+      writeDoc('db-stage-templates', t.id, function (stored) { return stored && stored.approved === true ? { approved: true, approvedAt: stored.approvedAt, approvedBy: stored.approvedBy, approvedByName: stored.approvedByName } : null; }).then(function () { delete TPL[t.id]; toast('Original wording restored.'); render(t.id); })
         .catch(function (err) { toast(err.message, true); restore.disabled = false; });
     });
     test.addEventListener('click', function () {
@@ -590,7 +618,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         startPolling(); test.disabled = false;
       }).catch(function (err) { toast(err.message, true); test.disabled = false; });
     });
-    sb.appendChild(h('div', { class: 'btnrow' }, save, test, restore, who));
+    if (t.approved && t.approvedAt) who.textContent += ' \u00b7 Approved ' + when(t.approvedAt) + (t.approvedByName ? ' by ' + t.approvedByName : '');
+    sb.appendChild(h('div', { class: 'btnrow' }, approve, save, test, restore, who));
     sb.appendChild(h('div', { class: 'btnrow' }, stat));
     d.appendChild(sb);
     return d;
@@ -758,7 +787,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       readColl('db-stage-templates'), readColl('db-stage-tests')
     ]);
   }).then(function (res) {
-    CFG = res[0]; TPL = res[1].docs; TESTS = res[2].docs;
+    CFG = res[0]; TESTS = res[2].docs;
+    /* A saved document can hold wording, an approval, or both (Approve This Email, 21 Nov 2026). TPL is the
+       wording only; an approval marks the email approved here, as the email job does. */
+    TPL = {}; var saved = res[1].docs || {};
+    Object.keys(saved).forEach(function (id) { var d = saved[id] || {}; if (d.title || d.subject || d.body) TPL[id] = d; });
+    (CFG.templates || []).forEach(function (t) { var d = saved[t.id]; if (d && d.approved === true) { t.approved = true; t.approvedAt = d.approvedAt; t.approvedByName = d.approvedByName || d.approvedBy; } });
     if (!canWrite) $('note').appendChild(h('div', { class: 'banner' }, h('b', { text: 'View only. ' }), 'You can read every email here. Saving wording and sending tests needs Edit access to the Certification Management System.'));
     renderStatic(); render();
     var target = location.hash.replace('#', ''); if (target && $('play-' + target)) setOpen(target, true);
