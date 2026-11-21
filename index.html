@@ -5162,15 +5162,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        a payment reminder, the invoice PDF attached, for an unpaid invoice; a booking reminder, with the
        company's booking link, for a paid certification whose demonstration or interview is not booked.
        Written to company-reminders; the Stage notices job sends it on its next run in business hours,
-       certifications@ copied. Not offered in a program MISMO has paused (stage-notices.json
-       pausedPrograms) or on hold; the job refuses those too. */
+       certifications@ copied. Not offered on hold. In a program MISMO has paused (stage-notices.json
+       pausedPrograms) only the payment reminder is offered (Jonna, 21 Nov 2026: the invoice still goes out in a
+       paused program, so paying it can still be chased); the job follows the same rule. */
     var tdRems = {}, tdRemSent = {}, tdRemWait = {};
     var TD_REM = { payment: { label: "Payment Reminder", template: "company-payment-reminder" }, booking: { label: "Booking Reminder", template: "company-booking-reminder" } };
     function tdPaused(f) { var p = D.pausedPrograms || []; return p.indexOf(f.program) >= 0; }
     function tdRemKind(key, f) {
-        if (tdPaused(f) || fuHeld(f)) return null;
+        if (fuHeld(f)) return null;
         var st = currentState(f);
-        if (st === "AwaitingDemoSelection" && (key === "fu-demo" || key === "fu-quiet")) return "booking";
+        if (st === "AwaitingDemoSelection" && (key === "fu-demo" || key === "fu-quiet")) return tdPaused(f) ? null : "booking";
         if ((key === "fu-invoice" || (key === "fu-quiet" && st === "AwaitingPayment")) && !fuPayment(f).paid) return "payment";
         return null;
     }
@@ -5196,7 +5197,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var f = byRow(row);
         if (!f || !TD_REM[kind]) return;
         if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
-        if (tdPaused(f)) { toast(f.program + " is paused, so no reminders go to its companies yet.", "warn"); return; }
+        if (tdPaused(f) && kind !== "payment") { toast(f.program + " is paused, so only payment reminders go to its companies for now.", "warn"); return; }
         if (kind === "payment" && appInv[row] === undefined) {
             /* the invoice PDF kept on the certification is read first */
             Promise.resolve(db.collection(appInvColl(row)).doc("pdf").get()).then((function(d) { appInv[row] = d && d.exists ? d.data() : null; tdRemind(row, kind); }), (function() { appInv[row] = null; tdRemind(row, kind); }));
@@ -5474,7 +5475,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + (assessorNoteOf(f).nextOn ? " \u00b7 next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") + "</div>" : "")
                 + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "")
                 + (rm ? '<div class="td-meta"><b>' + esc(rm.text) + "</b></div>" : "")
-                + (!rk && tdPaused(f) ? '<div class="td-meta">' + esc(f.program) + " is paused, so no reminders go to the company yet.</div>" : "") + "</div>";
+                + (tdPaused(f) ? '<div class="td-meta">' + esc(f.program) + (rk === "payment" ? " is paused: a payment reminder can go, but no other emails go to the company until it is rolled out.</div>" : " is paused, so no reminders go to the company yet.</div>") : "") + "</div>";
             return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : "Send a " + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
