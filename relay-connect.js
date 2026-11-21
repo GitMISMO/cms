@@ -94,6 +94,8 @@
     return fetch(RELAY + '/' + PROJECT + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, json: j || {} }; }); });
   }
+  /* one data file on demand, for a box that needs it only when a record is open (21 Nov 2026: a company portal's saved work) */
+  window.CMS_READ = function (name) { return call('GET', '/data/' + name).then(function (r) { return r.status === 200 ? r.json.data : null; }, function () { return null; }); };
   function err(code, message) { var e = new Error(message || code); e.code = code; return e; }
   function fromBase64(b64) {
     var bin = atob(b64), bytes = new Uint8Array(bin.length);

@@ -97,7 +97,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <section class="hero" aria-labelledby="h1">
     <div class="eyebrow">Certification Portals</div>
     <h1 id="h1">Every Certification's Portal, With Its Application</h1>
-    <p>Each certification has a sample portal with a made-up company, so you can show people what a company sees after it applies and pays. Nothing in a sample is sent or uploaded, and Restore the Sample puts it back as it started. The application links are the real forms companies fill in.</p>
+    <p>Every new company applies, pays, then works in its own certification portal: Live means new applicants get one (each company opens its own from the link MISMO emails). Open the Example Portal shows it with a made-up company; nothing in an example is sent or uploaded, and Restore the Sample puts it back. The application links are the real forms.</p>
   </section>
   <div class="grid" id="grid"></div>
   <p class="note">The samples are built from the live forms, so their questions are the questions companies are asked. RON, eClosing and eVault share one application: a company ticks the product types it wants certified. Certification scripts are built automatically for each engagement and are in the Assessor Portal.</p>
@@ -108,23 +108,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   "use strict";
   var SITE = "https://resources.mismo.org";
   var P = [
-    { b: "RON", name: "RON Certification", who: "Company · product", tag: "Sample", portal: "/portal/ron/", sample: "Lakeshore Notary Systems (made up)",
+    { b: "RON", name: "RON Certification", who: "Company · product", tag: "Live", live: true, portal: "/portal/ron/", sample: "Lakeshore Notary Systems (made up)",
       what: "The company checks its platform details, answers the RON questionnaire, adds the documents it asks for and books its demonstration.",
       steps: ["About the platform", "RON questionnaire", "Documents", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/emortgage/"]] },
-    { b: "eC", name: "eClosing Certification", who: "Company · product", tag: "Sample", portal: "/portal/eclosing/", sample: "Harborline Closing Technologies (made up)",
+    { b: "eC", name: "eClosing Certification", who: "Company · product", tag: "Live", live: true, portal: "/portal/eclosing/", sample: "Harborline Closing Technologies (made up)",
       what: "The company checks its system details, answers the eClosing questionnaire, adds the documents it asks for and books its demonstration.",
       steps: ["About the system", "eClosing questionnaire", "Documents", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/emortgage/"]] },
-    { b: "eV", name: "eVault Certification", who: "Company · product", tag: "Sample", portal: "/portal/evault/", sample: "Granite Peak Vault Co. (made up)",
+    { b: "eV", name: "eVault Certification", who: "Company · product", tag: "Live", live: true, portal: "/portal/evault/", sample: "Granite Peak Vault Co. (made up)",
       what: "The company checks its system details, answers the eVault questionnaire, adds the documents it asks for and books its demonstration.",
       steps: ["About the system", "eVault questionnaire", "Documents", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/emortgage/"]] },
-    { b: "PC", name: "Product Certification", who: "Company · product", tag: "Sample", portal: "/portal/product/", sample: "Bluewater Data Systems (made up)",
-      what: "The company checks its product details, books the pre-assessment call, adds its specification and data files and books its demonstration.",
-      steps: ["About the product", "Pre-assessment call", "Specification and data", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/product/"]] },
-    { b: "CC", name: "Certified Consultant", who: "Company", tag: "Sample", portal: "/portal/consultant/", sample: "Ridgeview Mortgage Advisors (made up)",
-      what: "The firm confirms its key people and project examples from the application, then adds the project write-ups and client references.",
+    { b: "PC", name: "Product Certification", who: "Company · product", tag: "Live", live: true, portal: "/portal/product/", sample: "Bluewater Data Systems (made up)",
+      what: "The company downloads and pays its application invoice, then books its demonstration as soon as it is paid.",
+      steps: ["Your invoice", "Book the demonstration"], apps: [["Application", "/forms/product/"]] },
+    { b: "CC", name: "Certified Consultant", who: "Company", tag: "Live", live: true, portal: "/portal/consultant/", sample: "Ridgeview Mortgage Advisors (made up)",
+      what: "The firm gives its key people and project examples, then adds the project write-ups and client references.",
       steps: ["About the firm", "Key employee bios", "Project examples", "Write-ups and references", "Review and submit"], apps: [["Application", "/forms/consultant/"]] },
-    { b: "FR", name: "FRAME Certified Advisory Partner", who: "Company", tag: "Sample", portal: "/portal/frame/", sample: "Summit Lane Advisory Group (made up)",
-      what: "The firm answers the FRAME questionnaire, adds its supporting documents and returns the practical exercise. Today companies get the questionnaire by their own link once they have paid.",
+    { b: "FR", name: "FRAME Certified Advisory Partner", who: "Company", tag: "Live", live: true, portal: "/portal/frame/", sample: "Summit Lane Advisory Group (made up)",
+      what: "The firm answers the FRAME questionnaire, adds its supporting documents and returns the practical exercise.",
       steps: ["About the firm", "FRAME questionnaire", "Supporting documents", "Practical exercise", "Review and submit"], apps: [["Application", "/forms/frame/"]] },
     { b: "AI", name: "AI Governance Certification", who: "Company · product", tag: "Sample", portal: "/portal/ai-governance/", sample: "Northbeam Mortgage Technologies (made up)",
       what: "The company describes the product, drops in its documents and answers the governance questions for each AI use case. Includes an assessor preview.",
@@ -135,7 +135,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   ];
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   document.getElementById("grid").innerHTML = P.map(function (p) {
-    return '<article class="card"><div class="top"><span class="badge" aria-hidden="true">' + esc(p.b) + '</span><div><h2>' + esc(p.name) + '</h2><div class="who">' + esc(p.who) + '</div></div><span class="tag' + (p.live ? " live" : "") + '">' + esc(p.live ? "Live" : "Sample") + "</span></div>" +
+    return '<article class="card"><div class="top"><span class="badge" aria-hidden="true">' + esc(p.b) + '</span><div><h2>' + esc(p.name) + '</h2><div class="who">' + esc(p.who) + '</div></div><span class="tag' + (p.live ? " live" : "") + '">' + esc(p.live ? "Live" : "Example Only") + "</span></div>" +
       "<p>" + esc(p.what) + '</p><div class="steps">' + p.steps.map(function (s) { return "<span>" + esc(s) + "</span>"; }).join("") + '</div><div class="sample">Example: ' + esc(p.sample) + "</div>" +
       '<div class="acts"><a class="btn" href="' + SITE + p.portal + '" target="_blank" rel="noopener">Open the Example Portal ↗</a>' +
       p.apps.map(function (a) { return '<span class="pair"><a class="btn ghost" href="' + SITE + a[1] + '" target="_blank" rel="noopener">Open the ' + esc(a[0]) + ' ↗</a><button class="btn ghost" type="button" data-copy="' + SITE + a[1] + '" title="Copy the link to the ' + esc(a[0]).toLowerCase() + '">Copy Link</button></span>'; }).join("") + "</div></article>";

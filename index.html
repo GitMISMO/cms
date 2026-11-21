@@ -8842,25 +8842,52 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }), (function() {}));
         } catch (e) {}
     }
+    /* The Company Portal (21 Nov 2026; was The FRAME Questionnaire): every INITIAL company certification has its own portal
+       (resources.mismo.org/portal/<program>/?p=<code>). The box shows whether they have sent it, how far they have got
+       (their saved work, data/db-portal-<row>.json, read when the record opens), their files (in SharePoint) and the
+       link to copy or open. FRAME's first questionnaires came by the old form link and are described as before. */
+    var QN_PORTAL = { RON: 1, eClosing: 1, eVault: 1, Product: 1, Consultant: 1, FRAME: 1 }, qnDraft = {};
+    var QN_SP = "/sites/MISMOeMortgageCertification/Shared Documents/";
+    function qnLoadDraft(f, l) {
+        var k = String(f.row);
+        if (qnDraft[k] !== undefined || !window.CMS_READ || !l || !l.draftFile) return;
+        qnDraft[k] = "loading";
+        window.CMS_READ(String(l.draftFile).replace(/\.json$/, "")).then((function(d) { qnDraft[k] = d || null; qnRepaint(); }));
+    }
     function qnBlock(f) {
-        if (!f || f.program !== "FRAME" || String(f.kind || "initial") === "renewal") return "";
+        if (!f || !QN_PORTAL[f.program] || String(f.kind || "initial") === "renewal") return "";
         qnSubscribe();
-        var q = qnGot[String(f.row)], l = qnLinks[String(f.row)], body;
-        if (q && q.receivedAt) {
+        var q = qnGot[String(f.row)], l = qnLinks[String(f.row)], body = "", files = "";
+        if (l) qnLoadDraft(f, l);
+        var d = qnDraft[String(f.row)], w = d && d !== "loading" ? d : null, dr = (w && w.draft) || {};
+        var answered = Object.keys(dr.answers || {}).filter((function(k) { var v = dr.answers[k]; return v != null && JSON.stringify(v).replace(/[\[\]{}"",:]/g, "").trim() !== ""; })).length;
+        var docs = dr.docs || [];
+        if (q && q.receivedAt && q.source === "portal") {
+            body = '<p class="pc-note"><b>Sent to MISMO ' + esc(fmt(String(q.receivedAt).slice(0, 10))) + "</b>" + (q.by ? " by " + esc(q.by) : "") + (q.sendings > 1 ? " (sent " + q.sendings + " times; this is the latest)" : "") + ". Open their portal to read every answer.</p>";
+        } else if (q && q.receivedAt) {
             body = '<p class="pc-note"><b>Received ' + esc(fmt(String(q.receivedAt).slice(0, 10))) + "</b>" + (q.by ? " from " + esc(q.by) : "") + ". " +
                 "The answers and any documents are in the email to certifications@mismo.org headed \u201cNew application: MISMO FRAME Questionnaire\u201d, " +
-                "and in the Application Forms folder in SharePoint. If they send it again, the newer one is the one to read.</p>";
+                "and in the Application Forms folder in SharePoint.</p>";
+        } else if (w && w.savedAt) {
+            body = '<p class="pc-note"><b>Working on it.</b> Last saved ' + esc(fmt(String(w.savedAt).slice(0, 10))) + (w.savedBy ? " by " + esc(w.savedBy) : "") + ". Not sent to MISMO yet.</p>";
         } else if (l && l.link) {
-            body = '<p class="pc-note">Not received yet. Their own link went to them in the \u201cYour FRAME Questionnaire Is Ready\u201d email ' +
-                "when the review started. Until that wording is approved on the Email Playbook, the email waits at certifications@mismo.org for your OK.</p>";
+            body = '<p class="pc-note">Nothing saved yet. Their own link goes to them in the \u201cYour Certification Portal Is Ready\u201d email' + (f.program === "Product" ? " once the invoice is raised" : " once they have paid") +
+                ". Until that wording is approved on the Email Playbook, the email waits at certifications@mismo.org for your OK.</p>";
         } else {
-            body = '<p class="pc-note">The questionnaire comes after the fee. Once they have paid and Start the Review is pressed, ' +
-                "they are emailed their own link to it.</p>";
+            body = '<p class="pc-note">' + (f.program === "Product" ? "Their portal opens at Awaiting Payment: the invoice to pay, then booking the demonstration once it is paid." : "Their portal opens once they have paid: " + (f.program === "FRAME" ? "the questionnaire, supporting documents and the practical exercise." : f.program === "Consultant" ? "key people, project examples, write-ups and references." : "the questionnaire, their documents and booking the demonstration.")) + "</p>";
         }
-        var link = l && l.link ? '<div class="v mono" style="word-break:break-all;font-size:12px;margin-top:8px">' + esc(l.link) + "</div>" +
-            '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-qncopy="' + esc(String(f.row)) + '">Copy Their Questionnaire Link</button></div>' +
-            '<p class="pc-note" style="margin-top:6px">Anyone holding this link can send in the questionnaire for this company, so send it only to them.</p>' : "";
-        return '<div class="dsect" data-qnbox="' + esc(String(f.row)) + '"><h4>The FRAME Questionnaire</h4>' + body + link + "</div>";
+        if (w) {
+            var facts = [];
+            if (answered) facts.push(answered + " answer" + (answered === 1 ? "" : "s"));
+            if (docs.length) facts.push(docs.length + " file" + (docs.length === 1 ? "" : "s"));
+            if (dr.confirmed) facts.push("details confirmed");
+            if (facts.length) body += '<p class="pc-note" style="margin-top:4px">' + esc(facts.join(" \u00b7 ")) + "</p>";
+            if (docs.length && l && l.folder) files = '<div class="lc-files" style="display:flex;flex-direction:column;gap:4px;margin-top:6px">' + docs.map((function(x) {
+                return '<a href="' + esc(spLink(ML_SITE, QN_SP + l.folder + "/" + x.name)) + '" target="_blank" rel="noopener" style="font-size:13px">' + esc(x.name) + "</a>"; })).join("") + "</div>";
+        }
+        var link = l && l.link ? '<div class="na-acts" style="margin-top:8px"><button class="lc-btn" type="button" data-qnopen="' + esc(String(f.row)) + '">Open Their Portal</button><button class="lc-btn ghost" type="button" data-qncopy="' + esc(String(f.row)) + '">Copy Their Portal Link</button></div>' +
+            '<p class="pc-note" style="margin-top:6px">Anyone holding this link can work in this company\u2019s portal, so send it only to them. What you change there saves to their portal too.</p>' : "";
+        return '<div class="dsect" data-qnbox="' + esc(String(f.row)) + '"><h4>The Company Portal</h4>' + body + files + link + "</div>";
     }
     function qnRepaint() {
         Array.prototype.forEach.call(document.querySelectorAll("[data-qnbox]"), (function(el) {
@@ -8873,7 +8900,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var b = e.target && e.target.closest ? e.target.closest("[data-qncopy]") : null;
         if (!b) return;
         var l = qnLinks[b.getAttribute("data-qncopy")];
-        if (l && l.link) copy(l.link, "Their questionnaire link is on your clipboard.");
+        if (l && l.link) copy(l.link, "Their portal link is on your clipboard.");
+    }));
+    document.addEventListener("click", (function(e) {
+        var b = e.target && e.target.closest ? e.target.closest("[data-qnopen]") : null;
+        if (!b) return;
+        var l = qnLinks[b.getAttribute("data-qnopen")];
+        if (l && l.link) window.open(l.link, "_blank", "noopener");
     }));
     var webPub = {}, webPubSubbed = false;
     function webPubSubscribe() {
@@ -17284,5 +17317,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-21f"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-21g"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>
