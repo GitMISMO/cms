@@ -375,7 +375,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <p class="live-note">Read live from the system.</p>
       <table id="t-assessors"><tr><td class="plain">Loading&hellip;</td></tr></table>
       <p>Assessors are reminded on their own when a demo date has passed with no outcome, and when artifacts have been with them two weeks with no result. Nudge the Assessor on the Action Queue sends a one-off email asking whether they have followed up with a company that has gone quiet.</p>
-      <p>Companies get a one-off reminder when someone presses Send a Payment Reminder (the invoice PDF goes with it; if none is kept on the record, the CMS asks for it) or Send a Booking Reminder on a Follow Up card. Until their wording is approved on the Email Playbook page, both come to certifications@mismo.org marked Held for Review; once approved, press the button again to send it for real.</p>
+      <p>Companies get a one-off reminder when someone presses Send a Payment Reminder (the invoice PDF goes with it; if none is kept on the record, the CMS asks for it) or Send a Booking Reminder on a Follow Up card. Both go to the company once their wording is approved on the Email Playbook page (Approve This Email); the payment reminder is approved. One pressed while its wording was still held came to certifications@mismo.org marked Held for Review; press the button again to send it for real.</p>
     </div>
   </article>
 
@@ -629,7 +629,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   RS.requireAccess(PROJECT, { toolName: 'Certification Help', eyebrow: 'Programs & Operations' }).then(function () {
     if (RS.mount) RS.mount($('rs-account'));
     call('/data/assessor-firms').then(function (af) {
-      return call('/data/stage-notices').then(function (sn) {
+      return Promise.all([call('/data/stage-notices'), call('/data/db-stage-templates').then(null, function () { return null; })]).then(function (rr) {
+        var sn = rr[0], tp = (rr[1] && rr[1].docs) || {};
+        /* approved on the Email Playbook counts too (21 Nov 2026) */
+        (sn.templates || []).forEach(function (t) { if (tp[t.id] && tp[t.id].approved === true) t.approved = true; });
         var fc = sn.firmContacts || {};
         table('t-assessors', ['Firm', 'Assesses', 'How Demos Are Scheduled', 'Emails Go To'], (af.firms || []).map(function (f) {
           var sc = f.scheduling || {};

@@ -154,7 +154,15 @@
     jobs.push(readData('website-answers').then(function (v) { D.websiteAnswers = v; }, function () { D.websiteAnswers = null; }));
     /* the programs MISMO has paused (data/stage-notices.json pausedPrograms): the Action Queue offers no
        company reminders for them (19 Nov 2026); optional the same way, and the email job refuses them anyway */
-    jobs.push(readData('stage-notices').then(function (v) { D.pausedPrograms = (v && v.pausedPrograms) || []; }, function () { D.pausedPrograms = null; }));
+    /* and which emails are approved (21 Nov 2026), from stage-notices.json and from Approve This Email on the Playbook
+       (db-stage-templates), so a button only warns that its email is held when it really is */
+    jobs.push(Promise.all([readData('stage-notices'), readData('db-stage-templates').then(null, function () { return null; })]).then(function (r) {
+      var v = r[0], t = (r[1] && r[1].docs) || {}, ap = {};
+      D.pausedPrograms = (v && v.pausedPrograms) || [];
+      ((v && v.templates) || []).forEach(function (x) { if (x && x.id) ap[x.id] = !!x.approved; });
+      Object.keys(t).forEach(function (k) { if (t[k] && t[k].approved === true) ap[k] = true; });
+      D.noticeApproved = ap;
+    }, function () { D.pausedPrograms = null; D.noticeApproved = null; }));
     jobs.push(Promise.all([readData('frame-questionnaire'), readData('emortgage-questionnaires')]).then(function (r) {
       var forms = { FRAME: r[0] }, docs = (r[1] && r[1].docs) || {};
       Object.keys(EMORTGAGE).forEach(function (code) { if (docs[EMORTGAGE[code]]) forms[code] = docs[EMORTGAGE[code]]; });

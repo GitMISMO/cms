@@ -5227,7 +5227,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var msg = kind === "payment"
             ? "Email a payment reminder to " + email + " about " + f.org + "’s " + f.program + " certification invoice (Aptify order " + orderId + (i.amount != null ? ", " + money(i.amount) : "") + ")?\n\nThe invoice PDF is attached and certifications@mismo.org is copied."
             : "Email a booking reminder to " + email + " about " + f.org + "’s " + f.program + " certification?\n\nIt thanks them for their payment and gives them their booking link" + (days != null ? " (they have been waiting " + days + " days)" : "") + ". certifications@mismo.org is copied.";
-        msg += " It goes out on the next run in business hours. Until its wording is approved on the Email Playbook page, it comes to certifications@mismo.org marked Held for Review instead.";
+        msg += " It goes out on the next run in business hours.";
+        /* only when its wording really is still waiting for approval (21 Nov 2026) */
+        if (D.noticeApproved && D.noticeApproved[TD_REM[kind].template] === false) msg += " Its wording is not approved yet, so until it is approved on the Email Playbook page it comes to certifications@mismo.org marked Held for Review instead.";
         if (!window.confirm(msg)) return;
         var at = (new Date).toISOString(), who = me && me.name || "someone";
         var body = { row: f.row, org: f.org, program: f.program, product: f.product || null, kind: kind, state: st, days: days, to: [ email ], toName: d.name || null, at: at, by: who };
@@ -17168,5 +17170,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-21b"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-21c"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>
