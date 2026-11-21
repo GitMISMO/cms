@@ -562,7 +562,10 @@
         sec.className = 'view'; sec.id = 'view-' + k;
         var frame = document.createElement('iframe');
         frame.title = e.label; frame.setAttribute('data-embed', k);
-        frame.style.cssText = 'width:100%;border:0;display:block;min-height:80vh';
+        frame.style.cssText = 'width:100%;border:0;display:block;min-height:80vh;overflow:hidden';
+        /* The frame grows to fit the page inside it (each page reports its height), so it never needs a scroll bar
+           of its own. Without this one flashed up while a page redrew, e.g. pressing the AMSP card (21 Nov 2026). */
+        frame.setAttribute('scrolling', 'no');
         sec.appendChild(frame);
         anchor.parentNode.insertBefore(sec, anchor.nextSibling);
         btn.addEventListener('click', function () {
