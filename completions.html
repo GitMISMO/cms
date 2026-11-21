@@ -270,7 +270,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       .then(function (j) {
         var bin = atob(String(j.content || "").replace(/\s/g, "")), bytes = new Uint8Array(bin.length);
         for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        data = JSON.parse(new TextDecoder("utf-8").decode(bytes));
+        var txt = new TextDecoder("utf-8").decode(bytes);
+        data = txt.trim() ? JSON.parse(txt) : { rows: [] };
+        if (!Array.isArray(data.rows)) data.rows = [];
         $("note").textContent = data.note || "";
         $("stamp").textContent = data.writtenAt ? "Brought up to date " + new Date(data.writtenAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + "." : "";
         draw();
