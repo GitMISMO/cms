@@ -277,12 +277,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!APPS.some(function (a) { return a.org === f.org; })) APPS.push({ org: f.org, kind: "initial", received: f.receivedOn || f.submittedOn || null, size: f.size || null }); });
       Object.keys(apps).forEach(function (k) { var a = apps[k]; if (a && /consult/i.test(a.program || "") && !APPS.some(function (x) { return x.org === a.org; })) APPS.push({ org: a.org, kind: "initial", received: a.receivedOn || null, size: a.size || null }); });
       /* meetings: this year's and last year's for each group */
-      var ix = g[8] && (g[8].doc || g[8]).docs || {}, y = new Date().getFullYear(), want = Object.keys(ix).filter(function (k) { return new RegExp("__(" + (y - 1) + "|" + y + ")$").test(k); });
-      SRC.feedKey = ix["feeds/cert-points"] ? ix["feeds/cert-points"].file : null;
-      var jobs = want.map(function (k) { return R("/meeting-trackers/data/" + encodeURIComponent(ix[k].file)).then(function (d) {
+      var jobs0 = [], ix = g[8] && (g[8].doc || g[8]).docs || {}, y = new Date().getFullYear(), want = Object.keys(ix).filter(function (k) { return new RegExp("__(" + (y - 1) + "|" + y + ")$").test(k); });
+      /* Meeting Trackers' attendance feed: data/feeds, doc feeds/cert-points, the list gzip + base64 in "z" */
+      jobs0.push(R("/meeting-trackers/data/feeds").then(function (d) {
+        var f = d && (d.doc || d).docs && (d.doc || d).docs["feeds/cert-points"]; if (!f) return;
+        if (f.people) { SRC.feed = f; return; }
+        if (!f.z || !window.DecompressionStream) return;
+        var bin = Uint8Array.from(atob(f.z), function (c) { return c.charCodeAt(0); });
+        return new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream("gzip"))).text().then(function (t) { SRC.feed = JSON.parse(t); SRC.feed.updated = f.updated; });
+      })["catch"](function () { SRC.feed = null; }));
+      var jobs = jobs0.concat(want.map(function (k) { return R("/meeting-trackers/data/" + encodeURIComponent(ix[k].file)).then(function (d) {
         if (!d) return; var gk = k.split("/")[1].split("__")[0], it = (d.doc || d).items || {};
-        SRC.mt.byGroup[gk] = (SRC.mt.byGroup[gk] || []).concat(Object.keys(it).map(function (x) { return it[x]; })); }); });
-      if (SRC.feedKey) jobs.push(R("/meeting-trackers/data/" + encodeURIComponent(SRC.feedKey)).then(function (d) { SRC.feed = d ? (d.doc || d) : null; }));
+        SRC.mt.byGroup[gk] = (SRC.mt.byGroup[gk] || []).concat(Object.keys(it).map(function (x) { return it[x]; })); }); }));
       return Promise.all(jobs);
     });
   }
@@ -436,7 +442,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     rs.requireAccess(PROJECT, { toolName: "Certification Management System", eyebrow: "Programs & Operations" }).then(load).then(function () {
       var first = APPS.filter(function (a) { return a.certified; })[0] || APPS[0];
       var want = (location.hash.match(/co=([^&]+)/) || [])[1]; if (want) want = decodeURIComponent(want);
-      $("stamp").textContent = "Read " + new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + ". Aptify report: " + (SRC.aptify ? SRC.aptify.length + " rows" : "not in yet") + ". Meeting Trackers: " + (SRC.feed ? "attendance feed" : "meetings only, until its attendance feed arrives") + ".";
+      $("stamp").textContent = "Read " + new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + ". Aptify report: " + (SRC.aptify ? SRC.aptify.length + " rows" : "not in yet") + ". Meeting Trackers: " + (SRC.feed ? "attendance feed of " + (SRC.feed.people || []).length + " people" + (SRC.feed.updated ? ", " + new Date(SRC.feed.updated).toLocaleDateString("en-US", { dateStyle: "medium" }) : "") : "meetings only (its attendance feed could not be read)") + ".";
       setTimeout(keepAll, 1500);
       if (want) { if (!entryFor(want)) state.adhoc[want] = { name: want, adhoc: true }; pick(want); } else if (first) pick(first.org); else { drawList(); $("pane").innerHTML = '<div class="card"><div class="empty">Type a company name to score it.</div></div>'; }
     })["catch"](function (e) { console.error("scorecards", e); $("pane").innerHTML = '<div class="card"><div class="empty">The scorecards could not be loaded just now. Reload the page in a minute; if it keeps happening, email certifications@mismo.org.</div></div>'; });

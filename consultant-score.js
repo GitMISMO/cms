@@ -191,29 +191,37 @@
 
     /* Meeting Trackers: workgroup attendance (66% of meetings held in the 12 months) and summits attended */
     var mt = src.meetings, feed = src.feed;
-    var mtCompanyOf = {};
-    if (feed && feed.people) {
-      Object.keys(feed.people).forEach(function (k) { var p = feed.people[k]; mtCompanyOf[k] = { name: p.name, company: p.company, companyId: p.aptifyId }; });
-    } else if (mt && mt.people) {
-      Object.keys(mt.people).forEach(function (k) { var p = mt.people[k]; if (p && !p.mergedInto) mtCompanyOf[k] = { name: p.name, company: (mt.companies[p.ck] || {}).name || "", ck: p.ck }; });
-    }
-    function mtMine(k) {
-      if (people[k]) return people[k];
-      var c = mtCompanyOf[k]; if (!c) return null;
-      if (!isOurs(c.company, c.companyId)) return null;
-      return person(c.name, "Meeting Trackers");
-    }
-    if (feed && feed.people) {
-      Object.keys(feed.people).forEach(function (k) {
-        var p = feed.people[k], who = mtMine(personKey(p.name) || k); if (!who) return;
-        Object.keys(p.groups || {}).forEach(function (gk) {
-          var g = p.groups[gk], held = 0, came = 0;
-          Object.keys(g.months || {}).forEach(function (mo) { var dd = mo + "-15"; if (dd >= from12 && dd <= asOf) { held += +g.months[mo].held || 0; came += +g.months[mo].attended || 0; } });
-          if (held && came / held >= 0.66 && !((leadsGroup[who.key] || {})[normCo(g.name)])) add("workgroup", who, g.name + ": " + came + " of " + held + " meetings", "Meeting Trackers");
+    if (feed && Array.isArray(feed.people)) {
+      /* Meeting Trackers' attendance feed (feeds/cert-points): each person with their company history; a person counts
+         for this company only for the months they were with it */
+      feed.people.forEach(function (p) {
+        if (!p || !p.name) return;
+        var k = personKey(p.name);
+        var hist = (p.companyHistory && p.companyHistory.length ? p.companyHistory : [{ company: p.company, aptifyCompanyId: p.aptifyCompanyId }])
+          .filter(function (h) { return h && isOurs(h.company, h.aptifyCompanyId); });
+        if (!hist.length && !added[k] && !people[k]) return;
+        var inPeriod = function (d) { return !hist.length || hist.some(function (h) { return (!h.from || String(h.from).slice(0, 10) <= d) && (!h.until || String(h.until).slice(0, 10) > d); }); };
+        var any = hist.some(function (h) { return (!h.from || String(h.from).slice(0, 10) <= asOf) && (!h.until || String(h.until).slice(0, 10) >= from12); });
+        if (!any && !added[k] && !people[k]) return;
+        var who = null;
+        (p.workgroups || []).forEach(function (g) {
+          var held = 0, came = 0;
+          Object.keys(g.byMonth || {}).forEach(function (mo) { var dd = mo + "-15"; if (dd >= from12 && dd <= asOf && inPeriod(dd)) { held += +g.byMonth[mo].held || 0; came += +g.byMonth[mo].attended || 0; } });
+          if (!held || came / held < 0.66) return;
+          who = who || person(p.name, "Meeting Trackers"); if (!who) return;
+          if ((leadsGroup[who.key] || {})[normCo(g.name)]) return;
+          add("workgroup", who, g.name + ": " + came + " of " + held + " meetings", "Meeting Trackers");
         });
-        (p.summits || []).forEach(function (s) { var dd = day(s.date); if (dd && dd >= from12 && dd <= asOf) add("summit", who, s.name, "Meeting Trackers", { date: dd }); });
+        (p.summits || []).forEach(function (sm) {
+          var dd = day(sm.date); if (!dd || dd < from12 || dd > asOf || !inPeriod(dd) || !(+sm.sessionsAttended > 0)) return;
+          who = who || person(p.name, "Meeting Trackers"); if (!who) return;
+          add("summit", who, sm.name, "Meeting Trackers", { date: dd });
+        });
       });
     } else if (mt && mt.byGroup) {
+      var mtCompanyOf = {};
+      if (mt.people) Object.keys(mt.people).forEach(function (k) { var p = mt.people[k]; if (p && !p.mergedInto) mtCompanyOf[k] = { name: p.name, company: (mt.companies[p.ck] || {}).name || "" }; });
+      var mtMine = function (k) { if (people[k]) return people[k]; var c = mtCompanyOf[k]; if (!c || !isOurs(c.company)) return null; return person(c.name, "Meeting Trackers"); };
       Object.keys(mt.byGroup).forEach(function (gk) {
         var list = mt.byGroup[gk].filter(function (x) { return x && !x.cancelled && x.d >= from12 && x.d <= asOf; });
         if (!list.length) return;
@@ -227,7 +235,7 @@
           add("workgroup", who, gname + ": " + count[k] + " of " + list.length + " meetings", "Meeting Trackers");
         });
       });
-      notes.push("Summit attendance comes in once Meeting Trackers shares its attendance list with the CMS.");
+      notes.push("Meeting Trackers' attendance feed could not be read, so summit attendance is missing and workgroup attendance counts only people the other systems already tie to the company.");
     }
 
     /* Product certifications the company holds (active on the date) */
