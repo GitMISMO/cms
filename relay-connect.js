@@ -535,12 +535,9 @@
     /* CMSP & AMSP (27 Oct 2026): MISMO's individual certifications, off the CMSP and AMSP Master Smartsheets. */
     /* AI Governance Portal (Jonna, 18 Nov 2026): the company-facing portal being refined, under CMSP & AMSP;
        its own page, opens in a new tab like Certification Completions. */
-    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual'] },
-    /* Portals (Jonna, 21 Nov 2026: "put them in a section together on the left nav call them portals and on the page you
-       can access each one, put links to the applications with each portal as well"): All Portals is the page with every
-       portal and its application; the rest open each sample portal in a new tab. The AI Governance portal moved here
-       from Daily Work. */
-    { label: 'Portals', items: ['portals', '@p-ron', '@p-eclosing', '@p-evault', '@p-product', '@p-consultant', '@p-frame', '@aigov', '@p-individual'] },
+    /* All Portals (Jonna, 21 Nov 2026): the page with every certification's portal and its application, under CMSP & AMSP
+       ("just put that under cmsp & amsp no need to have the others listed out, i like the all portals tab"). */
+    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual', 'portals'] },
     /* Certification Completions (Jonna, 17 Nov 2026): Accounting's monthly report. A view inside the CMS since 21 Nov 2026
        ("make it a regular tab in the CMS so JK can see it as well"); Accounting sees it on the MBA Accounting Desk. */
     { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'revenue', 'completions', 'counts'] },
