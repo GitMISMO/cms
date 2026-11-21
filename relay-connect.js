@@ -527,9 +527,9 @@
     /* AI Governance Portal (Jonna, 18 Nov 2026): the company-facing portal being refined, under CMSP & AMSP;
        its own page, opens in a new tab like Certification Completions. */
     { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual', '@aigov'] },
-    /* Certification Completions (Jonna, 17 Nov 2026): Accounting's monthly report, its own page; opens in a new tab,
-       the way Member 360 links to the Membership Desk. */
-    { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'revenue', '@completions', 'counts'] },
+    /* Certification Completions (Jonna, 17 Nov 2026): Accounting's monthly report. A view inside the CMS since 21 Nov 2026
+       ("make it a regular tab in the CMS so JK can see it as well"); Accounting sees it on the MBA Accounting Desk. */
+    { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'revenue', 'completions', 'counts'] },
     { label: 'Tracking', items: ['activity', 'emails'] },
     { label: 'Setup', items: ['programs', 'pricing', 'forms', 'lifecycle', 'playbook'] },
     { label: 'Help', items: ['help'] }
@@ -542,6 +542,8 @@
       icon: '<path d="M4.5 4.5h6.2a2.3 2.3 0 0 1 2.3 2.3v13.7a2 2 0 0 0-2-2H4.5Z"/><path d="M19.5 4.5h-4.2A2.3 2.3 0 0 0 13 6.8v13.7a2 2 0 0 1 2-2h4.5Z"/>' },
     individual: { src: 'individual.html?embed=1', label: 'CMSP & AMSP', title: 'Individual certifications: applications, renewals, certificates and reminders',
       icon: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20.2c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/><path d="m15.6 3.6 1.2 1.2 2.4-2.4"/>' },
+    completions: { src: 'completions.html?embed=1', label: 'Certification Completions', title: 'Certification Completions: the monthly report Accounting reconciles against',
+      icon: '<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="m14.5 16.2 1.4 1.4 2.6-2.8"/>' },
     help: { src: 'help.html?embed=1', label: 'Help', title: 'How the system and the certification process work',
       icon: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7"/><path d="M12 17h.01"/>' }
   };

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en" data-rs-gate>
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://rgvdi67cg27o5kcmiytcqbqnrm0hmztx.lambda-url.us-east-1.on.aws; frame-src 'none'; object-src 'none'; base-uri 'self'"><!-- Page safety list: the only places this page may load code from or send data to. -->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Certification Completions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script src="/assets/session.js"></script>
+<script src="embed.js"></script>
+<style>
+:root{--navy:#0d314c;--sky:#74bfeb;--navy-deep:#06202f;--navy-mid:#14486e;
+  --ground:#f1f6fa;--surface:#fff;--surface-2:#f6fafd;--surface-3:#e9f1f8;--border:#d5e2ed;--border-strong:#adc4d6;--rule:#e5eef5;
+  --ink:#0d314c;--ink-2:#456179;--ink-3:#7794aa;--good:#0f7b5c;--bad:#b3372c;--warn:#a2701a;--accent-soft:#e4f2fb;
+  --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--hq-h:64px;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground:#061722;--surface:#0d2837;--surface-2:#123143;--surface-3:#173c52;--border:#1f4a63;--border-strong:#2f6688;--rule:#173547;--ink:#e9f4fb;--ink-2:#a6c5d9;--ink-3:#7a9db4;--good:#4fc79b;--bad:#f08579;--warn:#e0a83c;--accent-soft:#173c52;color-scheme:dark}}
+:root[data-theme="dark"]{--ground:#061722;--surface:#0d2837;--surface-2:#123143;--surface-3:#173c52;--border:#1f4a63;--border-strong:#2f6688;--rule:#173547;--ink:#e9f4fb;--ink-2:#a6c5d9;--ink-3:#7a9db4;--good:#4fc79b;--bad:#f08579;--warn:#e0a83c;--accent-soft:#173c52;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--display);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit}
+.hqtop{position:sticky;top:0;z-index:20;height:var(--hq-h);background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.hqtop .mastrule{display:block;width:2px;height:34px;margin-inline:20px;border-radius:1px;background:var(--sky)}
+.hqtop .hqname{font-size:15.5px;font-weight:700;color:var(--sky);white-space:nowrap}
+.hqtop-r{margin-left:auto;display:flex;align-items:center;gap:13px}
+.eyebrow-m{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600;white-space:nowrap}
+.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;position:relative}
+.logoplate .wordmark{height:24px;width:auto;display:block}
+.santa{position:absolute;display:none;pointer-events:none;left:-9px;top:-12px;width:31px;height:31px}
+html[data-season="december"] .santa{display:block}
+#rs-account{display:inline-flex;align-items:center}
+@media(max-width:700px){.eyebrow-m{display:none}.hqtop{padding:0 12px}.hqtop .mastrule{margin-inline:10px}}
+main{max-width:1280px;margin:0 auto;padding:22px 22px 60px}
+@media(max-width:700px){main{padding:16px 16px 40px}}
+.hero{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(135deg,var(--navy-deep),var(--navy) 55%,var(--navy-mid));color:#fff;padding:22px 24px;box-shadow:0 10px 30px rgba(6,32,47,.18)}
+.hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(116,191,235,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(116,191,235,.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.hero>*{position:relative}
+.hero .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky);font-weight:700}
+.hero h1{margin:4px 0 6px;font-size:26px;letter-spacing:-.01em}
+.hero p{margin:0;color:rgba(255,255,255,.78);font-size:14px;max-width:760px;line-height:1.5}
+.picker{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+.seg{display:inline-flex;border:1px solid rgba(255,255,255,.28);border-radius:6px;overflow:hidden}
+.seg button{background:transparent;color:#fff;border:0;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sky);color:var(--navy-deep)}
+.navbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:6px;width:36px;height:36px;font-size:16px;cursor:pointer}
+.navbtn:disabled{opacity:.35;cursor:default}
+.hero select{background:#fff;color:var(--navy);border:0;border-radius:6px;padding:8px 10px;font-size:14px;font-weight:600;min-width:170px}
+.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:18px}
+@media(max-width:980px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:12px 14px}
+.tile b{display:block;font-size:22px;letter-spacing:-.01em}
+.tile span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.66);font-weight:600}
+.tile i{display:block;font-style:normal;font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 10px}
+.bar h2{margin:0;font-size:17px;flex:1 1 auto}
+.find{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:6px;padding:9px 11px;font-size:14px;width:240px;max-width:100%}
+.btn{background:var(--navy);color:#fff;border:1px solid var(--navy);border-radius:6px;padding:9px 14px;font-size:13.5px;font-weight:600;cursor:pointer}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--border-strong)}
+:root[data-theme="dark"] .btn{background:var(--sky);color:var(--navy-deep);border-color:var(--sky)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{background:var(--sky);color:var(--navy-deep);border-color:var(--sky)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;background:var(--surface-2);padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th.num,td.num{text-align:right}
+td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child,td:nth-child(4),td:nth-child(5){white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--surface-2)}
+td .sub{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:3px;background:var(--accent-soft);color:var(--ink-2);white-space:nowrap}
+.tag.good{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.tag.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.monthrow td{background:var(--surface-3);font-weight:700;font-size:12.5px;color:var(--ink-2)}
+tfoot td{font-weight:700;background:var(--surface-2);border-top:2px solid var(--border)}
+.empty{padding:34px 20px;text-align:center;color:var(--ink-3)}
+.note{margin-top:14px;color:var(--ink-3);font-size:12.5px;line-height:1.55}
+.stamp{color:var(--ink-3);font-size:12px}
+@media(max-width:700px){.find{width:100%}.bar h2{flex-basis:100%}}
+/* inside the CMS: no masthead of its own (embed.js) */
+html.embed .hqtop{display:none}
+html.embed body{background:transparent}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
+0 -101 4 -132 25 -197 57 -172 168 -280 335 -323 84 -22 723 -22 808 0 222 58
+355 253 355 520 0 270 -132 459 -361 520 -74 20 -730 20 -802 0z m692 -320
+c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
+-297 0 -307 2 -346 83 -30 61 -31 198 -2 262 41 93 68 100 368 97 219 -2 243
+-4 274 -22z M0 545 l0 -515 225 0 225 0 2 296 3 296 116 -294 116 -293 197 0 198
+0 119 295 118 295 1 -297 0 -298 225 0 225 0 0 515 0 515 -337 -2 -338 -3
+-104 -264 c-80 -204 -107 -260 -113 -245 -5 10 -52 129 -106 264 l-98 245
+-337 3 -337 2 0 -515z M1892 1044 l-22 -15 0 -483 c0 -455 1 -484 18 -499 16 -15 48 -17
+246 -17 128 0 235 4 246 10 32 17 34 57 4 95 -33 44 -64 143 -64 206 l0 49
+203 0 c191 0 205 -1 222 -20 10 -11 34 -24 54 -30 49 -13 586 -13 612 0 22 12
+26 62 7 78 -8 6 -174 15 -413 21 -502 15 -549 23 -628 110 -43 48 -57 93 -57
+187 0 82 19 156 55 208 30 44 32 77 7 99 -27 25 -456 25 -490 1z M3716 1044 c-23 -22 -20 -31 19 -77 43 -49 78 -155 73 -218 l-3 -44
+-204 -3 c-194 -2 -205 -1 -218 17 -24 35 -78 41 -355 41 -255 0 -269 -1 -288
+-20 -27 -27 -26 -58 3 -70 12 -5 202 -14 422 -19 421 -12 476 -18 555 -62 92
+-51 132 -159 111 -299 -12 -77 -34 -129 -77 -179 -23 -28 -25 -36 -16 -57 l12
+-24 215 0 215 0 2 306 3 306 120 -303 120 -304 197 -3 196 -2 118 296 119 297
+3 -296 2 -297 225 0 225 0 0 515 0 515 -338 0 -337 0 -104 -265 c-58 -146
+-106 -263 -108 -261 -2 2 -50 120 -107 262 l-104 259 -340 3 c-300 2 -342 0
+-356 -14z"/></g><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-s, #50a4db)"><path d="M2485 1046 c-44 -20 -111 -94 -136 -151 -27 -60 -37 -198 -20 -263
+13 -48 68 -115 114 -138 64 -34 162 -43 562 -55 239 -6 405 -15 413 -21 19
+-16 15 -66 -7 -78 -26 -13 -563 -13 -612 0 -20 6 -44 19 -54 30 -17 19 -31 20
+-222 20 l-203 0 0 -49 c0 -81 34 -172 86 -230 78 -87 31 -81 672 -81 l568 0
+46 29 c79 50 122 121 139 231 21 140 -19 248 -111 299 -79 44 -134 50 -555 62
+-220 5 -410 14 -422 19 -29 12 -30 43 -3 70 19 19 33 20 288 20 277 0 331 -6
+355 -41 13 -18 24 -19 218 -17 l204 3 3 44 c4 60 -31 168 -70 215 -17 21 -52
+52 -77 67 l-45 29 -550 0 c-440 -1 -557 -3 -581 -14z"/></g></symbol>
+
+<symbol id="mismo-hat" viewBox="0 0 100 100"><path d="M17,73 C9,44 20,17 42,9 C59,3 72,10 80,22 C85,30 86,38 81,41 C76,44 70,40 65,32 C60,46 57,60 57,73 Z" fill="#c0392f"/><path d="M17,73 C9,44 20,17 42,9 C48,7 53,6 58,7 C41,19 30,45 30,73 Z" fill="#0d314c" opacity=".17"/><rect x="10" y="65" width="56" height="20" rx="10" fill="#ffffff"/><rect x="10" y="75" width="56" height="10" rx="5" fill="#0d314c" opacity=".07"/><circle cx="86" cy="45" r="11.5" fill="#ffffff"/></symbol>
+</defs></svg>
+<header class="hqtop">
+  <span class="logoplate"><svg class="wordmark" role="img" aria-label="MISMO" viewBox="0 0 708 108"><use href="#mismo-logo"/></svg><svg class="santa" viewBox="0 0 100 100" aria-hidden="true"><use href="#mismo-hat"/></svg></span>
+  <span class="mastrule"></span>
+  <span class="hqname">Certification Completions</span>
+  <span class="hqtop-r"><span class="eyebrow-m">Programs &amp; Operations</span><div id="rs-account"></div></span>
+</header>
+<main>
+  <section class="hero" aria-labelledby="h1">
+    <div class="eyebrow">For Accounting</div>
+    <h1 id="h1">Certification Completions</h1>
+    <p id="lede">Every company and product certification completed, with the Aptify order, the fee, what has been paid and the assessor's fee.</p>
+    <div class="picker">
+      <div class="seg" role="group" aria-label="Period">
+        <button type="button" data-period="month" aria-pressed="true">Month</button>
+        <button type="button" data-period="year" aria-pressed="false">Year</button>
+        <button type="button" data-period="all" aria-pressed="false">All Time</button>
+      </div>
+      <button class="navbtn" type="button" id="prev" aria-label="Earlier">&#8249;</button>
+      <select id="pick" aria-label="Which month or year"></select>
+      <button class="navbtn" type="button" id="next" aria-label="Later">&#8250;</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+  <div class="bar">
+    <h2 id="listtitle">Completed</h2>
+    <input class="find" type="search" id="find" placeholder="Find a company, order or program" aria-label="Find a company, order or program">
+    <button class="btn" type="button" id="dl">Download for Excel</button>
+  </div>
+  <div class="card"><div class="tablewrap"><table>
+    <thead><tr>
+      <th data-sort="completedOn">Completed</th><th data-sort="org">Company</th><th data-sort="program">Certification</th><th data-sort="type">Type</th>
+      <th data-sort="order">Aptify Order</th><th class="num" data-sort="fee">Fee</th><th data-sort="paidOn">Paid</th>
+      <th data-sort="assessor">Assessor</th><th class="num" data-sort="assessorFee">Assessor's Fee</th><th data-sort="assessorInvoice">Assessor Invoice</th><th class="num" data-sort="mismoNet">MISMO's Share</th>
+    </tr></thead>
+    <tbody id="rows"><tr><td colspan="11" class="empty">Loading&hellip;</td></tr></tbody>
+    <tfoot id="foot"></tfoot>
+  </table></div></div>
+  <p class="note" id="note"></p>
+  <p class="stamp" id="stamp"></p>
+</main>
+<script>
+(function () {
+  "use strict";
+  /* A view of the CMS (Jonna, 21 Nov 2026: "make it a regular tab in the CMS so JK can see it as well"): the same report
+     Accounting sees, read with the CMS's own access, so anyone who can open the CMS can open this. */
+  var RELAY = "https://rgvdi67cg27o5kcmiytcqbqnrm0hmztx.lambda-url.us-east-1.on.aws", PROJECT = "cms";
+  var FILE = "data/accounting/completions.json";
+  var data = null, state = { period: "month", key: null, q: "", sort: "completedOn", dir: -1 };
+  try { var kept = JSON.parse(localStorage.getItem("resources:cert-completions:view") || "null"); if (kept) { state.period = kept.period || "month"; } } catch (e) {}
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function usd(n) { return n == null ? "" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  var MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function monthName(k) { var p = String(k).split("-"); return MON[+p[1] - 1] + " " + p[0]; }
+  function fmt(d) { if (!d) return ""; var p = d.split("-"); return MON[+p[1] - 1].slice(0, 3) + " " + (+p[2]) + ", " + p[0]; }
+  function keysFor(period) {
+    var set = {};
+    (data.rows || []).forEach(function (r) { set[period === "year" ? r.month.slice(0, 4) : r.month] = 1; });
+    return Object.keys(set).sort().reverse();
+  }
+  function inPeriod(r) {
+    if (state.period === "all") return true;
+    return state.period === "year" ? r.month.slice(0, 4) === state.key : r.month === state.key;
+  }
+  function label() { return state.period === "all" ? "All Time" : state.period === "year" ? state.key : monthName(state.key); }
+  function rowsNow() {
+    var q = state.q.trim().toLowerCase();
+    return (data.rows || []).filter(inPeriod).filter(function (r) {
+      if (!q) return true;
+      return [r.org, r.program, r.product, r.order, r.assessor, r.type, r.aptifyCompanyId, r.assessorInvoice].join(" ").toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) {
+      var x = a[state.sort], y = b[state.sort];
+      if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1;
+      var c = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
+      return c * state.dir || String(b.completedOn).localeCompare(String(a.completedOn));
+    });
+  }
+  function sum(list, k) { return list.reduce(function (t, r) { return t + (Number(k === "paidAmount" ? paidToward(r) : r[k]) || 0); }, 0); }
+  /* one Aptify order can cover more than one certification, so a payment counts here only up to this fee */
+  function paidToward(r) { if (r.paidAmount == null) return r.balance === 0 ? r.fee : null; return r.fee != null ? Math.min(r.paidAmount, r.fee) : r.paidAmount; }
+  function drawPicker() {
+    document.querySelectorAll("[data-period]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-period") === state.period)); });
+    var keys = keysFor(state.period), sel = $("pick");
+    if (state.period === "all") { sel.hidden = true; $("prev").hidden = true; $("next").hidden = true; return; }
+    sel.hidden = false; $("prev").hidden = false; $("next").hidden = false;
+    if (!state.key || keys.indexOf(state.key) < 0) state.key = keys[0] || null;
+    sel.innerHTML = keys.map(function (k) { return '<option value="' + esc(k) + '"' + (k === state.key ? " selected" : "") + ">" + esc(state.period === "year" ? k : monthName(k)) + "</option>"; }).join("");
+    var i = keys.indexOf(state.key);
+    $("prev").disabled = i >= keys.length - 1; $("next").disabled = i <= 0;
+  }
+  function draw() {
+    drawPicker();
+    var all = (data.rows || []).filter(inPeriod), list = rowsNow();
+    var fees = sum(all, "fee"), paid = sum(all, "paidAmount"), aFee = sum(all, "assessorFee"), net = sum(all, "mismoNet");
+    var unpaid = all.filter(function (r) { return r.order && !r.paidOn && r.balance !== 0; }).length;
+    $("tiles").innerHTML =
+      '<div class="tile"><span>Completed</span><b>' + all.length + "</b><i>" + esc(label()) + "</i></div>" +
+      '<div class="tile"><span>Fees</span><b>' + usd(fees) + "</b><i>" + all.filter(function (r) { return r.fee != null; }).length + " with a fee</i></div>" +
+      '<div class="tile"><span>Paid</span><b>' + usd(paid) + "</b><i>" + (unpaid ? unpaid + " not shown as paid" : "all shown as paid") + "</i></div>" +
+      '<div class="tile"><span>Assessor’s Fees</span><b>' + usd(aFee) + "</b><i>to outside assessors</i></div>" +
+      '<div class="tile"><span>MISMO’s Share</span><b>' + usd(net) + "</b><i>fee less assessor’s fee</i></div>";
+    $("listtitle").textContent = "Completed, " + label();
+    var html = "", lastMonth = null, multi = state.period !== "month" && state.sort === "completedOn";
+    list.forEach(function (r) {
+      if (multi && r.month !== lastMonth) {
+        lastMonth = r.month;
+        var m = list.filter(function (x) { return x.month === r.month; });
+        html += '<tr class="monthrow"><td colspan="5">' + esc(monthName(r.month)) + " · " + m.length + " completed</td>" +
+          '<td class="num">' + usd(sum(m, "fee")) + '</td><td></td><td></td><td class="num">' + usd(sum(m, "assessorFee")) + '</td><td></td><td class="num">' + usd(sum(m, "mismoNet")) + "</td></tr>";
+      }
+      var paidCell = r.paidOn ? '<span class="tag good">Paid</span><span class="sub">' + esc(fmt(r.paidOn)) +
+          (r.fee != null && r.paidAmount != null && r.paidAmount !== r.fee ? " \u00b7 order payment " + usd(r.paidAmount) : "") + "</span>"
+        : r.balance === 0 ? '<span class="tag good">Paid</span>'
+        : r.order ? '<span class="tag warn">Not shown as paid</span>' : '<span class="sub">No Aptify order on file</span>';
+      html += "<tr><td>" + esc(fmt(r.completedOn)) + (r.source === "MACTS" ? '<span class="sub">MACTS</span>' : "") + "</td>" +
+        "<td><b>" + esc(r.org) + "</b>" + (r.aptifyCompanyId ? '<span class="sub">Aptify ' + esc(r.aptifyCompanyId) + "</span>" : "") + "</td>" +
+        "<td>" + esc(r.program) + (r.product ? '<span class="sub">' + esc(r.product) + "</span>" : "") + "</td>" +
+        "<td>" + esc(r.type) + "</td><td>" + esc(r.order || "") + '</td><td class="num">' + usd(r.fee) + "</td><td>" + paidCell + "</td>" +
+        "<td>" + esc(r.assessor || "") + '</td><td class="num">' + usd(r.assessorFee) + "</td><td>" + (r.assessorInvoice ? esc(r.assessorInvoice) + (r.assessorInvoiceDate ? '<span class="sub">' + esc(r.assessorInvoiceDate) + "</span>" : "") : "") + '</td><td class="num">' + usd(r.mismoNet) + "</td></tr>";
+    });
+    $("rows").innerHTML = html || '<tr><td colspan="11" class="empty">Nothing completed' + (state.q ? " matches that search" : " in " + esc(label())) + ".</td></tr>";
+    $("foot").innerHTML = list.length ? '<tr><td colspan="5">' + list.length + (list.length === 1 ? " certification" : " certifications") + "</td>" +
+      '<td class="num">' + usd(sum(list, "fee")) + '</td><td>' + usd(sum(list, "paidAmount")) + '</td><td></td><td class="num">' + usd(sum(list, "assessorFee")) + '</td><td></td><td class="num">' + usd(sum(list, "mismoNet")) + "</td></tr>" : "";
+    try { localStorage.setItem("resources:cert-completions:view", JSON.stringify({ period: state.period })); } catch (e) {}
+  }
+  function csvCell(v) { var s = v == null ? "" : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+  function download() {
+    var list = rowsNow();
+    var head = ["Completed On", "Month", "Recorded In", "Company", "Aptify Company ID", "Program", "Product", "Type", "Aptify Order", "Fee", "Order Payment", "Paid On", "Paid By", "Assessor", "Assessor's Fee", "Assessor Invoice", "MISMO's Share"];
+    var lines = [head.join(",")].concat(list.map(function (r) {
+      return [r.completedOn, r.month, r.source, r.org, r.aptifyCompanyId, r.program, r.product, r.type, r.order, r.fee, r.paidAmount, r.paidOn, r.paidHow, r.assessor, r.assessorFee, r.assessorInvoice, r.mismoNet].map(csvCell).join(",");
+    }));
+    var blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "Certification Completions - " + label() + ".csv"; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  function wire() {
+    document.querySelectorAll("[data-period]").forEach(function (b) { b.addEventListener("click", function () { state.period = b.getAttribute("data-period"); state.key = null; draw(); }); });
+    $("pick").addEventListener("change", function () { state.key = this.value; draw(); });
+    $("prev").addEventListener("click", function () { var k = keysFor(state.period), i = k.indexOf(state.key); if (i < k.length - 1) { state.key = k[i + 1]; draw(); } });
+    $("next").addEventListener("click", function () { var k = keysFor(state.period), i = k.indexOf(state.key); if (i > 0) { state.key = k[i - 1]; draw(); } });
+    $("find").addEventListener("input", function () { state.q = this.value; draw(); });
+    $("dl").addEventListener("click", download);
+    document.querySelectorAll("th[data-sort]").forEach(function (th) {
+      th.addEventListener("click", function () { var k = th.getAttribute("data-sort"); state.dir = state.sort === k ? -state.dir : (k === "completedOn" ? -1 : 1); state.sort = k; draw(); });
+    });
+  }
+  function fail(msg) { $("rows").innerHTML = '<tr><td colspan="11" class="empty">' + esc(msg) + "</td></tr>"; }
+  function load() {
+    var tok = ""; try { tok = window.ResourcesSession.token() || ""; } catch (e) {}
+    return fetch(RELAY + "/" + PROJECT + "/file/" + FILE, { headers: { Authorization: "Bearer " + tok } })
+      .then(function (r) { if (!r.ok) throw new Error("status " + r.status); return r.json(); })
+      .then(function (j) {
+        var bin = atob(String(j.content || "").replace(/\s/g, "")), bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        data = JSON.parse(new TextDecoder("utf-8").decode(bytes));
+        $("note").textContent = data.note || "";
+        $("stamp").textContent = data.writtenAt ? "Brought up to date " + new Date(data.writtenAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + "." : "";
+        draw();
+      })["catch"](function (e) { console.error("completions", e); fail("The list could not be loaded just now. Reload the page in a minute; if it keeps happening, email certifications@mismo.org."); });
+  }
+  wire();
+  function start() {
+    var rs = window.ResourcesSession; if (!rs) { setTimeout(start, 100); return; }
+    rs.requireAccess(PROJECT, { toolName: "Certification Management System", eyebrow: "Programs & Operations" }).then(load)["catch"](function (e) { console.error("completions", e); });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>
+</body>
+</html>
