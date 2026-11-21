@@ -5321,7 +5321,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderTodo();
     }
     function tdStageRow(f) {
-        var st = currentState(f), w = String((STATE[st] || {}).waiting || f.waiting || ""), x = followUpOf(f);
+        var st = currentState(f), w = waitOf(f, st), x = followUpOf(f);
         return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(stateLabelOf(f, st))
             + (tdDays(f) ? " \u00b7 " + tdDays(f) : "") + (w ? " \u00b7 " + esc(pendingLabel(f)) : "") + (fuHeld(f) ? " \u00b7 On Hold" : x ? " \u00b7 on Follow Up" : "") + "</span></button>";
     }
@@ -5434,7 +5434,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (!tdAssessorOf(f)) { todo.assessor.push(f); return; }
             if (TD_JONATHAN.indexOf(st) >= 0) { wait.jonathan.push(f); return; }
             if (TD_SYSTEM.indexOf(st) >= 0) { wait.system.push(f); return; }
-            var w = String((STATE[st] || {}).waiting || f.waiting || "");
+            var w = waitOf(f, st);
+            if (progStage(f, st) && /^MISMO$/.test(w)) { wait.jonathan.push(f); return; }
             if (/assessor/i.test(w)) wait.assessor.push(f);
             else if (/company/i.test(w)) wait.company.push(f);
             else todo.record.push(f);
@@ -5563,7 +5564,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var TD_WAIT = [
         [ "company", "With the Company", "Their move: documents, a demo date, payment, a signature, fixes." ],
         [ "assessor", "With the Assessor", "Demos, reviews and results. They record these in the Assessor Portal." ],
-        [ "jonathan", "With Jonathan", "Results and scope decisions on My Approvals." ],
+        [ "jonathan", "With MISMO", "Waiting on MISMO: Jonathan's results and scope decisions on My Approvals, and AI Governance portal access once it is approved." ],
         [ "system", "The System Is Handling It", "Renewal notices and reminders, and Mark License Agreements going out through DocuSign." ],
         [ "later", "Follow Up Later", "On Follow Up, with a chase-again date still to come." ],
         [ "hold", "On Hold", "MISMO's delay. Nothing chases these until the hold is released." ]
@@ -5598,7 +5599,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "invoice", "Raise an Invoice", "Renewal and new-application invoices to raise in Aptify and email, and invoices still waiting for their PDF." ],
         [ "company", "With the Company", "Nothing for you to do yet. The company has the next move, written on each line. If they go quiet, the line comes back to Needs You as a follow-up." ],
         [ "assessor", "With the Assessor", "Nothing for you to do yet. The assessor has the next move and records it in the Assessor Portal." ],
-        [ "jonathan", "With Jonathan", "Results and scope decisions waiting for Jonathan on My Approvals." ],
+        [ "jonathan", "With MISMO", "Waiting on MISMO, not the company: Jonathan's results and scope decisions on My Approvals, and AI Governance companies waiting for portal access once it is approved." ],
         [ "system", "Runs Itself", "Nothing for anyone to do. Renewal notices, reminders and Mark License Agreements go out on their own schedule." ],
         [ "later", "Chase Later", "Already chased. Each comes back to Needs You on its chase-again date." ],
         [ "hold", "On Hold", "Paused by MISMO. Nothing chases these until the hold is released on the record." ],
@@ -5626,9 +5627,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        paid and waiting for access to the AI Governance portal. Other programs keep the general wording. */
     var PROG_STAGE = {
         "FRAME|AwaitingReviewSelection": { label: "Paid, Completing the Questionnaire", pending: "Pending Questionnaire from the Company", next: "Complete the questionnaire" },
-        "AI Governance|AwaitingReviewSelection": { label: "Paid, Waiting for Portal Access", pending: "Pending AI Governance Portal Access", next: "Send portal access once it is approved" }
+        "AI Governance|AwaitingReviewSelection": { label: "Paid, Waiting for Portal Access", pending: "Waiting for Portal Access", next: "Send portal access once it is approved", waiting: "MISMO" }
     };
     function progStage(f, st) { return f ? PROG_STAGE[String(f.program) + "|" + (st || currentState(f))] || null : null; }
+    /* Who has the move. A program's own wording can say so (AI Governance waiting for portal access is with MISMO, not the
+       company - Jonna, 21 Nov 2026), so it is not chased as a quiet company. */
+    function waitOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return String((q && q.waiting) || (STATE[st] || {}).waiting || f.waiting || ""); }
     function stateLabelOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return q ? q.label : titleOfState(st); }
     function nextLabelOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return q ? q.next : (TQ_NEXT[st] || titleOfState(st)); }
     /* What the company was invoiced and whether it is paid - MISMO's own view only. */
@@ -5790,7 +5794,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 + '<span class="tqt-sub">' + current + " of " + live.length + " certifications are current" + (live.length - current ? "; " + (live.length - current) + " past their anniversary" : "") + ".</span></div>"
             + tile("company", "With the Company", big(L.company.length) + '<span class="tqt-sub">' + esc(sub.company) + '</span><span class="tqt-list">' + mini(L.company.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2) + "</span>")
             + tile("assessor", "With the Assessor", big(L.assessor.length) + '<span class="tqt-sub">' + esc(sub.assessor) + '</span><span class="tqt-list">' + mini(L.assessor.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2) + "</span>")
-            + tile("jonathan", "With Jonathan", big(L.jonathan.length) + '<span class="tqt-sub">' + (L.jonathan.length ? "Waiting on My Approvals" : "Nothing waiting for a decision") + "</span>")
+            + (function() {
+                var pa = L.jonathan.filter((function(x) { return x.f && progStage(x.f) && progStage(x.f).waiting === "MISMO"; })).length, ap = L.jonathan.length - pa;
+                var bits = [];
+                if (pa) bits.push(pa + " waiting for portal access");
+                if (ap) bits.push(ap + " on My Approvals");
+                return tile("jonathan", "With MISMO", big(L.jonathan.length) + '<span class="tqt-sub">' + esc(bits.length ? bits.join(" · ") : "Nothing waiting on MISMO") + '</span><span class="tqt-list">' + mini(L.jonathan, 2) + "</span>");
+            })()
             + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-flow" aria-hidden="true"><svg viewBox="0 0 220 34"><path class="fl" d="M18 17 H202"></path><circle cx="18" cy="17" r="7"></circle><circle cx="110" cy="17" r="7"></circle><circle cx="202" cy="17" r="7"></circle></svg><span><i>Notices</i><i>DocuSign</i><i>Payments</i></span></span>')
             + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>", { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>", { cls: "sm" })
@@ -5865,7 +5875,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; }
         return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st) };
     }
-    var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "Jonathan", system: "Automatic", later: "Chase later", hold: "On hold" };
+    var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "MISMO", system: "Automatic", later: "Chase later", hold: "On hold" };
     /* ---- The certification journey (31 Oct 2026, Jonna: give the CMS the Assessor Portal's treatment).
        The same seven stops the assessors see, so MISMO and the firms read the process the same way. ---- */
     var CJ = [
@@ -5878,7 +5888,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         { t: "Certified", who: "MISMO and DocuSign", s: [ "ApprovedPendingLicense", "LicenseSent", "Certified" ] }
     ];
     function cjStop(f) { var st = currentState(f); for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return 0; }
-    function cjMismo(f) { return /MISMO|VP/.test(String((STATE[currentState(f)] || {}).waiting || f.waiting || "")); }
+    function cjMismo(f) { return /MISMO|VP/.test(waitOf(f)); }
     function cjBar(f) {
         var at = cjStop(f), mine = cjMismo(f);
         return '<span class="cjb" title="' + esc(CJ[at].t) + '">' + CJ.map((function(j, i) { return '<i class="' + (i < at ? "past" : i === at ? (mine ? "now mine" : "now") : "") + '"></i>'; })).join("") + "</span>";
@@ -5916,7 +5926,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var open = cjOpen();
         CJ.forEach((function(j, i) {
             L["stop" + i] = open.filter((function(f) { return cjStop(f) === i; })).map((function(f) {
-                var x = tqWaitItem("stop", f), w = String((STATE[currentState(f)] || {}).waiting || f.waiting || "");
+                var x = tqWaitItem("stop", f), w = waitOf(f);
                 x.extra = fuHeld(f) ? "On hold" : w ? pendingLabel(f) : x.stage;
                 return x;
             }));
@@ -6435,7 +6445,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var l = fuListEntry(f);
         if (l && fuIsPayment(l.what || l.reason) && fuPayment(f).paid) l = null;
         if (l) return { kind: "list", reason: l.what || l.reason || "On the follow-up list", nextOn: null, severity: l.severity };
-        var w = String((fuStateDef(f).waiting) || f.waiting || "");
+        var w = waitOf(f);
         var days = fuDaysInState(f);
         var an = assessorNoteOf(f);
         if (an && an.nextOn && an.nextOn >= fuToday()) return null;
@@ -10976,7 +10986,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var rnProg = { who: "all", q: "" };
     function rnProgRows() {
         return (D.inFlight || []).filter((function(f) { return f && f.kind === "renewal" && tdOpen(f); })).map((function(f) {
-            var st = currentState(f), c = certFor(f), held = fuHeld(f), w = String((STATE[st] || {}).waiting || f.waiting || "");
+            var st = currentState(f), c = certFor(f), held = fuHeld(f), w = waitOf(f, st);
             var who = held ? "hold" : TD_JONATHAN.indexOf(st) >= 0 ? "jonathan" : TD_SYSTEM.indexOf(st) >= 0 ? "system"
                 : /assessor/i.test(w) ? "assessor" : /company/i.test(w) ? "company" : "mismo";
             var money = ""; try { money = moneyLine(f) || ""; } catch (e) {}
