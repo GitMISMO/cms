@@ -5320,6 +5320,39 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         attempt(f, pn.to);
         renderTodo();
     }
+    /* Start before payment (Jonna, 21 Nov 2026: "the ability to jump the invoice - for instance i want to give this to
+       erin to do and they havent paid and i don't want to wait"). A first certification that has not paid can be moved on
+       to its review or demonstration booking now. The invoice stays open and keeps counting as unpaid; MISMO Money records
+       the payment when it comes. The move is recorded with who started it early. */
+    var TD_EARLY_FROM = [ "Draft", "DocumentsRequested", "AgreementSent", "AwaitingPayment" ];
+    function tdEarlyNext(f) {
+        if (!f || String(f.kind || "initial") === "renewal" || TD_EARLY_FROM.indexOf(currentState(f)) < 0) return null;
+        if (fuHeld(f)) return null;
+        var pm = fuPayment(f);
+        if (pm && pm.paid) return null;
+        var pd = tdProgDef(f), demo = !!(pd && pd.demo);
+        return { to: demo ? "AwaitingDemoSelection" : "AwaitingReviewSelection", demo: demo,
+            label: demo ? "Start Demo Booking Before Payment" : "Start Before Payment" };
+    }
+    function tdEarlyGo(row) {
+        var f = byRow(row), en = tdEarlyNext(f);
+        if (!f || !en) return;
+        if (!canWrite) { toast("You have view-only access, so this cannot be moved.", "warn"); return; }
+        var portal = [ "RON", "eClosing", "eVault", "Product", "Consultant", "FRAME" ].indexOf(f.program) >= 0;
+        if (!window.confirm("Start " + f.org + "’s " + f.program + " certification now, before the invoice is paid?\n\n"
+            + "It moves on to " + titleOfState(en.to) + (en.demo ? ", and the company is emailed its booking link" : portal ? ", and the company is emailed its certification portal" : "")
+            + " " + sendDayText() + ".\n\nThe invoice stays open: it still counts as unpaid, and MISMO Money records the payment when it comes."
+            + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
+        recordMove(f, en.to, null, "Started before payment by " + (me && me.name ? me.name : "MISMO") + "; the invoice stays open.");
+        toast(f.org + " moved to " + titleOfState(en.to) + ", before payment.", "good");
+        renderTodo();
+    }
+    document.addEventListener("click", (function(e) {
+        var t = e.target && e.target.closest ? e.target.closest("[data-tdearly]") : null;
+        if (!t) return;
+        e.preventDefault(); e.stopPropagation();
+        tdEarlyGo(+t.getAttribute("data-tdearly"));
+    }), true);
     function tdStageRow(f) {
         var st = currentState(f), w = waitOf(f, st), x = followUpOf(f);
         return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(stateLabelOf(f, st))
@@ -5542,7 +5575,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 : (fx.reason || "On the follow-up list");
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>"
                 + '<div class="td-meta">' + (pn || rm || nd ? "<b>" + esc(tdShort) + "</b>" : esc(tdShort)) + "</div></div>";
-            return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
+            var en = pn ? null : tdEarlyNext(f);
+            return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (en ? tdBtn(en.label, 'data-tdearly="' + f.row + '"', true) : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : "Send a " + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
                 + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
@@ -8599,7 +8633,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* Jonna, 31 Oct 2026: "make the company right details pane less confusing, more user
            friendly, give it a wow factor". One record, four tabs instead of one long scroll:
            Overview (where it is, what to do), Money, The Certification, The Company. */
-        var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + cycleHoldNote(f) + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
+        var early = canWrite ? tdEarlyNext(f) : null;
+        var earlyHtml = early ? '<div class="pc-note" style="margin:0 0 10px"><b>Not paid yet.</b> You can start now and not wait for the payment; the invoice stays open.'
+            + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn" type="button" data-tdearly="' + f.row + '">' + esc(early.label) + "</button></div></div>" : "";
+        var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + cycleHoldNote(f) + earlyHtml + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
         var whoHtml = '<div class="dcard"><div class="dcard-h"><b>Assessor and Notes</b></div>' + '<div class="pc-lab" style="margin-top:0">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
         })).join("") + "</select>" + '<div class="pc-lab" style="margin-top:12px;">Note</div>' + '<textarea class="pc-input" rows="2" data-note="' + f.row + '" placeholder="What happened, in your words">' + esc(moves[f.row] && moves[f.row].note || "") + "</textarea></div>";
