@@ -5257,6 +5257,28 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             }), onWriteRefused);
         }));
     }
+    /* A first application that has paid but still sits at Agreement Sent (Jonna, 20 Nov 2026: "i want to get them to
+       start moving forward in the process but i can't tell what i'm supposed to do"). The move is MISMO's, not the
+       company's: the card says so and offers the next step - the review (FRAME, AI Governance and other programs MISMO
+       reviews) or demonstration booking (programs with a live demonstration). */
+    function tdProgDef(f) { return (D.programs || []).filter((function(p) { return p.code === f.program || p.name === f.program || p.mactsType === f.program; }))[0] || null; }
+    function tdPaidNext(f) {
+        if (!f || currentState(f) !== "AgreementSent" || String(f.kind || "initial") === "renewal") return null;
+        var pm = fuPayment(f);
+        if (!pm.paid) return null;
+        var pd = tdProgDef(f), demo = !!(pd && pd.demo), to = demo ? "AwaitingDemoSelection" : "AwaitingReviewSelection";
+        return { to: to, label: demo ? "Start Demo Booking" : "Start the Review",
+            text: "Paid" + (pm.paidOn ? " " + fmt(String(pm.paidOn).slice(0, 10)) : "") + (pm.number ? ", order " + pm.number : "") + ". The next move is MISMO’s: " + (demo ? "start their demonstration booking." : "start the review.") };
+    }
+    function tdPaidGo(row) {
+        var f = byRow(row), pn = tdPaidNext(f);
+        if (!f || !pn) return;
+        if (!window.confirm("Move " + f.org + "’s " + f.program + " application on to " + titleOfState(pn.to) + "?\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "") + " "
+            + (pn.to === "AwaitingDemoSelection" ? "The company is emailed its booking link." : "certifications@mismo.org is told it is ready for the review" + (f.program === "FRAME" ? ", and the FRAME practical exercise can be sent from MISMO’s assessor portal." : "."))
+            + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
+        attempt(f, pn.to);
+        renderTodo();
+    }
     function tdStageRow(f) {
         var st = currentState(f), w = String((STATE[st] || {}).waiting || f.waiting || ""), x = followUpOf(f);
         return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(titleOfState(st))
@@ -5443,18 +5465,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var head = '<div class="td-main"><button class="td-org" type="button" data-tdopen="' + f.row + '">' + esc(f.org) + "</button>"
             + '<div class="td-meta">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "");
         if (key.indexOf("fu-") === 0) {
-            var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null, rk = tdRemKind(key, f), rm = rk ? tdRemOf(f, rk) : null;
-            head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>" + '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the earlier follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>"
+            var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null, rk = tdRemKind(key, f), rm = rk ? tdRemOf(f, rk) : null, pn = tdPaidNext(f);
+            head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>"
+                + (pn ? '<div class="td-meta"><b>' + esc(pn.text) + "</b></div>"
+                    : '<div class="td-meta">' + esc(fx.reason || "On the follow-up list") + (fx.kind === "list" ? " (from the earlier follow-up list)" : fx.kind === "auto" ? " (flagged automatically)" : "") + "</div>")
                 + (fuPaymentLine(f, fx.reason) ? '<div class="td-meta">' + esc(fuPaymentLine(f, fx.reason)) + "</div>" : "")
                 + (assessorNoteOf(f) ? '<div class="td-meta"><b>Assessor\u2019s note ' + esc(fmt(String(assessorNoteOf(f).at).slice(0, 10))) + ":</b> " + esc(assessorNoteOf(f).note)
                     + (assessorNoteOf(f).nextOn ? " \u00b7 next contact " + esc(fmt(assessorNoteOf(f).nextOn)) : "") + "</div>" : "")
                 + (nd ? '<div class="td-meta"><b>' + esc(nd.text) + "</b></div>" : "")
                 + (rm ? '<div class="td-meta"><b>' + esc(rm.text) + "</b></div>" : "")
                 + (!rk && tdPaused(f) ? '<div class="td-meta">' + esc(f.program) + " is paused, so no reminders go to the company yet.</div>" : "") + "</div>";
-            return tdItem(key, head, canWrite ? (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
+            return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : "Send a " + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
-                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk) + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
+                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
         }
         head += "</div></div>";
         if (key === "assessor") {
@@ -6124,9 +6148,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             setTimeout((function() { if (tdPending) renderTodo(); }), 150);
         }));
         host.addEventListener("click", (function(e) {
-            var t = e.target && e.target.closest ? e.target.closest("[data-tdopen],[data-tdcert],[data-tdrenewal],[data-tdpick],[data-tdsent],[data-tdprospect],[data-tdwelcome],[data-tdstart],[data-tdorg],[data-tdnudge],[data-tdremind]") : null;
+            var t = e.target && e.target.closest ? e.target.closest("[data-tdopen],[data-tdcert],[data-tdrenewal],[data-tdpick],[data-tdsent],[data-tdprospect],[data-tdwelcome],[data-tdstart],[data-tdorg],[data-tdnudge],[data-tdremind],[data-tdpaidnext]") : null;
             if (!t) return;
             if (t.hasAttribute("data-tdnudge")) { if (!t.disabled) tdNudge(+t.getAttribute("data-tdnudge")); return; }
+            if (t.hasAttribute("data-tdpaidnext")) { tdPaidGo(+t.getAttribute("data-tdpaidnext")); return; }
             if (t.hasAttribute("data-tdremind")) { var rp = t.getAttribute("data-tdremind").split("|"); if (!t.disabled) tdRemind(+rp[0], rp[1]); return; }
             if (t.hasAttribute("data-tdopen")) { openPanelRecord(+t.getAttribute("data-tdopen"), null, null); return; }
             if (t.hasAttribute("data-tdcert")) { openPanelCert(t.getAttribute("data-tdcert"), null); return; }
