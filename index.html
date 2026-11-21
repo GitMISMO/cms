@@ -5270,14 +5270,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var pm = fuPayment(f);
         if (!pm.paid) return null;
         var pd = tdProgDef(f), demo = !!(pd && pd.demo), to = demo ? "AwaitingDemoSelection" : "AwaitingReviewSelection";
-        return { to: to, label: demo ? "Start Demo Booking" : "Start the Review",
-            text: "Paid" + (pm.paidOn ? " " + fmt(String(pm.paidOn).slice(0, 10)) : "") + (pm.number ? ", order " + pm.number : "") + ". The next move is MISMO’s: " + (demo ? "start their demonstration booking." : "start the review.") };
+        /* FRAME: the next step is the company's questionnaire, so say so (Jonna, 21 Nov 2026) */
+        var q = !demo && f.program === "FRAME";
+        return { to: to, label: demo ? "Start Demo Booking" : q ? "Send the Questionnaire" : "Start the Review",
+            text: "Paid" + (pm.paidOn ? " " + fmt(String(pm.paidOn).slice(0, 10)) : "") + (pm.number ? ", order " + pm.number : "") + ". The next move is MISMO’s: " + (demo ? "start their demonstration booking." : q ? "send them their questionnaire." : "start the review.") };
     }
     function tdPaidGo(row) {
         var f = byRow(row), pn = tdPaidNext(f);
         if (!f || !pn) return;
-        if (!window.confirm("Move " + f.org + "’s " + f.program + " application on to " + titleOfState(pn.to) + "?\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "") + " "
-            + (pn.to === "AwaitingDemoSelection" ? "The company is emailed its booking link." : "certifications@mismo.org is told it is ready for the review" + (f.program === "FRAME" ? ", and the company is emailed its own link to the FRAME questionnaire on the next run in business hours." : "."))
+        if (!window.confirm((f.program === "FRAME" && pn.to === "AwaitingReviewSelection"
+                ? "Send " + f.org + " its FRAME questionnaire?\n\nIt emails them their own link to the questionnaire on the next run in business hours, with certifications@mismo.org copied. Their application moves on to " + titleOfState(pn.to) + ", the questionnaire and review stage.\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "")
+                : "Move " + f.org + "’s " + f.program + " application on to " + titleOfState(pn.to) + "?\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "") + " "
+            + (pn.to === "AwaitingDemoSelection" ? "The company is emailed its booking link." : "certifications@mismo.org is told it is ready for the review."))
             + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
         attempt(f, pn.to);
         renderTodo();
@@ -5471,7 +5475,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null, rk = tdRemKind(key, f), rm = rk ? tdRemOf(f, rk) : null, pn = tdPaidNext(f);
             /* One short line on the card; the rest (payment check, notes, reminders, the pause) is on the record,
                opened from the company name (Jonna, 21 Nov 2026: "too much text and creating weird blank space"). */
-            var tdShort = pn ? "Paid \u00b7 the next move is MISMO\u2019s"
+            var tdShort = pn ? "Paid \u00b7 " + (pn.label === "Send the Questionnaire" ? "next: send the questionnaire" : "the next move is MISMO\u2019s")
                 : rm ? rm.text.split(" by ")[0].split(";")[0]
                 : nd ? nd.text.split(" by ")[0].split(";")[0]
                 : (fx.reason || "On the follow-up list");
