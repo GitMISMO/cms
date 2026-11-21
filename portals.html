@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'self'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script src="embed.js"></script>
+<!-- Portals (Jonna, 21 Nov 2026): every certification's company portal in one place, each with a made-up sample company
+     to show people, and the link to its application. Everything here is public anyway (the sample portals and the
+     application forms on resources.mismo.org), so the page needs no records and no sign-in of its own.
+     The sample portals are built by GitMISMO.github.io portal/engine/build.py; CMSP and AMSP use the progress page's
+     made-up example (certified/progress/?demo=1). Replaces the Forms view in the CMS nav. -->
+<style>
+:root{--navy:#0d314c;--sky:#74bfeb;--navy-deep:#06202f;--navy-mid:#14486e;
+  --ground:#f1f6fa;--surface:#fff;--surface-2:#f6fafd;--surface-3:#e9f1f8;--border:#d5e2ed;--border-strong:#adc4d6;--rule:#e5eef5;
+  --ink:#0d314c;--ink-2:#456179;--ink-3:#7794aa;--good:#0f7b5c;--good-w:#e3f4ee;--warn:#a2701a;--warn-w:#fbf2e0;--accent-soft:#e4f2fb;
+  --display:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground:#061722;--surface:#0d2837;--surface-2:#123143;--surface-3:#173c52;--border:#1f4a63;--border-strong:#2f6688;--rule:#173547;--ink:#e9f4fb;--ink-2:#a6c5d9;--ink-3:#7a9db4;--good:#4fc79b;--good-w:#0f3a30;--warn:#e0a83c;--warn-w:#3a2c10;--accent-soft:#173c52;color-scheme:dark}}
+:root[data-theme="dark"]{--ground:#061722;--surface:#0d2837;--surface-2:#123143;--surface-3:#173c52;--border:#1f4a63;--border-strong:#2f6688;--rule:#173547;--ink:#e9f4fb;--ink-2:#a6c5d9;--ink-3:#7a9db4;--good:#4fc79b;--good-w:#0f3a30;--warn:#e0a83c;--warn-w:#3a2c10;--accent-soft:#173c52;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--display);-webkit-font-smoothing:antialiased}
+.hqtop{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px}
+.hqtop .mastrule{display:block;width:2px;height:34px;margin-inline:20px;background:var(--sky)}
+.hqtop .hqname{font-size:15.5px;font-weight:700;color:var(--sky)}
+.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0}
+.logoplate .wordmark{height:24px;width:auto}
+main{max-width:1280px;margin:0 auto;padding:22px 22px 60px}
+@media(max-width:700px){main{padding:16px 16px 40px}.hqtop{padding:0 12px}.hqtop .mastrule{margin-inline:10px}}
+.hero{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(135deg,var(--navy-deep),var(--navy) 55%,var(--navy-mid));color:#fff;padding:22px 24px}
+.hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(116,191,235,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(116,191,235,.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.hero>*{position:relative}
+.hero .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky);font-weight:700}
+.hero h1{margin:4px 0 6px;font-size:26px}
+.hero p{margin:0;color:rgba(255,255,255,.8);font-size:14px;max-width:820px;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(13,49,76,.05)}
+.top{display:flex;align-items:flex-start;gap:12px}
+.badge{flex:none;width:42px;height:42px;border-radius:8px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;letter-spacing:.02em}
+:root[data-theme="dark"] .badge{background:var(--sky);color:var(--navy-deep)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .badge{background:var(--sky);color:var(--navy-deep)}}
+.top h2{margin:0;font-size:17px}
+.top .who{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.tag{margin-left:auto;flex:none;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--warn-w);color:var(--warn);white-space:nowrap}
+.tag.live{background:var(--good-w);color:var(--good)}
+.card p{margin:0;font-size:14px;color:var(--ink-2);line-height:1.5}
+.steps{display:flex;flex-wrap:wrap;gap:6px}
+.steps span{font-size:12px;border:1px solid var(--border);background:var(--surface-2);border-radius:4px;padding:3px 8px;color:var(--ink-2)}
+.sample{font-size:12.5px;color:var(--ink-3)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px}
+.pair{display:inline-flex;gap:8px;flex-wrap:wrap}
+.btn{white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border:1px solid var(--navy);border-radius:6px;padding:7px 11px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--border-strong)}
+:root[data-theme="dark"] .btn:not(.ghost){background:var(--sky);color:var(--navy-deep);border-color:var(--sky)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost){background:var(--sky);color:var(--navy-deep);border-color:var(--sky)}}
+.btn:hover{filter:brightness(1.07)}
+.note{margin-top:18px;font-size:13px;color:var(--ink-3);line-height:1.5}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 14px;border-radius:6px;font-size:13.5px;z-index:30}
+html.embed .hqtop{display:none}
+html.embed body{background:transparent}
+html.embed main{padding-top:0}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mismo-logo" viewBox="0 0 708 108"><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-body, #0f314c)"><path d="M5917 1065 c-169 -46 -279 -153 -335 -323 -21 -65 -25 -96 -25 -197
+0 -101 4 -132 25 -197 57 -172 168 -280 335 -323 84 -22 723 -22 808 0 222 58
+355 253 355 520 0 270 -132 459 -361 520 -74 20 -730 20 -802 0z m692 -320
+c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
+-297 0 -307 2 -346 83 -30 61 -31 198 -2 262 41 93 68 100 368 97 219 -2 243
+-4 274 -22z M0 545 l0 -515 225 0 225 0 2 296 3 296 116 -294 116 -293 197 0 198
+0 119 295 118 295 1 -297 0 -298 225 0 225 0 0 515 0 515 -337 -2 -338 -3
+-104 -264 c-80 -204 -107 -260 -113 -245 -5 10 -52 129 -106 264 l-98 245
+-337 3 -337 2 0 -515z M1892 1044 l-22 -15 0 -483 c0 -455 1 -484 18 -499 16 -15 48 -17
+246 -17 128 0 235 4 246 10 32 17 34 57 4 95 -33 44 -64 143 -64 206 l0 49
+203 0 c191 0 205 -1 222 -20 10 -11 34 -24 54 -30 49 -13 586 -13 612 0 22 12
+26 62 7 78 -8 6 -174 15 -413 21 -502 15 -549 23 -628 110 -43 48 -57 93 -57
+187 0 82 19 156 55 208 30 44 32 77 7 99 -27 25 -456 25 -490 1z M3716 1044 c-23 -22 -20 -31 19 -77 43 -49 78 -155 73 -218 l-3 -44
+-204 -3 c-194 -2 -205 -1 -218 17 -24 35 -78 41 -355 41 -255 0 -269 -1 -288
+-20 -27 -27 -26 -58 3 -70 12 -5 202 -14 422 -19 421 -12 476 -18 555 -62 92
+-51 132 -159 111 -299 -12 -77 -34 -129 -77 -179 -23 -28 -25 -36 -16 -57 l12
+-24 215 0 215 0 2 306 3 306 120 -303 120 -304 197 -3 196 -2 118 296 119 297
+3 -296 2 -297 225 0 225 0 0 515 0 515 -338 0 -337 0 -104 -265 c-58 -146
+-106 -263 -108 -261 -2 2 -50 120 -107 262 l-104 259 -340 3 c-300 2 -342 0
+-356 -14z"/></g><g transform="translate(0.000000,108.000000) scale(0.100000,-0.100000)" fill="var(--logo-s, #50a4db)"><path d="M2485 1046 c-44 -20 -111 -94 -136 -151 -27 -60 -37 -198 -20 -263
+13 -48 68 -115 114 -138 64 -34 162 -43 562 -55 239 -6 405 -15 413 -21 19
+-16 15 -66 -7 -78 -26 -13 -563 -13 -612 0 -20 6 -44 19 -54 30 -17 19 -31 20
+-222 20 l-203 0 0 -49 c0 -81 34 -172 86 -230 78 -87 31 -81 672 -81 l568 0
+46 29 c79 50 122 121 139 231 21 140 -19 248 -111 299 -79 44 -134 50 -555 62
+-220 5 -410 14 -422 19 -29 12 -30 43 -3 70 19 19 33 20 288 20 277 0 331 -6
+355 -41 13 -18 24 -19 218 -17 l204 3 3 44 c4 60 -31 168 -70 215 -17 21 -52
+52 -77 67 l-45 29 -550 0 c-440 -1 -557 -3 -581 -14z"/></g></symbol></defs></svg>
+<header class="hqtop"><span class="logoplate"><svg class="wordmark" role="img" aria-label="MISMO" viewBox="0 0 708 108"><use href="#mismo-logo"/></svg></span><span class="mastrule"></span><span class="hqname">Portals</span></header>
+<main>
+  <section class="hero" aria-labelledby="h1">
+    <div class="eyebrow">Certification Portals</div>
+    <h1 id="h1">Every Certification's Portal, With Its Application</h1>
+    <p>Each certification has a sample portal with a made-up company, so you can show people what a company sees after it applies and pays. Nothing in a sample is sent or uploaded, and Restore the Sample puts it back as it started. The application links are the real forms companies fill in.</p>
+  </section>
+  <div class="grid" id="grid"></div>
+  <p class="note">The samples are built from the live forms, so their questions are the questions companies are asked. RON, eClosing and eVault share one application: a company ticks the product types it wants certified. Certification scripts are built automatically for each engagement and are in the Assessor Portal.</p>
+</main>
+<div class="toast" id="toast" hidden></div>
+<script>
+(function () {
+  "use strict";
+  var SITE = "https://resources.mismo.org";
+  var P = [
+    { b: "RON", name: "RON Certification", who: "Company · product", tag: "Sample", portal: "/portal/ron/", sample: "Lakeshore Notary Systems (made up)",
+      what: "The company checks its platform details, answers the RON questionnaire, adds the documents it asks for and books its demonstration.",
+      steps: ["About the platform", "RON questionnaire", "Documents", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/emortgage/"]] },
+    { b: "eC", name: "eClosing Certification", who: "Company · product", tag: "Sample", portal: "/portal/eclosing/", sample: "Harborline Closing Technologies (made up)",
+      what: "The company checks its system details, answers the eClosing questionnaire, adds the documents it asks for and books its demonstration.",
+      steps: ["About the system", "eClosing questionnaire", "Documents", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/emortgage/"]] },
+    { b: "eV", name: "eVault Certification", who: "Company · product", tag: "Sample", portal: "/portal/evault/", sample: "Granite Peak Vault Co. (made up)",
+      what: "The company checks its system details, answers the eVault questionnaire, adds the documents it asks for and books its demonstration.",
+      steps: ["About the system", "eVault questionnaire", "Documents", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/emortgage/"]] },
+    { b: "PC", name: "Product Certification", who: "Company · product", tag: "Sample", portal: "/portal/product/", sample: "Bluewater Data Systems (made up)",
+      what: "The company checks its product details, books the pre-assessment call, adds its specification and data files and books its demonstration.",
+      steps: ["About the product", "Pre-assessment call", "Specification and data", "Book the demonstration", "Review and submit"], apps: [["Application", "/forms/product/"]] },
+    { b: "CC", name: "Certified Consultant", who: "Company", tag: "Sample", portal: "/portal/consultant/", sample: "Ridgeview Mortgage Advisors (made up)",
+      what: "The firm confirms its key people and project examples from the application, then adds the project write-ups and client references.",
+      steps: ["About the firm", "Key employee bios", "Project examples", "Write-ups and references", "Review and submit"], apps: [["Application", "/forms/consultant/"]] },
+    { b: "FR", name: "FRAME Certified Advisory Partner", who: "Company", tag: "Sample", portal: "/portal/frame/", sample: "Summit Lane Advisory Group (made up)",
+      what: "The firm answers the FRAME questionnaire, adds its supporting documents and returns the practical exercise. Today companies get the questionnaire by their own link once they have paid.",
+      steps: ["About the firm", "FRAME questionnaire", "Supporting documents", "Practical exercise", "Review and submit"], apps: [["Application", "/forms/frame/"]] },
+    { b: "AI", name: "AI Governance Certification", who: "Company · product", tag: "Sample", portal: "/portal/ai-governance/", sample: "Northbeam Mortgage Technologies (made up)",
+      what: "The company describes the product, drops in its documents and answers the governance questions for each AI use case. Includes an assessor preview.",
+      steps: ["About the product", "Documents", "AI use cases", "Review and submit"], apps: [["Application", "/forms/ai-governance/"]] },
+    { b: "CM", name: "CMSP & AMSP", who: "Individual", tag: "Live", live: true, portal: "/certified/progress/?demo=1", sample: "Jordan Sample (made up)",
+      what: "Each applicant and holder has a private progress page: their steps, points, payments and renewal. The example shows both credentials.",
+      steps: ["Progress and next step", "Points", "Fees", "Renewal"], apps: [["CMSP Application", "/forms/cmsp/"], ["AMSP Application", "/forms/amsp/"], ["CMSP Reference Form", "/forms/cmsp-reference/"]] }
+  ];
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  document.getElementById("grid").innerHTML = P.map(function (p) {
+    return '<article class="card"><div class="top"><span class="badge" aria-hidden="true">' + esc(p.b) + '</span><div><h2>' + esc(p.name) + '</h2><div class="who">' + esc(p.who) + '</div></div><span class="tag' + (p.live ? " live" : "") + '">' + esc(p.live ? "Live" : "Sample") + "</span></div>" +
+      "<p>" + esc(p.what) + '</p><div class="steps">' + p.steps.map(function (s) { return "<span>" + esc(s) + "</span>"; }).join("") + '</div><div class="sample">Example: ' + esc(p.sample) + "</div>" +
+      '<div class="acts"><a class="btn" href="' + SITE + p.portal + '" target="_blank" rel="noopener">Open the Example Portal ↗</a>' +
+      p.apps.map(function (a) { return '<span class="pair"><a class="btn ghost" href="' + SITE + a[1] + '" target="_blank" rel="noopener">Open the ' + esc(a[0]) + ' ↗</a><button class="btn ghost" type="button" data-copy="' + SITE + a[1] + '" title="Copy the link to the ' + esc(a[0]).toLowerCase() + '">Copy Link</button></span>'; }).join("") + "</div></article>";
+  }).join("");
+  function toast(m) { var t = document.getElementById("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 2200); }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copy]"); if (!b) return;
+    var url = b.getAttribute("data-copy");
+    function fallback() { var ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); toast("Link copied"); } catch (x) { toast(url); } ta.remove(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { toast("Link copied"); }, fallback); else fallback();
+  });
+})();
+</script>
+</body>
+</html>
