@@ -7424,7 +7424,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         $("d-sub").textContent = f.program + (f.product ? " · " + f.product : "") + " · " + kindLabel(f);
         var parts = cardParts(f), inv0 = invoiceOf(f), co0 = orgOf(f.org), empt0 = ORG_FIELDS.filter(function(x) { return !x.optional && !co0[x.k]; }).length;
         dHero(f.org, [ { t: f.program }, f.product && f.product !== f.program ? { t: f.product } : null, { t: kindLabel(f) }, c && c.anniversary ? { t: "Renews " + fmt(c.anniversary), tone: renewalTone(c) } : null ]);
-        $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + cjStepper(f) + dNext(f) + dTabs("rec:" + f.row, [ [ "overview", "Overview", "", parts.overview ], [ "money", "Money", inv0 && inv0.paid === false ? "unpaid" : "", parts.money, "warn" ], [ "cert", "The Certification", "", parts.cert ], [ "company", "The Company", empt0 ? empt0 + " empty" : "", parts.company, "warn" ] ]);
+        $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + cjStepper(f) + dNext(f) + dTabs("rec:" + f.row, [ [ "overview", "Overview", "", qnBlock(f) + parts.overview ], [ "money", "Money", inv0 && inv0.paid === false ? "unpaid" : "", parts.money, "warn" ], [ "cert", "The Certification", "", parts.cert ], [ "company", "The Company", empt0 ? empt0 + " empty" : "", parts.company, "warn" ] ]);
         wireHistory($("d-body"));
         if ($("d-back")) $("d-back").addEventListener("click", (function() {
             if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else openPanelList(panel.phase);
@@ -8725,6 +8725,58 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        the website with a push of a button?"). Saves the company's About Us and website link to
        website-listings (one per company); the Website listings job in cms-data publishes them as
        resources.mismo.org/certified/providers.json, which the provider pages on www.mismo.org read. */
+    /* The FRAME questionnaire by the company's own link (Jonna, 21 Nov 2026: "complete the application, pay the
+       fee, then they get the same portal invitation to complete the questionnaire"). Once a FRAME applicant has
+       paid and Start the Review is pressed, the email job sends their own link; the answers come back through
+       the application forms flow and are filed against the certification. questionnaire-links (written by the
+       Renewal pages job) holds each open link; questionnaires (written by the online applications job) holds
+       what came in. The record shows both, with a button to copy the link. */
+    var qnGot = {}, qnLinks = {}, qnSubbed = false;
+    function qnSubscribe() {
+        if (qnSubbed || !db) return;
+        qnSubbed = true;
+        try {
+            db.collection("questionnaires").onSnapshot((function(snap) {
+                var n = {}; (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); })); qnGot = n; qnRepaint();
+            }), (function() {}));
+            db.collection("questionnaire-links").onSnapshot((function(snap) {
+                var n = {}; (snap.docs || []).forEach((function(d) { n[d.id] = d.data(); })); qnLinks = n; qnRepaint();
+            }), (function() {}));
+        } catch (e) {}
+    }
+    function qnBlock(f) {
+        if (!f || f.program !== "FRAME" || String(f.kind || "initial") === "renewal") return "";
+        qnSubscribe();
+        var q = qnGot[String(f.row)], l = qnLinks[String(f.row)], body;
+        if (q && q.receivedAt) {
+            body = '<p class="pc-note"><b>Received ' + esc(fmt(String(q.receivedAt).slice(0, 10))) + "</b>" + (q.by ? " from " + esc(q.by) : "") + ". " +
+                "The answers and any documents are in the email to certifications@mismo.org headed \u201cNew application: MISMO FRAME Questionnaire\u201d, " +
+                "and in the Application Forms folder in SharePoint. If they send it again, the newer one is the one to read.</p>";
+        } else if (l && l.link) {
+            body = '<p class="pc-note">Not received yet. Their own link went to them in the \u201cYour FRAME Questionnaire Is Ready\u201d email ' +
+                "when the review started. Until that wording is approved on the Email Playbook, the email waits at certifications@mismo.org for your OK.</p>";
+        } else {
+            body = '<p class="pc-note">The questionnaire comes after the fee. Once they have paid and Start the Review is pressed, ' +
+                "they are emailed their own link to it.</p>";
+        }
+        var link = l && l.link ? '<div class="v mono" style="word-break:break-all;font-size:12px;margin-top:8px">' + esc(l.link) + "</div>" +
+            '<div class="na-acts" style="margin-top:8px"><button class="lc-btn ghost" type="button" data-qncopy="' + esc(String(f.row)) + '">Copy Their Questionnaire Link</button></div>' +
+            '<p class="pc-note" style="margin-top:6px">Anyone holding this link can send in the questionnaire for this company, so send it only to them.</p>' : "";
+        return '<div class="dsect" data-qnbox="' + esc(String(f.row)) + '"><h4>The FRAME Questionnaire</h4>' + body + link + "</div>";
+    }
+    function qnRepaint() {
+        Array.prototype.forEach.call(document.querySelectorAll("[data-qnbox]"), (function(el) {
+            var f = byRow(+el.getAttribute("data-qnbox"));
+            var h = f ? qnBlock(f) : "";
+            if (h) el.outerHTML = h;
+        }));
+    }
+    document.addEventListener("click", (function(e) {
+        var b = e.target && e.target.closest ? e.target.closest("[data-qncopy]") : null;
+        if (!b) return;
+        var l = qnLinks[b.getAttribute("data-qncopy")];
+        if (l && l.link) copy(l.link, "Their questionnaire link is on your clipboard.");
+    }));
     var webPub = {}, webPubSubbed = false;
     function webPubSubscribe() {
         if (webPubSubbed || !db) return;
