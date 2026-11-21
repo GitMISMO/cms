@@ -10952,12 +10952,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var side = pkSide("Renewing Next", held.length ? "on hold left out" : "", up.slice(0, 6).map((function(r) { return pkSideRow(fmt(r.cert.anniversary).replace(/, \d{4}$/, "") + " · " + r.cert.program, r.cert.org, 'data-pkcert="' + esc(r.key) + '"', r._n <= 30 ? "#e0a83c" : "#74bfeb"); })));
         host.innerHTML = pkHero({ title: "Renewals", say: say, side: side, acts: '<button class="lc-btn" type="button" data-pkgo="view:invoices">Invoices to Raise</button><button class="lc-btn" type="button" data-pkgo="view:emails">Notices Sent</button>' })
             + pkBoard([
-                (function() { var ip = rnProgRows(); return { lab: "In Progress", n: ip.length, k: "#9b8cff", go: "#pk-rn-progress", sub: ip.length ? ip.filter((function(r) { return r.who === "mismo" || r.who === "jonathan"; })).length + " waiting on MISMO" : "none under way",
-                    rows: ip.slice(0, 3).map((function(r) { return [ r.f.org, r.f.program, r.where ]; })) }; })(),
+                /* In Progress (21 Nov 2026, Jonna: "this doesn't look good"): who has the move, then the three commonest next
+                   steps with how many are at each, short enough to fit the tile. */
+                (function() {
+                    var ip = rnProgRows(), WHO = { company: "with the company", assessor: "with the assessor", mismo: "with MISMO", jonathan: "with Jonathan", system: "running themselves", hold: "on hold" }, byWho = {}, bySt = {};
+                    var SHORT = { "Renewal notice goes out": "Notice going out", "Mark License Agreement goes out by DocuSign": "Mark License to send", "Sign the Mark License Agreement": "Mark License to sign",
+                        "Answer the renewal notice": "Answer the notice", "Hold the pre-assessment call": "Pre-assessment call", "Review the updates": "Review updates", "Sign the attestation": "Sign attestation",
+                        "Confirm the demo date": "Confirm demo date", "Decide on the results": "Decide results", "Fix what did not pass": "Fixes due", "Send the evidence": "Send evidence", "Review the evidence": "Review evidence" };
+                    ip.forEach((function(r) { byWho[r.who] = (byWho[r.who] || 0) + 1; var k = r.who === "hold" ? "On hold" : nextLabelOf(r.f, r.st); k = SHORT[k] || k; bySt[k] = (bySt[k] || 0) + 1; }));
+                    var sub = ip.length ? Object.keys(byWho).sort((function(a, b) { return byWho[b] - byWho[a]; })).slice(0, 2).map((function(w) { return byWho[w] + " " + (WHO[w] || w); })).join(" · ") : "none under way";
+                    var rows = Object.keys(bySt).sort((function(a, b) { return bySt[b] - bySt[a]; })).slice(0, 3).map((function(k) { return [ k, "", String(bySt[k]) ]; }));
+                    return { lab: "In Progress", n: ip.length, k: "#9b8cff", go: "#pk-rn-progress", sub: sub, rows: rows };
+                })(),
                 { lab: "Renewing in 30 Days", n: in30.length, k: "#e0a83c", go: "#pk-rn-ahead", sub: in30.length ? "anniversaries this month" : "none this month", rows: in30.slice(0, 3).map((function(r) { return [ r.cert.org, r.cert.program, r._n + "d" ]; })) },
                 { lab: "Renewing in 90 Days", n: in90.length, k: "#74bfeb", go: "#pk-rn-ahead", sub: "the next quarter",
                     body: '<span class="pk-months">' + bars.map((function(b) { return '<span title="' + b.m + ": " + b.n + '"><i style="height:' + (b.n ? Math.max(10, Math.round(b.n / bMax * 100)) : 0) + '%"></i><small>' + b.m + "</small></span>"; })).join("") + "</span>" },
-                { lab: "Notices Next " + noticeWindow + " Days", n: nd.length, k: "#3ccb7f", go: "#pk-rn-notices", sub: nd.length ? "sent by themselves, " + Object.keys(nNotice).length + " compan" + (Object.keys(nNotice).length === 1 ? "y" : "ies") : "nothing in the window" },
+                { lab: "Notices Next " + noticeWindow + " Days", n: nd.length, k: "#3ccb7f", go: "#pk-rn-notices", sub: nd.length ? "sent by themselves, " + Object.keys(nNotice).length + " compan" + (Object.keys(nNotice).length === 1 ? "y" : "ies") : "nothing in the window",
+                    rows: nd.slice().sort((function(a, b) { return String(a.sendOn).localeCompare(String(b.sendOn)); })).slice(0, 3).map((function(r) { return [ r.cert.org, r.cert.program, fmt(r.sendOn).replace(/, \d{4}$/, "") ]; })) },
                 { lab: "On Hold", n: held.length, k: "#9aa9b6", go: held.length ? "#pk-rn-first" : "", sub: held.length ? "paused on purpose, still in sight" : "nothing paused", rows: held.slice(0, 2).map((function(r) { return [ r.cert.org, r.cert.program, "" ]; })) }
             ], "n5");
         pkAnimate(host);
@@ -16499,8 +16510,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* Programs run outside MACTS (FRAME) are recorded under their own code. Jonathan, 5 Nov 2026: six
            FRAME are certified but were missing from Certified Counts, because only MACTS programs were listed.
            Added after the MACTS ones so their colours do not move. */
+        /* AI Governance is listed even before its first certification (Jonna, 21 Nov 2026); its records name it in full. */
         (D.programs || []).forEach((function(p) {
-            if (p.mactsType || !p.code || out.some((function(o) { return o.type === p.code; }))) return;
+            if (p.code !== "AIGOV" || out.some((function(o) { return o.type === p.name; }))) return;
+            out.push({ type: p.name, code: p.code, name: p.name, colour: "var(--c" + ((i++ - 1) % 6 + 1) + ")" });
+        }));
+        (D.programs || []).forEach((function(p) {
+            if (p.mactsType || !p.code || p.code === "AIGOV" || out.some((function(o) { return o.type === p.code; }))) return;
             if (!(D.certifications || []).some((function(c) { return c.program === p.code; }))) return;
             out.push({
                 type: p.code,
