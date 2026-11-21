@@ -539,7 +539,8 @@
        its own page, opens in a new tab like Certification Completions. */
     /* All Portals (Jonna, 21 Nov 2026): the page with every certification's portal and its application, under CMSP & AMSP
        ("just put that under cmsp & amsp no need to have the others listed out, i like the all portals tab"). */
-    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual', 'portals'] },
+    /* Consultant Scorecards (Jonna, 21 Nov 2026): the Certified Consultant points scorecard, automated; any company can be scored. */
+    { label: 'Daily Work', items: ['queue', 'assessors', 'approvals', 'individual', 'portals', 'scorecards'] },
     /* Certification Completions (Jonna, 17 Nov 2026): Accounting's monthly report. A view inside the CMS since 21 Nov 2026
        ("make it a regular tab in the CMS so JK can see it as well"); Accounting sees it on the MBA Accounting Desk. */
     { label: 'Records and Reporting', items: ['records', 'renewals', 'invoices', 'revenue', 'completions', 'counts'] },
@@ -559,6 +560,8 @@
       icon: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20.2c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/><path d="m15.6 3.6 1.2 1.2 2.4-2.4"/>' },
     portals: { src: 'portals.html?embed=1', label: 'All Portals', title: 'Every certification portal, with a sample company, and its application',
       icon: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9h17"/><path d="M8 13.5h4M8 16h7"/>' },
+    scorecards: { src: 'scorecards.html?embed=1', label: 'Consultant Scorecards', title: 'Certified Consultant points scorecards: any company, filled in automatically',
+      icon: '<path d="M4.5 19.5V10M9.5 19.5V5M14.5 19.5v-7M19.5 19.5V8"/><path d="M3 19.5h18"/>' },
     completions: { src: 'completions.html?embed=1', label: 'Certification Completions', title: 'Certification Completions: the monthly report Accounting reconciles against',
       icon: '<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="m14.5 16.2 1.4 1.4 2.6-2.8"/>' },
     help: { src: 'help.html?embed=1', label: 'Help', title: 'How the system and the certification process work',

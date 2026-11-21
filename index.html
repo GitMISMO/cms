@@ -4486,9 +4486,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         get("own-index").then((function(ix) {
             var docs = ix && ix.docs || {};
             if (!docs["aptify/main"]) throw new Error("no Aptify upload in Member 360");
-            return Promise.all([ get(docs["aptify/main"].file), docs["sync/aliases"] ? get(docs["sync/aliases"].file).catch((function() { return null; })) : null ]);
+            /* Member 360 keeps the membership terms in their own record (termsIn, since Nov 2026); read them from there */
+            return Promise.all([ get(docs["aptify/main"].file).then((function(m) {
+                var a = m && (m.doc || m) || {};
+                if (a.terms || !a.termsIn || !docs[a.termsIn]) return a;
+                return get(docs[a.termsIn].file).then((function(t) { t = t && (t.doc || t) || {}; a.terms = t.terms || null; return a; }));
+            })), docs["sync/aliases"] ? get(docs["sync/aliases"].file).catch((function() { return null; })) : null ]);
         })).then((function(got) {
-            var apt = got[0] && (got[0].doc || got[0]) || {}, aliases = got[1] && got[1].doc && got[1].doc.map || {};
+            var apt = got[0] || {}, aliases = got[1] && got[1].doc && got[1].doc.map || {};
             if (!apt.companies || !apt.terms) throw new Error("the Aptify upload has no companies");
             var byName = {};
             /* also without spaces, so a hyphenated name finds its unhyphenated spelling (2 Nov 2026) */
@@ -17354,5 +17359,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-21g"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-21h"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>

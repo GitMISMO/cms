@@ -80,7 +80,7 @@ tfoot td{font-weight:700;background:var(--surface-2);border-top:2px solid var(--
 @media(max-width:700px){.find{width:100%}.bar h2{flex-basis:100%}}
 .wrap{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
 @media(max-width:900px){.wrap{grid-template-columns:1fr}}
-.side{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+.side{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
 .side h3{margin:4px 4px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .co{display:flex;justify-content:space-between;gap:8px;align-items:center;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:7px;padding:9px 10px;color:var(--ink);font-size:13.5px;cursor:pointer}
 .co:hover{background:var(--surface-2)}
@@ -107,8 +107,8 @@ tfoot td{font-weight:700;background:var(--surface-2);border-top:2px solid var(--
 .cat .m{height:5px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:7px;overflow:hidden}
 .cat .m em{display:block;height:100%;background:#f0a95b}
 .cat.met .m em{background:#4fc79b}.cat.met b{color:#7ee0b9}
-.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px;margin-top:16px}
-@media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+.grid2{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:16px;margin-top:16px}
+@media(max-width:1300px){.grid2{grid-template-columns:1fr}}
 .card h2{margin:0;padding:13px 14px;font-size:15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px}
 .card h2 small{font-size:12px;color:var(--ink-3);font-weight:600}
 .src{font-size:11.5px;color:var(--ink-3)}
@@ -117,6 +117,7 @@ tfoot td{font-weight:700;background:var(--surface-2);border-top:2px solid var(--
 .addf{display:grid;grid-template-columns:1.3fr 1fr 1.2fr .9fr auto;gap:8px;padding:12px 14px;border-top:1px solid var(--border);background:var(--surface-2)}
 @media(max-width:800px){.addf{grid-template-columns:1fr 1fr}}
 .addf select,.addf input{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:6px;padding:8px 9px;font-size:13px;min-width:0}
+td.who{white-space:nowrap;color:var(--ink-2)}
 .catrow td{background:var(--surface-3);font-weight:700;font-size:12.5px;color:var(--ink-2)}
 .pills{display:flex;flex-wrap:wrap;gap:4px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 16px;border-radius:7px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
@@ -358,15 +359,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var off = (ed.remove || []).map(function (n) { return '<tr><td style="color:var(--ink-3)"><s>' + esc(n) + '</s><span class="sub">Taken off by MISMO</span></td><td></td><td class="num"><button class="x" type="button" data-unrm="' + esc(n) + '">Put Back</button></td></tr>'; }).join("");
     var byCat = CS.CATS.map(function (c) {
       var its = r.items.filter(function (i) { return i.cat === c.key; }); if (!its.length) return "";
-      return '<tr class="catrow"><td colspan="4">' + esc(c.label) + " &middot; " + r.categories[c.key].points + " points</td></tr>" + its.map(function (i) {
-        return "<tr><td>" + esc(i.name) + '<span class="sub">' + esc(i.detail) + "</span></td><td>" + esc(i.person || "The company") + '</td><td><span class="src">' + esc(i.source) + '</span></td><td class="num"><b>' + i.pts + "</b>" +
+      return '<tr class="catrow"><td colspan="3">' + esc(c.label) + " &middot; " + r.categories[c.key].points + " points</td></tr>" + its.map(function (i) {
+        return "<tr><td>" + esc(i.name) + '<span class="sub">' + esc([i.detail, i.source].filter(Boolean).join(" \u00b7 ")) + '</span></td><td class="who">' + esc(i.person || "The company") + '</td><td class="num"><b>' + i.pts + "</b>" +
           (i.hand ? ' <button class="x" type="button" data-unhand="' + esc(i.hand) + '" title="Remove this added item">&times;</button>' : "") + "</td></tr>"; }).join(""); }).join("");
     var opts = CS.HAND.map(function (k) { return '<option value="' + k + '">' + esc(CS.ITEMS[k].name) + " (" + CS.ITEMS[k].pts + ")</option>"; }).join("");
     html += '<div class="grid2"><div class="card"><h2>People Counted <small>' + r.people.length + '</small></h2><div class="tablewrap"><table><tbody>' +
       (ppl || '<tr><td class="empty" colspan="3">No one at this company found in MISMO\'s systems yet.</td></tr>') + off + '</tbody></table></div>' +
       '<div class="addf" style="grid-template-columns:1fr auto"><input id="addp" placeholder="Add a person who works there (full name)" aria-label="Add a person"><button class="btn" type="button" id="addpgo">Add Person</button></div></div>' +
       '<div class="card"><h2>Where the Points Come From <small><button class="btn ghost" type="button" id="dl" style="padding:5px 10px">Download for Excel</button></small></h2><div class="tablewrap"><table><tbody>' +
-      (byCat || '<tr><td class="empty" colspan="4">No points yet.</td></tr>') + '</tbody></table></div>' +
+      (byCat || '<tr><td class="empty" colspan="3">No points yet.</td></tr>') + '</tbody></table></div>' +
       '<div class="addf"><select id="hcode" aria-label="What they did">' + opts + '</select><input id="hwho" placeholder="Who (optional)" aria-label="Who"><input id="hwhat" placeholder="What and where" aria-label="What and where"><input id="hdate" type="date" aria-label="Date" value="' + today() + '"><button class="btn" type="button" id="hgo">Add Points</button></div></div></div>';
     html += '<p class="note">' + (entryFor(name) ? "This scorecard is saved for the company's portal each time it changes. " : "This company is not applying, so nothing is saved; added people and points are kept for next time. ") +
       "Rules: MISMO's Certified Consultant Point Structure. Leadership and education count when active on the date; participation and ancillary count in the 12 months before it; workgroup attendance needs 66% of the meetings held, and chairs and vice chairs earn no attendance points for the group they lead.</p>";
