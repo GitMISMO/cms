@@ -5384,7 +5384,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "fu-assessor", "Follow Up: Assessor to Chase", "The company has gone quiet at a stage the assessor runs. Nudge the Assessor emails them how long it has been and asks whether they have followed up; certifications@mismo.org is copied." ],
         [ "fu-invoice", "Follow Up: Unpaid Invoice", "Invoiced and not paid. Chase the company, note what you did and pick the next date." ],
         [ "fu-demo", "Follow Up: Demo Not Booked", "Paid, but no demonstration date picked after the weekly reminders." ],
-        [ "website", "Update Their mismo.org Listing", "They sent new details for mismo.org on their renewal page. Copy them to their listing on the website, then press Done: the Website Card keeps them." ],
+        [ "website", "Update Their mismo.org Listing", "They sent new details for mismo.org on their renewal page. Approve and Publish puts them on the Website Card and on their provider page on mismo.org in one step." ],
         [ "fu-quiet", "Follow Up: Gone Quiet", "Stuck before the assessment started. Chase them, or move them to Prospects if they are not going ahead." ],
         [ "hold-check", "Check In: Hold Due to End", "On hold, and the date they expected to start again has come. Ask whether they are ready, then release the hold." ]
     ];
@@ -5400,7 +5400,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<div class="td-item wd-wide"><div class="td-main"><button class="td-org" type="button" data-tdcert="' + wk + '">' + esc(wc.org) + "</button>"
                 + '<div class="td-meta">' + esc(wc.program) + (wc.product ? " \u00b7 " + esc(wc.product) : "") + " \u00b7 sent on their renewal " + esc(fmt(String(wa.submittedAt || "").slice(0, 10))) + "</div>"
                 + webDiffHTML(x.ch) + "</div>"
-                + (canWrite ? '<div class="td-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + wk + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + wk + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + wk + '"', true) + "</div>" : "") + "</div>";
+                + (canWrite ? '<div class="td-acts">' + tdBtn("Approve and Publish", 'data-webdone="' + wk + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + wk + '"', true) + "</div>" : "") + "</div>";
         }
         if (key === "invoice") {
             var r = x, c = r.cert, k = esc(r.key);
@@ -8665,6 +8665,26 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         next.reviewedAt = ch.a.submittedAt || (new Date).toISOString();
         editCert(c, { website: next });
     }
+    /* Approve and Publish (Jonna, 21 Nov 2026: "why can't we just press a button to approve the website change request
+       ... why do we have to copy and paste?"): one press puts what they sent on the Website Card and publishes it to
+       mismo.org (website-listings -> the provider feed the website reads). */
+    function webApprove(key) {
+        var c = webCertOf(key), ch = c && webChanges(c);
+        if (!ch) return;
+        if (!db || !canWrite) { toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn"); return; }
+        var w = ch.a.website || {}, about = String(w.aboutUs || ch.w.aboutUs || "").trim(), site = webLink(w.page || ch.w.page);
+        if (String(w.page || "").trim() && !webLink(w.page)) { toast("The website they sent is not a web address. Fix it on the Website Card, then publish.", "warn"); return; }
+        if (!about) {
+            /* nothing to publish without an About Us: keep what they sent on the card only */
+            if (!window.confirm("Approve " + c.org + "\u2019s new details?\n\nThey go on the Website Card. There is no About Us for " + c.org + " yet, so nothing is published to mismo.org until there is one.")) return;
+            webSettle(key, true);
+            toast(c.org + " \u2014 saved to the Website Card. Not published: there is no About Us yet.", "good");
+            return;
+        }
+        if (!window.confirm("Approve " + c.org + "\u2019s new details and publish them to mismo.org?\n\nTheir provider page will show the About Us they sent" + (site ? " and a link to " + site.replace(/^https?:\/\//i, "").replace(/\/$/, "") : "") + " within a few minutes, for all of their certifications.")) return;
+        webSettle(key, true);
+        webPublish(key, true);
+    }
     document.addEventListener("click", (function(e) {
         var b = e.target.closest && e.target.closest("[data-webcopy],[data-webdone],[data-webkeep]");
         if (!b) return;
@@ -8673,7 +8693,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (!ch) return;
             var w = ch.a.website || {};
             copy(WEB_F.filter((function(f) { return w[f[0]]; })).map((function(f) { return f[1] + ": " + w[f[0]]; })).join("\n\n"), c.org + " \u2014 the details they sent are on your clipboard.");
-        } else if (b.dataset.webdone) webSettle(b.dataset.webdone, true);
+        } else if (b.dataset.webdone) webApprove(b.dataset.webdone);
         else webSettle(b.dataset.webkeep, false);
     }));
     /* Publish to mismo.org (Jonna, 19 Nov 2026: "can what they put for their about us automatically update
@@ -8725,7 +8745,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (b) { b.textContent = st.ever ? "Publish Again" : "Publish to mismo.org"; b.classList.toggle("ghost", st.same); }
         }));
     }
-    function webPublish(key) {
+    function webPublish(key, approved) {
         var c = webCertOf(key);
         if (!c) return;
         if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
@@ -8733,7 +8753,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var w = webCard(c), about = String(w.aboutUs || "").trim(), site = webLink(w.page);
         if (!about) { toast("There is no About Us to publish.", "warn"); return; }
         if (String(w.page || "").trim() && !site) { toast("Their website is not a web address (it should start https://). Fix it on the card, then publish.", "warn"); return; }
-        if (!window.confirm("Publish " + c.org + "’s listing to mismo.org?\n\nTheir provider page will show this About Us" + (site ? " and a link to " + site.replace(/^https?:\/\//i, "").replace(/\/$/, "") : "") + " within a few minutes, for all of their certifications.")) return;
+        if (!approved && !window.confirm("Publish " + c.org + "’s listing to mismo.org?\n\nTheir provider page will show this About Us" + (site ? " and a link to " + site.replace(/^https?:\/\//i, "").replace(/\/$/, "") : "") + " within a few minutes, for all of their certifications.")) return;
         var slug = orgSlug(c.org), at = (new Date).toISOString(), who = me && me.name || "someone";
         var programs = certs.filter((function(x) { return orgSlug(x.org) === slug && x.live; })).map((function(x) { return x.program; }))
             .filter((function(p, i, a) { return p && a.indexOf(p) === i; }));
@@ -8766,7 +8786,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         var dirty = !!Object.keys(draft).length;
         var prior = base.priorAboutUs || [];
-        return head + '<div class="pc-open" data-wkey="' + esc(key) + '">' + '<p class="na-hint" style="margin:0 0 10px;">What mismo.org shows for this ' + "certification: their About Us and a link to their website (no contact details). The company writes it; MISMO publishes it. " + "Collected at renewal, so it is only as current as the last time somebody asked.</p>" + (wch ? '<div class="web-sent"><div class="pc-lab" style="margin-top:0">Sent on Their Renewal, ' + esc(fmt(String(wch.a.submittedAt || "").slice(0, 10))) + "</div>" + webDiffHTML(wch) + (canWrite ? '<div class="na-acts">' + tdBtn("Copy the Details", 'data-webcopy="' + esc(key) + '"', true) + tdBtn("Done, Listing Updated", 'data-webdone="' + esc(key) + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + esc(key) + '"', true) + "</div>" : "") + "</div>" : "") + '<div class="fld"><label for="wb-about">About Us</label>' + '<textarea class="pc-input" rows="5" id="wb-about" data-wf="aboutUs" ' + 'placeholder="The company\'s own description">' + esc(val("aboutUs")) + "</textarea></div>" + '<div class="inv-grid">' + '<div class="fld"><label for="wb-page">Their Website</label>' + '<input class="pc-input" id="wb-page" data-wf="page" type="url" value="' + esc(val("page")) + '"></div>' + '<div class="fld"><label for="wb-when">Last Updated</label>' + '<input class="pc-input" id="wb-when" data-wf="lastUpdated" type="date" value="' + esc(val("lastUpdated")) + '"></div>' + "</div>" + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-wsave="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Save the Website Card</button>" + '<button class="lc-btn ghost" type="button" data-wcancel="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Cancel</button>" + '<button class="lc-btn ghost" type="button" data-wask="' + esc(key) + '">' + "Mark Their Wording as Requested</button>" + "</div>" + webPubBlock(c, w, dirty) + (prior.length ? '<div class="pc-lab" style="margin-top:16px;">What It Used To Say</div>' + '<p class="na-hint" style="margin:0 0 8px;">' + prior.length + (prior.length === 1 ? " earlier description" : " earlier descriptions") + " written over at a later renewal. Kept because the card on the site at the time is part of the record.</p>" + prior.map((function(t) {
+        return head + '<div class="pc-open" data-wkey="' + esc(key) + '">' + '<p class="na-hint" style="margin:0 0 10px;">What mismo.org shows for this ' + "certification: their About Us and a link to their website (no contact details). The company writes it; MISMO publishes it. " + "Collected at renewal, so it is only as current as the last time somebody asked.</p>" + (wch ? '<div class="web-sent"><div class="pc-lab" style="margin-top:0">Sent on Their Renewal, ' + esc(fmt(String(wch.a.submittedAt || "").slice(0, 10))) + "</div>" + webDiffHTML(wch) + (canWrite ? '<div class="na-acts">' + tdBtn("Approve and Publish", 'data-webdone="' + esc(key) + '"') + tdBtn("Keep What Is Listed", 'data-webkeep="' + esc(key) + '"', true) + "</div>" : "") + "</div>" : "") + '<div class="fld"><label for="wb-about">About Us</label>' + '<textarea class="pc-input" rows="5" id="wb-about" data-wf="aboutUs" ' + 'placeholder="The company\'s own description">' + esc(val("aboutUs")) + "</textarea></div>" + '<div class="inv-grid">' + '<div class="fld"><label for="wb-page">Their Website</label>' + '<input class="pc-input" id="wb-page" data-wf="page" type="url" value="' + esc(val("page")) + '"></div>' + '<div class="fld"><label for="wb-when">Last Updated</label>' + '<input class="pc-input" id="wb-when" data-wf="lastUpdated" type="date" value="' + esc(val("lastUpdated")) + '"></div>' + "</div>" + '<div class="na-acts">' + '<button class="lc-btn" type="button" data-wsave="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Save the Website Card</button>" + '<button class="lc-btn ghost" type="button" data-wcancel="' + esc(key) + '"' + (dirty ? "" : " disabled") + ">Cancel</button>" + '<button class="lc-btn ghost" type="button" data-wask="' + esc(key) + '">' + "Mark Their Wording as Requested</button>" + "</div>" + webPubBlock(c, w, dirty) + (prior.length ? '<div class="pc-lab" style="margin-top:16px;">What It Used To Say</div>' + '<p class="na-hint" style="margin:0 0 8px;">' + prior.length + (prior.length === 1 ? " earlier description" : " earlier descriptions") + " written over at a later renewal. Kept because the card on the site at the time is part of the record.</p>" + prior.map((function(t) {
             return '<div class="pc-note">' + esc(t) + "</div>";
         })).join("") : "") + "</div>";
     }
