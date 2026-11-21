@@ -159,6 +159,7 @@
     jobs.push(Promise.all([readData('stage-notices'), readData('db-stage-templates').then(null, function () { return null; })]).then(function (r) {
       var v = r[0], t = (r[1] && r[1].docs) || {}, ap = {};
       D.pausedPrograms = (v && v.pausedPrograms) || [];
+      D.noticeClosed = (v && v.closedDates) || [];   /* one-off closures, for the day an email goes */
       ((v && v.templates) || []).forEach(function (x) { if (x && x.id) ap[x.id] = !!x.approved; });
       Object.keys(t).forEach(function (k) { if (t[k] && t[k].approved === true) ap[k] = true; });
       D.noticeApproved = ap;

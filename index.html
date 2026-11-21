@@ -4770,7 +4770,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (!to0.length) { var d0 = aiDefaultTo(f0); to0 = aiEmails(d0.email); }
             if (!(inv && inv.orderId)) sentMsg = " The invoice was kept but not sent: record the Aptify order number on the record (so the payment can be matched and the email names it), then press Send the Invoice.";
             else if (a.pdf.readNumber && orderIdOf(a.pdf.readNumber) !== orderIdOf(inv.orderId)) sentMsg = " The invoice was kept but not sent: the PDF is for order " + a.pdf.readNumber + " and the form says " + inv.orderId + ". Fix the Order ID on the record, then press Send the Invoice.";
-            else if (to0.length && aiRequest(f0, to0, String(a.contactName || "").trim(), inv)) sentMsg = " The invoice goes to " + to0.join(", ") + " on the next run in business hours.";
+            else if (to0.length && aiRequest(f0, to0, String(a.contactName || "").trim(), inv)) sentMsg = " The invoice goes to " + to0.join(", ") + " " + sendDayText() + ".";
             else sentMsg = " The invoice was kept, but there is no email address to send it to: add one on the record and press Send the Invoice.";
         }
         toast(body.org + " added to the board." + sentMsg, sentMsg && /no email|not sent/.test(sentMsg) ? "warn" : "good");
@@ -4800,7 +4800,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         Object.keys(aiSends).forEach((function(k) { var v = aiSends[k]; if (v && String(v.row) === String(row) && (!asked || v.at > asked.at)) asked = v; }));
         Object.keys(aiSent).forEach((function(k) { var v = aiSent[k]; if (v && String(v.row) === String(row) && (!sent || v.sentAt > sent.sentAt)) sent = v; }));
         if (sent && (!asked || sent.sentAt >= asked.at)) return { text: (sent.held ? "Held for review and sent to certifications@ " : "Sent to " + String(sent.sentTo || "").split(";").filter((function(e) { return !/certifications@mismo\.org/i.test(e); })).join(", ") + " ") + fmt(String(sent.sentAt).slice(0, 10)) + ".", done: true };
-        if (asked) return { text: "Asked for " + fmt(String(asked.at).slice(0, 10)) + " by " + (asked.by || "someone") + ", to " + (asked.to || []).join(", ") + ". It goes out on the next run in business hours.", done: false };
+        if (asked) return { text: "Goes out " + sendDayText(asked.at) + " to " + (asked.to || []).join(", ") + " (asked for by " + (asked.by || "someone") + " " + fmt(String(asked.at).slice(0, 10)) + ").", done: false };
         return { text: "", done: false };
     }
     function aiDefaultTo(f) {
@@ -4910,9 +4910,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var i = invoiceOf(f) || {};
         if (!i.orderId) { toast("Record the Aptify order number first (Order ID, then Save the Invoice), so the payment can be matched.", "warn"); return; }
         if (appInv[row].readNumber && orderIdOf(appInv[row].readNumber) !== orderIdOf(i.orderId)) { toast("The PDF is for order " + appInv[row].readNumber + ", but the record says order " + i.orderId + ". Fix the Order ID or drop the right PDF, then send.", "warn"); return; }
-        if (!window.confirm("Email the invoice for " + f.org + " (" + f.program + ") to " + to.join(", ") + "?\n\nAptify order " + i.orderId + (i.amount != null ? ", " + money(i.amount) : "") + ". It goes from certifications@mismo.org with the PDF attached and certifications@ copied, on the next run in business hours.")) return;
+        if (!window.confirm("Email the invoice for " + f.org + " (" + f.program + ") to " + to.join(", ") + "?\n\nAptify order " + i.orderId + (i.amount != null ? ", " + money(i.amount) : "") + ". It goes from certifications@mismo.org with the PDF attached and certifications@ copied, " + sendDayText() + ".")) return;
         var d = aiDefaultTo(f), name = to[0] && d.email && to[0].toLowerCase() === String(d.email).toLowerCase() ? d.name : "";
-        if (aiRequest(f, to, name, i)) toast(f.org + " — the invoice goes to " + to.join(", ") + " on the next run in business hours.", "good");
+        if (aiRequest(f, to, name, i)) toast(f.org + " — the invoice goes to " + to.join(", ") + " " + sendDayText() + ".", "good");
     }
     function aiWire(scope) {
         Array.prototype.forEach.call(scope.querySelectorAll("[data-aidrop]"), (function(d) {
@@ -5137,7 +5137,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         Object.keys(tdNudges).forEach((function(k) { var v = tdNudges[k]; if (v && v.row === f.row && (!asked || v.at > asked.at)) asked = v; }));
         Object.keys(tdNudgeSent).forEach((function(k) { var v = tdNudgeSent[k]; if (v && v.row === f.row && (!sent || v.sentAt > sent.sentAt)) sent = v; }));
         if (sent && (!asked || sent.sentAt >= asked.at)) return { text: "Nudge sent " + fmt(String(sent.sentAt).slice(0, 10)), again: true };
-        if (asked) return { text: "Nudge asked for " + fmt(String(asked.at).slice(0, 10)) + " by " + (asked.by || "someone") + "; it goes out on the next run in business hours", again: false };
+        if (asked) return { text: "Nudge goes out " + sendDayText(asked.at) + " (asked for by " + (asked.by || "someone") + " " + fmt(String(asked.at).slice(0, 10)) + ")", short: "Nudge goes out " + sendDayText(asked.at), again: false };
         return null;
     }
     function tdNudge(row) {
@@ -5145,7 +5145,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!f) return;
         if (!db || !canWrite) { toast("Nothing is being saved \u2014 you are signed out, or have view-only access.", "warn"); return; }
         var firm = tdAssessorOf(f) || "the assessor", days = fuDaysInState(f), st = currentState(f);
-        if (!window.confirm("Email " + firm + " about " + f.org + "?\n\nIt says the " + f.program + " certification has been at " + titleOfState(st) + (days != null ? " for " + days + " days" : "") + " with no movement, and asks whether they have followed up with the company. certifications@mismo.org is copied. It goes out on the next run in business hours.")) return;
+        if (!window.confirm("Email " + firm + " about " + f.org + "?\n\nIt says the " + f.program + " certification has been at " + titleOfState(st) + (days != null ? " for " + days + " days" : "") + " with no movement, and asks whether they have followed up with the company. certifications@mismo.org is copied. It goes out " + sendDayText() + ".")) return;
         var at = (new Date).toISOString(), who = me && me.name || "someone";
         var body = { row: f.row, org: f.org, program: f.program, product: f.product || null, firm: firm, state: st, days: days, at: at, by: who };
         var id = f.row + "-" + at.replace(/[^0-9]/g, "").slice(0, 14);
@@ -5165,6 +5165,39 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        certifications@ copied. Not offered on hold. In a program MISMO has paused (stage-notices.json
        pausedPrograms) only the payment reminder is offered (Jonna, 21 Nov 2026: the invoice still goes out in a
        paused program, so paying it can still be chased); the job follows the same rule. */
+    /* The day an email asked for now actually goes (Jonna, 21 Nov 2026: say the day it goes, not the day it was asked
+       for). The email job sends on MISMO working days, 9:00 to 5:00 Eastern (1:00 on summer Fridays), and is closed on
+       the same days as cms-data calendar.js plus stage-notices.json closedDates. */
+    function sendDayIso(fromIso) {
+        function add(iso, n) { var d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+        function dow(iso) { return new Date(iso + "T00:00:00Z").getUTCDay(); }
+        function nth(y, m, wd, n) { if (n > 0) { var f = new Date(Date.UTC(y, m - 1, 1)), sh = (wd - f.getUTCDay() + 7) % 7; return new Date(Date.UTC(y, m - 1, 1 + sh + (n - 1) * 7)).toISOString().slice(0, 10); }
+            var l = new Date(Date.UTC(y, m, 0)), b = (l.getUTCDay() - wd + 7) % 7; return new Date(Date.UTC(y, m, 0 - b)).toISOString().slice(0, 10); }
+        function obs(iso) { var d = dow(iso); return d === 6 ? add(iso, -1) : d === 0 ? add(iso, 1) : iso; }
+        function closed(iso) {
+            var y = +iso.slice(0, 4), set = {}, pad = function (x) { return String(x).padStart(2, "0"); };
+            [[1, 1], [6, 19], [7, 4], [11, 11], [12, 25]].forEach(function (md) { set[obs(y + "-" + pad(md[0]) + "-" + pad(md[1]))] = 1; });
+            set[nth(y, 1, 1, 3)] = set[nth(y, 2, 1, 3)] = set[nth(y, 5, 1, -1)] = set[nth(y, 9, 1, 1)] = 1;
+            var tg = nth(y, 11, 4, 4); set[tg] = set[add(tg, 1)] = 1; set[obs((y + 1) + "-01-01")] = 1;
+            for (var dd = 25; dd <= 31; dd++) set[y + "-12-" + dd] = 1;
+            (D.noticeClosed || []).forEach(function (x) { set[String(x).slice(0, 10)] = 1; });
+            return !!set[iso] || dow(iso) === 0 || dow(iso) === 6;
+        }
+        var now = fromIso ? new Date(fromIso) : new Date(), parts = {};
+        try { new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hour12: false }).formatToParts(now).forEach(function (p) { parts[p.type] = p.value; }); } catch (e) {}
+        var day = parts.year ? parts.year + "-" + parts.month + "-" + parts.day : now.toISOString().slice(0, 10), hr = +(parts.hour || 12) % 24;
+        var y = +day.slice(0, 4), summerFri = dow(day) === 5 && day >= nth(y, 5, 1, -1) && day <= nth(y, 9, 1, 1);
+        if (!closed(day) && hr < (summerFri ? 13 : 17)) return day;
+        day = add(day, 1); while (closed(day)) day = add(day, 1);
+        return day;
+    }
+    function sendDayText(fromIso) {
+        var d = sendDayIso(fromIso), today = sendDayIso.today || (sendDayIso.today = null);
+        var nowDay = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+        if (d === nowDay) return "today";
+        var w = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ][new Date(d + "T00:00:00Z").getUTCDay()];
+        return w + ", " + fmt(d);
+    }
     var tdRems = {}, tdRemSent = {}, tdRemWait = {};
     var TD_REM = { payment: { label: "Payment Reminder", template: "company-payment-reminder" }, booking: { label: "Booking Reminder", template: "company-booking-reminder" } };
     function tdPaused(f) { var p = D.pausedPrograms || []; return p.indexOf(f.program) >= 0; }
@@ -5180,7 +5213,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         Object.keys(tdRems).forEach((function(k) { var v = tdRems[k]; if (v && v.kind === kind && String(v.row) === String(f.row) && (!asked || v.at > asked.at)) asked = v; }));
         Object.keys(tdRemSent).forEach((function(k) { var v = tdRemSent[k]; if (v && v.template === R.template && String(v.row) === String(f.row) && (!sent || v.sentAt > sent.sentAt)) sent = v; }));
         if (sent && (!asked || sent.sentAt >= asked.at)) return { text: R.label + (sent.held ? " held for review and sent to certifications@ " : " sent ") + fmt(String(sent.sentAt).slice(0, 10)), again: true };
-        if (asked) return { text: R.label + " asked for " + fmt(String(asked.at).slice(0, 10)) + " by " + (asked.by || "someone") + (asked.to && asked.to.length ? ", to " + asked.to.join(", ") : "") + "; it goes out on the next run in business hours", again: false };
+        if (asked) return { text: R.label + " goes out " + sendDayText(asked.at) + (asked.to && asked.to.length ? " to " + asked.to.join(", ") : "") + " (asked for by " + (asked.by || "someone") + " " + fmt(String(asked.at).slice(0, 10)) + ")", short: R.label + " goes out " + sendDayText(asked.at), again: false };
         return null;
     }
     /* who it goes to: the invoice contact for a payment reminder, the main contact for a booking reminder */
@@ -5227,7 +5260,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var msg = kind === "payment"
             ? "Email a payment reminder to " + email + " about " + f.org + "’s " + f.program + " certification invoice (Aptify order " + orderId + (i.amount != null ? ", " + money(i.amount) : "") + ")?\n\nThe invoice PDF is attached and certifications@mismo.org is copied."
             : "Email a booking reminder to " + email + " about " + f.org + "’s " + f.program + " certification?\n\nIt thanks them for their payment and gives them their booking link" + (days != null ? " (they have been waiting " + days + " days)" : "") + ". certifications@mismo.org is copied.";
-        msg += " It goes out on the next run in business hours.";
+        msg += " It goes out " + sendDayText() + ".";
         /* only when its wording really is still waiting for approval (21 Nov 2026) */
         if (D.noticeApproved && D.noticeApproved[TD_REM[kind].template] === false) msg += " Its wording is not approved yet, so until it is approved on the Email Playbook page it comes to certifications@mismo.org marked Held for Review instead.";
         if (!window.confirm(msg)) return;
@@ -5240,7 +5273,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var entry = { row: f.row, org: f.org, program: f.program, from: "", to: "", kind: "reminder", note: TD_REM[kind].label + " to be emailed to " + email + (kind === "payment" ? ", Aptify order " + orderId : ""), reason: null, at: at, by: who };
         activity.unshift(entry);
         try { Promise.resolve(db.collection("activity").add(entry)).catch(onWriteRefused); } catch (e) {}
-        toast(f.org + " — the " + TD_REM[kind].label.toLowerCase() + " goes out on the next run in business hours.", "good");
+        toast(f.org + " — the " + TD_REM[kind].label.toLowerCase() + " goes out " + sendDayText() + ".", "good");
         renderTodo();
     }
     /* the invoice PDF chosen from a Send a Payment Reminder press: kept on the certification, then the reminder carries on */
@@ -5279,7 +5312,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var f = byRow(row), pn = tdPaidNext(f);
         if (!f || !pn) return;
         if (!window.confirm((f.program === "FRAME" && pn.to === "AwaitingReviewSelection"
-                ? "Send " + f.org + " its FRAME questionnaire?\n\nIt emails them their own link to the questionnaire on the next run in business hours, with certifications@mismo.org copied. Their application moves on to " + titleOfState(pn.to) + ", the questionnaire and review stage.\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "")
+                ? "Send " + f.org + " its FRAME questionnaire?\n\nIt emails them their own link to the questionnaire " + sendDayText() + ", with certifications@mismo.org copied. Their application moves on to " + titleOfState(pn.to) + ", the questionnaire and review stage.\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "")
                 : "Move " + f.org + "’s " + f.program + " application on to " + titleOfState(pn.to) + "?\n\n" + pn.text.replace(/ The next move is MISMO’s:.*$/, "") + " "
             + (pn.to === "AwaitingDemoSelection" ? "The company is emailed its booking link." : "certifications@mismo.org is told it is ready for the review."))
             + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
@@ -5288,7 +5321,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function tdStageRow(f) {
         var st = currentState(f), w = String((STATE[st] || {}).waiting || f.waiting || ""), x = followUpOf(f);
-        return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(titleOfState(st))
+        return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " \u00b7 " + esc(stateLabelOf(f, st))
             + (tdDays(f) ? " \u00b7 " + tdDays(f) : "") + (w ? " \u00b7 " + esc(pendingLabel(f)) : "") + (fuHeld(f) ? " \u00b7 On Hold" : x ? " \u00b7 on Follow Up" : "") + "</span></button>";
     }
     var TD_PREPAY = [ "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "DocumentsRequested", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ];
@@ -5470,14 +5503,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         var f = x, st = currentState(f);
         var head = '<div class="td-main"><button class="td-org" type="button" data-tdopen="' + f.row + '">' + esc(f.org) + "</button>"
-            + '<div class="td-meta">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "");
+            + '<div class="td-meta">' + tdWhat(f) + " · " + esc(stateLabelOf(f, st)) + (tdDays(f) ? " · " + tdDays(f) : "");
         if (key.indexOf("fu-") === 0) {
             var fx = followUpOf(f) || {}, nd = key === "fu-assessor" ? tdNudgeOf(f) : null, rk = tdRemKind(key, f), rm = rk ? tdRemOf(f, rk) : null, pn = tdPaidNext(f);
             /* One short line on the card; the rest (payment check, notes, reminders, the pause) is on the record,
                opened from the company name (Jonna, 21 Nov 2026: "too much text and creating weird blank space"). */
             var tdShort = pn ? "Paid \u00b7 " + (pn.label === "Send the Questionnaire" ? "next: send the questionnaire" : "the next move is MISMO\u2019s")
-                : rm ? rm.text.split(" by ")[0].split(";")[0]
-                : nd ? nd.text.split(" by ")[0].split(";")[0]
+                : rm ? (rm.short || rm.text.split(" by ")[0].split(";")[0])
+                : nd ? (nd.short || nd.text.split(" by ")[0].split(";")[0])
                 : (fx.reason || "On the follow-up list");
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>"
                 + '<div class="td-meta">' + (pn || rm || nd ? "<b>" + esc(tdShort) + "</b>" : esc(tdShort)) + "</div></div>";
@@ -5512,7 +5545,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var st = currentState(f), extra = "";
         if (key === "later") { var x = followUpOf(f) || {}; extra = (x.reason ? " · " + esc(x.reason) : "") + (x.nextOn ? " · chase again " + esc(fmt(x.nextOn)) : ""); }
         if (key === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; extra = L ? " · Mark License: " + esc((LIC_SAID[L.status] || L.status || "").toLowerCase()) : ""; }
-        return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " · " + esc(titleOfState(st)) + (tdDays(f) ? " · " + tdDays(f) : "") + extra + "</span></button>";
+        return '<button class="td-row" type="button" data-tdopen="' + f.row + '"><span class="td-rn">' + esc(f.org) + '</span><span class="td-rm">' + tdWhat(f) + " · " + esc(stateLabelOf(f, st)) + (tdDays(f) ? " · " + tdDays(f) : "") + extra + "</span></button>";
     }
     function tdLastProgram(name) {
         var s = slugName(name), hit = null;
@@ -5560,7 +5593,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     };
     var WHO_PLAIN = { "Company + President": "Company and MISMO Signatures", "Company + Assessor": "Company and Assessor", "MISMO + Company": "Company Payment", "VP": "MISMO VP", "": "Nobody" };
     function whoLabel(w) { w = String(w == null ? "" : w); return WHO_PLAIN.hasOwnProperty(w) ? WHO_PLAIN[w] : w; }
-    function pendingLabel(f) { var st = typeof f === "string" ? f : currentState(f); return PENDING[st] || (typeof titleOfState === "function" ? titleOfState(st) : st); }
+    function pendingLabel(f) { var st = typeof f === "string" ? f : currentState(f); var q = typeof f === "string" ? null : progStage(f, st); if (q) return q.pending; return PENDING[st] || (typeof titleOfState === "function" ? titleOfState(st) : st); }
+    /* Plain words for "Awaiting Review Selection" where it means something else (Jonna, 21 Nov 2026: "not review selection
+       though right ... plain speak"): for FRAME it is the questionnaire, sent once they have paid; for AI Governance,
+       paid and waiting for access to the AI Governance portal. Other programs keep the general wording. */
+    var PROG_STAGE = {
+        "FRAME|AwaitingReviewSelection": { label: "Paid, Completing the Questionnaire", pending: "Pending Questionnaire from the Company", next: "Complete the questionnaire" },
+        "AI Governance|AwaitingReviewSelection": { label: "Paid, Waiting for Portal Access", pending: "Pending AI Governance Portal Access", next: "Send portal access once it is approved" }
+    };
+    function progStage(f, st) { return f ? PROG_STAGE[String(f.program) + "|" + (st || currentState(f))] || null : null; }
+    function stateLabelOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return q ? q.label : titleOfState(st); }
+    function nextLabelOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return q ? q.next : (TQ_NEXT[st] || titleOfState(st)); }
     /* What the company was invoiced and whether it is paid - MISMO's own view only. */
     function moneyLine(f) {
         var i = null, exp = null;
@@ -5787,12 +5830,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!tqTick) tqTick = setInterval(tick, 1000);
     }
     function tqWaitItem(view, f) {
-        var st = currentState(f), next = TQ_NEXT[st] || titleOfState(st), extra = "";
+        var st = currentState(f), next = nextLabelOf(f, st), extra = "";
         if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; }
         if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
         if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : ""; }
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; }
-        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: titleOfState(st) };
+        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st) };
     }
     var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "Jonathan", system: "Automatic", later: "Chase later", hold: "On hold" };
     /* ---- The certification journey (31 Oct 2026, Jonna: give the CMS the Assessor Portal's treatment).
@@ -7201,7 +7244,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var openHTML = open.length ? '<div class="co-open">' + open.map((function(f) {
                 var st = currentState(f), def = STATE[st] || {}, d = fuDaysInState(f), mine = cjMismo(f);
                 return '<button type="button" class="co-o' + (mine ? " mine" : "") + '" data-pkrow="' + f.row + '"><span class="co-ot"><b>' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + "</b><small>" + esc(kindLabel(f)) + "</small></span>"
-                    + '<span class="co-os">' + esc(TQ_NEXT[st] || titleOfState(st)) + "<small>" + (mine ? "Your move" : esc(pendingLabel(f))) + (d != null ? " · " + d + (d === 1 ? " day" : " days") : "") + "</small></span>" + cjBar(f) + "</button>";
+                    + '<span class="co-os">' + esc(nextLabelOf(f, st)) + "<small>" + (mine ? "Your move" : esc(pendingLabel(f))) + (d != null ? " · " + d + (d === 1 ? " day" : " days") : "") + "</small></span>" + cjBar(f) + "</button>";
             })).join("") + "</div>" : '<div class="co-none">Nothing open right now.' + (soonest ? " Next up: " + esc(soonest.program) + " renews " + esc(fmt(soonest.anniversary)) + (nDays != null ? ", in " + nDays + " days." : ".") : "") + "</div>";
             var actHTML = mineAct.length ? '<div class="co-act">' + mineAct.map((function(x) {
                 var what = x.kind === "edit" ? "Edited — " + (x.note || "") : x.from && x.to && x.from !== x.to ? titleOfState(x.from) + " → " + titleOfState(x.to) : x.note || "Note added";
@@ -8484,7 +8527,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     function dNext(f) {
         var st = currentState(f), def = STATE[st] || {}, who = def.waiting || f.waiting || "nobody", mine = cjMismo(f);
-        var next = TQ_NEXT[st] || titleOfState(st);
+        var next = nextLabelOf(f, st);
         return '<div class="dnext' + (mine ? " mine" : "") + (serious(f.flags) ? " flag" : "") + '">' + '<span class="dn-k">' + (mine ? "Your move" : esc(pendingLabel(f))) + "</span>" + "<b>" + esc(next) + "</b>" + "<i>" + esc(titleOfState(st)) + " · " + esc(phaseOf(st)) + (f.age != null ? " · open " + esc(f.age) + " days" : "") + "</i>" + (serious(f.flags) ? '<em>' + esc(f.flags[0]) + "</em>" : "") + "</div>";
     }
     function cardParts(f) {
@@ -9241,7 +9284,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         return {
             title: f.org,
-            html: '<div class="ps-head">' + '<div><div class="ps-eyebrow">MISMO FRAME Certified Advisory Partner Program</div>' + "<h1>" + esc(f.org) + "</h1>" + '<div class="ps-sub">Evaluation scoring guide, Appendix A · ' + esc(r ? "form " + r.formVersion : f.program) + "</div></div>" + '<div class="ps-logo"><svg viewBox="0 0 708 108" aria-label="MISMO">' + '<use href="#mismo-logo"/></svg>' + '<div class="ps-meta">Printed ' + esc(fmt((new Date).toISOString().slice(0, 10))) + "<br>" + esc(me && me.name || "MISMO") + "<br>" + esc(titleOfState(currentState(f))) + "</div></div>" + "</div>" + '<div class="ps-verdict">' + '<div class="ps-score"><span class="ps-lab">Weighted Score</span>' + "<b>" + (roll.pct == null ? "—" : roll.pct.toFixed(0) + "%") + "</b>" + '<span class="ps-note">' + roll.scored + " of " + roll.scorable + " answers marked · " + roll.weightScored + "% of the weight covered" + (roll.complete ? "" : " · not finished") + "</span></div>" + '<div class="ps-rec"><span class="ps-lab">Reviewer Recommendation</span>' + "<b>" + esc(rev.recommendation || "Not recorded") + "</b>" + '<span class="ps-note">' + (rev.by ? "Recorded by " + esc(rev.by) : "Nobody has recorded one") + (rev.at ? " on " + esc(fmt(rev.at.slice(0, 10))) : "") + "</span></div>" + "</div>" + '<h2 class="ps-h">Evaluation Areas</h2>' + '<table class="ps-tbl"><thead><tr>' + '<th>Area</th><th class="n">Weight</th><th class="n">Score</th>' + '<th class="n">Marked</th><th class="bar">Out of 4</th><th class="n">Earned</th>' + "</tr></thead><tbody>" + roll.areas.map(row).join("") + "</tbody></table>" + '<h2 class="ps-h">Certification Gates</h2>' + '<ul class="ps-gates">' + (sc.gates || []).map((function(g) {
+            html: '<div class="ps-head">' + '<div><div class="ps-eyebrow">MISMO FRAME Certified Advisory Partner Program</div>' + "<h1>" + esc(f.org) + "</h1>" + '<div class="ps-sub">Evaluation scoring guide, Appendix A · ' + esc(r ? "form " + r.formVersion : f.program) + "</div></div>" + '<div class="ps-logo"><svg viewBox="0 0 708 108" aria-label="MISMO">' + '<use href="#mismo-logo"/></svg>' + '<div class="ps-meta">Printed ' + esc(fmt((new Date).toISOString().slice(0, 10))) + "<br>" + esc(me && me.name || "MISMO") + "<br>" + esc(stateLabelOf(f)) + "</div></div>" + "</div>" + '<div class="ps-verdict">' + '<div class="ps-score"><span class="ps-lab">Weighted Score</span>' + "<b>" + (roll.pct == null ? "—" : roll.pct.toFixed(0) + "%") + "</b>" + '<span class="ps-note">' + roll.scored + " of " + roll.scorable + " answers marked · " + roll.weightScored + "% of the weight covered" + (roll.complete ? "" : " · not finished") + "</span></div>" + '<div class="ps-rec"><span class="ps-lab">Reviewer Recommendation</span>' + "<b>" + esc(rev.recommendation || "Not recorded") + "</b>" + '<span class="ps-note">' + (rev.by ? "Recorded by " + esc(rev.by) : "Nobody has recorded one") + (rev.at ? " on " + esc(fmt(rev.at.slice(0, 10))) : "") + "</span></div>" + "</div>" + '<h2 class="ps-h">Evaluation Areas</h2>' + '<table class="ps-tbl"><thead><tr>' + '<th>Area</th><th class="n">Weight</th><th class="n">Score</th>' + '<th class="n">Marked</th><th class="bar">Out of 4</th><th class="n">Earned</th>' + "</tr></thead><tbody>" + roll.areas.map(row).join("") + "</tbody></table>" + '<h2 class="ps-h">Certification Gates</h2>' + '<ul class="ps-gates">' + (sc.gates || []).map((function(g) {
                 return '<li class="' + (gates[g.n] ? "on" : "off") + '">' + '<span class="ps-tick">' + (gates[g.n] ? "✓" : "·") + "</span>" + esc(g.text) + "</li>";
             })).join("") + "</ul>" + (findings.length ? '<h2 class="ps-h">What Was Marked Down</h2>' + '<table class="ps-tbl find"><thead><tr><th class="n">Q</th><th>Section</th>' + '<th>Question</th><th class="n">Score</th><th>Reviewer comment</th></tr></thead>' + "<tbody>" + findings.map((function(x) {
                 return '<tr><td class="n">' + esc(String(x.n)) + "</td>" + "<td>" + esc(String(x.section).replace(/^\s*\d+\.\s*/, "")) + "</td>" + "<td>" + esc(x.q) + "</td>" + '<td class="n s' + x.score + '">' + x.score + " · " + esc(scaleOf[x.score] || "") + "</td>" + "<td>" + (x.comment ? esc(x.comment) : "<i>no comment</i>") + "</td></tr>";
@@ -9661,7 +9704,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function engActions(f) {
         var st = STATE[currentState(f)] || {};
         var next = assessorNext(f);
-        var head = '<div class="panel" id="eng-acts">' + '<div class="phead"><div><h2>Update This Engagement</h2>' + '<p class="psub">Record what has happened. The assessment itself is still worked ' + "outside the system for now — this is where its progress is kept, so MISMO is not " + "chasing you for it by email.</p></div></div>" + '<div class="eng-now"><span class="en-lab">Stage</span>' + '<span class="en-val">' + esc(titleOfState(currentState(f))) + "</span>" + '<span class="en-who">' + (st.waiting ? esc(pendingLabel(f)) : "closed") + "</span></div>";
+        var head = '<div class="panel" id="eng-acts">' + '<div class="phead"><div><h2>Update This Engagement</h2>' + '<p class="psub">Record what has happened. The assessment itself is still worked ' + "outside the system for now — this is where its progress is kept, so MISMO is not " + "chasing you for it by email.</p></div></div>" + '<div class="eng-now"><span class="en-lab">Stage</span>' + '<span class="en-val">' + esc(stateLabelOf(f)) + "</span>" + '<span class="en-who">' + (st.waiting ? esc(pendingLabel(f)) : "closed") + "</span></div>";
         if (!next.length) {
             return head + '<div class="pc-note"><b>Nothing for you to do here.</b> ' + (st.waiting && st.waiting.indexOf("Assessor") < 0 ? "It is with " + esc(whoLabel(st.waiting)) + ". " : "") + (ENG_WAITING_ON[currentState(f)] || "It will come back to you when they have moved it.") + "</div></div>";
         }
@@ -10052,7 +10095,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var nyNote = notYet.length ? '<p class="sect-s" style="margin-top:' + (waiting.length ? "16px" : "0") + '"><b>Not ready yet:</b> ' + notYet.map((function(f) { return esc(f.org) + " (" + esc(pendingLabel(f)) + ")"; })).join(", ") + ". Each one comes here once it has paid and the questionnaire and exercise can go out.</p>" : "";
             na.innerHTML = !waiting.length ? '<h2 class="sect-t">Waiting for an Exercise</h2><p class="sect-s">Nobody is ready for an exercise yet.</p>' + nyNote : "";
             if (waiting.length) na.innerHTML =  '<h2 class="sect-t">Waiting for an Exercise</h2>' + '<p class="sect-s">FRAME applicants on the board with no practical exercise against ' + "them. Assigning one picks the exercise held by the fewest companies, so the set " + "stays spread — right now that is <b>" + esc(sug ? sug.product.name : "none") + "</b>" + (sug ? ", which " + (sug.held === 0 ? "nobody holds" : sug.held === 1 ? "one company holds" : sug.held + " companies hold") : "") + ". Nothing is sent by this; it only records who gets what.</p>" + '<div class="cards">' + waiting.map((function(f) {
-                return '<div class="card flat">' + "<h3>" + esc(f.org) + "</h3>" + "<p>" + esc(f.stateLabel || titleOfState(currentState(f))) + " · " + esc(pendingLabel(f)) + ". No exercise has been assigned.</p>" + '<div class="cfoot"><button class="lc-btn full" type="button" ' + 'data-scenassign="' + f.row + '">Assign a Scenario</button></div>' + "</div>";
+                return '<div class="card flat">' + "<h3>" + esc(f.org) + "</h3>" + "<p>" + esc(stateLabelOf(f)) + " · " + esc(pendingLabel(f)) + ". No exercise has been assigned.</p>" + '<div class="cfoot"><button class="lc-btn full" type="button" ' + 'data-scenassign="' + f.row + '">Assign a Scenario</button></div>' + "</div>";
             })).join("") + "</div>" + nyNote;
             Array.prototype.forEach.call(na.querySelectorAll("[data-scenassign]"), (function(b) {
                 b.addEventListener("click", (function() {
@@ -13694,7 +13737,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function engRow(f, opts) {
         var p = prelimOf(f);
         var mine = f.waiting && f.waiting.indexOf("Assessor") >= 0;
-        return '<button class="erow' + (mine ? " mine" : "") + '" type="button" data-eng="' + f.row + '">' + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(f.kind === "initial" ? "Initial" : "Renewal") + "</span></span>" + '<span class="e-st">' + esc(titleOfState(currentState(f))) + '<span class="e-sub">' + (demoOf(f) ? esc(fmt(demoOf(f))) : mine ? "with you" : esc(pendingLabel(f))) + "</span></span>" + (f.program === "Consultant" ? '<span class="e-sc num">' + function() {
+        return '<button class="erow' + (mine ? " mine" : "") + '" type="button" data-eng="' + f.row + '">' + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(f.kind === "initial" ? "Initial" : "Renewal") + "</span></span>" + '<span class="e-st">' + esc(stateLabelOf(f)) + '<span class="e-sub">' + (demoOf(f) ? esc(fmt(demoOf(f))) : mine ? "with you" : esc(pendingLabel(f))) + "</span></span>" + (f.program === "Consultant" ? '<span class="e-sc num">' + function() {
             var sc = consultantScore(f.org);
             return sc ? (sc.company.Total || 0).toLocaleString("en-US") : "—";
         }() + '<span class="e-sub">points</span></span>' : f.program === "FRAME" ? function() {
@@ -13716,7 +13759,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (f.kind === "renewal" && SCRIPT_PROGRAMS[f.program]) {
             scriptCell = scriptPrep[f.row] && scriptPrep[f.row].preparedOn ? cell("Cert Script", "Sent", esc(fmt(scriptPrep[f.row].preparedOn))) : scriptDone(f) ? cell("Cert Script", "Received", "With you") : cell("Cert Script", "Not sent", "Waiting on MISMO", "bad");
         }
-        return report([ cell("Stage", esc(titleOfState(currentState(f))), esc(pendingLabel(f))), cell("Open", f.age != null ? f.age + " <i>days</i>" : "—", f.age != null && f.age > 180 ? "Long running" : ""), demoOf(f) ? cell("Demo", esc(fmt(demoOf(f))), "Scheduled") : "", f.program === "Consultant" ? function() {
+        return report([ cell("Stage", esc(stateLabelOf(f)), esc(pendingLabel(f))), cell("Open", f.age != null ? f.age + " <i>days</i>" : "—", f.age != null && f.age > 180 ? "Long running" : ""), demoOf(f) ? cell("Demo", esc(fmt(demoOf(f))), "Scheduled") : "", f.program === "Consultant" ? function() {
             var s2 = consultantScore(f.org);
             return cell("Points", s2 ? (s2.company.Total || 0).toLocaleString("en-US") : "—", "Scored on points, not pass or fail");
         }() : f.program === "FRAME" ? function() {
@@ -13815,7 +13858,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                    waiting on and what the company has paid. Outside firms never see the money. */
                 var open = own ? 'button class="erow coming" type="button" data-pkrow="' + f.row + '" title="Open the record"' : fr ? 'button class="erow coming" type="button" data-eng="' + f.row + '"' : 'div class="erow coming flat"';
                 var tag = own || fr ? "button" : "div";
-                return "<" + open + ">" + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(kindLabel(f)) + "</span></span>" + '<span class="e-st">' + (doneForFirm(f) ? "Your invoice" : esc(pendingLabel(f))) + '<span class="e-sub' + (doneForFirm(f) ? " bad" : "") + '">' + (doneForFirm(f) ? "Approved — you have not invoiced for it" : own ? esc(moneyLine(f)) : esc(titleOfState(currentState(f)))) + "</span></span>" + (fr && !own ? '<span class="e-go">Questionnaire in — read it</span>' : "") + "</" + tag + ">";
+                return "<" + open + ">" + '<span class="e-co">' + esc(f.org) + (f.product ? '<span class="e-pr">' + esc(f.product) + "</span>" : "") + "</span>" + '<span class="e-pg">' + esc(f.program) + '<span class="e-sub">' + esc(kindLabel(f)) + "</span></span>" + '<span class="e-st">' + (doneForFirm(f) ? "Your invoice" : esc(pendingLabel(f))) + '<span class="e-sub' + (doneForFirm(f) ? " bad" : "") + '">' + (doneForFirm(f) ? "Approved — you have not invoiced for it" : own ? esc(moneyLine(f)) : esc(stateLabelOf(f))) + "</span></span>" + (fr && !own ? '<span class="e-go">Questionnaire in — read it</span>' : "") + "</" + tag + ">";
             })).join("") + "</div></div>" : "");
         }
         var fees = $("as-fees");
@@ -13879,7 +13922,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + pvMono(f.org)
             + '<span class="er-id"><b>' + esc(f.org || "") + "</b><i>" + esc(f.product || pkProg(f.program) || "") + "</i></span>"
             + '<span class="er-pg"><span class="pv-tag">' + esc(f.program || "") + '</span><span class="pv-tag soft">' + esc(kindLabel(f)) + "</span></span>"
-            + '<span class="er-jr">' + pvBar(f) + "<i>" + esc(PV_JOURNEY[pvStop(f)].t) + " · " + esc(titleOfState(st)) + "</i></span>"
+            + '<span class="er-jr">' + pvBar(f) + "<i>" + esc(PV_JOURNEY[pvStop(f)].t) + " · " + esc(stateLabelOf(f, st)) + "</i></span>"
             + '<span class="er-st' + (mine ? " you" : scriptOutstanding(f) ? " bad" : "") + '"><b>' + esc(mine ? (TQ_NEXT[st] || "Your move") : scriptOutstanding(f) ? "Waiting on MISMO: certification script" : pendingLabel(f)) + "</b>"
             + "<i>" + (d ? esc(fmt(d)) + " · " + esc(pvWhen(pvUntil(d))) : f.age != null ? esc(f.age) + " days at this step" : "") + "</i>"
             + '<span class="er-money">' + esc(moneyLine(f)) + "</span></span>"
@@ -13913,8 +13956,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         out += B.withMe.length ? '<div class="moves">' + B.withMe.map((function(f) {
             var st = currentState(f), d = pvDay(f);
             return '<button class="move" type="button" data-eng="' + f.row + '"><span class="mv-top">' + pvMono(f.org) + '<span class="mv-id"><b>' + esc(f.org) + "</b><i>" + esc(f.program || "") + " · " + esc(kindLabel(f)) + (f.product ? " · " + esc(f.product) : "") + "</i></span></span>"
-                + pvStepper(f) + '<span class="mv-do"><span class="mv-k">Next Step</span><b>' + esc(TQ_NEXT[st] || titleOfState(st)) + "</b></span>"
-                + '<span class="mv-foot">' + (d ? '<span class="pv-tag cal">' + esc(fmt(d)) + "</span>" : "") + '<span class="pv-tag">' + esc(titleOfState(st)) + '</span><span class="mv-go">Open ›</span></span></button>';
+                + pvStepper(f) + '<span class="mv-do"><span class="mv-k">Next Step</span><b>' + esc(nextLabelOf(f, st)) + "</b></span>"
+                + '<span class="mv-foot">' + (d ? '<span class="pv-tag cal">' + esc(fmt(d)) + "</span>" : "") + '<span class="pv-tag">' + esc(stateLabelOf(f, st)) + '</span><span class="mv-go">Open ›</span></span></button>';
         })).join("") + "</div>" : '<div class="calm"><b>Nothing is waiting on you.</b> New work arrives here the moment a company books, sends its evidence, or MISMO asks you something.</div>';
         out += "</section>";
         var counts = PV_JOURNEY.map((function() { return { n: 0, mine: 0 }; }));
@@ -14009,7 +14052,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         };
         var docked = !!origTarget(f);
         document.body.classList.toggle("on-dock", docked);
-        el.innerHTML = (docked ? '<div class="dockwrap"><div class="dockmain">' : "") + '<div class="panel">' + '<button class="dback" type="button" data-eng-back="1">← Back</button>' + '<div class="phead"><div>' + "<h2>" + esc(f.org) + (f.product ? " · " + esc(f.product) : "") + "</h2>" + '<p class="psub">' + esc(f.program) + " · " + esc(f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + esc(titleOfState(currentState(f))) + "</p>" + "</div></div>" + engReport(f, answered) + "</div>" + (f.program === "Consultant" ? submissionPanel(f) + scorecardPanel(f) : "") + (f.program === "FRAME" ? framePanel(f) + attachmentPanel(f) + interviewPanel(f) + frVerdictPanel(f, frameResult(f.org)) : "") + (scriptOutstanding(f) ? '<div class="panel"><div class="note bad" style="margin:0;">' + "<b>Waiting on MISMO.</b> The certification script for this renewal has not been " + "completed and sent yet. It carries the provider’s own questionnaire and " + "attestation answers, which is what the demo is read against.</div></div>" : "") + engActions(f) + (assessedOutside(f) ? uploadPanel(f) : "") + (f.program === "Consultant" || f.program === "FRAME" ? "" : '<div class="panel">' + '<div class="phead"><div>' + "<h2>" + (assessedOutside(f) ? "What the Assessment Found" : "Score the Instrument") + "</h2>" + '<p class="psub">' + (!assessedOutside(f) ? "" : scriptReadable(f) ? "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>, marked from the file brought in above. Nothing here has to be filled " + "in by hand — but anything read wrongly can be corrected here, and the " + "correction is recorded as one. " : "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>. The report itself is uploaded above; the recommendation is set here, " + "line by line, because a prose report is not something the system can read a " + "mark out of. ") + (assessedOutside(f) ? "" : sc ? "Working to <b>" + esc(sc.title) + "</b>, read out of the assessor workbook " + "rather than retyped. Every item carries the criterion MISMO applies and " + "the evidence required. " : items.length ? "No certification script exists for " + esc(f.program) + " yet, so these " + "are the questions " + (items[0] && items[0].fromForm ? "on the questionnaire" : "on file") + " and nothing more — " + "no criterion, no required evidence. " : "") + "The preliminary result follows from the marks — it is never typed.</p>" + "</div></div>" + '<div class="prelim ' + p.state + '">' + '<div><span class="pl-lab">Preliminary Result</span>' + '<span class="pl-val">' + esc(p.label) + "</span></div>" + '<div class="pl-prog"><span style="width:' + (p.total ? (p.scored / p.total * 100).toFixed(1) : 0) + '%"></span></div>' + '<div class="pl-n">' + p.scored + " of " + p.total + " scored</div>" + "</div>" + (items.length ? sections.map((function(sec) {
+        el.innerHTML = (docked ? '<div class="dockwrap"><div class="dockmain">' : "") + '<div class="panel">' + '<button class="dback" type="button" data-eng-back="1">← Back</button>' + '<div class="phead"><div>' + "<h2>" + esc(f.org) + (f.product ? " · " + esc(f.product) : "") + "</h2>" + '<p class="psub">' + esc(f.program) + " · " + esc(f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + esc(stateLabelOf(f)) + "</p>" + "</div></div>" + engReport(f, answered) + "</div>" + (f.program === "Consultant" ? submissionPanel(f) + scorecardPanel(f) : "") + (f.program === "FRAME" ? framePanel(f) + attachmentPanel(f) + interviewPanel(f) + frVerdictPanel(f, frameResult(f.org)) : "") + (scriptOutstanding(f) ? '<div class="panel"><div class="note bad" style="margin:0;">' + "<b>Waiting on MISMO.</b> The certification script for this renewal has not been " + "completed and sent yet. It carries the provider’s own questionnaire and " + "attestation answers, which is what the demo is read against.</div></div>" : "") + engActions(f) + (assessedOutside(f) ? uploadPanel(f) : "") + (f.program === "Consultant" || f.program === "FRAME" ? "" : '<div class="panel">' + '<div class="phead"><div>' + "<h2>" + (assessedOutside(f) ? "What the Assessment Found" : "Score the Instrument") + "</h2>" + '<p class="psub">' + (!assessedOutside(f) ? "" : scriptReadable(f) ? "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>, marked from the file brought in above. Nothing here has to be filled " + "in by hand — but anything read wrongly can be corrected here, and the " + "correction is recorded as one. " : "These are the items in <b>" + esc(sc && sc.title || f.program + " instrument") + "</b>. The report itself is uploaded above; the recommendation is set here, " + "line by line, because a prose report is not something the system can read a " + "mark out of. ") + (assessedOutside(f) ? "" : sc ? "Working to <b>" + esc(sc.title) + "</b>, read out of the assessor workbook " + "rather than retyped. Every item carries the criterion MISMO applies and " + "the evidence required. " : items.length ? "No certification script exists for " + esc(f.program) + " yet, so these " + "are the questions " + (items[0] && items[0].fromForm ? "on the questionnaire" : "on file") + " and nothing more — " + "no criterion, no required evidence. " : "") + "The preliminary result follows from the marks — it is never typed.</p>" + "</div></div>" + '<div class="prelim ' + p.state + '">' + '<div><span class="pl-lab">Preliminary Result</span>' + '<span class="pl-val">' + esc(p.label) + "</span></div>" + '<div class="pl-prog"><span style="width:' + (p.total ? (p.scored / p.total * 100).toFixed(1) : 0) + '%"></span></div>' + '<div class="pl-n">' + p.scored + " of " + p.total + " scored</div>" + "</div>" + (items.length ? sections.map((function(sec) {
             return '<div class="ins-sec"><h3>' + esc(SECTION_LABEL[sec.name] || sec.name) + "</h3>" + sec.items.map((function(it) {
                 return itemRow(f, it);
             })).join("") + "</div>";
@@ -14297,7 +14340,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function submissionText(f) {
         var out = [];
         out.push(f.org + (f.product ? " — " + f.product : ""));
-        out.push(f.program + " · " + (f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + titleOfState(currentState(f)));
+        out.push(f.program + " · " + (f.kind === "initial" ? "Initial certification" : "Renewal") + " · " + stateLabelOf(f));
         out.push("");
         var r = f.program === "FRAME" ? frameResult(f.org) : null;
         if (r) {
@@ -16926,7 +16969,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 kind: "In Progress",
                 rank: 1.5,
                 title: f.org + (f.product ? " · " + f.product : ""),
-                sub: f.program + " · " + titleOfState(currentState(f)) + (f.addedByHand ? " · applied " + (f.age || 0) + " days ago" : ""),
+                sub: f.program + " · " + stateLabelOf(f) + (f.addedByHand ? " · applied " + (f.age || 0) + " days ago" : ""),
                 hay: [ f.org, f.product || "", f.program ].join(" ").toLowerCase(),
                 go: function() {
                     showView("queue");
@@ -17184,5 +17227,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-21c"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-21d"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>
