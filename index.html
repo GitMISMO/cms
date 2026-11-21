@@ -3689,7 +3689,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return {
                 row: a.row,
                 org: a.org,
-                program: a.program,
+                /* New Application saves AI Governance by its code; every other record names it in full (21 Nov 2026) */
+                program: a.program === "AIGOV" ? "AI Governance" : a.program,
                 product: a.product || null,
                 kind: a.kind || "initial",
                 renewalNumber: a.renewalNumber || null,
@@ -4600,8 +4601,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var exp = expectedFor(a);
         var typed = a.amount ? Number(String(a.amount).replace(/[^0-9.]/g, "")) : null;
         el.innerHTML = '<div class="na">' + '<div class="na-head"><h3>New Application</h3>' + '<button class="na-x" type="button" data-na="cancel" aria-label="Close">&times;</button>' + "</div>" + '<div class="na-grid">' + '<div class="fld"><label for="na-org">Company</label>' + '<input class="pc-input" id="na-org" list="na-orgs" data-na-f="org" autocomplete="off" ' + 'value="' + esc(a.org || "") + '" placeholder="Who is applying"></div>' + '<div class="fld"><label for="na-prog">Program</label>' + '<select class="pc-input" id="na-prog" data-na-f="program">' + '<option value="">Choose one</option>' + (D.programs || []).map((function(x) {
-            var v = x.mactsType || x.code;
-            return '<option value="' + esc(v) + '"' + (a.program === v ? " selected" : "") + ">" + esc(x.name) + "</option>";
+            var v = x.mactsType || (x.code === "AIGOV" ? x.name : x.code);   /* AI Governance is named in full on the board */
+            return '<option value="' + esc(v) + '"' + (a.program === v || a.program === x.code ? " selected" : "") + ">" + esc(x.name) + "</option>";
         })).join("") + "</select></div>" + '<div class="fld"><label for="na-prod">Product</label>' + '<input class="pc-input" id="na-prod" data-na-f="product" ' + 'value="' + esc(a.product || "") + '" placeholder="' + (prog && prog.family !== "OrganizationProduct" ? "Not needed for this program" : "What is being certified") + '"></div>' + '<div class="fld"><label for="na-kind">Initial or Renewal</label>' + '<select class="pc-input" id="na-kind" data-na-f="kind">' + '<option value="initial"' + (a.kind !== "renewal" ? " selected" : "") + ">Initial</option>" + '<option value="renewal"' + (a.kind === "renewal" ? " selected" : "") + ">Renewal</option>" + "</select></div>" + '<div class="fld"><label for="na-state">Where It Stands</label>' + '<select class="pc-input" id="na-state" data-na-f="state">' + START_STATES.map((function(st) {
             return '<option value="' + st + '"' + (a.state === st ? " selected" : "") + ">" + esc(titleOfState(st)) + "</option>";
         })).join("") + "</select></div>" + '<div class="fld"><label for="na-recd">Received</label>' + '<input class="pc-input" type="date" id="na-recd" data-na-f="receivedOn" ' + 'value="' + esc(a.receivedOn || "") + '"></div>' + (a.program === "Product" ? '<div class="fld"><label for="na-size">Size Band</label>' + '<select class="pc-input" id="na-size" data-na-f="size">' + '<option value="">Not set</option>' + [ "small", "medium", "large" ].map((function(z) {
