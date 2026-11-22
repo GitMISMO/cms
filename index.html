@@ -5205,13 +5205,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return w + ", " + fmt(d);
     }
     var tdRems = {}, tdRemSent = {}, tdRemWait = {};
-    var TD_REM = { payment: { label: "Payment Reminder", template: "company-payment-reminder" }, booking: { label: "Booking Reminder", template: "company-booking-reminder" } };
+    var TD_REM = { payment: { label: "Payment Reminder", template: "company-payment-reminder" }, booking: { label: "Booking Reminder", template: "company-booking-reminder" },
+        /* Agreement Reminder (Jonna, 21 Nov 2026): an application agreement sent through DocuSign and not signed yet */
+        agreement: { label: "Agreement Reminder", template: "company-agreement-reminder" } };
     function tdPaused(f) { var p = D.pausedPrograms || []; return p.indexOf(f.program) >= 0; }
     function tdRemKind(key, f) {
         if (fuHeld(f)) return null;
         var st = currentState(f);
         if (st === "AwaitingDemoSelection" && (key === "fu-demo" || key === "fu-quiet")) return tdPaused(f) ? null : "booking";
         if ((key === "fu-invoice" || (key === "fu-quiet" && st === "AwaitingPayment")) && !fuPayment(f).paid) return "payment";
+        if (key === "fu-quiet" && st === "AgreementSent") return "agreement";
         return null;
     }
     function tdRemOf(f, kind) {
@@ -5226,6 +5229,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tdRemTo(f, kind) {
         if (kind === "payment") return aiDefaultTo(f);
         var base = ORG_BY_SLUG[orgSlug(f.org)], o = base ? tdEffOrg(base) : (orgEdits[orgSlug(f.org)] || {});
+        /* the agreement reminder goes to the authorized signer when there is one (else the main contact) */
+        var se = kind === "agreement" ? (aiEmails(o.signerEmail || (orgEdits[orgSlug(f.org)] || {}).signerEmail || "")[0] || "") : "";
+        if (se) return { name: o.signer || (orgEdits[orgSlug(f.org)] || {}).signer || "", email: se };
         if (o.contactEmail) return { name: o.contactName || "", email: o.contactEmail };
         var b = companyContacts(f.org) || [], p = b.filter((function(x) { return x.notify && x.email; }))[0] || b.filter((function(x) { return x.email; }))[0];
         if (p) return { name: p.name || "", email: p.email };
@@ -5236,7 +5242,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var f = byRow(row);
         if (!f || !TD_REM[kind]) return;
         if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
-        if (tdPaused(f) && kind !== "payment") { toast(f.program + " is paused, so only payment reminders go to its companies for now.", "warn"); return; }
+        if (tdPaused(f) && kind === "booking") { toast(f.program + " is paused, so only payment and agreement reminders go to its companies for now.", "warn"); return; }
         if (kind === "payment" && appInv[row] === undefined) {
             /* the invoice PDF kept on the certification is read first */
             Promise.resolve(db.collection(appInvColl(row)).doc("pdf").get()).then((function(d) { appInv[row] = d && d.exists ? d.data() : null; tdRemind(row, kind); }), (function() { appInv[row] = null; tdRemind(row, kind); }));
@@ -5265,6 +5271,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var days = fuDaysInState(f), st = currentState(f);
         var msg = kind === "payment"
             ? "Email a payment reminder to " + email + " about " + f.org + "’s " + f.program + " certification invoice (Aptify order " + orderId + (i.amount != null ? ", " + money(i.amount) : "") + ")?\n\nThe invoice PDF is attached and certifications@mismo.org is copied."
+            : kind === "agreement" ? "Email an agreement reminder to " + email + " about " + f.org + "’s " + f.program + " certification agreement?\n\nIt reminds them the agreement is waiting for their signature in DocuSign" + (days != null ? " (sent " + days + " days ago)" : "") + " and asks them to reply if it needs sending again. certifications@mismo.org is copied."
             : "Email a booking reminder to " + email + " about " + f.org + "’s " + f.program + " certification?\n\nIt thanks them for their payment and gives them their booking link" + (days != null ? " (they have been waiting " + days + " days)" : "") + ". certifications@mismo.org is copied.";
         msg += " It goes out " + sendDayText() + ".";
         /* only when its wording really is still waiting for approval (21 Nov 2026) */
@@ -5582,7 +5589,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 + '<div class="td-meta">' + (pn || rm || nd ? "<b>" + esc(tdShort) + "</b>" : esc(tdShort)) + "</div></div>";
             var en = pn ? null : tdEarlyNext(f);
             return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (en ? tdBtn(en.label, 'data-tdearly="' + f.row + '"', true) : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
-                + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : "Send a " + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
+                + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : (rk === "agreement" ? "Send an " : "Send a ") + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
                 + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
         }
@@ -6528,9 +6535,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function fuMoreLines(f) {
         var out = [], pn = tdPaidNext(f), nd = tdNudgeOf(f);
         if (pn) out.push("<b>" + esc(pn.text) + "</b>");
-        [ "payment", "booking" ].forEach((function(k) { var r = tdRemOf(f, k); if (r) out.push("<b>" + esc(r.text) + "</b>"); }));
+        [ "payment", "booking", "agreement" ].forEach((function(k) { var r = tdRemOf(f, k); if (r) out.push("<b>" + esc(r.text) + "</b>"); }));
         if (nd) out.push("<b>" + esc(nd.text) + "</b>");
-        if (tdPaused(f)) out.push(esc(f.program) + " is paused: a payment reminder can go, but no other emails go to the company until it is rolled out.");
+        if (tdPaused(f)) out.push(esc(f.program) + " is paused: a payment or agreement reminder can go, but no other emails go to the company until it is rolled out.");
         return out.length ? "<br>" + out.join("<br>") : "";
     }
     function followUpBlock(f) {

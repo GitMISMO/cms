@@ -398,7 +398,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   var GROUPS = [
     /* the emails a person sends with a button, and the application invoice (21 Nov 2026: Jonna could not find the
        payment reminder at the foot of "Other") */
-    { name: 'Invoices and Reminders', ids: ['application-invoice', 'company-payment-reminder', 'company-booking-reminder', 'frame-questionnaire-invite'] },
+    { name: 'Invoices and Reminders', ids: ['application-invoice', 'company-payment-reminder', 'company-booking-reminder', 'company-agreement-reminder', 'frame-questionnaire-invite'] },
     { name: 'Payment and Scheduling', ids: ['welcome-demo', 'welcome-interview', 'welcome-review-internal', 'welcome-followup', 'welcome-stalled-internal', 'demo-proposed', 'demo-scheduled', 'demo-reschedule'] },
     { name: 'After the Demonstration', ids: ['demo-check', 'demo-check-stalled-internal', 'artifacts-requested', 'artifacts-followup', 'artifacts-stalled-internal', 'review-check', 'review-check-stalled-internal'] },
     { name: 'Preliminary Results', ids: ['prelim-ready', 'prelim-query', 'prelim-answered', 'approval-waiting'] },
@@ -443,7 +443,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     'assessor-nudge': 'Asks the assessor whether they have followed up with a company that has gone quiet, when Nudge the Assessor is pressed on the Action Queue.',
     'company-payment-reminder': 'Reminds the company its certification invoice is still open, with the invoice PDF attached, when Send a Payment Reminder is pressed on the Action Queue.',
     'frame-questionnaire-invite': "Sends a FRAME applicant its own link to the questionnaire, once it has paid and Start the Review is pressed.",
-    'company-booking-reminder': 'Thanks the company for its payment and gives it its booking link, when Send a Booking Reminder is pressed on the Action Queue.'
+    'company-booking-reminder': 'Thanks the company for its payment and gives it its booking link, when Send a Booking Reminder is pressed on the Action Queue.',
+    'company-agreement-reminder': 'Reminds the company that its application agreement is waiting for signature in DocuSign, when Send an Agreement Reminder is pressed on the Action Queue.'
   };
   var FIELDS = [
     ['Company', 'The company being certified'], ['First Name', 'First name of the company contact (there, if none is on file)'],
