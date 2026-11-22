@@ -2976,6 +2976,12 @@ body.as-firm #mast-firm, body.as-firm #money-sync{display:none !important;}
   #lcgrid.lcgrid{display:block;}
   .pk-lcmap{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding:2px 2px 8px; margin-bottom:12px;}
   /* How It All Connects: the MMS line (22 Nov 2026) */
+  .scen-pp{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px; margin:6px 0 14px;}
+  .scen-pp button{display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; padding:10px 12px; border:1px solid var(--border); border-top:3px solid var(--sky); border-radius:6px; background:var(--surface); color:var(--ink); font:inherit; cursor:pointer;}
+  .scen-pp button b{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3);} .scen-pp button span{font-weight:600;} .scen-pp button small{font-size:11.5px; color:var(--ink-3);}
+  .scen-pp button[aria-pressed="true"]{background:var(--navy); border-color:var(--navy); color:#fff;} .scen-pp button[aria-pressed="true"] b, .scen-pp button[aria-pressed="true"] small{color:rgba(255,255,255,.75);}
+  .scen-bp{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;}
+  @media(max-width:900px){ .scen-bp{grid-template-columns:1fr;} }
   .lcm-h{display:flex; align-items:flex-start; justify-content:space-between; gap:14px 24px; flex-wrap:wrap; margin-bottom:14px;}
   .lcm-h h2{margin:0 0 4px;} .lcm-h .psub{margin:0; max-width:62ch;}
   .lcm-progs{display:flex; flex-wrap:wrap; gap:4px;}
@@ -3348,6 +3354,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
     <div class="box" id="scen-done" hidden></div>
 
+    <!-- the brief and the four products, as applicants see them in their portal (22 Nov 2026) -->
+    <div class="box" id="scen-briefbox">
+      <h2 class="sect-t">The Brief and the Four Products</h2>
+      <p class="sect-s">What every FRAME applicant sees in their portal: the same brief, and one of these four products. Pick a product to read it.</p>
+      <div class="scen-pp" id="scen-prodpick"></div>
+      <div class="scen-bp"><div id="scen-brief2"></div><div id="scen-prod"></div></div>
+    </div>
+
     <div class="box" id="scen-defects"></div>
   
     </div>
@@ -3442,13 +3456,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       <div id="proglist"></div>
     </div>
 
-    <div class="panel" id="prog-brief">
+    <!-- shown only while FRAME is the program picked (22 Nov 2026, Jonna: the brief belongs with the FRAME exercises) -->
+    <div class="panel" id="prog-brief" hidden>
       <div class="phead"><div>
         <h2>The FRAME Practical Exercise Brief</h2>
-        <p class="psub">Every FRAME applicant is given the same brief and one product scenario. This
-          is the brief itself, exactly as it is sent &mdash; identical in all four documents, checked
-          line by line. Who holds which scenario, and when it went out and came back, is on
-          MISMO&rsquo;s own assessor portal.</p>
+        <p class="psub">The brief every FRAME applicant sees in their portal, with one of four products. The four products, and who
+          holds which, are under Assessor Portal &gt; MISMO &gt; FRAME Practical Exercises.</p>
       </div></div>
       <div id="scen-brief"></div>
     </div>
@@ -10377,11 +10390,26 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 })).join("") + "</div>" : "";
         }
         var br = $("scen-brief"), b = d.brief || {};
-        if (br) br.innerHTML = '<div class="scen-doc">' + '<h3 class="scen-h1">' + esc(b.title || "") + "</h3>" + '<div class="scen-h2">' + esc(b.heading || "") + "</div>" + (b.intro || []).map((function(x) {
+        /* the source documents' title says five products; there are four (22 Nov 2026) */
+        var bTitle = String(b.title || "").replace(/\bFive\b/, "Four");
+        var briefHTML = '<div class="scen-doc">' + '<h3 class="scen-h1">' + esc(bTitle) + "</h3>" + '<div class="scen-h2">' + esc(b.heading || "") + "</div>" + (b.intro || []).map((function(x) {
             return "<p>" + esc(x) + "</p>";
         })).join("") + (b.taskLead ? "<p><b>" + esc(b.taskLead) + "</b></p>" : "") + '<ol class="scen-list">' + (b.tasks || []).map((function(x) {
             return "<li>" + esc(x) + "</li>";
         })).join("") + "</ol>" + (b.caveat ? '<p class="scen-note">' + esc(b.caveat) + "</p>" : "") + "</div>";
+        if (br) br.innerHTML = briefHTML;
+        if ($("scen-brief2")) $("scen-brief2").innerHTML = briefHTML;
+        var pp = $("scen-prodpick"), pv = $("scen-prod"), P4 = d.products || [];
+        if (pp && pv && P4.length) {
+            if (!P4.some((function(p) { return p.n === scenProd; }))) scenProd = P4[0].n;
+            var held = {}; scenRows().forEach((function(r) { (held[r.a.product] = held[r.a.product] || []).push(r.a.org); }));
+            pp.innerHTML = P4.map((function(p) { return '<button type="button" data-scenprod="' + p.n + '" aria-pressed="' + (p.n === scenProd) + '"><b>Product ' + p.n + "</b><span>" + esc(p.name) + "</span><small>" + (held[p.n] ? esc(held[p.n].join(", ")) : "nobody holds it now") + "</small></button>"; })).join("");
+            var p0 = P4.filter((function(p) { return p.n === scenProd; }))[0];
+            pv.innerHTML = '<div class="scen-doc"><h3 class="scen-h1">' + esc(p0.name) + '</h3><p class="scen-note" style="margin-top:0">' + [p0.vendor ? "Vendor: " + p0.vendor : "", p0.boughtBy ? "Bought by: " + p0.boughtBy : "", p0.runsIn ? "Runs in: " + p0.runsIn : ""].filter(Boolean).map(esc).join("<br>") + "</p>"
+                + (p0.pitch ? "<p>" + esc(p0.pitch) + "</p>" : "")
+                + ((p0.features || []).length ? '<div class="scen-h2">Features, As the Vendor Describes Them</div>' + p0.features.map((function(f) { return "<p><b>" + esc(f.feature || "") + ".</b> " + esc(f.description || "") + "</p>"; })).join("") : "")
+                + ((p0.known || []).length ? "<p><b>" + esc(p0.knownLead || "What else Riverstone knows:") + '</b></p><ul class="scen-list">' + p0.known.map((function(x) { return "<li>" + esc(x) + "</li>"; })).join("") + "</ul>" : "") + "</div>";
+        }
         var df = $("scen-defects"), defects = d.defects || [];
         if (df) {
             df.hidden = !defects.length;
@@ -10391,6 +10419,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         renderScenPip();
     }
+    var scenProd = 1;
+    document.addEventListener("click", (function(e) {
+        var b = e.target && e.target.closest ? e.target.closest("[data-scenprod]") : null;
+        if (!b) return;
+        scenProd = +b.getAttribute("data-scenprod");
+        renderScenarios();
+    }));
     var SCEN_SENDER = {
         name: "Jonna Critchley",
         title: "Director, Programs and Operations",
@@ -12404,6 +12439,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<button type="button" class="pk-pg' + (p.code === pkPg.code ? " on" : "") + '" data-pkpg="' + esc(p.code) + '" style="--k:' + st[1] + '"><b>' + esc(p.name) + "</b><small>" + esc(st[0]) + (p.certifications ? " · " + p.active + " active" : "") + "</small></button>";
         })).join("") + (pkPg.st ? '<button type="button" class="pk-pg all" data-pkpgst="">Show Every Program</button>' : "") + "</div>";
         Array.prototype.forEach.call(el.querySelectorAll(".prog"), (function(d) { d.style.display = d.id === "prog-" + pkPg.code ? "" : "none"; }));
+        if ($("prog-brief")) $("prog-brief").hidden = pkPg.code !== "FRAME";
     }
     document.addEventListener("click", (function(e) {
         var t = e.target && e.target.closest ? e.target.closest("[data-pkpg],[data-pkpgst]") : null;
