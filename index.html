@@ -5499,6 +5499,20 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         try { pend(tdRems || {}, tdRemSent || {}); pend(tdNudges || {}, tdNudgeSent || {}); } catch (e) {}
         return hit;
     }
+    /* The day a chased card comes back (Jonna, 22 Nov 2026: "a week from when the notification goes out"): seven days
+       after the reminder went, or, while it is still waiting to go, seven days after the day it will go. */
+    function tdChaseOn(f) {
+        var row = String(f.row), best = null;
+        function upd(iso) { if (iso && (!best || iso > best)) best = iso; }
+        function scan(asked, sent) {
+            Object.keys(sent).forEach((function(j) { var s = sent[j]; if (s && String(s.row) === row && s.sentAt) upd(new Date(s.sentAt).toLocaleDateString("en-CA", { timeZone: "America/New_York" })); }));
+            Object.keys(asked).forEach((function(k) { var a = asked[k]; if (!a || String(a.row) !== row) return;
+                var gone = Object.keys(sent).some((function(j) { var s = sent[j]; return s && String(s.row) === row && String(s.sentAt || "") >= String(a.at || ""); }));
+                if (!gone) upd(sendDayIso()); }));
+        }
+        try { scan(tdRems || {}, tdRemSent || {}); scan(tdNudges || {}, tdNudgeSent || {}); } catch (e) {}
+        return best ? addDays(best, TD_CHASE_DAYS) : null;
+    }
     function tdModel() {
         var todo = { website: [], invoice: [], "app-invoice": [], attach: [], license: [], assessor: [], welcome: [], script: [], expiry: [], record: [], "fu-assessor": [], "fu-invoice": [], "fu-demo": [], "fu-quiet": [], "hold-check": [] };
         var wait = { company: [], assessor: [], jonathan: [], system: [], later: [], hold: [] };
@@ -5821,7 +5835,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         (D.inFlight || []).concat(D.newApplications || []).forEach((function(f) {
             if (!f || !tdOpen(f)) return;
             var dm = demoOf(f); if (dm) add(dm, "demo", "Demonstration", f.org, 'data-tdopen="' + f.row + '"');
-            var fu = followUpOf(f); if (fu && fu.nextOn) add(fu.nextOn, "chase", "Chase again", f.org, 'data-tdopen="' + f.row + '"');
+            var fu = followUpOf(f), fco = fu ? fu.nextOn || (tdChasedRecently(f) ? tdChaseOn(f) : null) : null; if (fco) add(fco, "chase", "Chase again", f.org, 'data-tdopen="' + f.row + '"');
         }));
         return out.sort((function(a, b) { return a.n - b.n; }));
     }
@@ -5931,7 +5945,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             })()
             + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "nothing to do" : "nothing waiting") + "</span>" + who3(L.system), { cls: "sm" })
             /* who they are, up to three, then See All (22 Nov 2026, Jonna: fill the blank space) */
-            + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>" + who3(L.later.slice().sort((function(a, b) { var x = (followUpOf(a.f) || {}).nextOn || "9", y = (followUpOf(b.f) || {}).nextOn || "9"; return x < y ? -1 : x > y ? 1 : 0; }))), { cls: "sm" })
+            + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>" + who3(L.later.slice().sort((function(a, b) { var x = a.chaseOn || "9", y = b.chaseOn || "9"; return x < y ? -1 : x > y ? 1 : 0; }))), { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>" + who3(L.hold), { cls: "sm" })
             + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>" + who3(L.prospects.slice().sort((function(a, b) { return String(a.org).localeCompare(String(b.org)); }))), { cls: "sm" })
             + "</div>";
@@ -6006,7 +6020,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var st = currentState(f), next = nextLabelOf(f, st), extra = "";
         /* a short line for the narrow tiles (22 Nov 2026) */
         var sDay = function(iso) { return new Date(String(iso).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }); }, sh = null;
-        if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; sh = x.nextOn ? "Chase " + sDay(x.nextOn) : "Chase again"; }
+        if (view === "later") { var x = followUpOf(f) || {}, chaseOn = x.nextOn || tdChaseOn(f); next = chaseOn ? "Chase again " + fmt(chaseOn) : "Chase again"; extra = x.reason || (chaseOn && !x.nextOn ? "a week after the reminder goes" : ""); sh = chaseOn ? "Chase " + sDay(chaseOn) : "Chase again"; }
         /* Runs Itself (22 Nov 2026, Jonna: "what is this depicting?"): say what goes out by itself and when */
         if (view === "system" && st === "RenewalPrep") { try {
             var rc = certFor(f), today0 = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" }), on0 = null;
@@ -6020,7 +6034,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : "";
             sh = h && h.until ? "Back " + sDay(h.until).replace(/^\w+, /, "") : h && h.at ? "Paused " + sDay(h.at).replace(/^\w+, /, "") : "Paused"; }
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; if (fuHeld(f)) { var ah = cycleHoldOf(f); next = "On hold" + (ah && ah.until ? ", back " + fmt(ah.until) : "") + " (" + next.toLowerCase() + ")"; } }
-        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st), short: typeof short0 !== "undefined" ? short0 : sh || (view === "system" && st === "ApprovedPendingLicense" ? "Mark License by DocuSign" : null) };
+        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st), chaseOn: typeof chaseOn !== "undefined" ? chaseOn : null, short: typeof short0 !== "undefined" ? short0 : sh || (view === "system" && st === "ApprovedPendingLicense" ? "Mark License by DocuSign" : null) };
     }
     var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "MISMO", system: "Automatic", later: "Chase later", hold: "On hold" };
     /* ---- The certification journey (31 Oct 2026, Jonna: give the CMS the Assessor Portal's treatment).
