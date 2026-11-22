@@ -5600,7 +5600,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (en ? tdBtn(en.label, 'data-tdearly="' + f.row + '"', true) : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : (rk === "agreement" ? "Send an " : "Send a ") + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
-                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
+                + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + (fx.contact ? tdBtn("Contacts Are Right", 'data-fuclear="' + f.row + '" data-fucontacts="1"', true) : tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true)) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
         }
         head += "</div></div>";
         if (key === "assessor") {
@@ -6518,8 +6518,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         list.forEach((function(e) { e = String(e || "").trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) && !/@(mismo\.org|mba\.org)$/.test(e) && out.indexOf(e) < 0) out.push(e); }));
         return out;
     }
-    function coReminders(f) {
+    function coReminders(f, after) {
         var st = currentState(f), since = String((moves[f.row] || {}).at || "");
+        if (after && String(after) > since) since = String(after);
         var sent = (tdCoSent[String(f.row)] || []).filter((function(x) { return (!x.state || x.state === st) && x.at >= since; }));
         (noticeLog || []).forEach((function(x) {
             if (!x || String(x.notice) !== "11" || String(x.sentAt || "") < since) return;
@@ -6536,11 +6537,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (to.indexOf(e) < 0 && !shared) to.push(e); })); }));
         return { count: sent.length, to: to };
     }
-    function coEscalation(f) {
+    /* after = when someone pressed Contacts Are Right (22 Nov 2026, Jonna: "if i'm good with who it's being sent to
+       ... i should now only see it if 4 follow ups go out"): from then on only reminders sent after that count, and
+       the anniversary reason no longer brings it back. */
+    function coEscalation(f, after) {
         var st = currentState(f), w = waitOf(f, st);
         if (!/company/i.test(w) || /mismo/i.test(w)) return null;
         try { if (tdPaused(f) || tdProspect(f.org)) return null; } catch (e) {}
-        var cr = coReminders(f), c0 = certFor(f), ad = null;
+        var cr = coReminders(f, after), c0 = certFor(f), ad = null;
+        if (after) {
+            if (cr.count < CO_ESCALATE_AFTER) return null;
+            return { kind: "auto", contact: true, nextOn: null,
+                reason: cr.count + " more reminders since the contacts were confirmed, and no response" + (cr.to.length ? ": " + cr.to.join(", ") : "") };
+        }
         if (String(f.kind || "") === "renewal" && c0 && c0.anniversary) ad = daysBetween(D.asOf, c0.anniversary);
         var where = cr.to.length ? "; reminders went to " + cr.to.join(", ") : "; no reminder has reached them, so check their contacts";
         if (ad != null && ad <= CO_ANNIV_DAYS) return { kind: "auto", contact: true, nextOn: null,
@@ -6554,7 +6563,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var st = currentState(f);
         var d = followUpDocs[String(f.row)];
         if (d && d.active && !(fuIsPayment(d.reason) && fuPayment(f).paid)) return { kind: "manual", reason: d.reason || "", nextOn: d.nextOn || null, by: d.by || "", at: d.at || null };
-        if (d && d.active === false && d.clearedState === st) return null;
+        if (d && d.active === false && d.clearedState === st) return d.contactsOk ? coEscalation(f, d.at) : null;
         var l = fuListEntry(f);
         if (l && fuIsPayment(l.what || l.reason) && fuPayment(f).paid) l = null;
         if (l) return { kind: "list", reason: l.what || l.reason || "On the follow-up list", nextOn: null, severity: l.severity };
@@ -6637,8 +6646,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!f) return;
         var now = (new Date).toISOString(), who = me && me.name ? me.name : "You";
         if (t.hasAttribute("data-fuclear")) {
-            fuSet(f, { row: f.row, org: f.org, program: f.program, active: false, clearedState: currentState(f), by: who, at: now });
-            toast(f.org + " is back with the live work.", "good");
+            if (t.hasAttribute("data-fucontacts")) {
+                fuSet(f, { row: f.row, org: f.org, program: f.program, active: false, clearedState: currentState(f), contactsOk: true, by: who, at: now });
+                toast("Got it. " + f.org + " comes back here only if " + CO_ESCALATE_AFTER + " more reminders go out with no response.", "good");
+            } else {
+                fuSet(f, { row: f.row, org: f.org, program: f.program, active: false, clearedState: currentState(f), by: who, at: now });
+                toast(f.org + " is back with the live work.", "good");
+            }
         } else {
             var cur = followUpOf(f) || {};
             var reason = window.prompt("Why is " + f.org + " on Follow Up? (for example: Went quiet after the agreement; invoice unpaid)", cur.reason && cur.kind === "manual" ? cur.reason : "");
