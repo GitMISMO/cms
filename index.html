@@ -5214,7 +5214,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var st = currentState(f);
         if (st === "AwaitingDemoSelection" && (key === "fu-demo" || key === "fu-quiet")) return tdPaused(f) ? null : "booking";
         if ((key === "fu-invoice" || (key === "fu-quiet" && st === "AwaitingPayment")) && !fuPayment(f).paid) return "payment";
-        if (key === "fu-quiet" && st === "AgreementSent") return "agreement";
+        if (key === "fu-quiet" && st === "AgreementSent" && !(moves[f.row] || {}).agreementSignedAt) return "agreement";
         return null;
     }
     function tdRemOf(f, kind) {
@@ -7568,7 +7568,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         $("d-sub").textContent = f.program + (f.product ? " · " + f.product : "") + " · " + kindLabel(f);
         var parts = cardParts(f), inv0 = invoiceOf(f), co0 = orgOf(f.org), empt0 = ORG_FIELDS.filter(function(x) { return !x.optional && !co0[x.k]; }).length;
         dHero(f.org, [ { t: f.program }, f.product && f.product !== f.program ? { t: f.product } : null, { t: kindLabel(f) }, c && c.anniversary ? { t: "Renews " + fmt(c.anniversary), tone: renewalTone(c) } : null ]);
-        $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + cjStepper(f) + dNext(f) + dTabs("rec:" + f.row, [ [ "overview", "Overview", "", qnBlock(f) + parts.overview ], [ "money", "Money", inv0 && inv0.paid === false ? "unpaid" : "", parts.money, "warn" ], [ "cert", "The Certification", "", parts.cert ], [ "company", "The Company", empt0 ? empt0 + " empty" : "", parts.company, "warn" ] ]);
+        $("d-body").innerHTML = (panel.back && panel.back.kind === "invoices" ? "" : panel.back || panel.phase ? '<button class="dback" type="button" id="d-back">← Back to ' + esc(panel.back ? panel.back.name : panel.phase) + "</button>" : "") + cjStepper(f) + dNext(f) + dTabs("rec:" + f.row, [ [ "overview", "Overview", "", qnBlock(f) + agBlock(f) + parts.overview ], [ "money", "Money", inv0 && inv0.paid === false ? "unpaid" : "", parts.money, "warn" ], [ "cert", "The Certification", "", parts.cert ], [ "company", "The Company", empt0 ? empt0 + " empty" : "", parts.company, "warn" ] ]);
         wireHistory($("d-body"));
         if ($("d-back")) $("d-back").addEventListener("click", (function() {
             if (panel.back && panel.back.kind === "queue") openPanelQueue(panel.back.group); else if (panel.back && panel.back.kind === "stat") openPanelStat(panel.back.stat); else if (panel.back && panel.back.kind === "firm") openPanelFirm(panel.back.name); else openPanelList(panel.phase);
@@ -8902,6 +8902,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (qnDraft[k] !== undefined || !window.CMS_READ || !l || !l.draftFile) return;
         qnDraft[k] = "loading";
         window.CMS_READ(String(l.draftFile).replace(/\.json$/, "")).then((function(d) { qnDraft[k] = d || null; qnRepaint(); }));
+    }
+    /* The application agreement as DocuSign last showed it (the "Application Agreements - signed?" job,
+       22 Nov 2026): signed on, and the signed copy once it is filed. Nothing shows until the job has seen it. */
+    function agBlock(f) {
+        var m = f ? moves[f.row] || {} : {};
+        if (!m.agreementSignedAt) return "";
+        var doc = m.agreementDoc && m.agreementDoc.url ? '<div class="na-acts" style="margin-top:8px"><a class="lc-btn" href="' + esc(m.agreementDoc.url) + '" target="_blank" rel="noopener">Open the Signed Agreement</a></div>' : '<p class="pc-note" style="margin-top:4px">The signed copy is filed in SharePoint on the next run.</p>';
+        return '<div class="dsect"><h4>The Application Agreement</h4><p class="pc-note"><b>Signed in DocuSign ' + esc(fmt(String(m.agreementSignedAt).slice(0, 10))) + "</b>.</p>" + doc + "</div>";
     }
     function qnBlock(f) {
         if (!f || !QN_PORTAL[f.program] || String(f.kind || "initial") === "renewal") return "";
