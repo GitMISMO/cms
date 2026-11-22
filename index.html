@@ -2437,9 +2437,11 @@
   .tqt-cd b{display:block; font-size:20px; line-height:1.1; font-variant-numeric:tabular-nums;}
   .tqt-cd small{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6);}
   .tqt-sl{display:none; flex-direction:column; gap:10px; flex:1 1 auto; min-height:0;}
-  .tqt-sl.on{display:flex; animation:tqSl .35s ease;}
+  .tqt-sl.on{display:flex;}
+  /* slides only when it moves to another anniversary, never on a redraw (22 Nov 2026: it flickered on load) */
+  .tqt-sl.on.anim{animation:tqSl .35s ease;}
   @keyframes tqSl{from{opacity:0; transform:translateX(8px);} to{opacity:1; transform:none;}}
-  @media (prefers-reduced-motion:reduce){ .tqt-sl.on{animation:none;} }
+  @media (prefers-reduced-motion:reduce){ .tqt-sl.on.anim{animation:none;} }
   .tqt-dots{display:flex; gap:6px; flex-wrap:wrap;}
   .tqt-dots button{width:9px; height:9px; padding:0; border-radius:50%; border:1px solid rgba(116,191,235,.6); background:transparent; cursor:pointer;}
   .tqt-dots button.on{background:var(--sky); border-color:var(--sky);}
@@ -5842,7 +5844,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     var same = rot.filter((function(y) { return y.n === a.n; })).length;
                     return '<div class="tqt-sl' + (i === tqCd.i ? " on" : "") + '" data-tqsl="' + i + '"><span class="tqt-ep"><b>' + esc(a.org) + "</b><small>" + esc(a.label.replace(" anniversary", "")) + " · " + esc(fmt(a.iso))
                         + (same > 1 ? " · " + same + " that day" : "") + "</small></span>"
-                        + '<span class="tqt-cd" data-cd="' + a.iso + '"><span><b data-cdp="d">' + a.n + "</b><small>Days</small></span><span><b data-cdp=\"h\">00</b><small>Hrs</small></span><span><b data-cdp=\"m\">00</b><small>Min</small></span><span><b data-cdp=\"s\">00</b><small>Sec</small></span></span>"
+                        + (function() { var cp = tqCdParts(a.iso); return '<span class="tqt-cd" data-cd="' + a.iso + '"><span><b data-cdp="d">' + cp.d + "</b><small>Days</small></span><span><b data-cdp=\"h\">" + cp.h + "</b><small>Hrs</small></span><span><b data-cdp=\"m\">" + cp.m + "</b><small>Min</small></span><span><b data-cdp=\"s\">" + cp.s + "</b><small>Sec</small></span></span>"; })()
                         + '<button type="button" class="tqt-go" ' + a.attr + ">Open the Record ›</button></div>";
                 })).join("");
                 var dots = rot.length > 1 ? '<span class="tqt-dots">' + rot.map((function(a, i) { return '<button type="button" class="' + (i === tqCd.i ? "on" : "") + '" data-tqcd="' + i + '" aria-label="' + esc(a.org) + '" title="' + esc(a.org + " · " + fmt(a.iso)) + '"></button>'; })).join("") + "</span>" : "";
@@ -5887,9 +5889,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="tqr-track"><span class="tqr-line"></span><span class="tqr-past" style="width:' + ((0 - from) / span * 100).toFixed(2) + '%"></span><span class="tqr-today" style="left:' + ((0 - from) / span * 100).toFixed(2) + '%"><b>TODAY</b></span>' + dots + ticks + "</div>"
             + '<div class="tqr-leg">' + Object.keys(TQ_RK).map((function(k) { var n = up.filter((function(x) { return x.kind === k; })).length; return '<span><i style="--k:' + TQ_RK[k][0] + '"></i>' + esc(TQ_RK[k][1]) + " <b>" + n + "</b></span>"; })).join("") + (late ? '<span class="tqr-l"><i></i>' + late + " already past</span>" : "") + "</div></div>";
     }
+    /* days/hours/minutes/seconds to an anniversary (midnight, local), padded; the tile is drawn with the real
+       figures so a redraw never flashes 00 before the next tick */
+    function tqCdParts(iso) {
+        var p = String(iso).split("-"), ms = Math.max(0, new Date(+p[0], +p[1] - 1, +p[2]).getTime() - Date.now());
+        function z(v) { return (v < 10 ? "0" : "") + v; }
+        return { d: String(Math.floor(ms / 864e5)), h: z(Math.floor(ms % 864e5 / 36e5)), m: z(Math.floor(ms % 36e5 / 6e4)), s: z(Math.floor(ms % 6e4 / 1e3)) };
+    }
     function tqCdShow(i) {
         tqCd.i = i;
-        Array.prototype.forEach.call(document.querySelectorAll("#todo [data-tqsl]"), (function(el) { el.classList.toggle("on", +el.getAttribute("data-tqsl") === i); }));
+        Array.prototype.forEach.call(document.querySelectorAll("#todo [data-tqsl]"), (function(el) { var on = +el.getAttribute("data-tqsl") === i; el.classList.toggle("on", on); el.classList.toggle("anim", on); }));
         Array.prototype.forEach.call(document.querySelectorAll("#todo [data-tqcd]"), (function(el) { el.classList.toggle("on", +el.getAttribute("data-tqcd") === i); }));
         var n = document.querySelector("#todo [data-tqcdn]"); if (n) n.textContent = (i + 1) + " of " + tqCd.n;
     }
@@ -5911,10 +5920,9 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         }
         function tick() {
             Array.prototype.forEach.call(document.querySelectorAll("#todo [data-cd]"), (function(el) {
-                var p = String(el.getAttribute("data-cd")).split("-"), end = new Date(+p[0], +p[1] - 1, +p[2]).getTime(), ms = Math.max(0, end - Date.now());
-                var d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), mi = Math.floor(ms % 36e5 / 6e4), se = Math.floor(ms % 6e4 / 1e3);
-                function put(k, v) { var b = el.querySelector('[data-cdp="' + k + '"]'); if (b) b.textContent = k === "d" ? String(v) : (v < 10 ? "0" : "") + v; }
-                put("d", d); put("h", h); put("m", mi); put("s", se);
+                var cp = tqCdParts(el.getAttribute("data-cd"));
+                function put(k, v) { var b = el.querySelector('[data-cdp="' + k + '"]'); if (b && b.textContent !== v) b.textContent = v; }
+                put("d", cp.d); put("h", cp.h); put("m", cp.m); put("s", cp.s);
             }));
             if (tqCd.n > 1 && !tqCd.hold && ++tqCd.at >= 6) { tqCd.at = 0; tqCdShow((tqCd.i + 1) % tqCd.n); }
         }
