@@ -5125,7 +5125,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             db.collection("stage-notice-log").onSnapshot((function(snap) {
                 var n = {};
                 var r = {};
-                (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "assessor-nudge") n[d.id] = v; if (v && /^company-(payment|booking)-reminder$/.test(v.template || "")) r[d.id] = v; }));
+                var co = {};
+                (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "assessor-nudge") n[d.id] = v; if (v && /^company-(payment|booking)-reminder$/.test(v.template || "")) r[d.id] = v;
+                    /* every real email that reached the company, for the "check who we're emailing" rule (22 Nov 2026) */
+                    var to = coAddrs(v && (v.wouldHaveGoneTo || v.sentTo));
+                    if (v && !v.held && v.row != null && to.length) (co[String(v.row)] = co[String(v.row)] || []).push({ t: v.template, at: String(v.sentAt || ""), state: v.state || null, to: to }); }));
+                tdCoSent = co;
                 tdNudgeSent = n;
                 tdRemSent = r;
                 renderTodo();
@@ -6487,6 +6492,44 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!pm.number) return "No Aptify order number on record, so the daily payment check cannot look for it. Add the order number to the invoice.";
         return "Daily payment check" + (pm.checkedAt ? " " + fmt(pm.checkedAt) : "") + ": no payment yet against order " + pm.number + ".";
     }
+    /* Company reminders that went unanswered (Jonna, 22 Nov 2026: "automatic follow ups until they do them or they
+       start getting close to their renewal anniversary and someone needs to intervene, maybe the emails are going to the
+       wrong place"). The reminders themselves keep going from the Stage notices and Renewal notices jobs; this puts the
+       certification under Needs You, with the addresses they went to, after 4 reminders at the same stage, or when a
+       renewal still waiting on the company is within 30 days of its anniversary. Paused programs are left alone. */
+    var tdCoSent = {};
+    var CO_ESCALATE_AFTER = 4, CO_ANNIV_DAYS = 30;
+    function coAddrs(v) {
+        var list = Array.isArray(v) ? v : String(v || "").split(/[;,]/);
+        var out = [];
+        list.forEach((function(e) { e = String(e || "").trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) && !/@(mismo\.org|mba\.org)$/.test(e) && out.indexOf(e) < 0) out.push(e); }));
+        return out;
+    }
+    function coReminders(f) {
+        var st = currentState(f), since = String((moves[f.row] || {}).at || "");
+        var sent = (tdCoSent[String(f.row)] || []).filter((function(x) { return (!x.state || x.state === st) && x.at >= since; }));
+        (noticeLog || []).forEach((function(x) {
+            if (!x || String(x.notice) !== "11" || String(x.sentAt || "") < since) return;
+            if (x.row != null ? String(x.row) !== String(f.row) : !(x.org === f.org && x.program === f.program)) return;
+            sent.push({ t: "renewal-payment", at: String(x.sentAt), to: coAddrs(x.sentTo || x.to || x.recipients) });
+        }));
+        var to = [];
+        sent.forEach((function(x) { (x.to || []).forEach((function(e) { if (to.indexOf(e) < 0) to.push(e); })); }));
+        return { count: sent.length, to: to };
+    }
+    function coEscalation(f) {
+        var st = currentState(f), w = waitOf(f, st);
+        if (!/company/i.test(w) || /mismo/i.test(w)) return null;
+        try { if (tdPaused(f) || tdProspect(f.org)) return null; } catch (e) {}
+        var cr = coReminders(f), c0 = certFor(f), ad = null;
+        if (String(f.kind || "") === "renewal" && c0 && c0.anniversary) ad = daysBetween(D.asOf, c0.anniversary);
+        var where = cr.to.length ? "; reminders went to " + cr.to.join(", ") : "; no reminder has reached them, so check their contacts";
+        if (ad != null && ad <= CO_ANNIV_DAYS) return { kind: "auto", contact: true, nextOn: null,
+            reason: (ad < 0 ? Math.abs(ad) + " days past the anniversary" : ad === 0 ? "Anniversary today" : "Anniversary in " + ad + " days") + ", still waiting on the company" + where };
+        if (cr.count >= CO_ESCALATE_AFTER) return { kind: "auto", contact: true, nextOn: null,
+            reason: cr.count + " reminders and no response; check who we\u2019re emailing" + (cr.to.length ? ": " + cr.to.join(", ") : "") };
+        return null;
+    }
     function followUpOf(f) {
         if (fuClosed(f) || fuHeld(f)) return null;
         var st = currentState(f);
@@ -6500,6 +6543,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var days = fuDaysInState(f);
         var an = assessorNoteOf(f);
         if (an && an.nextOn && an.nextOn >= fuToday()) return null;
+        var ce = coEscalation(f);
+        if (ce) return ce;
         if (an && an.at) { var nd0 = Math.floor((Date.now() - new Date(an.at).getTime()) / 864e5); if (days == null || nd0 < days) days = nd0; }
         if (/company/i.test(w) && !/mismo/i.test(w) && days != null && days >= FU_STALE_DAYS)
             return { kind: "auto", reason: "No movement from the company in " + days + " days", nextOn: null, days: days };
