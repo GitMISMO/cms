@@ -820,6 +820,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
      ['Remediate', 'Remediation Open', 'Your list of items goes to the company with the assessor copied. Reminders follow on their own: from the target date if you give one, otherwise every two weeks.', '#e0a83c'],
      ['Ask', 'Question to the Assessor', 'Your question goes to the assessor, who answers in the Assessor Portal. The answer comes back here and you are emailed.', '#74bfeb'],
      ['Close', 'Not Certified', 'Closes the certification as not certified, with your reason recorded.', '#f08579'],
+     ['Keep', 'Past 60 Days: Keep Following Up', 'The reminders to the company carry on, and the renewal comes back to this page in 30 days.', '#4fc79b'],
+     ['Cancel', 'Past 60 Days: Cancel the Renewal', 'Closes the renewal as Application Expired with your reason recorded; its reminders stop.', '#f08579'],
      ['Remind', 'Nothing Decided After Three Days', 'You are sent one reminder every three days, up to five, with a link to this page.', '#8f9ff2']
     ].forEach(function (x) { R.appendChild(h('div', { class: 'rule', style: '--k:' + x[3] }, h('div', { class: 'd', text: x[0] }), h('b', { text: x[1] }), h('span', { text: x[2] }))); });
   }
