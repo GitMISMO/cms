@@ -2432,7 +2432,10 @@
   /* a narrow tile: name on one line, what happens on the next, nothing cut off (Runs Itself, 22 Nov 2026) */
   .tqt-list.stk .tqt-row{display:block; line-height:1.3;}
   .tqt-list.stk .tqt-row i:empty{display:none;}
-  .tqt-more{display:block; margin-top:6px; font-size:12px; font-weight:700; color:var(--k); text-align:right;}
+  /* every tile's names start right under its line of text, one line each, the same size (22 Nov 2026) */
+  .tqb .tqt-list.stk{margin-top:2px;}
+  .tqb .tqt-list.stk .tqt-row b{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqt-more{display:block; margin-top:auto; padding-top:2px; font-size:12px; font-weight:700; color:var(--k); text-align:right;}
   .tqt:hover .tqt-more{text-decoration:underline;}
   .tqt-list.stk .tqt-row b, .tqt-list.stk .tqt-row i{display:block; white-space:normal;}
   .tqt-ep{display:flex; flex-direction:column; gap:2px; min-width:0;}
@@ -5861,7 +5864,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* the tiles */
         function mini(list, n) {
             return list.slice(0, n).map((function(x) {
-                return '<span class="tqt-row"><b>' + esc(x.org) + "</b><i>" + esc(x.next || x.label || "") + "</i>" + (x.days != null ? "<em>" + esc(tqDaysTxt(x.days)) + "</em>" : "") + "</span>";
+                return '<span class="tqt-row" title="' + esc(x.org + (x.prog ? " (" + x.prog + ")" : "")) + '"><b>' + esc(x.org) + "</b><i>" + esc(x.next || x.label || "") + "</i>" + (x.days != null ? "<em>" + esc(tqDaysTxt(x.days)) + "</em>" : "") + "</span>";
             })).join("");
         }
         function who3(list, n) {
@@ -5926,7 +5929,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 if (ap) bits.push(ap + " on My Approvals");
                 return tile("jonathan", "With MISMO", big(L.jonathan.length) + '<span class="tqt-sub">' + esc(bits.length ? bits.join(" · ") : "Nothing waiting on MISMO") + "</span>" + who3(L.jonathan, 2));
             })()
-            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "nothing to do" : "nothing waiting") + "</span>" + who3(L.system))
+            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "nothing to do" : "nothing waiting") + "</span>" + who3(L.system), { cls: "sm" })
             /* who they are, up to three, then See All (22 Nov 2026, Jonna: fill the blank space) */
             + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>" + who3(L.later.slice().sort((function(a, b) { var x = (followUpOf(a.f) || {}).nextOn || "9", y = (followUpOf(b.f) || {}).nextOn || "9"; return x < y ? -1 : x > y ? 1 : 0; }))), { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>" + who3(L.hold), { cls: "sm" })
@@ -6053,7 +6056,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function cjOpen() { return (D.inFlight || []).filter((function(f) { return f && tdOpen(f); })); }
     function tqLists(m) {
         var mineAll = tqMine(m), isInv = function(x) { return x.kind === "invoice" || x.kind === "attach" || x.kind === "app-invoice"; };
-        var L = { all: mineAll, you: mineAll.filter(function(x) { return !isInv(x); }), invoice: mineAll.filter(isInv), prospects: m.prospects.map((function(n) { return { org: n, prospect: true }; })) };
+        var L = { all: mineAll, you: mineAll.filter(function(x) { return !isInv(x); }), invoice: mineAll.filter(isInv), prospects: m.prospects.map((function(n) {
+            /* a second line like every other tile row (22 Nov 2026): last program, and since when */
+            var e = orgEdits[orgSlug(n)] || {}, last = tdLastProgram(n), since = e.status === "prospect" && e.statusSince ? "Since " + new Date(String(e.statusSince).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "";
+            return { org: n, prospect: true, short: [last ? last.program : "", since].filter(Boolean).join(" \u00b7 ") || "Not certifying" }; })) };
         [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
         /* certifications paused before their renewal started (no open cycle to hold), the same ones the
            Renewals page counts as On Hold (1 Nov 2026: the queue said 0 while a renewal was paused) */
