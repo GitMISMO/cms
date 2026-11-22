@@ -12413,6 +12413,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         try { pkSetupHero("programs"); } catch (x) {}
     }));
     function renderAll() {
+        /* the line on Programs and Lifecycle redraws with the live stages, not just once at load (22 Nov 2026: it showed the export's counts) */
+        try { if (typeof pkLifecycle === "function") pkLifecycle(); } catch (e) {}
         renderInvoices();
         renderInvoicePip();
         recompute();
