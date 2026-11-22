@@ -5864,7 +5864,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 if (ap) bits.push(ap + " on My Approvals");
                 return tile("jonathan", "With MISMO", big(L.jonathan.length) + '<span class="tqt-sub">' + esc(bits.length ? bits.join(" · ") : "Nothing waiting on MISMO") + '</span><span class="tqt-list">' + mini(L.jonathan, 2) + "</span>");
             })()
-            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-flow" aria-hidden="true"><svg viewBox="0 0 220 34"><path class="fl" d="M18 17 H202"></path><circle cx="18" cy="17" r="7"></circle><circle cx="110" cy="17" r="7"></circle><circle cx="202" cy="17" r="7"></circle></svg><span><i>Notices</i><i>DocuSign</i><i>Payments</i></span></span>')
+            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "goes out by itself, nothing to do" : "nothing waiting on the system") + '</span><span class="tqt-list">' + mini(L.system.map((function(x) { return Object.assign({}, x, { days: null }); })), 3) + "</span>")
             + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>", { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>", { cls: "sm" })
             + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>", { cls: "sm" })
@@ -5939,6 +5939,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function tqWaitItem(view, f) {
         var st = currentState(f), next = nextLabelOf(f, st), extra = "";
         if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; }
+        /* Runs Itself (22 Nov 2026, Jonna: "what is this depicting?"): say what goes out by itself and when */
+        if (view === "system" && st === "RenewalPrep") { try {
+            var rc = certFor(f), today0 = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" }), on0 = null;
+            ((D.notices && D.notices.notices) || []).filter((function(n) { return n.offsetDays != null; })).sort((function(a, b) { return a.offsetDays - b.offsetDays; })).forEach((function(n) {
+                var on = rc && rc.anniversary ? addDays(String(rc.anniversary).slice(0, 10), n.offsetDays) : null;
+                if (!on0 && on && on >= today0) on0 = on; }));
+            if (on0) { next = "Renewal notice goes " + sendDayText(on0 + "T12:00:00-05:00"); extra = extra || "sent by the system"; }
+        } catch (e) {} }
         if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
         if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : ""; }
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; if (fuHeld(f)) { var ah = cycleHoldOf(f); next = "On hold" + (ah && ah.until ? ", back " + fmt(ah.until) : "") + " (" + next.toLowerCase() + ")"; } }
