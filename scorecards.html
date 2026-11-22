@@ -8,6 +8,7 @@
 <script src="/assets/session.js"></script>
 <script src="embed.js"></script>
 <script src="consultant-score.js"></script>
+<script src="/portal/engine/scorecard-view.js?v=20261121a"></script>
 <style>
 :root{--navy:#0d314c;--sky:#74bfeb;--navy-deep:#06202f;--navy-mid:#14486e;
   --ground:#f1f6fa;--surface:#fff;--surface-2:#f6fafd;--surface-3:#e9f1f8;--border:#d5e2ed;--border-strong:#adc4d6;--rule:#e5eef5;
@@ -120,6 +121,8 @@ tfoot td{font-weight:700;background:var(--surface-2);border-top:2px solid var(--
 td.who{white-space:nowrap;color:var(--ink-2)}
 .catrow td{background:var(--surface-3);font-weight:700;font-size:12.5px;color:var(--ink-2)}
 .pills{display:flex;flex-wrap:wrap;gap:4px}
+.tools{margin-top:14px}.toolrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:12px 14px}
+.offrow{border-top:1px solid var(--border)}.offp{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--ink-3)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 16px;border-radius:7px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
 .toast.on{opacity:1}.toast.bad{background:var(--bad)}
 .notes{margin:12px 0 0;padding:10px 13px;border-radius:8px;background:var(--accent-soft);color:var(--ink-2);font-size:13px;line-height:1.5}
@@ -347,37 +350,29 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     if (!state.slug) return;
     var name = state.name, r = compute(name), ed = EDITS.docs[slug(name)] || {}; last = r;
     var sizeTxt = r.size === "small" ? "10 employees and under" : "11 employees and over";
-    var cats = CS.CATS.map(function (c) { var x = r.categories[c.key], w = x.min ? Math.min(100, Math.round(x.points / x.min * 100)) : 100;
-      return '<div class="cat' + (x.met ? " met" : "") + '"><span>' + esc(c.label) + '</span><b>' + x.points + '</b><i>' + (x.min ? "Minimum " + x.min : "No minimum") + '</i><div class="m"><em style="width:' + w + '%"></em></div></div>'; }).join("");
-    var miss = CS.CATS.filter(function (c) { return !r.categories[c.key].met; }).map(function (c) { return c.label; });
+    /* the same view the company sees in its portal (scorecard-view.js), plus MISMO's edit tools (21 Nov 2026: no endless list) */
     var html = '<section class="hero"><div class="eyebrow">' + (r.kind === "renewal" ? "Renewal" : "Initial Certification") + ' Scorecard</div><h1>' + esc(name) + '</h1>' +
-      '<div class="big"><div class="num">' + r.total + '</div><div class="say">points for ' + (r.kind === "renewal" ? "a renewal" : "an initial certification") + " as of " + fmt(r.asOf) +
-      '. Participation and ancillary points count from ' + fmt(r.from) + '. Minimums for ' + sizeTxt + '.<br><span class="verdict ' + (r.meetsAll ? "yes" : "no") + '">' +
-      (r.meetsAll ? "Meets Every Minimum" : "Short In " + esc(miss.join(", "))) + "</span></div></div>" +
       '<div class="ctl"><label>Type</label><div class="seg"><button type="button" data-kind="initial" aria-pressed="' + (r.kind === "initial") + '">Initial</button><button type="button" data-kind="renewal" aria-pressed="' + (r.kind === "renewal") + '">Renewal</button></div>' +
       '<label style="margin-left:8px">Size</label><div class="seg"><button type="button" data-size="small" aria-pressed="' + (r.size === "small") + '">10 and Under</button><button type="button" data-size="large" aria-pressed="' + (r.size === "large") + '">11 and Over</button></div>' +
-      '<label style="margin-left:8px" for="asof">As Of</label><input type="date" id="asof" value="' + r.asOf + '"></div>' +
-      '<div class="cats">' + cats + "</div></section>";
+      '<label style="margin-left:8px" for="asof">As Of</label><input type="date" id="asof" value="' + r.asOf + '"></div></section>';
     if (r.notes.length) html += '<div class="notes">' + r.notes.map(esc).join("<br>") + "</div>";
-    var ppl = r.people.map(function (p) { var removable = true;
-      return "<tr><td>" + esc(p.name) + '<span class="sub">' + esc(p.how.join(", ")) + '</span></td><td class="num"><b>' + p.points + '</b></td><td class="num">' +
-        (removable ? '<button class="x" type="button" data-rm="' + esc(p.name) + '" title="Take this person off this company\'s scorecard">Not Theirs</button>' : "") + "</td></tr>"; }).join("");
-    var off = (ed.remove || []).map(function (n) { return '<tr><td style="color:var(--ink-3)"><s>' + esc(n) + '</s><span class="sub">Taken off by MISMO</span></td><td></td><td class="num"><button class="x" type="button" data-unrm="' + esc(n) + '">Put Back</button></td></tr>'; }).join("");
-    var byCat = CS.CATS.map(function (c) {
-      var its = r.items.filter(function (i) { return i.cat === c.key; }); if (!its.length) return "";
-      return '<tr class="catrow"><td colspan="3">' + esc(c.label) + " &middot; " + r.categories[c.key].points + " points</td></tr>" + its.map(function (i) {
-        return "<tr><td>" + esc(i.name) + '<span class="sub">' + esc([i.detail, i.source].filter(Boolean).join(" \u00b7 ")) + '</span></td><td class="who">' + esc(i.person || "The company") + '</td><td class="num"><b>' + i.pts + "</b>" +
-          (i.hand ? ' <button class="x" type="button" data-unhand="' + esc(i.hand) + '" title="Remove this added item">&times;</button>' : "") + "</td></tr>"; }).join(""); }).join("");
+    html += '<div class="card" style="margin-top:14px;padding:16px 18px"><div id="scv-host"></div></div>';
     var opts = CS.HAND.map(function (k) { return '<option value="' + k + '">' + esc(CS.ITEMS[k].name) + " (" + CS.ITEMS[k].pts + ")</option>"; }).join("");
-    html += '<div class="grid2"><div class="card"><h2>People Counted <small>' + r.people.length + '</small></h2><div class="tablewrap"><table><tbody>' +
-      (ppl || '<tr><td class="empty" colspan="3">No one at this company found in MISMO\'s systems yet.</td></tr>') + off + '</tbody></table></div>' +
-      '<div class="addf" style="grid-template-columns:1fr auto"><input id="addp" placeholder="Add a person who works there (full name)" aria-label="Add a person"><button class="btn" type="button" id="addpgo">Add Person</button></div></div>' +
-      '<div class="card"><h2>Where the Points Come From <small><button class="btn ghost" type="button" id="dl" style="padding:5px 10px">Download for Excel</button></small></h2><div class="tablewrap"><table><tbody>' +
-      (byCat || '<tr><td class="empty" colspan="3">No points yet.</td></tr>') + '</tbody></table></div>' +
-      '<div class="addf"><select id="hcode" aria-label="What they did">' + opts + '</select><input id="hwho" placeholder="Who (optional)" aria-label="Who"><input id="hwhat" placeholder="What and where" aria-label="What and where"><input id="hdate" type="date" aria-label="Date" value="' + today() + '"><button class="btn" type="button" id="hgo">Add Points</button></div></div></div>';
-    html += '<p class="note">' + (entryFor(name) ? "This scorecard is saved for the company's portal each time it changes. " : "This company is not applying, so nothing is saved; added people and points are kept for next time. ") +
+    var off = (ed.remove || []).map(function (n) { return '<span class="offp"><s>' + esc(n) + '</s> <button class="x" type="button" data-unrm="' + esc(n) + '">Put Back</button></span>'; }).join("");
+    html += '<div class="card tools"><div class="toolrow"><b>Adjust This Scorecard</b><span class="src">Select a person on the right to take them off (Not Theirs). Points added here show with a Remove button.</span>' +
+      '<button class="btn ghost" type="button" id="dl" style="margin-left:auto;padding:6px 11px">Download for Excel</button></div>' +
+      '<div class="addf" style="grid-template-columns:1fr auto"><input id="addp" placeholder="Add a person who works there (full name)" aria-label="Add a person"><button class="btn" type="button" id="addpgo">Add Person</button></div>' +
+      '<div class="addf"><select id="hcode" aria-label="What they did">' + opts + '</select><input id="hwho" placeholder="Who (optional)" aria-label="Who"><input id="hwhat" placeholder="What and where" aria-label="What and where"><input id="hdate" type="date" aria-label="Date" value="' + today() + '"><button class="btn" type="button" id="hgo">Add Points</button></div>' +
+      (off ? '<div class="toolrow offrow"><span class="src">Taken off this company:</span> ' + off + "</div>" : "") + "</div>";
+    html += '<p class="note">' + (entryFor(name) ? "The company sees this same scorecard (without the adjust tools) in its portal; it is saved each time it changes. " : "This company is not applying, so nothing is saved for a portal; added people and points are kept for next time. ") +
       "Rules: MISMO's Certified Consultant Point Structure. Leadership and education count when active on the date; participation and ancillary count in the 12 months before it; workgroup attendance needs 66% of the meetings held, and chairs and vice chairs earn no attendance points for the group they lead.</p>";
     $("pane").innerHTML = html;
+    var vhost = $("scv-host");
+    if (window.ScorecardView) window.ScorecardView.render(vhost, r, { company: "The company", people: r.people, edit: {
+      removePerson: function (n) { if (!confirm("Take " + n + " off " + name + "'s scorecard? Their points stop counting for this company.")) return;
+        editDoc(name, function (d) { if (d.remove.indexOf(n) < 0) d.remove.push(n); d.add = d.add.filter(function (x) { return CS.personKey(x) !== CS.personKey(n); }); }); },
+      removeItem: function (id) { if (!confirm("Remove these added points?")) return; editDoc(name, function (d) { d.items = d.items.filter(function (x) { return x.id !== id; }); }); } } });
+    else vhost.innerHTML = '<div class="empty">The scorecard view could not be loaded. Reload the page.</div>';
     wirePane(name, r);
     keep(name, r);
   }
@@ -412,11 +407,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     p.querySelectorAll("[data-size]").forEach(function (b) { b.onclick = function () { var s = b.getAttribute("data-size"); state.size = s; draw();
       if (entryFor(name) || state.adhoc[name]) editDoc(name, function (d) { d.size = s; }).then(function () { state.size = null; draw(); }); }; });
     $("asof").onchange = function () { state.asOf = this.value || null; draw(); };
-    p.querySelectorAll("[data-rm]").forEach(function (b) { b.onclick = function () { var n = b.getAttribute("data-rm");
-      if (!confirm("Take " + n + " off " + name + "'s scorecard? Their points stop counting for this company.")) return;
-      editDoc(name, function (d) { if (d.remove.indexOf(n) < 0) d.remove.push(n); d.add = d.add.filter(function (x) { return CS.personKey(x) !== CS.personKey(n); }); }); }; });
     p.querySelectorAll("[data-unrm]").forEach(function (b) { b.onclick = function () { var n = b.getAttribute("data-unrm"); editDoc(name, function (d) { d.remove = d.remove.filter(function (x) { return x !== n; }); }); }; });
-    p.querySelectorAll("[data-unhand]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-unhand"); if (!confirm("Remove these added points?")) return; editDoc(name, function (d) { d.items = d.items.filter(function (x) { return x.id !== id; }); }); }; });
     $("addpgo").onclick = function () { var n = $("addp").value.trim(); if (!/\S+\s+\S+/.test(n)) { toast("Type their first and last name.", true); return; }
       editDoc(name, function (d) { if (d.add.indexOf(n) < 0) d.add.push(n); d.remove = d.remove.filter(function (x) { return CS.personKey(x) !== CS.personKey(n); }); }); };
     $("hgo").onclick = function () { var code = $("hcode").value, what = $("hwhat").value.trim(); if (!what) { toast("Say what they did and where.", true); return; }
