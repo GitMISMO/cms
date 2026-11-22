@@ -2434,7 +2434,7 @@
   .tqt-list.stk .tqt-row i:empty{display:none;}
   /* every tile's names start right under its line of text, one line each, the same size (22 Nov 2026) */
   .tqb .tqt-list.stk{margin-top:2px;}
-  .tqb .tqt-list.stk .tqt-row b{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tqb .tqt-list.stk .tqt-row b, .tqb .tqt-list.stk .tqt-row i{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tqt-more{display:block; margin-top:auto; padding-top:2px; font-size:12px; font-weight:700; color:var(--k); text-align:right;}
   .tqt:hover .tqt-more{text-decoration:underline;}
   .tqt-list.stk .tqt-row b, .tqt-list.stk .tqt-row i{display:block; white-space:normal;}
@@ -5864,7 +5864,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* the tiles */
         function mini(list, n) {
             return list.slice(0, n).map((function(x) {
-                return '<span class="tqt-row" title="' + esc(x.org + (x.prog ? " (" + x.prog + ")" : "")) + '"><b>' + esc(x.org) + "</b><i>" + esc(x.next || x.label || "") + "</i>" + (x.days != null ? "<em>" + esc(tqDaysTxt(x.days)) + "</em>" : "") + "</span>";
+                return '<span class="tqt-row" title="' + esc(x.org + (x.prog ? " (" + x.prog + ")" : "") + (x.next || x.label ? "\n" + (x.next || x.label) : "") + (x.days != null ? " \u00b7 " + tqDaysTxt(x.days) : "")) + '"><b>' + esc(x.org) + "</b><i>" + esc(x.next || x.label || "") + "</i>" + (x.days != null ? "<em>" + esc(tqDaysTxt(x.days)) + "</em>" : "") + "</span>";
             })).join("");
         }
         function who3(list, n) {
@@ -6018,7 +6018,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         } catch (e) {} }
         if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
         if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : "";
-            sh = h && h.until ? "Back " + sDay(h.until) : h && h.at ? "Paused since " + sDay(h.at) : "Paused"; }
+            sh = h && h.until ? "Back " + sDay(h.until).replace(/^\w+, /, "") : h && h.at ? "Paused " + sDay(h.at).replace(/^\w+, /, "") : "Paused"; }
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; if (fuHeld(f)) { var ah = cycleHoldOf(f); next = "On hold" + (ah && ah.until ? ", back " + fmt(ah.until) : "") + " (" + next.toLowerCase() + ")"; } }
         return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st), short: typeof short0 !== "undefined" ? short0 : sh || (view === "system" && st === "ApprovedPendingLicense" ? "Mark License by DocuSign" : null) };
     }
@@ -6058,7 +6058,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var mineAll = tqMine(m), isInv = function(x) { return x.kind === "invoice" || x.kind === "attach" || x.kind === "app-invoice"; };
         var L = { all: mineAll, you: mineAll.filter(function(x) { return !isInv(x); }), invoice: mineAll.filter(isInv), prospects: m.prospects.map((function(n) {
             /* a second line like every other tile row (22 Nov 2026): last program, and since when */
-            var e = orgEdits[orgSlug(n)] || {}, last = tdLastProgram(n), since = e.status === "prospect" && e.statusSince ? "Since " + new Date(String(e.statusSince).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "";
+            var e = orgEdits[orgSlug(n)] || {}, last = tdLastProgram(n), since = e.status === "prospect" && e.statusSince ? "Since " + new Date(String(e.statusSince).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) : "";
             return { org: n, prospect: true, short: [last ? last.program : "", since].filter(Boolean).join(" \u00b7 ") || "Not certifying" }; })) };
         [ "company", "assessor", "jonathan", "system", "later", "hold" ].forEach((function(v) { L[v] = (m.wait[v] || []).map((function(f) { return tqWaitItem(v, f); })); }));
         /* certifications paused before their renewal started (no open cycle to hold), the same ones the
@@ -6070,7 +6070,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 var h = holdOf(r.cert) || {};
                 L.hold.push({ c: r.cert, key: r.key, org: r.cert.org || "", prog: r.cert.program || "", days: h.at ? daysSince(String(h.at).slice(0, 10)) : null,
                     next: "On hold" + (h.at ? " since " + fmt(String(h.at).slice(0, 10)) : ""), extra: h.reason || "", stage: "renewal not started",
-                    short: h.until ? "Back " + new Date(String(h.until).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }) : h.at ? "Paused since " + new Date(String(h.at).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }) : "Paused" });
+                    short: h.until ? "Back " + new Date(String(h.until).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) : h.at ? "Paused " + new Date(String(h.at).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) : "Paused" });
             }));
         } catch (e) {}
         /* one list per journey stop, every open certification at it, with whose move it is */
