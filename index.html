@@ -12799,12 +12799,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     /* Whose move, from the certification's stage NOW (22 Nov 2026, Jonna: the firm cards said two were with the
        assessors while the Action Queue said none). f.waiting is the board's note from the original import and
        goes stale once a cycle moves; held and finished cycles are with nobody. Same rule as the Action Queue. */
-    var WOA_DONE = [ "ApprovedPendingLicense", "LicenseSent", "Certified", "Canceled", "NotCertified", "ApplicationExpired" ];
     function waitingOnAssessor(f) {
         if (!f) return false;
         try { if (fuHeld(f)) return false; } catch (e) {}
         var st = currentState(f);
-        if (WOA_DONE.indexOf(st) >= 0) return false;
+        if ([ "ApprovedPendingLicense", "LicenseSent", "Certified", "Canceled", "NotCertified", "ApplicationExpired" ].indexOf(st) >= 0) return false;
         var q = progStage(f, st);
         return /assessor/i.test(String((q && q.waiting) || (STATE[st] || {}).waiting || ""));
     }
