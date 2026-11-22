@@ -5125,12 +5125,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             db.collection("stage-notice-log").onSnapshot((function(snap) {
                 var n = {};
                 var r = {};
-                var co = {};
+                var co = {}, cd = {};
                 (snap.docs || []).forEach((function(d) { var v = d.data(); if (v && v.template === "assessor-nudge") n[d.id] = v; if (v && /^company-(payment|booking)-reminder$/.test(v.template || "")) r[d.id] = v;
                     /* every real email that reached the company, for the "check who we're emailing" rule (22 Nov 2026) */
                     var to = coAddrs(v && (v.wouldHaveGoneTo || v.sentTo));
-                    if (v && !v.held && v.row != null && to.length) (co[String(v.row)] = co[String(v.row)] || []).push({ t: v.template, at: String(v.sentAt || ""), state: v.state || null, to: to }); }));
-                tdCoSent = co;
+                    if (v && !v.held && v.row != null && to.length) {
+                        (co[String(v.row)] = co[String(v.row)] || []).push({ t: v.template, at: String(v.sentAt || ""), state: v.state || null, to: to });
+                        to.forEach((function(e) { var dm = e.split("@")[1]; var l = cd[dm] = cd[dm] || []; if (v.org && l.indexOf(v.org) < 0) l.push(v.org); })); } }));
+                tdCoSent = co; coDomainOrgs = cd;
                 tdNudgeSent = n;
                 tdRemSent = r;
                 renderTodo();
@@ -6497,7 +6499,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        wrong place"). The reminders themselves keep going from the Stage notices and Renewal notices jobs; this puts the
        certification under Needs You, with the addresses they went to, after 4 reminders at the same stage, or when a
        renewal still waiting on the company is within 30 days of its anniversary. Paused programs are left alone. */
-    var tdCoSent = {};
+    var tdCoSent = {}, coDomainOrgs = {};
     var CO_ESCALATE_AFTER = 4, CO_ANNIV_DAYS = 30;
     function coAddrs(v) {
         var list = Array.isArray(v) ? v : String(v || "").split(/[;,]/);
@@ -6513,8 +6515,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (x.row != null ? String(x.row) !== String(f.row) : !(x.org === f.org && x.program === f.program)) return;
             sent.push({ t: "renewal-payment", at: String(x.sentAt), to: coAddrs(x.sentTo || x.to || x.recipients) });
         }));
+        /* an assessor firm is copied on some of these, and its addresses turn up on many companies' emails: an email
+           domain seen for two or more companies is left off, unless it is this company's own (its name in the domain) */
+        var own = String(f.org || "").toLowerCase().replace(/[^a-z0-9]/g, "");
         var to = [];
-        sent.forEach((function(x) { (x.to || []).forEach((function(e) { if (to.indexOf(e) < 0) to.push(e); })); }));
+        sent.forEach((function(x) { (x.to || []).forEach((function(e) {
+            var dom = e.split("@")[1] || "", root = dom.split(".")[0].replace(/[^a-z0-9]/g, "");
+            var shared = (coDomainOrgs[dom] || []).length > 1 && !(root && own.indexOf(root) >= 0);
+            if (to.indexOf(e) < 0 && !shared) to.push(e); })); }));
         return { count: sent.length, to: to };
     }
     function coEscalation(f) {

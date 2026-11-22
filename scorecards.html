@@ -129,6 +129,13 @@ td.who{white-space:nowrap;color:var(--ink-2)}
 /* inside the CMS: no masthead of its own (embed.js) */
 html.embed .hqtop{display:none}
 html.embed body{background:transparent}
+/* tighter (Jonna, 22 Nov 2026: "seems like a lot of extra space") */
+html.embed main{padding-top:0}
+.hero.top{padding:16px 22px}
+.hero.top h1{font-size:22px;margin:2px 0 4px}
+.hero.co{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;padding:16px 22px}
+.hero.co h1{margin:2px 0 0;font-size:24px}
+.hero.co .ctl{margin-top:0}
 </style>
 </head>
 <body>
@@ -170,10 +177,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   <span class="hqtop-r"><span class="eyebrow-m">Programs &amp; Operations</span><div id="rs-account"></div></span>
 </header>
 <main>
-  <section class="hero" aria-labelledby="h1">
+  <section class="hero top" aria-labelledby="h1">
     <div class="eyebrow">Certified Consultant</div>
     <h1 id="h1">Points Scorecards</h1>
-    <p id="lede">Every point a company has earned, filled in from Member 360, Elections HQ, Meeting Trackers, Aptify and the CMS. Pick a company on the left, or score any company, even one that has not applied.</p>
+    <p id="lede">Every point a company has earned, from Member 360, Elections HQ, Meeting Trackers, Aptify and the CMS. Pick a company, or score any company, even one that has not applied.</p>
   </section>
   <div class="wrap">
     <aside class="side" aria-label="Companies">
@@ -351,7 +358,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     var name = state.name, r = compute(name), ed = EDITS.docs[slug(name)] || {}; last = r;
     var sizeTxt = r.size === "small" ? "10 employees and under" : "11 employees and over";
     /* the same view the company sees in its portal (scorecard-view.js), plus MISMO's edit tools (21 Nov 2026: no endless list) */
-    var html = '<section class="hero"><div class="eyebrow">' + (r.kind === "renewal" ? "Renewal" : "Initial Certification") + ' Scorecard</div><h1>' + esc(name) + '</h1>' +
+    var html = '<section class="hero co"><div><div class="eyebrow">' + (r.kind === "renewal" ? "Renewal" : "Initial Certification") + ' Scorecard</div><h1>' + esc(name) + '</h1></div>' +
       '<div class="ctl"><label>Type</label><div class="seg"><button type="button" data-kind="initial" aria-pressed="' + (r.kind === "initial") + '">Initial</button><button type="button" data-kind="renewal" aria-pressed="' + (r.kind === "renewal") + '">Renewal</button></div>' +
       '<label style="margin-left:8px">Size</label><div class="seg"><button type="button" data-size="small" aria-pressed="' + (r.size === "small") + '">10 and Under</button><button type="button" data-size="large" aria-pressed="' + (r.size === "large") + '">11 and Over</button></div>' +
       '<label style="margin-left:8px" for="asof">As Of</label><input type="date" id="asof" value="' + r.asOf + '"></div></section>';
