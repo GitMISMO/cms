@@ -12796,8 +12796,17 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderRecords();
     }));
     renderCerts();
+    /* Whose move, from the certification's stage NOW (22 Nov 2026, Jonna: the firm cards said two were with the
+       assessors while the Action Queue said none). f.waiting is the board's note from the original import and
+       goes stale once a cycle moves; held and finished cycles are with nobody. Same rule as the Action Queue. */
+    var WOA_DONE = [ "ApprovedPendingLicense", "LicenseSent", "Certified", "Canceled", "NotCertified", "ApplicationExpired" ];
     function waitingOnAssessor(f) {
-        return !!(f.waiting && f.waiting.indexOf("Assessor") >= 0);
+        if (!f) return false;
+        try { if (fuHeld(f)) return false; } catch (e) {}
+        var st = currentState(f);
+        if (WOA_DONE.indexOf(st) >= 0) return false;
+        var q = progStage(f, st);
+        return /assessor/i.test(String((q && q.waiting) || (STATE[st] || {}).waiting || ""));
     }
     /* The firm a cycle is with, worked out the way the engagement files are (31 Oct 2026): one picked for
        the cycle, else the one set on the certification, else the board's. Viant Eye's own Product
