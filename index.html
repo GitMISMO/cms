@@ -5864,10 +5864,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return '<span class="tqt-row"><b>' + esc(x.org) + "</b><i>" + esc(x.next || x.label || "") + "</i>" + (x.days != null ? "<em>" + esc(tqDaysTxt(x.days)) + "</em>" : "") + "</span>";
             })).join("");
         }
-        function who3(list) {
+        function who3(list, n) {
             if (!list.length) return "";
-            return '<span class="tqt-list stk">' + mini(list.map((function(x) { return Object.assign({}, x, { days: null, next: x.short || x.next || "" }); })), 3) + "</span>"
-                + (list.length > 3 ? '<span class="tqt-more">See All ' + list.length + " \u2192</span>" : "");
+            /* the same company twice (one per program) says which program each line is */
+            var seen = {}; list.forEach((function(x) { seen[x.org] = (seen[x.org] || 0) + 1; }));
+            return '<span class="tqt-list stk">' + mini(list.map((function(x) { return Object.assign({}, x, { days: null,
+                next: (seen[x.org] > 1 && x.prog ? x.prog + " \u00b7 " : "") + (x.short || x.next || "") + (n && x.days != null ? " \u00b7 " + tqDaysTxt(x.days) : "") }); })), n || 3) + "</span>"
+                + (list.length > (n || 3) ? '<span class="tqt-more">See All ' + list.length + " \u2192</span>" : "");
         }
         function longest(v) { var dd = 0; L[v].forEach((function(x) { if (x.days != null && x.days > dd) dd = x.days; })); return dd; }
         function tile(v, title, body, opts) {
@@ -5914,14 +5917,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="tqt ring-t" style="--k:#3ccb7f"><span class="tqt-top"><span class="tqt-lab">The Register</span><span class="tqt-pill">' + live.length + ' live</span></span>'
                 + '<span class="tqt-ring"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="46"></circle><circle class="rv" cx="55" cy="55" r="46" style="stroke-dasharray:' + C.toFixed(1) + ";stroke-dashoffset:" + (tqAnimated ? (C * (1 - pct / 100)).toFixed(1) : C.toFixed(1)) + '" data-ring="' + (C * (1 - pct / 100)).toFixed(1) + '"></circle></svg><span><b><span data-count="' + pct + '">' + pct + "</span>%</b><small>Current</small></span></span>"
                 + '<span class="tqt-sub">' + current + " of " + live.length + " certifications are current" + (live.length - current ? "; " + (live.length - current) + " past their anniversary" : "") + ".</span></div>"
-            + tile("company", "With the Company", big(L.company.length) + '<span class="tqt-sub">' + esc(sub.company) + '</span><span class="tqt-list">' + mini(L.company.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2) + "</span>")
-            + tile("assessor", "With the Assessor", big(L.assessor.length) + '<span class="tqt-sub">' + esc(sub.assessor) + '</span><span class="tqt-list">' + mini(L.assessor.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2) + "</span>")
+            + tile("company", "With the Company", big(L.company.length) + '<span class="tqt-sub">' + esc(sub.company) + "</span>" + who3(L.company.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2))
+            + tile("assessor", "With the Assessor", big(L.assessor.length) + '<span class="tqt-sub">' + esc(sub.assessor) + "</span>" + who3(L.assessor.slice().sort((function(a, b) { return (b.days || 0) - (a.days || 0); })), 2))
             + (function() {
                 var pa = L.jonathan.filter((function(x) { return x.f && progStage(x.f) && progStage(x.f).waiting === "MISMO"; })).length, ap = L.jonathan.length - pa;
                 var bits = [];
                 if (pa) bits.push(pa + " waiting for portal access");
                 if (ap) bits.push(ap + " on My Approvals");
-                return tile("jonathan", "With MISMO", big(L.jonathan.length) + '<span class="tqt-sub">' + esc(bits.length ? bits.join(" · ") : "Nothing waiting on MISMO") + '</span><span class="tqt-list">' + mini(L.jonathan, 2) + "</span>");
+                return tile("jonathan", "With MISMO", big(L.jonathan.length) + '<span class="tqt-sub">' + esc(bits.length ? bits.join(" · ") : "Nothing waiting on MISMO") + "</span>" + who3(L.jonathan, 2));
             })()
             + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "nothing to do" : "nothing waiting") + "</span>" + who3(L.system))
             /* who they are, up to three, then See All (22 Nov 2026, Jonna: fill the blank space) */
