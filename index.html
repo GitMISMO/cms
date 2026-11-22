@@ -14519,7 +14519,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         frWrite("frameReview", String(f.row), body);
         renderAssessorSwitch();
     }
+    /* The FRAME collections are read as "frame-scores", "frame-review", "frame-ask" and "scen-assign"; these writes used
+       the camel-case names, so nothing saved here was ever read back (22 Nov 2026). One place turns the name. */
+    var FR_COLL = { frameScores: "frame-scores", frameReview: "frame-review", frameAsk: "frame-ask", scenAssign: "scen-assign" };
     function frWrite(coll, key, body) {
+        coll = FR_COLL[coll] || coll;
         if (!db) return;
         try {
             Promise.resolve(db.doc(coll + "/" + String(key).replace(/[^A-Za-z0-9_.~-]/g, "_")).set(body)).catch(onWriteRefused);
