@@ -5476,7 +5476,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             if (seen[f.row] || taken[f.row]) return;
             seen[f.row] = 1;
             if (!tdOpen(f)) return;
-            if (fuHeld(f)) { var hh = cycleHoldOf(f); if (hh && hh.until && daysBetween(hh.until, D.asOf) >= 0) todo["hold-check"].push(f); else wait.hold.push(f); return; }
+            if (fuHeld(f)) { var hh = cycleHoldOf(f); if (hh && hh.until && daysBetween(hh.until, D.asOf) >= 0) todo["hold-check"].push(f); else if (/assessor/i.test(waitOf(f))) wait.assessor.push(f); else wait.hold.push(f); return; }
             var st = currentState(f), c = certFor(f);
             if (welcomeDue(f)) { todo.welcome.push(f); return; }
             if (tdNeedsAppInvoice(f)) { todo["app-invoice"].push(f); return; }
@@ -5685,7 +5685,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function progStage(f, st) { return f ? PROG_STAGE[String(f.program) + "|" + (st || currentState(f))] || null : null; }
     /* Who has the move. A program's own wording can say so (AI Governance waiting for portal access is with MISMO, not the
        company - Jonna, 21 Nov 2026), so it is not chased as a quiet company. */
-    function waitOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return String((q && q.waiting) || (STATE[st] || {}).waiting || f.waiting || ""); }
+    /* Waiting on the company's evidence is the assessor's to chase (22 Nov 2026, Jonna: the firm needs to keep on top
+       of the follow-up), so it counts as With the Assessor. */
+    var ASSESSOR_CHASES = [ "AwaitingArtifacts" ];
+    function waitOf(f, st) { st = st || currentState(f); var q = progStage(f, st); if (!(q && q.waiting) && ASSESSOR_CHASES.indexOf(st) >= 0) return "Assessor"; return String((q && q.waiting) || (STATE[st] || {}).waiting || f.waiting || ""); }
     function stateLabelOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return q ? q.label : titleOfState(st); }
     function nextLabelOf(f, st) { st = st || currentState(f); var q = progStage(f, st); return q ? q.next : (TQ_NEXT[st] || titleOfState(st)); }
     /* What the company was invoiced and whether it is paid - MISMO's own view only. */
@@ -5710,7 +5713,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         DocumentsRequested: "Send the application documents", UpdatesUnderReview: "Review the updates", AttestationSent: "Sign the attestation",
         AwaitingPayment: "Pay the invoice", AwaitingReviewSelection: "Pick a review date", ReviewScheduled: "Hold the review",
         AwaitingDemoSelection: "Book the demo", PreAssessmentDiscussion: "Hold the pre-assessment call", DemoProposed: "Confirm the demo date",
-        DemoScheduled: "Run the demo", AwaitingArtifacts: "Send the evidence", ArtifactReview: "Review the evidence",
+        DemoScheduled: "Run the demo", AwaitingArtifacts: "Follow up for the evidence", ArtifactReview: "Review the evidence",
         PrelimResultsSubmitted: "Decide on the results", PrelimQueryOpen: "Answer the question on the results", RemediationOpen: "Fix what did not pass",
         RemediationEscalated: "Follow up on the fixes", RemediationSubmitted: "Decide on the fixes", RemediationQueryOpen: "Answer the question on the fixes",
         ApprovedPendingLicense: "Mark License Agreement goes out by DocuSign", LicenseSent: "Sign the Mark License Agreement", AppealOpen: "Decide the appeal",
@@ -5930,7 +5933,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (view === "later") { var x = followUpOf(f) || {}; next = x.nextOn ? "Chase again " + fmt(x.nextOn) : "Chase again"; extra = x.reason || ""; }
         if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
         if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : ""; }
-        if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; }
+        if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; if (fuHeld(f)) { var ah = cycleHoldOf(f); next = "On hold" + (ah && ah.until ? ", back " + fmt(ah.until) : "") + " (" + next.toLowerCase() + ")"; } }
         return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st) };
     }
     var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "MISMO", system: "Automatic", later: "Chase later", hold: "On hold" };
@@ -12859,13 +12862,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     /* Whose move, from the certification's stage NOW (22 Nov 2026, Jonna: the firm cards said two were with the
        assessors while the Action Queue said none). f.waiting is the board's note from the original import and
        goes stale once a cycle moves; held and finished cycles are with nobody. Same rule as the Action Queue. */
+    /* 22 Nov 2026 (later, Jonna): a certification on hold at the assessor's step (evidence review) still counts as
+       with that firm, and waiting on the company's evidence is theirs to chase (waitOf). */
     function waitingOnAssessor(f) {
         if (!f) return false;
-        try { if (fuHeld(f)) return false; } catch (e) {}
         var st = currentState(f);
         if ([ "ApprovedPendingLicense", "LicenseSent", "Certified", "Canceled", "NotCertified", "ApplicationExpired" ].indexOf(st) >= 0) return false;
-        var q = progStage(f, st);
-        return /assessor/i.test(String((q && q.waiting) || (STATE[st] || {}).waiting || ""));
+        return /assessor/i.test(waitOf(f, st));
     }
     /* The firm a cycle is with, worked out the way the engagement files are (31 Oct 2026): one picked for
        the cycle, else the one set on the certification, else the board's. Viant Eye's own Product
@@ -12922,10 +12925,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         el.innerHTML = names.length ? '<div class="firms">' + names.map((function(n) {
             /* counted the way the firm's own portal counts its board (31 Oct 2026): a closed
                certification is off it, and so is a finished one the firm has invoiced for */
+            /* 22 Nov 2026 (Jonna): once only the Mark License Agreement is left, it is off the firm's board */
             var rows = firmOpen(n).filter((function(f) {
                 var st = currentState(f);
-                if ([ "Certified", "NotCertified", "Canceled", "ApplicationExpired" ].indexOf(st) >= 0) return false;
-                return !([ "ApprovedPendingLicense", "LicenseSent" ].indexOf(st) >= 0 && f.expense != null);
+                return [ "Certified", "NotCertified", "Canceled", "ApplicationExpired", "ApprovedPendingLicense", "LicenseSent" ].indexOf(st) < 0;
             }));
             var mine = rows.filter(waitingOnAssessor).length;
             var late = rows.filter((function(f) {
@@ -14012,7 +14015,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         return f.expense == null;
     }
     function showToFirm(f) {
-        return !doneForFirm(f) || unInvoiced(f);
+        return !doneForFirm(f);
     }
     function firmHasScripts(firm) {
         return firmPrograms(firm).some((function(pr) {
@@ -14023,10 +14026,10 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (asFirm === null) return;
         var mine = firmCycles(asFirm);
         var withMe = mine.filter((function(f) {
-            return f.waiting && f.waiting.indexOf("Assessor") >= 0;
+            return waitingOnAssessor(f) && !fuHeld(f);
         }));
         var others = mine.filter((function(f) {
-            return !(f.waiting && f.waiting.indexOf("Assessor") >= 0);
+            return !(waitingOnAssessor(f) && !fuHeld(f));
         })).filter(showToFirm);
         var AS_WORKED = ["AwaitingArtifacts", "ArtifactReview", "PrelimResultsSubmitted", "PrelimQueryOpen", "RemediationOpen", "RemediationEscalated", "RemediationSubmitted", "RemediationQueryOpen", "AppealOpen", "ScopeReviewVp", "ScopeReviewCompany", "ApprovedPendingLicense", "LicenseSent"];
         var asWorked = function(f) { return AS_WORKED.indexOf(currentState(f)) >= 0 || doneForFirm(f); };
