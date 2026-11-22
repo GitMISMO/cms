@@ -286,6 +286,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     <p class="sect-s">Decide here and everything after it follows on its own: the emails to the company and the assessor, the Mark License through DocuSign, and the next anniversary.</p>
     <div id="list"><div class="loading">Loading what is waiting&hellip;</div></div>
   </section>
+  <section class="pk-sec" id="sec-grace" style="--pkc:#e0a83c">
+    <h2 class="sect-t">Past 60 Days: Keep Following Up or Cancel? <span class="pk-n" id="gcnt">0</span></h2>
+    <p class="sect-s">Renewals still waiting on the company more than 60 days after the certification&rsquo;s anniversary, not on hold and not yet in the certification process. Keep Following Up keeps the reminders going and brings it back here in 30 days. Cancel closes the renewal as Application Expired, and its reminders stop.</p>
+    <div id="grace"></div>
+  </section>
   <section class="pk-sec" id="sec-done" style="--pkc:#4fc79b">
     <h2 class="sect-t">Decided Recently <span class="pk-n" id="dcnt">0</span></h2>
     <div id="recent"></div>
@@ -680,7 +685,113 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     R.appendChild(L);
     if (decs.length > shown.length) R.appendChild(h('div', { class: 'foot', style: 'margin-top:10px', text: 'The newest ' + shown.length + ' of ' + decs.length + '. Every one is in the CMS activity log.' }));
   }
+  /* ---- Past 60 days (Jonna, 22 Nov 2026: "anything that ... goes past the 60 day marker (with the exception of the
+     ones that are put on hold or are in the certification process), go to that section for him to make the decision on
+     keep following up or cancel") ---- */
+  var GRACE_DAYS = 60, KEEP_DAYS = 30;
+  var BEFORE_PROCESS = ['Draft', 'RenewalPrep', 'RenewalNoticed', 'UpdatesUnderReview', 'AttestationSent', 'DocumentsRequested', 'AgreementSent', 'AwaitingPayment'];
+  var EDITS = {}, GRACE = {}, PAUSED = [];
+  var graceDone = {};   /* row -> {what, at} decided on this visit */
+  function isoDay(d) { return d.toISOString().slice(0, 10); }
+  function addDaysIso(iso, n) { var d = new Date(String(iso).slice(0, 10) + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return isoDay(d); }
+  function daysApart(a, b) { return Math.round((Date.parse(String(b).slice(0, 10) + 'T12:00:00Z') - Date.parse(String(a).slice(0, 10) + 'T12:00:00Z')) / 864e5); }
+  function certOf(c) { return (P.certifications || []).filter(function (x) { return x.org === c.org && x.program === c.program && (x.product || null) === (c.product || null); })[0] || null; }
+  function slugKey(c) { return [c.org, c.program, c.product || ''].join('|').replace(/[^A-Za-z0-9_.~-]/g, '_'); }
+  function pastGrace() {
+    var today = isoDay(new Date());
+    return cyclesAll().filter(function (c) {
+      if (String(c.kind || '').toLowerCase() !== 'renewal') return false;
+      var st = current(c).state;
+      if (BEFORE_PROCESS.indexOf(st) < 0) return false;                       /* in the process, finished, closed or on hold */
+      if (PAUSED.indexOf(c.program) >= 0) return false;
+      var e = EDITS[slugKey(c)] || {}; if (e.hold) return false;
+      var ct = certOf(c); if (!ct || !ct.anniversary) return false;
+      if (daysApart(ct.anniversary, today) <= GRACE_DAYS) return false;
+      var g = GRACE[String(c.row)]; if (g && g.decision === 'keep' && g.until && g.until >= today && !graceDone[String(c.row)]) return false;
+      return true;
+    }).sort(function (a, b) { return String((certOf(a) || {}).anniversary).localeCompare(String((certOf(b) || {}).anniversary)); });
+  }
+  function graceCard(c) {
+    var row = String(c.row), ct = certOf(c) || {}, st = current(c).state, today = isoDay(new Date());
+    var past = daysApart(ct.anniversary, today), done = graceDone[row], g = GRACE[row];
+    var item = h('section', { class: 'item' + (done ? ' done' : ''), id: 'grace-' + row, style: done ? null : '--k:var(--bad)' });
+    item.appendChild(h('div', { class: 'ihead' },
+      h('div', { class: 'who' }, cmono(c.org), h('div', null, h('h2', { text: c.org }), h('div', { class: 'what', text: c.program + (c.product ? ' · ' + c.product : '') + ' · Renewal' + (c.renewalNumber ? ' ' + c.renewalNumber : '') }))),
+      h('div', { class: 'right' }, h('span', { class: 'chip warn', text: past + ' Days Past the Anniversary' }))));
+    var body = h('div', { class: 'ibody' });
+    body.appendChild(h('div', { class: 'facts' },
+      fact('Anniversary', longDate(ct.anniversary)),
+      fact('Stage', stateLabel(st)),
+      fact('Since', current(c).move.at ? longDate(new Date(current(c).move.at).toISOString()) : ''),
+      fact('Last Kept By', g && g.decision === 'keep' ? (g.by || '') + (g.at ? ', ' + longDate(g.at) : '') : '')));
+    if (g && g.decision === 'keep' && g.note) body.appendChild(h('div', { class: 'rbox' }, h('h3', { text: 'Note When It Was Last Kept' }), g.note));
+    item.appendChild(body);
+    if (done) { item.appendChild(h('div', { class: 'outcome' }, h('b', { text: done.what }))); return item; }
+    var strip = h('div', { class: 'dbar' }, h('div', { class: 'dl', text: 'Your Decision' }));
+    var ta = h('textarea', { id: 'g-' + row, rows: '2', placeholder: 'Why (needed to cancel; optional to keep following up)' });
+    strip.appendChild(h('div', { class: 'fld qnote' }, h('label', { for: ta.id, text: 'Note' }), ta));
+    var keep = h('button', { type: 'button', class: 'btn good', text: 'Keep Following Up', disabled: !canWrite });
+    var cancel = h('button', { type: 'button', class: 'btn bad', text: 'Cancel the Renewal', disabled: !canWrite });
+    keep.addEventListener('click', function () {
+      keep.disabled = cancel.disabled = true;
+      graceDecide(c, 'keep', ta.value.replace(/\s+$/, '')).catch(function (err) { toast(err.message, true); keep.disabled = cancel.disabled = !canWrite; });
+    });
+    cancel.addEventListener('click', function () {
+      var note = ta.value.replace(/\s+$/, '');
+      if (!note.trim()) { toast('Please write why in the note first; it goes on the record.', true); ta.focus(); return; }
+      if (!window.confirm('Cancel ' + c.org + '\u2019s ' + c.program + ' renewal? It closes as Application Expired and its reminders stop.')) return;
+      keep.disabled = cancel.disabled = true;
+      graceDecide(c, 'cancel', note).catch(function (err) { toast(err.message, true); keep.disabled = cancel.disabled = !canWrite; });
+    });
+    strip.appendChild(h('div', { class: 'acts' }, keep, cancel));
+    item.appendChild(strip);
+    return item;
+  }
+  function graceDecide(c, what, note) {
+    var row = String(c.row), at = new Date().toISOString(), today = isoDay(new Date()), until = addDaysIso(today, KEEP_DAYS), from = current(c).state;
+    var rec = { row: c.row, org: c.org, program: c.program, product: c.product || null, decision: what, note: note || null, by: me.name, at: at, until: what === 'keep' ? until : null };
+    var step = what === 'cancel'
+      ? readColl('db-cycle-state').then(function () {
+          return writeColl('db-cycle-state', function (docs) {
+            var now = (docs[row] && docs[row].state) || c.state;
+            if (now !== from) { from = now; return false; }
+            var keepDoc = docs[row] ? JSON.parse(JSON.stringify(docs[row])) : {};
+            ['state', 'reason', 'note', 'by', 'at', 'decidedOn'].forEach(function (k) { delete keepDoc[k]; });
+            keepDoc.state = 'ApplicationExpired'; keepDoc.reason = note; keepDoc.note = 'Canceled on My Approvals: past 60 days after the anniversary.';
+            keepDoc.by = me.name; keepDoc.at = at; keepDoc.decidedOn = 'My Approvals';
+            docs[row] = keepDoc;
+          });
+        }).then(function (ok) {
+          if (ok === false) throw new Error(c.org + ' has already moved to ' + stateLabel(from) + ', so nothing was changed.');
+          MOVES = COLL['db-cycle-state'].docs;
+        })
+      : Promise.resolve();
+    return step.then(function () { return readColl('db-grace-decisions'); }).then(function () {
+      return writeColl('db-grace-decisions', function (docs) { docs[row] = rec; });
+    }).then(function () {
+      GRACE = COLL['db-grace-decisions'].docs;
+      graceDone[row] = { what: what === 'keep' ? 'Kept. The reminders carry on, and it comes back here on ' + longDate(until) + '.' : 'Canceled. The renewal is closed as Application Expired and its reminders stop.', at: at };
+      logActivity(what === 'cancel'
+        ? { row: c.row, org: c.org, program: c.program, from: from, to: 'ApplicationExpired', reason: note, note: 'Canceled on My Approvals: past 60 days after the anniversary.', at: at, by: me.name, kind: 'move' }
+        : { row: c.row, org: c.org, program: c.program, from: '', to: '', reason: null, note: 'Kept following up on My Approvals (past 60 days after the anniversary) until ' + longDate(until) + (note ? ': ' + note : '.'), at: at, by: me.name, kind: 'note' });
+      toast(c.org + ': ' + graceDone[row].what);
+      render();
+    });
+  }
+  function renderGrace() {
+    var box = $('grace'); if (!box) return;
+    box.textContent = '';
+    var list = pastGrace();
+    Object.keys(graceDone).forEach(function (r) { if (!list.some(function (c) { return String(c.row) === r; })) { var c = cyclesAll().filter(function (x) { return String(x.row) === r; })[0]; if (c) list.push(c); } });
+    var open = list.filter(function (c) { return !graceDone[String(c.row)]; }).length;
+    $('gcnt').textContent = String(open); $('gcnt').className = 'pk-n' + (open ? ' hot' : '');
+    if (!list.length) { box.appendChild(h('div', { class: 'empty' }, h('b', { text: 'Nothing is past 60 days.' }), 'A renewal still waiting on the company 60 days after its anniversary appears here for a decision.')); return; }
+    var items = h('div', { class: 'items' });
+    list.forEach(function (c) { items.appendChild(graceCard(c)); });
+    box.appendChild(items);
+  }
   function render() {
+    renderGrace();
     var list = $('list'); list.textContent = '';
     var w = waiting();
     var shown = w.slice();
@@ -721,11 +832,14 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     return Promise.all([
       call('GET', '/file/portal-data.json').then(function (r) { if (r.status !== 200 || !r.json.content) throw new Error('portal-data.json could not be read (' + (r.json.error || r.status) + ')'); return JSON.parse(fromBase64(r.json.content)); }),
       readColl('db-cycle-state'), readColl('db-assessor-findings'),
+      /* for Past 60 Days: holds, earlier keep decisions, and the paused programs; the page works without them */
+      readColl('db-cert-edits').catch(function () { return { docs: {} }; }), readColl('db-grace-decisions').catch(function () { return { docs: {} }; }),
+      call('GET', '/file/data/stage-notices.json').then(function (r) { try { return JSON.parse(fromBase64(r.json.content)).pausedPrograms || []; } catch (e) { return []; } }).catch(function () { return []; }),
       /* the activity log, read only for Decided This Month and Decided Recently: the page works without it */
       readColl('db-activity').catch(function () { return { docs: {} }; })
     ]);
   }).then(function (res) {
-    P = res[0]; MOVES = res[1].docs; FIND = res[2].docs;
+    P = res[0]; MOVES = res[1].docs; FIND = res[2].docs; EDITS = res[3].docs || {}; GRACE = res[4].docs || {}; PAUSED = res[5] || [];
     (P.states || []).forEach(function (s) { LABEL[s.state] = s.label; LEGAL[s.state] = s.next || []; });
     if (!canWrite) $('note').appendChild(h('div', { class: 'banner' }, h('b', { text: 'View only. ' }), 'You can see everything waiting here. Deciding needs Edit access to the Certification Management System.'));
     renderRules(); render();
