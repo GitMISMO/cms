@@ -1,0 +1,31 @@
+# CMS: Change Log
+
+One line for each change people would notice, newest first. Add a line here with every change to the CMS.
+Earlier changes are in the repository's commit history.
+
+## November 2026
+
+- **Nov 22:** Changes go live only after every check passes ("Checks and Publish"); a change that fails a check is not published.
+- **Nov 22:** Action Queue tiles list who is in each (up to three, then See All), every row the same two lines; Prospects show their last program and since when; a company on hold in several programs shows each program.
+- **Nov 22:** The FRAME brief moved to Assessor Portal > MISMO > FRAME Practical Exercises, with the four products and who holds each; on Programs it shows only for FRAME.
+- **Nov 22:** Programs and Lifecycle are one page, with a How It All Connects line; each stage's "here" count lists who is there (hover or click).
+- **Nov 22:** Runs Itself lists what goes out by itself and when.
+- **Nov 22:** FRAME exercise assignments, scores, reviews and questions save where the CMS reads them.
+- **Nov 22:** Assessor invoices a firm took back no longer count as invoiced on Certification Completions.
+- **Nov 21:** Needs You: Contacts Are Right clears a company card until four more reminders go unanswered; renewal notices count as reminders.
+- **Nov 21:** With the Assessor counts evidence follow-ups and holds at the assessor's step; the Mark License stage leaves firm boards.
+- **Nov 21:** Anniversary countdown tile no longer flickers on load.
+- **Nov 21:** My Approvals: Past 60 Days, to keep following up or cancel a renewal.
+- **Nov 21:** Company follow-ups wait in Needs You after four unanswered reminders or within 30 days of the anniversary, with the addresses used.
+- **Nov 21:** Application agreements: the record shows the signed date and copy; Send an Agreement Reminder for unsigned ones.
+- **Nov 21:** Consultant Scorecards page, the same view the company sees, with tools to adjust it.
+- **Nov 21:** Start Before Payment moves an unpaid first certification on without waiting.
+- **Nov 21:** Each certification has its Company Portal; All Portals shows the live portals with Initial and Renewal examples.
+- **Nov 21:** Chase Later and Raise an Invoice tiles on the Action Queue; Raise the Application Invoice for new applications.
+- **Nov 21:** Email Playbook: Approve This Email on held emails; Invoices and Reminders group first.
+- **Nov 21:** Certification Completions is a view inside the CMS (Records and Reporting).
+- **Nov 20:** Update Their mismo.org Listing is one press: Approve and Publish.
+- **Nov 20:** CMSP & AMSP: one program at a time, guided tours for new and renewing CMSPs and AMSPs, and a Help tab.
+- **Nov 19:** Website Card: Publish to mismo.org. Follow Up cards: Send a Payment Reminder and Send a Booking Reminder.
+- **Nov 18:** A read-only copy of each assessor firm's invoices feeds Certification Completions.
+- **Nov 16:** Renewals: In Progress list with Download for Excel.

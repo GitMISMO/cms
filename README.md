@@ -139,12 +139,18 @@ Every change is checked before anyone relies on it (`.github/workflows/checks.ym
 The company-name check, and the full click-through with the real records, run in `cms-data`
 (private), because the company list cannot be written down here.
 
+Add a line to `CHANGELOG.md` for every change people would notice.
+
 Commit the page first and the records second when the records bring a key the page has not seen
 before, so the page is ready for them.
 
 ## Settings this page depends on
 
-- **Pages**: Settings → Pages → Deploy from a branch → `main` → `/ (root)`
+- **Pages**: Settings → Pages → Source: **GitHub Actions** (since 22 Nov 2026). The **Checks and
+  Publish** workflow (`.github/workflows/checks.yml`) publishes `main` only after every check passes;
+  a change that fails a check is not published and the page stays as it was. It takes a few minutes
+  longer than branch publishing did. Do not switch the source back to "Deploy from a branch", which
+  would publish every commit whether it passes or not.
 - **Custom domain**: inherited from the organization's `resources.mismo.org`. Nothing to set
   here, and no DNS change for this one.
 
