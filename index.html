@@ -5686,7 +5686,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var i = null, exp = null;
         try { i = invoiceOf(f); } catch (e) {}
         var ap = i && i.orderId ? aptifyOrder(i.orderId) : null;
-        if (ap && i) i = Object.assign({}, i, { paid: ap.balance <= 0.005, amount: i.amount != null ? i.amount : ap.total, invoicedOn: i.invoicedOn || ap.orderDate });
+        /* MISMO Money's payment record wins over the hand-saved Aptify snapshot, which is only as new as its last
+           check (22 Nov 2026: a renewal paid on Nov 18 still showed the Nov 5 snapshot's balance) */
+        var fp0 = i && i.orderId ? fsPaid(orderIdOf(i.orderId)) : null;
+        if (ap && i) i = Object.assign({}, i, { paid: !!fp0 || !!i.paid || ap.balance <= 0.005, amount: i.amount != null ? i.amount : ap.total, invoicedOn: i.invoicedOn || ap.orderDate });
+        if (fp0 && i && !i.paid) i = Object.assign({}, i, { paid: true });
+        if (fp0 && i && !i.paidOn) i = Object.assign({}, i, { paidOn: fp0.lastPaidOn || fp0.firstPaidOn || fp0.paidOn || null });
         if (i && i.amount != null) return (i.paid ? "Paid " + money0(i.amount) + (i.paidOn ? " on " + fmt(i.paidOn) : "") : "Invoiced " + money0(i.amount) + (i.invoicedOn ? " on " + fmt(i.invoicedOn) : "") + ", not paid yet");
         if (i && i.orderId) return i.paid ? "Paid (order " + i.orderId + ")" : "Invoiced (order " + i.orderId + "), not paid yet";
         try { exp = expectedFor({ program: f.program, kind: f.kind || "initial", size: f.size || null, org: f.org }); } catch (e) {}
@@ -8016,13 +8021,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             byOrder[order] = e;
         }));
         out.forEach((function(e) { if (e.order && e.paid < e.billed) { var fp = fsPaid(e.order); if (fp) e.paid = e.billed; } }));
-        /* Aptify's own figures win: balance 0 is paid in full; a balance still owed is unpaid by that much */
+        /* Aptify's own figures: balance 0 is paid in full; a balance still owed is unpaid by that much, unless MISMO Money has a payment since */
         var AO = aptifyOrders && aptifyOrders.orders || {};
         out.forEach((function(e) {
             var a = e.order ? AO[String(e.order)] : null;
             if (!a) return;
             e.aptify = a;
             if (a.balance <= 0.005) e.paid = e.billed;
+            /* a payment MISMO Money has recorded since the snapshot was taken still counts (22 Nov 2026) */
+            else if (fsPaid(e.order)) e.paid = e.billed;
             else if (a.total) e.paid = Math.max(0, Math.min(e.billed, e.billed - a.balance * (e.billed / a.total)));
             if (a.type === "Quotation" && a.orderDate) e.on = a.orderDate;
         }));
@@ -8042,7 +8049,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var i = null; try { i = invoiceOf(f); } catch (e) {}
             var order = i && i.orderId ? orderIdOf(i.orderId) : null;
             var ap = aptifyOrder(order);
-            var paid = ap ? ap.balance <= 0.005 : !!(i && i.paid) || settled(f) || !!(order && fsPaid(order));
+            var paid = (ap && ap.balance <= 0.005) || !!(i && i.paid) || settled(f) || !!(order && fsPaid(order));
             if (paid) return;
             var pre = !!RV_PREPAY[st] && (f.kind || "initial") === "initial";
             if (!pre && !(i && (i.orderId || i.amount))) return;
