@@ -2429,6 +2429,9 @@
   .tqt-row b{flex:0 1 auto; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tqt-row i{flex:1 1 auto; font-style:normal; color:rgba(255,255,255,.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tqt-row em{flex:0 0 auto; font-style:normal; font-weight:700; color:var(--k);}
+  /* a narrow tile: name on one line, what happens on the next, nothing cut off (Runs Itself, 22 Nov 2026) */
+  .tqt-list.stk .tqt-row{display:block; line-height:1.3;}
+  .tqt-list.stk .tqt-row b, .tqt-list.stk .tqt-row i{display:block; white-space:normal;}
   .tqt-ep{display:flex; flex-direction:column; gap:2px; min-width:0;}
   .tqt-ep b{font-size:17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tqt-ep small{font-size:12px; color:rgba(255,255,255,.7);}
@@ -2538,6 +2541,12 @@
     background:var(--surface-3); color:var(--ink-2); font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:0; text-transform:none;}
   .pk-n.hot{background:rgba(179,55,44,.12); color:var(--bad);}
   .pk-n.warm{background:rgba(224,168,60,.18); color:var(--warn);}
+  button.pk-here{border:0; font:inherit; font-weight:700; cursor:pointer;}
+  button.pk-here:hover, button.pk-here[aria-expanded="true"]{background:rgba(224,168,60,.32);}
+  .pk-herel{display:flex; flex-direction:column; gap:4px; margin:8px 0 4px;}
+  .pk-hererow{display:flex; flex-direction:column; align-items:flex-start; gap:1px; text-align:left; padding:6px 9px; border:1px solid var(--line); border-left:3px solid var(--k); border-radius:5px; background:var(--card, transparent); color:inherit; font:inherit; cursor:pointer;}
+  .pk-hererow:hover{border-color:var(--k);}
+  .pk-hererow b{font-size:13px;} .pk-hererow small{font-size:11.5px; color:var(--muted, #6b7f90);}
   .phead h2{font-size:20px; letter-spacing:-.015em;}
 
   /* every list of rows: cards with a monogram, a lift on hover, an accent when something is late */
@@ -5864,7 +5873,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 if (ap) bits.push(ap + " on My Approvals");
                 return tile("jonathan", "With MISMO", big(L.jonathan.length) + '<span class="tqt-sub">' + esc(bits.length ? bits.join(" · ") : "Nothing waiting on MISMO") + '</span><span class="tqt-list">' + mini(L.jonathan, 2) + "</span>");
             })()
-            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "goes out by itself, nothing to do" : "nothing waiting on the system") + '</span><span class="tqt-list">' + mini(L.system.map((function(x) { return Object.assign({}, x, { days: null }); })), 3) + "</span>")
+            + tile("system", "Runs Itself", big(L.system.length) + '<span class="tqt-sub">' + (L.system.length ? "nothing to do" : "nothing waiting") + '</span><span class="tqt-list stk">' + mini(L.system.map((function(x) { return Object.assign({}, x, { days: null, next: x.short || x.next }); })), 3) + "</span>")
             + tile("later", "Chase Later", big(L.later.length) + '<span class="tqt-sub">' + esc(sub.later) + "</span>", { cls: "sm" })
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>", { cls: "sm" })
             + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>", { cls: "sm" })
@@ -5945,12 +5954,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             ((D.notices && D.notices.notices) || []).filter((function(n) { return n.offsetDays != null; })).sort((function(a, b) { return a.offsetDays - b.offsetDays; })).forEach((function(n) {
                 var on = rc && rc.anniversary ? addDays(String(rc.anniversary).slice(0, 10), n.offsetDays) : null;
                 if (!on0 && on && on >= today0) on0 = on; }));
-            if (on0) { next = "Renewal notice goes " + sendDayText(on0 + "T12:00:00-05:00"); extra = extra || "sent by the system"; }
+            if (on0) { next = "Renewal notice goes " + sendDayText(on0 + "T12:00:00-05:00"); extra = extra || "sent by the system";
+                var sd0 = sendDayIso(on0 + "T12:00:00-05:00"); var short0 = "Notice " + new Date(sd0 + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }); }
         } catch (e) {} }
         if (view === "system" && st === "ApprovedPendingLicense") { var c = certFor(f), L = c ? licOf(c) : null; if (L) extra = "Mark License: " + String(LIC_SAID[L.status] || L.status || "").toLowerCase(); }
         if (view === "hold") { var h = cycleHoldOf(f); next = "On hold" + (h && h.at ? " since " + fmt(String(h.at).slice(0, 10)) : "") + (h && h.until ? ", back " + fmt(h.until) : ""); extra = h ? [h.reason, h.firm ? "asked by " + h.firm : ""].filter(Boolean).join(" \u00b7 ") : ""; }
         if (view === "assessor") { var a = tdAssessorOf(f); if (a) extra = a; if (fuHeld(f)) { var ah = cycleHoldOf(f); next = "On hold" + (ah && ah.until ? ", back " + fmt(ah.until) : "") + " (" + next.toLowerCase() + ")"; } }
-        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st) };
+        return { f: f, org: f.org || "", prog: f.program || "", days: fuDaysInState(f), next: next, extra: extra, stage: stateLabelOf(f, st), short: typeof short0 !== "undefined" ? short0 : (view === "system" && st === "ApprovedPendingLicense" ? "Mark License by DocuSign" : null) };
     }
     var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "MISMO", system: "Automatic", later: "Chase later", hold: "On hold" };
     /* ---- The certification journey (31 Oct 2026, Jonna: give the CMS the Assessor Portal's treatment).
@@ -12281,14 +12291,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var host = $("lcgrid");
         if (!host) return;
         if (!pkLc) pkLc = { stop: -1, who: "all", focus: "" };
-        var here = {};
-        (D.inFlight || []).forEach((function(f) { if (f && !fuClosed(f)) { var st = currentState(f); here[st] = (here[st] || 0) + 1; } }));
+        var here = {}, hereWho = {};
+        (D.inFlight || []).forEach((function(f) { if (f && !fuClosed(f)) { var st = currentState(f); here[st] = (here[st] || 0) + 1; (hereWho[st] = hereWho[st] || []).push(f); } }));
+        /* who is "here" (22 Nov 2026, Jonna: "if it says 1 here, i'd like to be able either hover over or click on to see who the 1 is"):
+           the names on hover, and a click lists them on the card, each opening its record */
+        var whoTip = function(list) { return (list || []).map((function(f) { return f.org + " (" + f.program + (f.kind === "renewal" ? " renewal" : "") + ")"; })).sort().join("\n"); };
         var stopOf = function(st) { for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return -1; };
         var WHO = { mismo: [ "MISMO", "#74bfeb" ], company: [ "The Company", "#e0a83c" ], assessor: [ "The Assessor", "#9b8cff" ], closed: [ "Closed", "#9aa9b6" ] };
         var map = '<div class="pk-lcmap"><button type="button" class="pk-lcs' + (pkLc.stop < 0 ? " on" : "") + '" data-pklcstop="-1"><b>All</b><small>' + D.states.length + " states</small></button>"
             + CJ.map((function(c, i) {
                 var n = c.s.reduce((function(t, st) { return t + (here[st] || 0); }), 0);
-                return '<span class="pk-lcar"></span><button type="button" class="pk-lcs' + (pkLc.stop === i ? " on" : "") + '" data-pklcstop="' + i + '"><span class="pk-lcn">' + (i + 1) + "</span><b>" + esc(c.t) + "</b><small>" + esc(c.who) + "</small>" + (n ? "<em>" + n + " here now</em>" : "") + "</button>";
+                var tip = whoTip([].concat.apply([], c.s.map((function(st) { return hereWho[st] || []; }))));
+                return '<span class="pk-lcar"></span><button type="button" class="pk-lcs' + (pkLc.stop === i ? " on" : "") + '" data-pklcstop="' + i + '"' + (tip ? ' title="' + esc(tip) + '"' : "") + '><span class="pk-lcn">' + (i + 1) + "</span><b>" + esc(c.t) + "</b><small>" + esc(c.who) + "</small>" + (n ? "<em>" + n + " here now</em>" : "") + "</button>";
             })).join("") + "</div>";
         var cnt = { all: 0 };
         D.states.forEach((function(s) { if (pkLc.stop >= 0 && stopOf(s.state) !== pkLc.stop) return; cnt.all++; var w = pkLcWho(s); cnt[w] = (cnt[w] || 0) + 1; }));
@@ -12297,13 +12311,16 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var list = D.states.filter((function(s) { return (pkLc.stop < 0 || stopOf(s.state) === pkLc.stop) && (pkLc.who === "all" || pkLcWho(s) === pkLc.who); }));
         host.innerHTML = map + who + '<div class="pk-lcg">' + (list.length ? list.map((function(s) {
             var w = pkLcWho(s), n = here[s.state] || 0;
-            return '<div class="pk-lcc' + (pkLc.focus === s.state ? " focus" : "") + '" id="pklc-' + esc(s.state) + '" style="--k:' + WHO[w][1] + '"><div class="pk-lch"><b>' + esc(titleOfState(s.state)) + "</b>" + (n ? '<span class="pk-n warm">' + n + " here</span>" : "") + "</div>"
+            return '<div class="pk-lcc' + (pkLc.focus === s.state ? " focus" : "") + '" id="pklc-' + esc(s.state) + '" style="--k:' + WHO[w][1] + '"><div class="pk-lch"><b>' + esc(titleOfState(s.state)) + "</b>" + (n ? '<button type="button" class="pk-n warm pk-here" data-pklchere="' + esc(s.state) + '" title="' + esc(whoTip(hereWho[s.state])) + '" aria-expanded="' + (pkLc.open === s.state) + '">' + n + " here</button>" : "") + "</div>"
+                + (n && pkLc.open === s.state ? '<div class="pk-herel">' + hereWho[s.state].slice().sort((function(a, b) { return String(a.org).localeCompare(String(b.org)); })).map((function(f) {
+                    return '<button type="button" class="pk-hererow" data-pkrow="' + esc(String(f.row)) + '"><b>' + esc(f.org) + "</b><small>" + esc(f.program + (f.product ? " · " + f.product : "") + (f.kind === "renewal" ? " · renewal" : " · initial")) + "</small></button>"; })).join("") + "</div>" : "")
                 + '<div class="pk-lcm"><span class="pk-lcwho">' + WHO[w][0] + (w === "closed" ? "" : "&rsquo;s move") + "</span> · " + esc(s.status) + " · " + esc(s.phase) + "</div>"
                 + (s.next.length ? '<div class="pk-lcnx"><small>Can move to</small>' + s.next.map((function(t) { return '<button type="button" class="pk-lcto" data-pklcto="' + esc(t) + '">' + esc(titleOfState(t)) + "</button>"; })).join("") + "</div>" : '<div class="pk-lcnx"><small>The end of the road</small></div>') + "</div>";
         })).join("") : '<div class="empty">No state matches. <button type="button" class="lc-btn ghost" data-pklcwho="all">Show Everyone</button></div>') + "</div>";
     }
     document.addEventListener("click", (function(e) {
-        var t = e.target && e.target.closest ? e.target.closest("[data-pklcstop],[data-pklcwho],[data-pklcto]") : null;
+        var t = e.target && e.target.closest ? e.target.closest("[data-pklcstop],[data-pklcwho],[data-pklcto],[data-pklchere]") : null;
+        if (t && t.hasAttribute("data-pklchere")) { var hs = t.getAttribute("data-pklchere"); pkLc.open = pkLc.open === hs ? "" : hs; pkLifecycle(); return; }
         if (!t) return;
         if (t.hasAttribute("data-pklcstop")) { pkLc.stop = +t.getAttribute("data-pklcstop"); pkLc.focus = ""; }
         if (t.hasAttribute("data-pklcwho")) pkLc.who = t.getAttribute("data-pklcwho");
