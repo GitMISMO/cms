@@ -6523,9 +6523,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (after && String(after) > since) since = String(after);
         var sent = (tdCoSent[String(f.row)] || []).filter((function(x) { return (!x.state || x.state === st) && x.at >= since; }));
         (noticeLog || []).forEach((function(x) {
-            if (!x || String(x.notice) !== "11" || String(x.sentAt || "") < since) return;
+            /* every renewal notice counts, 01-10 as well as the 11 payment reminder (22 Nov 2026: a company sent three
+               notices showed "no reminder has reached them") */
+            if (!x || !/^(0[1-9]|1[01])$/.test(String(x.notice)) || String(x.sentAt || "") < since) return;
             if (x.row != null ? String(x.row) !== String(f.row) : !(x.org === f.org && x.program === f.program)) return;
-            sent.push({ t: "renewal-payment", at: String(x.sentAt), to: coAddrs(x.sentTo || x.to || x.recipients) });
+            sent.push({ t: String(x.notice) === "11" ? "renewal-payment" : "renewal-notice", at: String(x.sentAt), to: coAddrs(x.sentTo || x.to || x.recipients) });
         }));
         /* an assessor firm is copied on some of these, and its addresses turn up on many companies' emails: an email
            domain seen for two or more companies is left off, unless it is this company's own (its name in the domain) */
