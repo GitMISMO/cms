@@ -4575,7 +4575,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        renewal number). The CMS keeps a read-only copy in its own record (data/db-assessor-invoices.json, doc
        "latest") so the Certification Completions job can show the number beside each certification. Read with
        the signed-in person's own access, at most every two hours; a firm this person cannot read keeps the
-       copy it had. Nothing in Service Orders is ever changed from here. */
+       copy it had. Nothing in Service Orders is ever changed from here. Contractor HQ (Service Orders
+       until 22 Nov 2026) marks an invoice the firm pulled back as state "takenback"; it bills nothing. */
     var AS_INV_FIRMS = [ [ "Falcon", "falcon" ], [ "Actualize", "actualize" ], [ "Viant Eye", "vianteye" ] ];
     var asInvKept = null, asInvBusy = false, asInvDone = false;
     function asInvSync() {
@@ -4595,7 +4596,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                         var raw = j && j.content ? decodeURIComponent(escape(atob(String(j.content).replace(/\s/g, "")))) : null;
                         var d = raw ? JSON.parse(raw) : (j && j.data) || {};
                         readAny = true;
-                        firms[f[0]] = { slug: f[1], invoices: (d.invoices || []).filter((function(iv) { return iv && iv.number && iv.state !== "withdrawn"; })).map((function(iv) {
+                        firms[f[0]] = { slug: f[1], invoices: (d.invoices || []).filter((function(iv) { return iv && iv.number && iv.state !== "withdrawn" && iv.state !== "takenback"; })).map((function(iv) {
                             return { number: String(iv.number), date: iv.date || null, period: iv.period || null, state: iv.state || null, total: iv.total != null ? iv.total : null,
                                 reviews: (iv.reviews || []).map((function(x) { return { row: x.row != null ? x.row : null, kind: x.kind || null, renewalNumber: x.renewalNumber || null,
                                     org: x.org || null, program: x.program || null, product: x.product || null, fee: x.fee != null ? x.fee : null }; })) };
