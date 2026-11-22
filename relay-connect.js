@@ -547,10 +547,11 @@
     { label: 'Tracking', items: ['activity', 'emails'] },
     /* Forms left the nav (Jonna, 21 Nov 2026: "remove forms, it won't be needed anymore"): the applications are on
        Portals and the certification scripts are built automatically in the Assessor Portal. The view itself is kept. */
-    { label: 'Setup', items: ['programs', 'pricing', 'lifecycle', 'playbook'] },
+    /* Lifecycle joined Programs (22 Nov 2026, Jonna: "programs and lifecycle, they're together and the same") */
+    { label: 'Setup', items: ['programs', 'pricing', 'playbook'] },
     { label: 'Help', items: ['help'] }
   ];
-  var HIDDEN = ['forms'];   /* the Migration screen ('load') was removed, 8 Nov 2026; Forms left the nav 21 Nov 2026 */
+  var HIDDEN = ['forms', 'lifecycle'];   /* the Migration screen ('load') was removed, 8 Nov 2026; Forms left the nav 21 Nov 2026 */
   var EMBEDS = {
     approvals: { src: 'approvals.html?embed=1', label: 'My Approvals', title: 'Results waiting for a VP decision',
       icon: '<path d="M12 3.2 19.5 6v5.6c0 4.5-3.1 8.1-7.5 9.2-4.4-1.1-7.5-4.7-7.5-9.2V6Z"/><path d="m8.6 12.2 2.4 2.4 4.6-4.8"/>' },

@@ -2975,6 +2975,40 @@ body.as-firm #mast-firm, body.as-firm #money-sync{display:none !important;}
   /* Lifecycle */
   #lcgrid.lcgrid{display:block;}
   .pk-lcmap{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding:2px 2px 8px; margin-bottom:12px;}
+  /* How It All Connects: the MMS line (22 Nov 2026) */
+  .lcm-h{display:flex; align-items:flex-start; justify-content:space-between; gap:14px 24px; flex-wrap:wrap; margin-bottom:14px;}
+  .lcm-h h2{margin:0 0 4px;} .lcm-h .psub{margin:0; max-width:62ch;}
+  .lcm-progs{display:flex; flex-wrap:wrap; gap:4px;}
+  .lcm-progs button{border:1px solid var(--border); background:var(--surface); color:var(--ink-2); font:inherit; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:5px; cursor:pointer;}
+  .lcm-progs button[aria-pressed="true"]{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .lcm{position:relative; margin:4px 0 18px; padding:14px 6px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2);}
+  .lcm-row{position:relative; display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); align-items:start;}
+  .lcm-tr{position:absolute; top:28px; height:4px; margin-top:-2px; border-radius:2px; z-index:0; pointer-events:none;
+    background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--sky) 85%,transparent) 0 10px,transparent 10px 24px),var(--surface-3); background-size:24px 100%,auto; animation:lcmflow 1.6s linear infinite;}
+  @keyframes lcmflow{to{background-position:24px 0,0 0;}}
+  @media (prefers-reduced-motion:reduce){ .lcm-tr{animation:none;} }
+  .lcm-n{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none; padding:0 3px 4px; cursor:pointer; color:var(--ink); text-align:center; min-width:0; font:inherit;}
+  .lcm-n:hover, .lcm-n:focus-visible{z-index:60;}
+  .lcm-dot{height:56px; width:100%; display:flex; align-items:center; justify-content:center;}
+  .lcm-dot b{width:var(--sz); height:var(--sz); border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--surface); border:3px solid var(--sc); font-size:13.5px; font-weight:700; color:var(--ink); box-shadow:0 2px 6px rgba(13,49,76,.14); transition:transform .2s cubic-bezier(.2,.7,.2,1), background .2s;}
+  .lcm-n.z .lcm-dot b{border-color:var(--border-strong); color:var(--ink-3); font-weight:600; font-size:11px; background:var(--surface-2); box-shadow:none;}
+  .lcm-n:hover .lcm-dot b, .lcm-n:focus-visible .lcm-dot b{transform:scale(1.14);}
+  .lcm-n.on .lcm-dot b{background:var(--sc); color:#fff; border-color:var(--sc); box-shadow:0 0 0 5px color-mix(in srgb,var(--sc) 25%,transparent);}
+  .lcm-l{font-size:12px; font-weight:600; line-height:1.25; max-width:100%;}
+  .lcm-n.on .lcm-l{color:var(--navy-mid);}
+  .lcm-o{font-size:10.5px; color:var(--ink-3); line-height:1.25; max-width:100%;}
+  .lcm-tip{display:none; position:absolute; top:calc(100% - 4px); left:50%; transform:translateX(-50%); width:240px; z-index:40; background:var(--navy); color:#fff; border-radius:8px; padding:10px 12px; text-align:left; flex-direction:column; gap:3px; box-shadow:0 10px 30px rgba(6,32,47,.35); font-size:12px; line-height:1.4; pointer-events:none;}
+  .lcm-tip b{font-size:13px;} .lcm-tip em{font-style:normal; color:var(--sky); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;}
+  .lcm-tip span{color:#d6e7f3;} .lcm-tip .lcm-tf{color:#fff; font-weight:600; margin-top:3px; padding-top:5px; border-top:1px solid rgba(255,255,255,.18);}
+  .lcm-tip .lcm-tn{color:#fff; font-size:11.5px;} .lcm-tip .lcm-tn i{font-style:normal; color:#9fc3dc;}
+  .lcm-n:hover .lcm-tip, .lcm-n:focus-visible .lcm-tip{display:flex;}
+  .lcm-n:nth-of-type(1) .lcm-tip{left:0; transform:none;} .lcm-n:nth-last-of-type(1) .lcm-tip{left:auto; right:0; transform:none;}
+  .lcm-ph{display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); margin-top:8px;}
+  .lcm-ph span{margin:0 5px; border-top:3px solid var(--lc); padding-top:4px; font-size:10px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:var(--ink-3); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lcm-foot{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:10px; padding:10px 8px 0; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-2);}
+  .lcm-foot .lc-btn{margin-left:auto;}
+  @media(max-width:900px){ .lcm-row{grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); row-gap:8px;} .lcm-tr, .lcm-ph{display:none;} }
+  @media(max-width:760px){ .lcm-tip{display:none!important;} }
   .pk-lcs{flex:1 1 0; min-width:118px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-align:left; padding:12px; border:1px solid var(--border);
     border-top:3px solid var(--sky); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; transition:transform .14s, box-shadow .14s;}
   .pk-lcs:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(6,32,47,.1);}
@@ -3182,7 +3216,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
       </div>
       <div class="navgroup" aria-labelledby="navlbl-program-setup">
         <div class="navlbl" id="navlbl-program-setup">Program Setup</div>
-        <button class="navlink" data-view="programs" type="button" title="Programs"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8.5 4.4L12 11.8 3.5 7.4 12 3Z"/><path d="m3.5 12.2 8.5 4.4 8.5-4.4"/><path d="m3.5 16.9 8.5 4.4 8.5-4.4"/></svg></span><span class="nl">Programs</span></button>
+        <button class="navlink" data-view="programs" type="button" title="Programs and Lifecycle"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8.5 4.4L12 11.8 3.5 7.4 12 3Z"/><path d="m3.5 12.2 8.5 4.4 8.5-4.4"/><path d="m3.5 16.9 8.5 4.4 8.5-4.4"/></svg></span><span class="nl">Programs and Lifecycle</span></button>
         <button class="navlink" data-view="forms" type="button" title="Application Forms and Questionnaires"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8.5L19 8v12.5H6Z"/><path d="M14 3.5V8h5"/><path d="M9 12.5h7M9 16h5"/></svg></span><span class="nl">Forms</span></button>
         <button class="navlink" data-view="lifecycle" type="button" title="Lifecycle"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.5" cy="6.5" r="2.6"/><circle cx="17.5" cy="17.5" r="2.6"/><path d="M6.5 9.1v5.2a3.2 3.2 0 0 0 3.2 3.2h5.2"/><path d="M9.1 6.5h5.2a3.2 3.2 0 0 1 3.2 3.2v5.2"/></svg></span><span class="nl">Lifecycle</span></button>
       </div>
@@ -3391,6 +3425,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 
   <!-- ================= PROGRAMMES ================= -->
   <section class="view" id="view-programs">
+    <div class="panel lcm-panel">
+      <div class="lcm-h"><div><h2>How It All Connects</h2>
+        <p class="psub">Every certification travels the same line. Hover a stop for what happens there and who is at it; click it for every state at that stop, who has the move and where it can go next.</p></div>
+        <div class="seg lcm-progs" id="lcm-progs"></div></div>
+      <div class="lcgrid" id="lcgrid"></div>
+    </div>
     <div class="panel">
       <div class="phead"><div>
         <h2>Certification Programs</h2>
@@ -3606,20 +3646,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
   
 
   <!-- ================= LIFECYCLE ================= -->
-  <section class="view" id="view-lifecycle">
-    <div class="panel">
-      <div class="phead"><div>
-        <h2>The Certification Lifecycle</h2>
-        <p class="psub">Every state a cycle can be in, what each one shows as Status, Phase and Waiting-On,
-          and which states it may legally move to. This is the same table the system enforces, so the board
-          and the rules cannot drift apart. It is also where the assessment process gets configured as the
-          assessor side is built out.</p>
-      </div></div>
-      <div class="lcgrid" id="lcgrid"></div>
-    </div>
-
-
-  </section>
+  <!-- Lifecycle now lives on the Programs page (22 Nov 2026, Jonna: "programs and lifecycle, they're together and the same") -->
+  <section class="view" id="view-lifecycle"></section>
 
   <!-- ================= ACTIVITY ================= -->
   <section class="view" id="view-activity">
@@ -11856,7 +11884,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (view === "programs") {
             var liveP = P.filter((function(p) { return p.status === "Live"; })), ready = P.filter((function(p) { return p.status === "Configured"; })), todo = P.filter((function(p) { return p.status !== "Live" && p.status !== "Configured"; }));
             var demo = P.filter((function(p) { return p.demo; })).length;
-            html = pkHero({ title: "Programs", say: "The process is the same for every program: apply, agree, pay, be assessed, remediate, be decided on, renew. What differs is set here: the documents asked for, whether there is a demonstration, and how long the term and grace are." })
+            html = pkHero({ title: "Programs and Lifecycle", say: "Every program follows the same line: apply, agree, pay, be assessed, remediate, be decided on, renew. Below is that line with who is at each stop today, then what differs by program: the documents asked for, whether there is a demonstration, and how long the term and grace are." })
                 + pkBoard([
                     { lab: "Certifying Today", n: liveP.length, k: "#3ccb7f", attr: 'data-pkpgst="Live"', on: pkPg && pkPg.st === "Live", sub: liveP.map((function(p) { return p.code || p.name; })).join(" · ") },
                     { lab: "Set Up, Not Certifying Yet", n: ready.length, k: "#74bfeb", attr: ready.length ? 'data-pkpgst="Configured"' : "", on: pkPg && pkPg.st === "Configured", sub: ready.length ? ready.map((function(p) { return p.name; })).join(", ") : "none" },
@@ -12292,18 +12320,46 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (!host) return;
         if (!pkLc) pkLc = { stop: -1, who: "all", focus: "" };
         var here = {}, hereWho = {};
-        (D.inFlight || []).forEach((function(f) { if (f && !fuClosed(f)) { var st = currentState(f); here[st] = (here[st] || 0) + 1; (hereWho[st] = hereWho[st] || []).push(f); } }));
+        var progOf = function(code) { return (D.programs || []).filter((function(p) { return p.code === code; }))[0] || null; };
+        var inProg = function(f) { if (!pkLc.prog) return true; var p = progOf(pkLc.prog); return !!p && [ p.code, p.mactsType, p.name ].indexOf(f.program) >= 0; };
+        (D.inFlight || []).forEach((function(f) { if (f && !fuClosed(f) && inProg(f)) { var st = currentState(f); here[st] = (here[st] || 0) + 1; (hereWho[st] = hereWho[st] || []).push(f); } }));
         /* who is "here" (22 Nov 2026, Jonna: "if it says 1 here, i'd like to be able either hover over or click on to see who the 1 is"):
            the names on hover, and a click lists them on the card, each opening its record */
         var whoTip = function(list) { return (list || []).map((function(f) { return f.org + " (" + f.program + (f.kind === "renewal" ? " renewal" : "") + ")"; })).sort().join("\n"); };
         var stopOf = function(st) { for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return -1; };
         var WHO = { mismo: [ "MISMO", "#74bfeb" ], company: [ "The Company", "#e0a83c" ], assessor: [ "The Assessor", "#9b8cff" ], closed: [ "Closed", "#9aa9b6" ] };
-        var map = '<div class="pk-lcmap"><button type="button" class="pk-lcs' + (pkLc.stop < 0 ? " on" : "") + '" data-pklcstop="-1"><b>All</b><small>' + D.states.length + " states</small></button>"
-            + CJ.map((function(c, i) {
-                var n = c.s.reduce((function(t, st) { return t + (here[st] || 0); }), 0);
-                var tip = whoTip([].concat.apply([], c.s.map((function(st) { return hereWho[st] || []; }))));
-                return '<span class="pk-lcar"></span><button type="button" class="pk-lcs' + (pkLc.stop === i ? " on" : "") + '" data-pklcstop="' + i + '"' + (tip ? ' title="' + esc(tip) + '"' : "") + '><span class="pk-lcn">' + (i + 1) + "</span><b>" + esc(c.t) + "</b><small>" + esc(c.who) + "</small>" + (n ? "<em>" + n + " here now</em>" : "") + "</button>";
-            })).join("") + "</div>";
+        /* How It All Connects (22 Nov 2026, Jonna: "i also like how the MMS is doing the how it all connects, can you make yours
+           match it"): the seven stops as one line, each a stop sized by how many are there, coloured by whose move it usually is;
+           hover for what happens there and who is at it, click to open that stop's states below. */
+        var STOP_C = [ "var(--sky)", "#e0a83c", "#9b8cff", "#9b8cff", "#74bfeb", "#e0a83c", "var(--good)" ];
+        var STOP_D = [ "The company applies, signs the application agreement and pays the fee.", "The company picks a date from the times its assessor offered.",
+            "The company shows the product working, or the review is held, with the assessor.", "The company sends its evidence; the assessor reviews it.",
+            "The assessor submits the results and MISMO's VP decides.", "Anything that did not pass is fixed, then checked again by the assessor.",
+            "Approved: the Mark License Agreement goes out by DocuSign and the certification joins the register." ];
+        var stops = CJ.map((function(c, i) {
+            var fs = [].concat.apply([], c.s.map((function(st) { return hereWho[st] || []; })));
+            var old = fs.reduce((function(m, f) { var d = fuDaysInState(f); return d != null && d > m ? d : m; }), 0);
+            return { i: i, t: c.t, who: c.who, n: fs.length, fs: fs, old: old, held: fs.filter(fuHeld).length };
+        }));
+        var mx = Math.max.apply(null, [ 1 ].concat(stops.map((function(s) { return s.n; }))));
+        var X = function(i) { return ((i + .5) / CJ.length * 100); };
+        var node = function(s) {
+            var sz = s.n ? Math.round(34 + Math.min(22, Math.sqrt(s.n / mx) * 22)) : 26;
+            var names = s.fs.slice().sort((function(a, b) { return String(a.org).localeCompare(String(b.org)); })).slice(0, 6).map((function(f) { return esc(f.org) + " <i>" + esc(f.program) + "</i>"; })).join("<br>");
+            var tip = '<span class="lcm-tip"><b>' + esc(s.t) + "</b><em>" + esc(s.who) + "</em><span>" + esc(STOP_D[s.i]) + '</span><span class="lcm-tf">' + (s.n ? s.n + " here" + (s.old ? " · longest " + s.old + " day" + (s.old === 1 ? "" : "s") : "") + (s.held ? " · " + s.held + " on hold" : "") : "Nobody here right now") + "</span>" + (names ? '<span class="lcm-tn">' + names + (s.n > 6 ? "<br>and " + (s.n - 6) + " more" : "") + "</span>" : "") + "</span>";
+            return '<button type="button" class="lcm-n' + (s.n ? "" : " z") + (pkLc.stop === s.i ? " on" : "") + '" data-pklcstop="' + (pkLc.stop === s.i ? -1 : s.i) + '" style="--sc:' + STOP_C[s.i] + ";--sz:" + sz + 'px"><span class="lcm-dot"><b>' + s.n + "</b></span><span class=\"lcm-l\">" + (s.i + 1) + ". " + esc(s.t) + '</span><span class="lcm-o">' + esc(s.who) + "</span>" + tip + "</button>";
+        };
+        var PH = [ { n: "Application", a: 0, b: 0, c: "var(--sky)" }, { n: "Assessment", a: 1, b: 5, c: "#9b8cff" }, { n: "Certified", a: 6, b: 6, c: "var(--good)" } ];
+        var total = stops.reduce((function(t, s) { return t + s.n; }), 0);
+        var map = '<div class="lcm" style="--n:' + CJ.length + '"><div class="lcm-row"><i class="lcm-tr" style="left:' + X(0) + "%;width:" + (X(CJ.length - 1) - X(0)) + '%"></i>' + stops.map(node).join("") + "</div>"
+            + '<div class="lcm-ph">' + PH.map((function(g) { return '<span style="grid-column:' + (g.a + 1) + " / span " + (g.b - g.a + 1) + ";--lc:" + g.c + '">' + esc(g.n) + "</span>"; })).join("") + "</div>"
+            + '<div class="lcm-foot"><span><b>' + total + "</b> open " + (pkLc.prog ? esc((progOf(pkLc.prog) || {}).name || pkLc.prog) + " " : "") + "certification" + (total === 1 ? "" : "s") + " on the line" + (pkLc.stop >= 0 ? " · showing stop " + (pkLc.stop + 1) + ", " + esc(CJ[pkLc.stop].t) : "") + "</span>"
+            + (pkLc.stop >= 0 ? '<button type="button" class="lc-btn ghost" data-pklcstop="-1">Show Every Stop</button>' : "") + "</div></div>";
+        var pbar = $("lcm-progs");
+        if (pbar) {
+            var PL = (D.programs || []).filter((function(p) { return p.status === "Live" || (D.inFlight || []).some((function(f) { return [ p.code, p.mactsType, p.name ].indexOf(f.program) >= 0 && !fuClosed(f); })); }));
+            pbar.innerHTML = '<button type="button" data-pklcprog="" aria-pressed="' + !pkLc.prog + '">All Programs</button>' + PL.map((function(p) { return '<button type="button" data-pklcprog="' + esc(p.code) + '" aria-pressed="' + (pkLc.prog === p.code) + '">' + esc(p.mactsType || p.name) + "</button>"; })).join("");
+        }
         var cnt = { all: 0 };
         D.states.forEach((function(s) { if (pkLc.stop >= 0 && stopOf(s.state) !== pkLc.stop) return; cnt.all++; var w = pkLcWho(s); cnt[w] = (cnt[w] || 0) + 1; }));
         var who = '<div class="tq-kinds pk-lcw"><button type="button" class="tq-k' + (pkLc.who === "all" ? " on" : "") + '" data-pklcwho="all">Everyone <b>' + cnt.all + "</b></button>"
@@ -12321,6 +12377,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     document.addEventListener("click", (function(e) {
         var t = e.target && e.target.closest ? e.target.closest("[data-pklcstop],[data-pklcwho],[data-pklcto],[data-pklchere]") : null;
         if (t && t.hasAttribute("data-pklchere")) { var hs = t.getAttribute("data-pklchere"); pkLc.open = pkLc.open === hs ? "" : hs; pkLifecycle(); return; }
+        var pg = e.target && e.target.closest ? e.target.closest("[data-pklcprog]") : null;
+        if (pg) { pkLc.prog = pg.getAttribute("data-pklcprog"); if (pkLc.prog && typeof pkPg !== "undefined" && pkPg) { pkPg.st = ""; pkPg.code = pkLc.prog; try { pkProgPick(); } catch (x) {} } pkLifecycle(); return; }
         if (!t) return;
         if (t.hasAttribute("data-pklcstop")) { pkLc.stop = +t.getAttribute("data-pklcstop"); pkLc.focus = ""; }
         if (t.hasAttribute("data-pklcwho")) pkLc.who = t.getAttribute("data-pklcwho");
@@ -12349,7 +12407,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     document.addEventListener("click", (function(e) {
         var t = e.target && e.target.closest ? e.target.closest("[data-pkpg],[data-pkpgst]") : null;
         if (!t) return;
-        if (t.hasAttribute("data-pkpg")) pkPg.code = t.getAttribute("data-pkpg");
+        if (t.hasAttribute("data-pkpg")) { pkPg.code = t.getAttribute("data-pkpg"); if (pkLc) { pkLc.prog = pkPg.code; try { pkLifecycle(); } catch (x) {} } }
         if (t.hasAttribute("data-pkpgst")) { var v = t.getAttribute("data-pkpgst"); pkPg.st = pkPg.st === v ? "" : v; pkPg.code = ""; }
         pkProgPick();
         try { pkSetupHero("programs"); } catch (x) {}
@@ -16552,6 +16610,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (window.ResizeObserver) new ResizeObserver(set).observe(mast);
     })();
     function showView(view, scroll) {
+        if (view === "lifecycle") view = "programs";
         Array.prototype.forEach.call(document.querySelectorAll(".navlink"), (function(x) {
             x.classList.toggle("on", x.dataset.view === view);
         }));
@@ -17498,5 +17557,5 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
 </body>
 </html>
 
-<script src="relay-connect.js?v=2026-11-21h"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
+<script src="relay-connect.js?v=2026-11-22a"></script>  <!-- resources.mismo.org: sign-in, records and saving through the relay -->
 </body></html>
