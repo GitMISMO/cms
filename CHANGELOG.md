@@ -5,6 +5,7 @@ Earlier changes are in the repository's commit history.
 
 ## November 2026
 
+- **Nov 24:** Member 360 shows each company's certification activity (stage, fee, invoice, payment, next step) from the CMS, read only and refreshed whenever a stage or payment changes.
 - **Nov 22:** Chase Later shows the day each chased card comes back: a week after its reminder goes (also on the week strip).
 - **Nov 22:** Changes go live only after every check passes ("Checks and Publish"); a change that fails a check is not published.
 - **Nov 22:** Action Queue tiles list who is in each (up to three, then See All), every row the same two lines; Prospects show their last program and since when; a company on hold in several programs shows each program.
