@@ -6038,15 +6038,21 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     var TQ_WHO = { company: "Company", assessor: "Assessor", jonathan: "MISMO", system: "Automatic", later: "Chase later", hold: "On hold" };
     /* ---- The certification journey (31 Oct 2026, Jonna: give the CMS the Assessor Portal's treatment).
-       The same seven stops the assessors see, so MISMO and the firms read the process the same way. ---- */
+       24 Nov 2026 (Jonna: "in the programs and lifecycle you're missing payment as a step ... make sure they're accurate to the
+       way the process works today"): ten stops, as it runs now. The application agreement and the fee are stops of their own
+       (both come before the portal opens), and the Mark License Agreement is its own stop before Certified. The Assessor
+       Portal keeps its own shorter line: firms start once the fee is paid. ---- */
     var CJ = [
-        { t: "Application", who: "Company & MISMO", s: [ "Draft", "DocumentsRequested", "AgreementSent", "RenewalPrep", "RenewalNoticed", "UpdatesUnderReview", "AttestationSent", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany", "AwaitingPayment" ] },
-        { t: "Booking", who: "Company picks, assessor confirms", s: [ "AwaitingDemoSelection", "AwaitingReviewSelection", "PreAssessmentDiscussion", "DemoProposed" ] },
-        { t: "Demonstration", who: "Assessor", s: [ "DemoScheduled", "ReviewScheduled" ] },
+        { t: "Application", who: "Company applies, MISMO checks", s: [ "Draft", "DocumentsRequested", "UpdatesUnderReview", "AttestationSent", "RenewalPrep", "RenewalNoticed", "ScopeReviewAssessor", "ScopeReviewVp", "ScopeReviewCompany" ] },
+        { t: "Agreement", who: "Company signs, then the President", s: [ "AgreementSent" ] },
+        { t: "Payment", who: "MISMO invoices, company pays", s: [ "AwaitingPayment" ] },
+        { t: "Portal and Booking", who: "Company fills in its portal and books", s: [ "AwaitingDemoSelection", "AwaitingReviewSelection", "PreAssessmentDiscussion", "DemoProposed" ] },
+        { t: "Demonstration or Review", who: "Assessor, or MISMO for a review", s: [ "DemoScheduled", "ReviewScheduled" ] },
         { t: "Evidence", who: "Company sends, assessor reviews", s: [ "AwaitingArtifacts", "ArtifactReview" ] },
         { t: "Results", who: "Assessor submits, Jonathan decides", s: [ "PrelimResultsSubmitted", "PrelimQueryOpen", "AppealOpen" ] },
         { t: "Remediation", who: "Company fixes, assessor verifies", s: [ "RemediationOpen", "RemediationEscalated", "RemediationSubmitted", "RemediationQueryOpen" ] },
-        { t: "Certified", who: "MISMO and DocuSign", s: [ "ApprovedPendingLicense", "LicenseSent", "Certified" ] }
+        { t: "Mark License", who: "Company signs, then the President", s: [ "ApprovedPendingLicense", "LicenseSent" ] },
+        { t: "Certified", who: "On the register and the website", s: [ "Certified" ] }
     ];
     function cjStop(f) { var st = currentState(f); for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return 0; }
     function cjMismo(f) { return /MISMO|VP/.test(waitOf(f)); }
@@ -6224,7 +6230,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var listBox = '<div class="tq-panel"><div class="tq-phead"><h2>' + esc(V[1]) + ' <span class="tq-n">' + L[tq.view].length + '</span></h2><p>' + esc(help) + "</p></div>" + tools + kinds + rows
             + '<div class="tq-none" hidden>No company matches that search in this list.</div></div>';
         var openN = cjOpen().length;
-        var journey = '<div class="cj"><div class="cj-h"><h2>The Certification Journey</h2><p>All ' + openN + " open certifications, by where they are. The same seven stops the assessors see in their portal. Select a stop to list it.</p></div>"
+        var journey = '<div class="cj"><div class="cj-h"><h2>The Certification Journey</h2><p>All ' + openN + " open certifications, by where they are, from application and payment to the Mark License. Select a stop to list it.</p></div>"
             + '<div class="cj-map">' + CJ.map((function(j, i) {
                 var rows = L["stop" + i], mm = rows.filter((function(x) { return cjMismo(x.f); })).length;
                 return '<button type="button" class="cj-stop' + (tq.view === "stop" + i ? " on" : "") + (mm ? " hot" : "") + '" data-tqview="stop' + i + '">'
@@ -11956,7 +11962,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (view === "programs") {
             var liveP = P.filter((function(p) { return p.status === "Live"; })), ready = P.filter((function(p) { return p.status === "Configured"; })), todo = P.filter((function(p) { return p.status !== "Live" && p.status !== "Configured"; }));
             var demo = P.filter((function(p) { return p.demo; })).length;
-            html = pkHero({ title: "Programs and Lifecycle", say: "Every program follows the same line: apply, agree, pay, be assessed, remediate, be decided on, renew. Below is that line with who is at each stop today, then what differs by program: the documents asked for, whether there is a demonstration, and how long the term and grace are." })
+            html = pkHero({ title: "Programs and Lifecycle", say: "Every program follows the same line: apply, sign the application agreement, pay, fill in the portal and book, be assessed, get the results, fix anything that did not pass, sign the Mark License, then renew each year. Below is that line with who is at each stop today, then what differs by program: the documents asked for, whether there is a demonstration, and how long the term and grace are." })
                 + pkBoard([
                     { lab: "Certifying Today", n: liveP.length, k: "#3ccb7f", attr: 'data-pkpgst="Live"', on: pkPg && pkPg.st === "Live", sub: liveP.map((function(p) { return p.code || p.name; })).join(" · ") },
                     { lab: "Set Up, Not Certifying Yet", n: ready.length, k: "#74bfeb", attr: ready.length ? 'data-pkpgst="Configured"' : "", on: pkPg && pkPg.st === "Configured", sub: ready.length ? ready.map((function(p) { return p.name; })).join(", ") : "none" },
@@ -12382,7 +12388,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (t.hasAttribute("data-pkncclear")) { pkNc.year = ""; pkNc.prog = ""; }
         pkNewCerts();
     }));
-    /* ══ Lifecycle, interactive (1 Nov 2026): the seven stops as a map you can click, buttons for whose
+    /* ══ Lifecycle, interactive (1 Nov 2026): the journey stops as a map you can click, buttons for whose
        move it is, every state as a card with how many certifications sit there now, and its next states
        as buttons that take you to them. ══ */
     var pkLc = pkLc || { stop: -1, who: "all", focus: "" };
@@ -12401,13 +12407,19 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var stopOf = function(st) { for (var i = 0; i < CJ.length; i++) if (CJ[i].s.indexOf(st) >= 0) return i; return -1; };
         var WHO = { mismo: [ "MISMO", "#74bfeb" ], company: [ "The Company", "#e0a83c" ], assessor: [ "The Assessor", "#9b8cff" ], closed: [ "Closed", "#9aa9b6" ] };
         /* How It All Connects (22 Nov 2026, Jonna: "i also like how the MMS is doing the how it all connects, can you make yours
-           match it"): the seven stops as one line, each a stop sized by how many are there, coloured by whose move it usually is;
+           match it"): the stops as one line (ten since 24 Nov 2026), each a stop sized by how many are there, coloured by whose move it usually is;
            hover for what happens there and who is at it, click to open that stop's states below. */
-        var STOP_C = [ "var(--sky)", "#e0a83c", "#9b8cff", "#9b8cff", "#74bfeb", "#e0a83c", "var(--good)" ];
-        var STOP_D = [ "The company applies, signs the application agreement and pays the fee.", "The company picks a date from the times its assessor offered.",
-            "The company shows the product working, or the review is held, with the assessor.", "The company sends its evidence; the assessor reviews it.",
-            "The assessor submits the results and MISMO's VP decides.", "Anything that did not pass is fixed, then checked again by the assessor.",
-            "Approved: the Mark License Agreement goes out by DocuSign and the certification joins the register." ];
+        var STOP_C = [ "var(--sky)", "#e0a83c", "#e0a83c", "#e0a83c", "#9b8cff", "#9b8cff", "#74bfeb", "#e0a83c", "#3ccb7f", "var(--good)" ];
+        var STOP_D = [ "The company applies on the website (a renewal starts with the renewal notice). MISMO checks the application; anything missing is asked for.",
+            "The application agreement goes out by DocuSign. The company signs, then MISMO's President.",
+            "MISMO raises the application invoice in Aptify and emails it. Once it is paid, the company's portal opens (a Product portal opens with the invoice, to pay it there).",
+            "In its portal the company answers the questionnaire, adds its documents (FRAME also returns the practical exercise) and books its demonstration or review.",
+            "The company shows the product working to its assessor, or MISMO holds the review or interview (FRAME and Certified Consultant).",
+            "The company sends its evidence; the assessor reviews it.",
+            "The assessor submits the results and MISMO's VP, Jonathan, decides.",
+            "Anything that did not pass is fixed, then checked again by the assessor.",
+            "Approved: the Mark License Agreement goes out by DocuSign. The company signs, then MISMO's President.",
+            "Signed: the certification joins the register and the website listing, and its anniversary sets the yearly renewal." ];
         var stops = CJ.map((function(c, i) {
             var fs = [].concat.apply([], c.s.map((function(st) { return hereWho[st] || []; })));
             var old = fs.reduce((function(m, f) { var d = fuDaysInState(f); return d != null && d > m ? d : m; }), 0);
@@ -12421,7 +12433,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             var tip = '<span class="lcm-tip"><b>' + esc(s.t) + "</b><em>" + esc(s.who) + "</em><span>" + esc(STOP_D[s.i]) + '</span><span class="lcm-tf">' + (s.n ? s.n + " here" + (s.old ? " · longest " + s.old + " day" + (s.old === 1 ? "" : "s") : "") + (s.held ? " · " + s.held + " on hold" : "") : "Nobody here right now") + "</span>" + (names ? '<span class="lcm-tn">' + names + (s.n > 6 ? "<br>and " + (s.n - 6) + " more" : "") + "</span>" : "") + "</span>";
             return '<button type="button" class="lcm-n' + (s.n ? "" : " z") + (pkLc.stop === s.i ? " on" : "") + '" data-pklcstop="' + (pkLc.stop === s.i ? -1 : s.i) + '" style="--sc:' + STOP_C[s.i] + ";--sz:" + sz + 'px"><span class="lcm-dot"><b>' + s.n + "</b></span><span class=\"lcm-l\">" + (s.i + 1) + ". " + esc(s.t) + '</span><span class="lcm-o">' + esc(s.who) + "</span>" + tip + "</button>";
         };
-        var PH = [ { n: "Application", a: 0, b: 0, c: "var(--sky)" }, { n: "Assessment", a: 1, b: 5, c: "#9b8cff" }, { n: "Certified", a: 6, b: 6, c: "var(--good)" } ];
+        var PH = [ { n: "Application", a: 0, b: 2, c: "var(--sky)" }, { n: "Assessment", a: 3, b: 7, c: "#9b8cff" }, { n: "Certified", a: 8, b: 9, c: "var(--good)" } ];
         var total = stops.reduce((function(t, s) { return t + s.n; }), 0);
         var map = '<div class="lcm" style="--n:' + CJ.length + '"><div class="lcm-row"><i class="lcm-tr" style="left:' + X(0) + "%;width:" + (X(CJ.length - 1) - X(0)) + '%"></i>' + stops.map(node).join("") + "</div>"
             + '<div class="lcm-ph">' + PH.map((function(g) { return '<span style="grid-column:' + (g.a + 1) + " / span " + (g.b - g.a + 1) + ";--lc:" + g.c + '">' + esc(g.n) + "</span>"; })).join("") + "</div>"
@@ -12442,7 +12454,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             return '<div class="pk-lcc' + (pkLc.focus === s.state ? " focus" : "") + '" id="pklc-' + esc(s.state) + '" style="--k:' + WHO[w][1] + '"><div class="pk-lch"><b>' + esc(titleOfState(s.state)) + "</b>" + (n ? '<button type="button" class="pk-n warm pk-here" data-pklchere="' + esc(s.state) + '" title="' + esc(whoTip(hereWho[s.state])) + '" aria-expanded="' + (pkLc.open === s.state) + '">' + n + " here</button>" : "") + "</div>"
                 + (n && pkLc.open === s.state ? '<div class="pk-herel">' + hereWho[s.state].slice().sort((function(a, b) { return String(a.org).localeCompare(String(b.org)); })).map((function(f) {
                     return '<button type="button" class="pk-hererow" data-pkrow="' + esc(String(f.row)) + '"><b>' + esc(f.org) + "</b><small>" + esc(f.program + (f.product ? " · " + f.product : "") + (f.kind === "renewal" ? " · renewal" : " · initial")) + "</small></button>"; })).join("") + "</div>" : "")
-                + '<div class="pk-lcm"><span class="pk-lcwho">' + WHO[w][0] + (w === "closed" ? "" : "&rsquo;s move") + "</span> · " + esc(s.status) + " · " + esc(s.phase) + "</div>"
+                + '<div class="pk-lcm"><span class="pk-lcwho">' + WHO[w][0] + (w === "closed" ? "" : "&rsquo;s move") + "</span> · " + esc(s.status) + " · " + esc(stopOf(s.state) >= 0 ? (stopOf(s.state) + 1) + ". " + CJ[stopOf(s.state)].t : s.phase) + "</div>"
                 + (s.next.length ? '<div class="pk-lcnx"><small>Can move to</small>' + s.next.map((function(t) { return '<button type="button" class="pk-lcto" data-pklcto="' + esc(t) + '">' + esc(titleOfState(t)) + "</button>"; })).join("") + "</div>" : '<div class="pk-lcnx"><small>The end of the road</small></div>') + "</div>";
         })).join("") : '<div class="empty">No state matches. <button type="button" class="lc-btn ghost" data-pklcwho="all">Show Everyone</button></div>') + "</div>";
     }
