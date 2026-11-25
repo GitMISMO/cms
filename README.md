@@ -222,6 +222,13 @@ The foot of the nav shows when the CMS last received payments from MISMO Money
 (`data/mismo-money-paid.json`) and last gave it approvals (`data/mismo-money-approvals.json`).
 Migration is no longer in the nav.
 
+**The browser's Back button** (CN-033, Nov 25, 2026): `index.html` loads the shared `/assets/back.js` (owned by Forms
+and shared pages; never copy it here or add a `history.pushState` of our own) right after `session.js`, and
+`wireBack()` in `relay-connect.js` gives the menu button of the page showing `aria-current`, names the pages to it
+(`MismoBack.pages`: a `data-view`, or `as:<section>` inside an assessor's portal) and registers what Back closes first
+(the display board, then the record panel, each through its own close button). `tests/click-through.js` checks it
+against the live copy of back.js (set `MISMO_BACK` to a local file to try another).
+
 `relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
 Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count
 badge when the count is zero.

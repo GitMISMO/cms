@@ -704,6 +704,65 @@
       nav.setAttribute('data-organized', '1');
     } catch (e) { if (window.console) console.error('Nav order:', e); }
   }
+  /* ---------- the browser's Back button (CN-033, Jonna, 25 Nov 2026) ----------
+     /assets/back.js (shared, owned by Forms and shared pages) makes each change of page in the left menu a step in the
+     browser's history, and closes an open panel first. The CMS menu marks its page with the class "on" and names it in
+     data-view (data-as in an assessor's portal), not data-hq, so it names its pages to back.js itself, and the menu
+     button of the page showing also carries aria-current (the left-nav standard). Back never undoes a change.
+     Done here, after the page has run, so a rebuild of index.html cannot drop it. */
+  function wireBack() {
+    try {
+      var navs = [document.getElementById('mismonav'), document.getElementById('assessornav')].filter(Boolean);
+      var mark = function () {
+        navs.forEach(function (n) {
+          Array.prototype.forEach.call(n.querySelectorAll('button.navlink'), function (b) {
+            var on = b.classList.contains('on');
+            if (on && b.getAttribute('aria-current') !== 'page') b.setAttribute('aria-current', 'page');
+            else if (!on && b.hasAttribute('aria-current')) b.removeAttribute('aria-current');
+          });
+        });
+      };
+      mark();
+      if (window.MutationObserver) navs.forEach(function (n) { new MutationObserver(mark).observe(n, { subtree: true, attributes: true, attributeFilter: ['class'] }); });
+      var MB = window.MismoBack;
+      if (!MB) return;                          /* the shared file did not load: the page works as before */
+      var asNav = document.getElementById('assessornav');
+      var inPortal = function () { return !!asNav && !asNav.hidden; };
+      var shown = function (b) { return b && b.offsetParent !== null; };
+      MB.pages({
+        /* a CMS view, or "as:<section>" inside an assessor's portal (View As) */
+        current: function () {
+          if (inPortal()) { var a = asNav.querySelector('button.navlink.on[data-as]'); return a ? 'as:' + a.getAttribute('data-as') : ''; }
+          var b = document.querySelector('#mismonav button.navlink.on[data-view]');
+          return b ? b.getAttribute('data-view') : '';
+        },
+        go: function (name) {
+          name = String(name || '');
+          if (name.indexOf('as:') === 0) {
+            if (!inPortal()) return;              /* which firm it was is not kept; stay where we are */
+            var ab = asNav.querySelector('button.navlink[data-as="' + name.slice(3).replace(/[^a-z-]/gi, '') + '"]');
+            if (ab) ab.click();
+            return;
+          }
+          if (inPortal()) {                       /* leave the portal the way its own Back to button does */
+            var out = Array.prototype.filter.call(document.querySelectorAll('[data-firm=""], #mast-exit'), shown)[0];
+            if (out) out.click();
+          }
+          var b = document.querySelector('#mismonav button.navlink[data-view="' + name.replace(/[^a-z-]/gi, '') + '"]');
+          if (b) b.click();
+        }
+      });
+      /* what Back closes first, bottom layer first: the full-screen board, then the record panel */
+      MB.layer({
+        isOpen: function () { return document.body.classList.contains('board'); },
+        close: function () { var x = document.getElementById('board-exit'); if (x) x.click(); }
+      });
+      MB.layer({
+        isOpen: function () { return document.body.classList.contains('panel-open'); },
+        close: function () { var x = document.getElementById('d-close'); if (x) x.click(); }   /* the panel's own X */
+      });
+    } catch (e) { if (window.console) console.error('Back button:', e); }
+  }
   function hideZeroCounts() {
     try {
       var st = document.createElement('style');
@@ -732,6 +791,7 @@
     addEmbedViews();
     organizeNav();
     hideZeroCounts();
+    wireBack();
     moneySync();
     openFromHash();
     cover.remove();
