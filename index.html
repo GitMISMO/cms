@@ -5403,7 +5403,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     /* Start before payment (Jonna, 21 Nov 2026: "the ability to jump the invoice - for instance i want to give this to
        erin to do and they havent paid and i don't want to wait"). Changed 25 Nov 2026 (Jonna: "it should still act like a
        new application and continue to move through the process until it catches up to them getting the portal key and
-       completing the questionnaire - this is NEW only"): Open Their Portal Now no longer moves the stage. It records
+       completing the questionnaire - this is NEW only"): Start Before Payment no longer moves the stage. It records
        portalEarly on the cycle; the Renewal pages job opens the portal and the Stage notices job sends the portal
        invitation now, and not again when the certification reaches its portal stage. The application, agreement,
        invoice and payment carry on as usual. First (initial) certifications only. */
@@ -5417,7 +5417,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         if (f.program === "Product" && currentState(f) === "AwaitingPayment") return null;   /* Product's portal opens with its invoice */
         var pm = fuPayment(f);
         if (pm && pm.paid) return null;
-        return { label: "Open Their Portal Now" };
+        return { label: "Start Before Payment" };
     }
     function tdEarlyGo(row) {
         var f = byRow(row), en = tdEarlyNext(f);
@@ -5769,7 +5769,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "later", "Chase Later", "Already chased. Each comes back to Needs You on its chase-again date." ],
         [ "hold", "On Hold", "Paused by MISMO. Nothing chases these until the hold is released on the record." ],
         [ "prospects", "Prospects", "Not going through certification, so nothing chases them. Start Application brings one back." ],
-        [ "newapps", "New Applications", "Every first certification still at the application, agreement or payment stop, newest first. Open Their Portal Now and Comp the Fee are on each record." ]
+        [ "newapps", "New Applications", "Every first certification still at the application, agreement or payment stop, newest first. Start Before Payment and Comp the Fee are on each record." ]
     ];
     /* Plain English for where a certification is waiting (Jonathan, 5 Nov 2026: "Company + President"
        is hard to explain - "Pending Certification Agreement", "Pending Certification Fee Payment"). */
@@ -8887,7 +8887,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var early = canWrite ? tdEarlyNext(f) : null, comp = canWrite ? tdCompNext(f) : null, pe = tdPortalEarly(f), fc = tdFeeComped(f);
         var earlyHtml = (pe || fc ? '<div class="pc-note" style="margin:0 0 10px">' + (fc ? "<b>Fee comped</b> by " + esc(fc.by || "MISMO") + " on " + esc(fmt(String(fc.at).slice(0, 10))) + ": no invoice, nothing owed." : "")
                 + (pe ? (fc ? " " : "") + "<b>Portal opened early</b> by " + esc(pe.by || "MISMO") + " on " + esc(fmt(String(pe.at).slice(0, 10))) + "; the application carries on as usual." : "") + "</div>" : "")
-            + (early || comp ? '<div class="pc-note" style="margin:0 0 10px"><b>Not paid yet.</b> ' + (early ? "Open their portal now so they can start the questionnaire; the application, agreement and payment carry on as usual. " : "") + "Or comp the fee: no invoice, and it moves on now."
+            + (early || comp ? '<div class="pc-note" style="margin:0 0 10px"><b>Not paid yet.</b> ' + (early ? "Start Before Payment opens their portal now so they can start the questionnaire; the application, agreement and payment carry on as usual. " : "") + "Comp the Fee counts it as paid with no invoice, and it moves on now, just as a payment would."
             + '<div class="na-acts" style="margin-top:8px">' + (early ? '<button class="lc-btn" type="button" data-tdearly="' + f.row + '">' + esc(early.label) + "</button>" : "") + (comp ? '<button class="lc-btn ghost" type="button" data-tdcomp="' + f.row + '">Comp the Fee</button>' : "") + "</div></div>" : "");
         var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + cycleHoldNote(f) + earlyHtml + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
         var whoHtml = '<div class="dcard"><div class="dcard-h"><b>Assessor and Notes</b></div>' + '<div class="pc-lab" style="margin-top:0">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {

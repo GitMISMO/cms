@@ -6,7 +6,8 @@ Earlier changes are in the repository's commit history.
 ## November 2026
 
 - **Nov 25:** Action Queue: the journey line (ten stops, live counts, select a stop to list it) replaces the week strip, and a New Applications tile replaces Next Anniversary.
-- **Nov 25:** Open Their Portal Now (was Start Before Payment) opens a new company's portal early while its application carries on as usual; Comp the Fee waives the fee with no invoice and moves it on.
+- **Nov 25:** Start Before Payment is back under its own name; it and Comp the Fee are separate buttons on every unpaid new application.
+- **Nov 25:** Start Before Payment opens a new company's portal early while its application carries on as usual; Comp the Fee waives the fee with no invoice and moves it on.
 - **Nov 25:** Browser tab icon now matches mismo.org (the shared MISMO icon, on every page).
 - **Nov 24:** The certification journey has ten stops, as the process runs today: Application, Agreement, Payment, Portal and Booking, Demonstration or Review, Evidence, Results, Remediation, Mark License, Certified (Programs and Lifecycle, the Action Queue journey and each record's stepper).
 - **Nov 24:** Member 360 shows each company's certification activity (stage, fee, invoice, payment, next step) from the CMS, read only and refreshed whenever a stage or payment changes.
