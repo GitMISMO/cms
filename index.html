@@ -2393,6 +2393,7 @@
   .tqh-nempty{grid-column:1/-1; font-size:13px; color:rgba(255,255,255,.7); padding:6px 2px;}
   .tqh-all{margin-left:auto; border:0; letter-spacing:0; text-transform:none; white-space:nowrap; background:none; padding:2px 0; color:var(--sky); font:inherit; font-size:13px; font-weight:700; cursor:pointer;}
   .tqh-all:hover{text-decoration:underline;}
+  .tq-lcm{margin:0 0 16px;}
   .tqw{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:16px;}
   .tqw-d{display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-width:0; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--ink); transition:transform .15s, box-shadow .15s;}
   .tqw-d:hover{transform:translateY(-2px); box-shadow:0 10px 20px -12px rgba(6,32,47,.35);}
@@ -5400,37 +5401,74 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         renderTodo();
     }
     /* Start before payment (Jonna, 21 Nov 2026: "the ability to jump the invoice - for instance i want to give this to
-       erin to do and they havent paid and i don't want to wait"). A first certification that has not paid can be moved on
-       to its review or demonstration booking now. The invoice stays open and keeps counting as unpaid; MISMO Money records
-       the payment when it comes. The move is recorded with who started it early. */
+       erin to do and they havent paid and i don't want to wait"). Changed 25 Nov 2026 (Jonna: "it should still act like a
+       new application and continue to move through the process until it catches up to them getting the portal key and
+       completing the questionnaire - this is NEW only"): Open Their Portal Now no longer moves the stage. It records
+       portalEarly on the cycle; the Renewal pages job opens the portal and the Stage notices job sends the portal
+       invitation now, and not again when the certification reaches its portal stage. The application, agreement,
+       invoice and payment carry on as usual. First (initial) certifications only. */
     var TD_EARLY_FROM = [ "Draft", "DocumentsRequested", "AgreementSent", "AwaitingPayment" ];
+    var TD_PORTAL_PROGS = [ "RON", "eClosing", "eVault", "Product", "Consultant", "FRAME" ];
+    function tdPortalEarly(f) { var m = f && moves[f.row]; return m && m.portalEarly ? m.portalEarly : null; }
+    function tdFeeComped(f) { var m = f && moves[f.row]; return m && m.feeComped ? m.feeComped : null; }
     function tdEarlyNext(f) {
         if (!f || String(f.kind || "initial") === "renewal" || TD_EARLY_FROM.indexOf(currentState(f)) < 0) return null;
-        if (fuHeld(f)) return null;
+        if (fuHeld(f) || tdPortalEarly(f) || tdFeeComped(f) || TD_PORTAL_PROGS.indexOf(f.program) < 0) return null;
+        if (f.program === "Product" && currentState(f) === "AwaitingPayment") return null;   /* Product's portal opens with its invoice */
         var pm = fuPayment(f);
         if (pm && pm.paid) return null;
-        var pd = tdProgDef(f), demo = !!(pd && pd.demo);
-        return { to: demo ? "AwaitingDemoSelection" : "AwaitingReviewSelection", demo: demo,
-            label: demo ? "Start Demo Booking Before Payment" : "Start Before Payment" };
+        return { label: "Open Their Portal Now" };
     }
     function tdEarlyGo(row) {
         var f = byRow(row), en = tdEarlyNext(f);
         if (!f || !en) return;
-        if (!canWrite) { toast("You have view-only access, so this cannot be moved.", "warn"); return; }
-        var portal = [ "RON", "eClosing", "eVault", "Product", "Consultant", "FRAME" ].indexOf(f.program) >= 0;
-        if (!window.confirm("Start " + f.org + "’s " + f.program + " certification now, before the invoice is paid?\n\n"
-            + "It moves on to " + titleOfState(en.to) + (en.demo ? ", and the company is emailed its booking link" : portal ? ", and the company is emailed its certification portal" : "")
-            + " " + sendDayText() + ".\n\nThe invoice stays open: it still counts as unpaid, and MISMO Money records the payment when it comes."
+        if (!canWrite) { toast("You have view-only access, so this cannot be changed.", "warn"); return; }
+        var st = currentState(f);
+        if (!window.confirm("Open " + f.org + "’s " + f.program + " portal now, before the invoice is paid?\n\n"
+            + "The company is emailed its certification portal " + sendDayText() + ", so it can start the questionnaire.\n\n"
+            + "The application itself stays where it is (" + titleOfState(st) + ") and carries on as usual: agreement, invoice and payment. When it reaches the portal stage, the portal is already open and the invitation is not sent again."
             + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
-        recordMove(f, en.to, null, "Started before payment by " + (me && me.name ? me.name : "MISMO") + "; the invoice stays open.");
-        toast(f.org + " moved to " + titleOfState(en.to) + ", before payment.", "good");
+        var who = me && me.name ? me.name : "MISMO", at = (new Date).toISOString();
+        moves[f.row] = Object.assign({ state: st }, moves[f.row] || {}, { portalEarly: { at: at, by: who, from: st } });
+        var entry = { row: f.row, org: f.org, program: f.program, from: st, to: st, reason: null, note: "Portal opened before payment by " + who + "; the application carries on as usual.", at: at, by: who, kind: "note" };
+        activity.unshift(entry);
+        persist(f.row, entry);
+        toast(f.org + "’s portal opens " + sendDayText() + "; the application carries on.", "good");
+        renderTodo(); renderPanel();
+    }
+    /* Comp the fee (Jonna, 25 Nov 2026: "also need a way to comp the payment, no invoice and move them forward"). The fee
+       is waived: no invoice is raised, nothing is owed or chased, and the certification moves on to its portal stage now
+       (the booking stage for a program with a demonstration). Recorded as feeComped on the cycle, with who and when. */
+    function tdCompNext(f) {
+        if (!f || String(f.kind || "initial") === "renewal" || TD_EARLY_FROM.indexOf(currentState(f)) < 0) return null;
+        if (fuHeld(f) || tdFeeComped(f)) return null;
+        var pm = fuPayment(f);
+        if (pm && pm.paid) return null;
+        var pd = tdProgDef(f), demo = !!(pd && pd.demo);
+        return { to: demo ? "AwaitingDemoSelection" : "AwaitingReviewSelection", demo: demo, label: "Comp the Fee" };
+    }
+    function tdCompGo(row) {
+        var f = byRow(row), cn = tdCompNext(f);
+        if (!f || !cn) return;
+        if (!canWrite) { toast("You have view-only access, so this cannot be changed.", "warn"); return; }
+        var inv = invoiceOf(f), portal = TD_PORTAL_PROGS.indexOf(f.program) >= 0;
+        if (!window.confirm("Comp " + f.org + "’s " + f.program + " fee?\n\n"
+            + "No invoice is raised and nothing is owed or chased. It moves on to " + titleOfState(cn.to)
+            + (tdPortalEarly(f) ? " (its portal is already open)" : portal ? ", and the company is emailed its certification portal " + sendDayText() : "") + "."
+            + (inv && (inv.orderId || inv.amount != null) ? "\n\nAn invoice is already recorded" + (inv.orderId ? " (Aptify order " + inv.orderId + ")" : "") + ": cancel it in Aptify too." : "")
+            + (tdPaused(f) ? "\n\n" + f.program + " is paused, so no emails go out until it is taken off the paused list." : ""))) return;
+        var who = me && me.name ? me.name : "MISMO";
+        moves[f.row] = Object.assign({ state: currentState(f) }, moves[f.row] || {}, { feeComped: { at: (new Date).toISOString(), by: who, from: currentState(f) } });
+        recordMove(f, cn.to, null, "Fee comped by " + who + ": no invoice, nothing owed.");
+        toast(f.org + "’s fee is comped; moved to " + titleOfState(cn.to) + ".", "good");
         renderTodo();
     }
     document.addEventListener("click", (function(e) {
-        var t = e.target && e.target.closest ? e.target.closest("[data-tdearly]") : null;
+        var t = e.target && e.target.closest ? e.target.closest("[data-tdearly],[data-tdcomp]") : null;
         if (!t) return;
         e.preventDefault(); e.stopPropagation();
-        tdEarlyGo(+t.getAttribute("data-tdearly"));
+        if (t.hasAttribute("data-tdcomp")) tdCompGo(+t.getAttribute("data-tdcomp"));
+        else tdEarlyGo(+t.getAttribute("data-tdearly"));
     }), true);
     function tdStageRow(f) {
         var st = currentState(f), w = waitOf(f, st), x = followUpOf(f);
@@ -5669,7 +5707,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             head += (key === "fu-assessor" ? " \u00b7 assessor " + esc(tdAssessorOf(f)) : "") + "</div>"
                 + '<div class="td-meta">' + (pn || rm || nd ? "<b>" + esc(tdShort) + "</b>" : esc(tdShort)) + "</div></div>";
             var en = pn ? null : tdEarlyNext(f);
-            return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (en ? tdBtn(en.label, 'data-tdearly="' + f.row + '"', true) : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
+            return tdItem(key, head, canWrite ? (pn ? tdBtn(pn.label, 'data-tdpaidnext="' + f.row + '"') : "") + (en ? tdBtn(en.label, 'data-tdearly="' + f.row + '"', true) : "") + (!pn && tdCompNext(f) ? tdBtn("Comp the Fee", 'data-tdcomp="' + f.row + '"', true) : "") + (key === "fu-assessor" ? tdBtn(nd && nd.again ? "Nudge Again" : "Nudge the Assessor", 'data-tdnudge="' + f.row + '"' + (nd && !nd.again ? " disabled" : "")) : "")
                 + (rk ? tdBtn(rm && rm.again ? "Send Another " + TD_REM[rk].label : (rk === "agreement" ? "Send an " : "Send a ") + TD_REM[rk].label, 'data-tdremind="' + f.row + "|" + rk + '"' + (rm && !rm.again ? " disabled" : ""))
                     + (rk === "payment" ? '<input type="file" accept="application/pdf,.pdf" hidden data-tdremfile="' + f.row + '">' : "") : "")
                 + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + (fx.contact ? tdBtn("Contacts Are Right", 'data-fuclear="' + f.row + '" data-fucontacts="1"', true) : tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true)) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
@@ -5730,7 +5768,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         [ "system", "Runs Itself", "Nothing for anyone to do. Renewal notices, reminders and Mark License Agreements go out on their own schedule." ],
         [ "later", "Chase Later", "Already chased. Each comes back to Needs You on its chase-again date." ],
         [ "hold", "On Hold", "Paused by MISMO. Nothing chases these until the hold is released on the record." ],
-        [ "prospects", "Prospects", "Not going through certification, so nothing chases them. Start Application brings one back." ]
+        [ "prospects", "Prospects", "Not going through certification, so nothing chases them. Start Application brings one back." ],
+        [ "newapps", "New Applications", "Every first certification still at the application, agreement or payment stop, newest first. Open Their Portal Now and Comp the Fee are on each record." ]
     ];
     /* Plain English for where a certification is waiting (Jonathan, 5 Nov 2026: "Company + President"
        is hard to explain - "Pending Certification Agreement", "Pending Certification Fee Payment"). */
@@ -5823,7 +5862,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        Jonna: "the super cool dynamic plus up"). A greeting hero with On Your Plate, a board of live
        tiles (each one opens its list below), a countdown to the next anniversary, a ring for how much
        of the register is current, and The Road Ahead: every dated thing in the next sixty days. ---- */
-    var TQ_K = { you: "#e0a83c", company: "#74bfeb", assessor: "#9b8cff", jonathan: "#ff8a7a", system: "#3ccb7f", later: "#c9a2ff", hold: "#9aa9b6", prospects: "#5fb3c9" };
+    var TQ_K = { you: "#e0a83c", company: "#74bfeb", assessor: "#9b8cff", jonathan: "#ff8a7a", system: "#3ccb7f", later: "#c9a2ff", hold: "#9aa9b6", prospects: "#5fb3c9", newapps: "#74bfeb" };
     var tqAnimated = false, tqTick = null, tqCd = { i: 0, n: 0, hold: false, at: 0 };
     function tqEm(t) { return "<em>" + esc(t) + "</em>"; }
     function tqDayLabel(iso) { var d = parseDay(iso); if (!d) return ""; var n = daysBetween(TODAY, d); return n < 0 ? "Late" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : fmt(iso).replace(/, \d{4}$/, ""); }
@@ -5868,14 +5907,23 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<div class="tqh-needs"><div class="tqh-nh">On Your Plate <span>most urgent first</span>'
             + (mineN > 6 ? '<button type="button" class="tqh-all" data-tqview="all">See All ' + mineN + " →</button>" : "") + "</div>"
             + (plate || '<div class="tqh-nempty">Nothing needs you. Everything is moving.</div>') + "</div></div>";
-        /* the week strip */
-        var week = "";
-        for (var d = 0; d < 7; d++) {
-            var day = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + d), iso = isoDay(day), on = up.filter((function(x) { return x.iso === iso; }));
-            week += '<div class="tqw-d' + (d === 0 ? " now" : "") + (day.getDay() === 0 || day.getDay() === 6 ? " wkd" : "") + '" title="' + esc(on.map((function(x) { return x.org + " — " + x.label; })).join("\n")) + '">'
-                + "<span>" + (d === 0 ? "TODAY" : DOW[day.getDay()]) + "</span><b>" + day.getDate() + '</b><div class="tqw-p">' + on.slice(0, 5).map((function(x) { return '<i style="--k:' + TQ_RK[x.kind][0] + '"></i>'; })).join("") + (on.length > 5 ? "<em>+" + (on.length - 5) + "</em>" : "") + "</div>"
-                + "<small>" + (on.length ? esc(on[0].org) + (on.length > 1 ? " +" + (on.length - 1) : "") : "Clear") + "</small></div>";
-        }
+        /* The certification journey as one line (Jonna, 25 Nov 2026: "make the certification journey like the how it all
+           connects graphic and then replace the dates with it, make it have the real time numbers and you can click to the
+           list that makes up the numbers"). Each stop is sized by how many are there now; select one to list them. */
+        var JC = [ "var(--sky)", "#e0a83c", "#e0a83c", "#e0a83c", "#9b8cff", "#9b8cff", "#74bfeb", "#e0a83c", "#3ccb7f", "var(--good)" ];
+        var jn = CJ.map((function(j, i) { return (L["stop" + i] || []).length; })), jmx = Math.max.apply(null, [ 1 ].concat(jn)), jtot = jn.reduce((function(a, b) { return a + b; }), 0);
+        var JX = function(i) { return ((i + .5) / CJ.length * 100); };
+        var week = '<div class="lcm tq-lcm" style="--n:' + CJ.length + '"><div class="lcm-row"><i class="lcm-tr" style="left:' + JX(0) + "%;width:" + (JX(CJ.length - 1) - JX(0)) + '%"></i>'
+            + CJ.map((function(j, i) {
+                var rows = L["stop" + i] || [], n = rows.length, mm = rows.filter((function(x) { return x.f && cjMismo(x.f); })).length;
+                var sz = n ? Math.round(34 + Math.min(22, Math.sqrt(n / jmx) * 22)) : 26;
+                var names = rows.slice().sort((function(a, b) { return String(a.org).localeCompare(String(b.org)); })).slice(0, 6).map((function(x) { return esc(x.org) + " <i>" + esc(x.prog || "") + "</i>"; })).join("<br>");
+                var tip = '<span class="lcm-tip"><b>' + esc(j.t) + "</b><em>" + esc(j.who) + '</em><span class="lcm-tf">' + (n ? n + " here" + (mm ? " · " + mm + " with MISMO" : "") : "Nobody here right now") + "</span>"
+                    + (names ? '<span class="lcm-tn">' + names + (n > 6 ? "<br>and " + (n - 6) + " more" : "") + "</span>" : "") + "</span>";
+                return '<button type="button" class="lcm-n' + (n ? "" : " z") + (tq.view === "stop" + i ? " on" : "") + '" data-tqview="stop' + i + '" style="--sc:' + JC[i] + ";--sz:" + sz + 'px"><span class="lcm-dot"><b>' + n + '</b></span><span class="lcm-l">' + (i + 1) + ". " + esc(j.t) + '</span><span class="lcm-o">' + esc(j.who) + "</span>" + tip + "</button>";
+            })).join("") + "</div>"
+            + '<div class="lcm-ph">' + [ [ "Application", 0, 2, "var(--sky)" ], [ "Assessment", 3, 7, "#9b8cff" ], [ "Certified", 8, 9, "var(--good)" ] ].map((function(g) { return '<span style="grid-column:' + (g[1] + 1) + " / span " + (g[2] - g[1] + 1) + ";--lc:" + g[3] + '">' + g[0] + "</span>"; })).join("") + "</div>"
+            + '<div class="lcm-foot"><span><b>' + jtot + "</b> open certification" + (jtot === 1 ? "" : "s") + " on the journey" + (/^stop\d$/.test(tq.view) ? " · listing stop " + (+tq.view.slice(4) + 1) + ", " + esc(CJ[+tq.view.slice(4)].t) : "") + "</span></div></div>";
         /* the tiles */
         function mini(list, n) {
             return list.slice(0, n).map((function(x) {
@@ -5913,24 +5961,12 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + '<span class="tqt-sub">' + (ri.length ? (rl ? rl + " late · " : "") + (ri.length - rl) + " on time" : "Nothing to raise") + "</span>"
                     + (ri.length ? '<span class="tqt-list">' + mini(ri, 3) + "</span>" : "") + "</button>";
             })()
-            /* Next Anniversary rotates through every company renewing in the next 30 days (or the next one,
-               when none is that close), soonest first; dots pick one, hovering holds it still (Jonna, 1 Nov 2026) */
+            /* New Applications in place of Next Anniversary (Jonna, 25 Nov 2026): first certifications at the application,
+               agreement or payment stop, newest first (anniversaries still lead the greeting above) */
             + (function() {
-                var rot = ann.filter((function(x) { return x.n <= 30; }));
-                if (!rot.length && ann[0]) rot = [ ann[0] ];
-                if (tqCd.i >= rot.length) tqCd.i = 0;
-                tqCd.n = rot.length;
-                var slides = rot.map((function(a, i) {
-                    var same = rot.filter((function(y) { return y.n === a.n; })).length;
-                    return '<div class="tqt-sl' + (i === tqCd.i ? " on" : "") + '" data-tqsl="' + i + '"><span class="tqt-ep"><b>' + esc(a.org) + "</b><small>" + esc(a.label.replace(" anniversary", "")) + " · " + esc(fmt(a.iso))
-                        + (same > 1 ? " · " + same + " that day" : "") + "</small></span>"
-                        + (function() { var cp = tqCdParts(a.iso); return '<span class="tqt-cd" data-cd="' + a.iso + '"><span><b data-cdp="d">' + cp.d + "</b><small>Days</small></span><span><b data-cdp=\"h\">" + cp.h + "</b><small>Hrs</small></span><span><b data-cdp=\"m\">" + cp.m + "</b><small>Min</small></span><span><b data-cdp=\"s\">" + cp.s + "</b><small>Sec</small></span></span>"; })()
-                        + '<button type="button" class="tqt-go" ' + a.attr + ">Open the Record ›</button></div>";
-                })).join("");
-                var dots = rot.length > 1 ? '<span class="tqt-dots">' + rot.map((function(a, i) { return '<button type="button" class="' + (i === tqCd.i ? "on" : "") + '" data-tqcd="' + i + '" aria-label="' + esc(a.org) + '" title="' + esc(a.org + " · " + fmt(a.iso)) + '"></button>'; })).join("") + "</span>" : "";
-                return '<div class="tqt cd" style="--k:#74bfeb"><span class="tqt-top"><span class="tqt-lab">' + (rot.length > 1 ? "Renewing Soon" : "Next Anniversary") + "</span>"
-                    + (rot.length > 1 ? '<span class="tqt-pill" data-tqcdn>' + (tqCd.i + 1) + " of " + rot.length + "</span>" : "") + "</span>"
-                    + (rot.length ? slides + dots : '<span class="tqt-sub">No anniversary in the next sixty days.</span>') + "</div>";
+                var na = L.newapps || [], early = na.filter((function(x) { return x.f && tdPortalEarly(x.f); })).length;
+                var at = [ 0, 1, 2 ].map((function(i) { return na.filter((function(x) { return x.f && cjStop(x.f) === i; })).length; }));
+                return tile("newapps", "New Applications", big(na.length) + '<span class="tqt-sub">' + (na.length ? at[0] + " applying · " + at[1] + " at the agreement · " + at[2] + " at payment" + (early ? " · " + early + " with the portal open" : "") : "No new applications in progress") + "</span>" + who3(na));
             })()
             + '<div class="tqt ring-t" style="--k:#3ccb7f"><span class="tqt-top"><span class="tqt-lab">The Register</span><span class="tqt-pill">' + live.length + ' live</span></span>'
                 + '<span class="tqt-ring"><svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="46"></circle><circle class="rv" cx="55" cy="55" r="46" style="stroke-dasharray:' + C.toFixed(1) + ";stroke-dashoffset:" + (tqAnimated ? (C * (1 - pct / 100)).toFixed(1) : C.toFixed(1)) + '" data-ring="' + (C * (1 - pct / 100)).toFixed(1) + '"></circle></svg><span><b><span data-count="' + pct + '">' + pct + "</span>%</b><small>Current</small></span></span>"
@@ -5950,7 +5986,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + tile("hold", "On Hold", big(L.hold.length) + '<span class="tqt-sub">' + esc(sub.hold) + "</span>" + who3(L.hold), { cls: "sm" })
             + tile("prospects", "Prospects", big(L.prospects.length) + '<span class="tqt-sub">' + esc(sub.prospects) + "</span>" + who3(L.prospects.slice().sort((function(a, b) { return String(a.org).localeCompare(String(b.org)); }))), { cls: "sm" })
             + "</div>";
-        return hero + '<div class="tqw">' + week + "</div>" + tiles;
+        return hero + week + tiles;
     }
     function tqRoad() {
         var up = tqUpcoming(), from = -14, to = 60, span = to - from;
@@ -6103,6 +6139,15 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 return x;
             }));
         }));
+        /* New Applications (Jonna, 25 Nov 2026: in place of Next Anniversary): every first certification not yet at its
+           portal stage - application, agreement and payment - newest first */
+        L.newapps = open.filter((function(f) { return String(f.kind || "initial") !== "renewal" && cjStop(f) <= 2; })).map((function(f) {
+            var x = tqWaitItem("stop", f), w = waitOf(f), i = cjStop(f);
+            x.extra = fuHeld(f) ? "On hold" : w ? pendingLabel(f) : x.stage;
+            x.short = CJ[i].t + (tdPortalEarly(f) ? " · portal open" : "");
+            x.recv = f.receivedOn || "";
+            return x;
+        })).sort((function(a, b) { return String(b.recv).localeCompare(String(a.recv)); }));
         return L;
     }
     function tqSorted(list, how) {
@@ -6199,6 +6244,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         };
         var band = tqHero(m, L, mineN, lateN, waitN, sub);
         var V = TQ_VIEWS.filter((function(v) { return v[0] === tq.view; }))[0], list = L[tq.view], how = tqSortOf(tq.view);
+        if (!V && tq.view === "newapps") V = TQ_VIEWS.filter((function(v) { return v[0] === "newapps"; }))[0];
         if (!V && /^stop\d$/.test(tq.view)) { var cj0 = CJ[+tq.view.slice(4)]; V = [ tq.view, cj0.t, "Every open certification at this stop of the journey, whoever has the move. Usually: " + cj0.who + "." ]; }
         var sorts = MINEV ? [ [ "task", "By Task" ], [ "az", "Company A–Z" ], [ "late", "Most Overdue" ] ] : tq.view === "prospects" ? [] : [ [ "az", "Company A–Z" ], [ "long", "Longest Waiting" ] ];
         var tools = '<div class="tq-tools"><input type="search" class="pc-input tq-search" data-tqsearch placeholder="Find a company" aria-label="Find a company" value="' + esc(tq.q) + '">'
@@ -6238,7 +6284,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + '<span class="cj-n">' + rows.length + '</span><span class="cj-t">' + esc(j.t) + '</span><span class="cj-w">' + esc(j.who) + "</span>"
                     + (mm ? '<span class="cj-me">' + mm + " with MISMO</span>" : "") + "</button>";
             })).join('<span class="cj-arrow" aria-hidden="true"></span>') + "</div></div>";
-        host.innerHTML = band + listBox + journey + tqRoad();
+        host.innerHTML = band + listBox + tqRoad();   /* the journey is the line at the top now (25 Nov 2026) */
         tqFilter();
         tqAfterPaint(host);
         if (typeof pkInvRefresh === "function") pkInvRefresh();
@@ -6595,6 +6641,8 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
        then it says what the daily check last found, so nobody has to check Aptify by hand. */
     function fuIsPayment(reason) { return /unpaid|not paid|payment|awaiting pay|invoice outstanding|chase .*pay/i.test(String(reason || "")); }
     function fuPayment(f) {
+        var fcx = f && moves[f.row] && moves[f.row].feeComped;
+        if (fcx) return { number: null, paid: true, comped: true, paidOn: String(fcx.at || "").slice(0, 10) || null, checkedAt: null };
         var inv = invoices[f.row] || invoices[String(f.row)] || {};
         var num = inv.orderId || f.invoiceNumber || null;
         var fp = fsPaid(num);
@@ -6604,6 +6652,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     function fuPaymentLine(f, reason) {
         if (!fuIsPayment(reason)) return "";
         var pm = fuPayment(f);
+        if (pm.comped) return "Fee comped" + (pm.paidOn ? " " + fmt(pm.paidOn) : "") + ": no invoice";
         if (pm.paid) return "Paid" + (pm.paidOn ? " " + fmt(pm.paidOn) : "") + (pm.number ? ", order " + pm.number : "");
         if (!pm.number) return "No Aptify order number on record, so the daily payment check cannot look for it. Add the order number to the invoice.";
         return "Daily payment check" + (pm.checkedAt ? " " + fmt(pm.checkedAt) : "") + ": no payment yet against order " + pm.number + ".";
@@ -8835,9 +8884,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         /* Jonna, 31 Oct 2026: "make the company right details pane less confusing, more user
            friendly, give it a wow factor". One record, four tabs instead of one long scroll:
            Overview (where it is, what to do), Money, The Certification, The Company. */
-        var early = canWrite ? tdEarlyNext(f) : null;
-        var earlyHtml = early ? '<div class="pc-note" style="margin:0 0 10px"><b>Not paid yet.</b> You can start now and not wait for the payment; the invoice stays open.'
-            + '<div class="na-acts" style="margin-top:8px"><button class="lc-btn" type="button" data-tdearly="' + f.row + '">' + esc(early.label) + "</button></div></div>" : "";
+        var early = canWrite ? tdEarlyNext(f) : null, comp = canWrite ? tdCompNext(f) : null, pe = tdPortalEarly(f), fc = tdFeeComped(f);
+        var earlyHtml = (pe || fc ? '<div class="pc-note" style="margin:0 0 10px">' + (fc ? "<b>Fee comped</b> by " + esc(fc.by || "MISMO") + " on " + esc(fmt(String(fc.at).slice(0, 10))) + ": no invoice, nothing owed." : "")
+                + (pe ? (fc ? " " : "") + "<b>Portal opened early</b> by " + esc(pe.by || "MISMO") + " on " + esc(fmt(String(pe.at).slice(0, 10))) + "; the application carries on as usual." : "") + "</div>" : "")
+            + (early || comp ? '<div class="pc-note" style="margin:0 0 10px"><b>Not paid yet.</b> ' + (early ? "Open their portal now so they can start the questionnaire; the application, agreement and payment carry on as usual. " : "") + "Or comp the fee: no invoice, and it moves on now."
+            + '<div class="na-acts" style="margin-top:8px">' + (early ? '<button class="lc-btn" type="button" data-tdearly="' + f.row + '">' + esc(early.label) + "</button>" : "") + (comp ? '<button class="lc-btn ghost" type="button" data-tdcomp="' + f.row + '">Comp the Fee</button>' : "") + "</div></div>" : "");
         var moveHtml = '<div class="dcard"><div class="dcard-h"><b>Move It Along</b><span>Pick what happened. Anything that needs a reason asks for one.</span></div>' + cycleHoldNote(f) + earlyHtml + (opts ? '<div class="mvs">' + opts + "</div>" : '<div class="pc-note">This is a closed state. Nothing follows it.</div>') + "</div>";
         var whoHtml = '<div class="dcard"><div class="dcard-h"><b>Assessor and Notes</b></div>' + '<div class="pc-lab" style="margin-top:0">Assessor</div>' + '<select class="pc-input" data-assessor="' + f.row + '">' + '<option value="">Unassigned</option>' + ASSESSORS.map((function(a) {
             return "<option" + (a === assessorNow ? " selected" : "") + ">" + esc(a) + "</option>";
