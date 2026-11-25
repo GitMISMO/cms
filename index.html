@@ -4892,6 +4892,18 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + '<p class="na-hint" style="margin:6px 0 0;">It goes from certifications@mismo.org with the PDF attached and certifications@ copied. '
             + (d.email ? "Filled in from the contact on file" + (d.name ? " (" + esc(d.name) + ")" : "") + "." : "No contact is on file for " + esc(f.org) + ", so type the applicant’s address.") + " Separate several addresses with commas.</p></div>";
     }
+    /* The drop box on the outside of a new application's card (Jonna, 25 Nov 2026: "can you make these drag and drop
+       invoices into the card on the outside like the renewal one does"): drop the Aptify PDF, the order number and total
+       are read off it and recorded, and it asks before emailing it to the contact on file. */
+    function aiCardActs(f) {
+        if (!canWrite) return '<div class="td-acts">' + tdBtn("Open", 'data-tdopen="' + f.row + '"') + "</div>";
+        aiSubscribe();
+        var d = aiDefaultTo(f);
+        return '<div class="td-inv"><div class="td-drop" data-aidrop="' + f.row + '" data-aicard="1"><span class="td-dz">Drop the invoice PDF here</span>'
+            + '<button class="lc-btn ghost tiny" type="button" data-aipick="' + f.row + '">Choose a File</button><input type="file" accept="application/pdf,.pdf" hidden data-aifile="' + f.row + '"></div>'
+            + '<span class="na-hint">' + (d.email ? "It asks, then emails it to " + esc(d.email) + "." : "No email address on file yet: open the record to add one.") + "</span>"
+            + tdBtn("Open", 'data-tdopen="' + f.row + '"', true) + "</div>";
+    }
     function aiPaint(row) {
         var rec = appInv[row];
         Array.prototype.forEach.call(document.querySelectorAll('[data-aidrop="' + row + '"]'), (function(d) {
@@ -4926,7 +4938,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         };
         fr.readAsDataURL(file);
     }
-    function aiTake(row, file) {
+    function aiTake(row, file, after) {
         var f = byRow(row);
         if (!f) return;
         if (!db || !canWrite) { toast("Nothing is being saved — you are signed out, or have view-only access.", "warn"); return; }
@@ -4947,6 +4959,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     toast(f.org + " — the PDF is for order " + info.number + ", but the record says order " + dr.orderId + ". Fix the Order ID or drop the right PDF before sending.", "warn");
                     return;
                 }
+                if (after) { after(); return; }
                 toast(f.org + " — invoice PDF kept" + (ch.length ? "; " + ch.join(" and ") + " read off it and recorded." : info.number ? "." : ". The order number could not be read from it, so type it in Order ID.") + " Press Send the Invoice to email it.", "good");
             }), onWriteRefused);
         }));
@@ -4972,10 +4985,11 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
         var f = byRow(row);
         if (!f) return;
         if (!appInv[row]) { toast("Drop the invoice PDF first, so it can go with the email.", "warn"); return; }
-        var inp = document.querySelector('[data-aito="' + row + '"]'), to = aiEmails(inp ? inp.value : "");
-        if (!to.length) { toast("Type the address to send it to.", "warn"); if (inp) inp.focus(); return; }
+        /* from a card on the Action Queue there is no address box: the address on file (or the one typed on the record) */
+        var inp = document.querySelector('[data-aito="' + row + '"]'), to = aiEmails(inp ? inp.value : aiTo[row] != null ? aiTo[row] : aiDefaultTo(f).email);
+        if (!to.length) { toast(inp ? "Type the address to send it to." : f.org + " — the invoice PDF is kept. There is no email address on file, so open the record and type one under Email the Invoice.", "warn"); if (inp) inp.focus(); return; }
         var i = invoiceOf(f) || {};
-        if (!i.orderId) { toast("Record the Aptify order number first (Order ID, then Save the Invoice), so the payment can be matched.", "warn"); return; }
+        if (!i.orderId) { toast(inp ? "Record the Aptify order number first (Order ID, then Save the Invoice), so the payment can be matched." : f.org + " — the invoice PDF is kept, but its order number could not be read. Open the record, type it in Order ID and Save the Invoice, then Send the Invoice.", "warn"); return; }
         if (appInv[row].readNumber && orderIdOf(appInv[row].readNumber) !== orderIdOf(i.orderId)) { toast("The PDF is for order " + appInv[row].readNumber + ", but the record says order " + i.orderId + ". Fix the Order ID or drop the right PDF, then send.", "warn"); return; }
         if (!window.confirm("Email the invoice for " + f.org + " (" + f.program + ") to " + to.join(", ") + "?\n\nAptify order " + i.orderId + (i.amount != null ? ", " + money(i.amount) : "") + ". It goes from certifications@mismo.org with the PDF attached and certifications@ copied, " + sendDayText() + ".")) return;
         var d = aiDefaultTo(f), name = to[0] && d.email && to[0].toLowerCase() === String(d.email).toLowerCase() ? d.name : "";
@@ -4989,11 +5003,13 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             d.__aiw = true;
             [ "dragenter", "dragover" ].forEach((function(ev) { d.addEventListener(ev, (function(e) { e.preventDefault(); d.classList.add("over"); })); }));
             d.addEventListener("dragleave", (function(e) { if (!d.contains(e.relatedTarget)) d.classList.remove("over"); }));
-            d.addEventListener("drop", (function(e) { e.preventDefault(); d.classList.remove("over"); aiTake(row, e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]); }));
+            /* on a card (data-aicard) the drop goes straight on to Send the Invoice, which asks first */
+            var then = d.hasAttribute("data-aicard") ? function() { aiSend(row); } : null;
+            d.addEventListener("drop", (function(e) { e.preventDefault(); e.stopPropagation(); d.classList.remove("over"); aiTake(row, e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0], then); }));
             var pick = d.querySelector("[data-aipick]"), file = d.querySelector("[data-aifile]");
             if (pick && file) {
-                pick.addEventListener("click", (function() { file.click(); }));
-                file.addEventListener("change", (function() { aiTake(row, file.files && file.files[0]); file.value = ""; }));
+                pick.addEventListener("click", (function(e) { e.stopPropagation(); file.click(); }));
+                file.addEventListener("change", (function() { aiTake(row, file.files && file.files[0], then); file.value = ""; }));
             }
         }));
         Array.prototype.forEach.call(scope.querySelectorAll("[data-aito]"), (function(i) {
@@ -5627,7 +5643,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
     }
     var TD_GROUPS = [
         [ "invoice", "Raise the Invoice", "Drop the Aptify invoice PDF on the line, type the order number, and Mark as Sent. The renewal page offers it to the company from then on." ],
-        [ "app-invoice", "Raise the Application Invoice", "A new application with no invoice yet. Raise it in Aptify, then open the record: on the Money tab type the order number, Save the Invoice, drop the PDF and Email the Invoice." ],
+        [ "app-invoice", "Raise the Application Invoice", "A new application with no invoice yet. Raise it in Aptify and drop the PDF on its card: the order number and total are read off it, and it asks before emailing it to the applicant." ],
         [ "attach", "Attach the Invoice PDF", "The invoice is raised in Aptify, but the company\u2019s renewal page has nothing to download. Drop the PDF on the line and it is there straight away." ],
         [ "license", "Mark License Needs an Email", "Approved and ready to go, but there is no signer email on file. Add it and the agreement goes out through DocuSign." ],
         [ "assessor", "Assign an Assessor", "Nobody is assigned, so nothing can be sent to an assessor yet." ],
@@ -5713,6 +5729,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 + tdBtn("Note and Next Date", 'data-fuedit="' + f.row + '"', key === "fu-assessor" || !!rk || !!pn) + (fx.contact ? tdBtn("Contacts Are Right", 'data-fuclear="' + f.row + '" data-fucontacts="1"', true) : tdBtn("Back to Active", 'data-fuclear="' + f.row + '"', true)) + tdBtn("Move to Prospects", 'data-tdprospect="' + f.row + '"', true) : "", fx.severity === "high");
         }
         head += "</div></div>";
+        if (key === "app-invoice") return '<div class="td-item">' + head + aiCardActs(f) + "</div>";
         if (key === "assessor") {
             return tdItem(key, head, canWrite ? '<select class="pc-input td-sel" data-tdassessor="' + f.row + '" aria-label="Assessor for ' + esc(f.org) + '"><option value="">Choose the assessor…</option>'
                 + ASSESSORS.map((function(a) { return "<option>" + esc(a) + "</option>"; })).join("") + "</select>" : "");
@@ -6285,6 +6302,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                     + (mm ? '<span class="cj-me">' + mm + " with MISMO</span>" : "") + "</button>";
             })).join('<span class="cj-arrow" aria-hidden="true"></span>') + "</div></div>";
         host.innerHTML = band + listBox + tqRoad();   /* the journey is the line at the top now (25 Nov 2026) */
+        aiWire(host);
         tqFilter();
         tqAfterPaint(host);
         if (typeof pkInvRefresh === "function") pkInvRefresh();
@@ -8469,6 +8487,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
             + (fb ? '<div class="box pk-sec" id="pk-check" style="--pkc:#c9a2ff">' + fb + "</div>" : "")
             + (paid.length ? pkSec("pk-paid", "Settled", paid.length, "Newest first, by the day the money came in.", '<div class="etable"><div class="ehead inv"><span>Company</span><span>Aptify Order</span><span>Invoiced</span><span class="num">Amount</span><span class="num">Paid</span><span></span></div>' + paid.map(invRow).join("") + "</div>", { k: "#3ccb7f" }) : "");
         pkAnimate(el);
+        aiWire(el);
         Array.prototype.forEach.call(el.querySelectorAll("[data-inv]"), (function(b) {
             b.addEventListener("click", (function() {
                 var k = b.dataset.inv;
@@ -12147,7 +12166,7 @@ c57 -33 76 -84 76 -200 0 -116 -19 -167 -76 -200 -32 -19 -52 -20 -294 -20
                 out.push({ org: f.org, late: d != null && d > 7, what: f.program + " first invoice", when: d != null ? d + "d" : "",
                     html: '<div class="td-item' + (d != null && d > 7 ? " bad" : "") + '">' + cmono(f.org) + '<div class="td-main"><button class="td-org" type="button" data-tdopen="' + f.row + '">' + esc(f.org) + "</button>"
                         + '<div class="td-meta">' + esc(f.program) + (f.product ? " · " + esc(f.product) : "") + " · first certification · approved to apply, no invoice on record" + (d != null ? " · waiting " + d + (d === 1 ? " day" : " days") : "") + "</div></div>"
-                        + '<div class="td-acts">' + tdBtn("Open and Email the Invoice", 'data-tdopen="' + f.row + '"') + "</div></div>" });
+                        + aiCardActs(f) + "</div>" });
             }));
         } catch (e) { if (window.console) console.error("Needs an Invoice:", e); }
         out.sort((function(a, b) { return (b.late ? 1 : 0) - (a.late ? 1 : 0) || a.org.localeCompare(b.org); }));
