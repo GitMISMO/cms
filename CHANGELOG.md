@@ -5,6 +5,7 @@ Earlier changes are in the repository's commit history.
 
 ## November 2026
 
+- **Nov 25:** Raise the Application Invoice cards take the invoice PDF dropped straight on the card, like a renewal's; it reads the order number and total, then asks before emailing it to the applicant.
 - **Nov 25:** Action Queue: the journey line (ten stops, live counts, select a stop to list it) replaces the week strip, and a New Applications tile replaces Next Anniversary.
 - **Nov 25:** Start Before Payment is back under its own name; it and Comp the Fee are separate buttons on every unpaid new application.
 - **Nov 25:** Start Before Payment opens a new company's portal early while its application carries on as usual; Comp the Fee waives the fee with no invoice and moves it on.
