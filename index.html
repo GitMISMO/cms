@@ -86,7 +86,9 @@
     line-height:0; flex:0 0 auto; position:relative; box-shadow:0 1px 0 rgba(80,164,219,.35);}
   .plate .santa{position:absolute; display:none; pointer-events:none; left:-9px; top:-12px; width:31px; height:31px;}
   html[data-season="december"] .plate .santa{display:block;}
-  html[data-season="december"] .mast{padding-top:20px;}
+  /* the room above the masthead is for the older hat only; the shared December hat (/assets/holiday.js, CN-052)
+     marks the plate .mismo-hat-host and needs none, so nothing on the page moves */
+  html[data-season="december"] .mast:not(:has(.mismo-hat-host)){padding-top:20px;}
   .plate svg{height:24px; width:auto; display:block;}
   .mast-name{font-size:16px; font-weight:500; color:var(--sky-soft); letter-spacing:0;}
   /* At phone width the logo, the rule and the name would not fit on one line and the

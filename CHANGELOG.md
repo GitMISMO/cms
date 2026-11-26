@@ -5,6 +5,7 @@ Earlier changes are in the repository's commit history.
 
 ## November 2026
 
+- **Nov 26:** December: the shared santa hat sits on the O of the masthead logo on every CMS page (from the shared sign-in, CN-052); the masthead no longer grows taller in December to make room for the older hat, so nothing on the page moves.
 - **Nov 25:** The browser's Back button works: it goes to the last page you were on in the left menu and closes an open record panel first; it never undoes a change (CN-033).
 - **Nov 25:** Raise the Application Invoice cards take the invoice PDF dropped straight on the card, like a renewal's; it reads the order number and total, then asks before emailing it to the applicant.
 - **Nov 25:** Action Queue: the journey line (ten stops, live counts, select a stop to list it) replaces the week strip, and a New Applications tile replaces Next Anniversary.

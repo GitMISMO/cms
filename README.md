@@ -229,6 +229,12 @@ and shared pages; never copy it here or add a `history.pushState` of our own) ri
 (the display board, then the record panel, each through its own close button). `tests/click-through.js` checks it
 against the live copy of back.js (set `MISMO_BACK` to a local file to try another).
 
+**December** (CN-052, Nov 26, 2026): the santa hat on the O of the masthead logo, and the snow, come from the shared
+`/assets/holiday.js` (owned by Forms and shared pages), which `/assets/session.js` loads by itself on these pages; nothing
+here loads it. The older `.santa` hat in the mastheads is hidden by it, and `index.html` keeps the room above the masthead
+(`html[data-season="december"] .mast`) only while the older hat is showing (no `.mismo-hat-host`), so the shared hat moves
+nothing. Preview with `?holiday=preview` while signed in.
+
 `relay-connect.js` also arranges the left nav after the page runs (Daily Work, Companies and
 Reporting, Tracking, Setup), adds My Approvals and the Email Playbook to it, and hides a count
 badge when the count is zero.
