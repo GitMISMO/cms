@@ -60,18 +60,20 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--display);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
-.top{position:sticky;top:0;z-index:20;height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(116,191,235,.28)}
-.logoplate{background:#fff;border-radius:7px;padding:8px 14px;display:flex;align-items:center;line-height:0;flex:0 0 auto}
+.top{position:sticky;top:0;z-index:20;height:68px;background:#0d314c;color:#fff;display:flex;align-items:center;gap:14px;padding:0 22px;box-shadow:0 1px 0 rgba(80,164,219,.28)}
+.logoplate{background:#fff;border-radius:5px;padding:9px 13px;display:flex;align-items:center;line-height:0;flex:0 0 auto;position:relative;box-shadow:0 1px 0 rgba(80,164,219,.35)}
 .logoplate svg{height:24px;width:auto;display:block}
-.mastrule{display:block;width:2px;height:34px;flex:0 0 auto;margin-inline:20px;border-radius:1px;background:var(--sky)}
-.name{font-size:15.5px;font-weight:700;color:var(--sky);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mastrule{display:block;width:1px;height:42px;flex:0 0 auto;background:rgba(80,164,219,.4)}
+.name{font-size:16px;font-weight:500;letter-spacing:0;color:#94c8e9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top-r{margin-left:auto;display:flex;align-items:center;gap:13px}
 .eyebrow{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600;white-space:nowrap}
 #rs-account{flex:0 0 auto;display:inline-flex;align-items:center}
 #rs-account .rs-who,#rs-account .rs-signin{border-radius:4px}
 .theme{white-space:nowrap;background:none;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:4px;padding:5px 9px;font:500 12px var(--display);cursor:pointer}
 .theme:hover{border-color:var(--sky)}
-@media(max-width:700px){.eyebrow{display:none}.mastrule{margin-inline:12px}.top{padding:0 14px}.logoplate{padding:6px 9px}.logoplate svg{height:17px}}
+@media(max-width:700px){.eyebrow{display:none}}
+/* phone width: the same shrink as the CMS masthead (CN-053) */
+@media(max-width:560px){.top{height:55px;padding:0 16px;gap:11px}.mastrule{height:33px}.logoplate{padding:7px 10px}.logoplate svg{height:19px}.name{font-size:13px}}
 main{max-width:1240px;margin:0 auto;padding:26px 16px 60px}
 .banner{border:1px solid var(--border);border-left:3px solid var(--sky);background:var(--surface);border-radius:7px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-2)}
 .banner.bad{border-left-color:var(--bad)}
